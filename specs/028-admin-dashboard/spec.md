@@ -13,7 +13,7 @@
 - CONTEXT.md v2.0 §7 Feature #28
 - Constitution v1.2.0: HR-10 (RBAC), HR-13 (audit), AC-07 (timezone), AC-08 (BigDecimal)
 - Spec #001 Auth (Admin role login flow — FR-001..FR-003)
-- design.md v1.0: §5.3 KPI Box, §5.2 Table, §6 Header+Sidebar, §8 Charts
+- design-internal-reference.md (internal docs): §5.3 KPI Box, §5.2 Table, §6 Header+Sidebar, §8 Charts
 
 ---
 
@@ -217,11 +217,11 @@ assignment), THE system SHALL set `driver_name: null` in the response. FE render
 
 **FR-016**
 WHEN the dashboard page loads, THE frontend SHALL use `Promise.all` to fetch all 5 API endpoints
-in parallel (not sequentially), then render all sections. Skeleton loaders (design.md §7.4) MUST
+in parallel (not sequentially), then render all sections. Skeleton loaders (design-internal-reference.md §7.4) MUST
 display while data is loading.
 
 **FR-017**
-THE frontend SHALL render 6 KPI cards using `.kpi` + variant classes from design.md §5.3:
+THE frontend SHALL render 6 KPI cards using `.kpi` + variant classes from design-internal-reference.md §5.3:
 
 | KPI | Variant | Icon |
 |-----|---------|------|
@@ -233,7 +233,7 @@ THE frontend SHALL render 6 KPI cards using `.kpi` + variant classes from design
 | Don tranh chap | `.kpi-danger` | ⚠️ |
 
 **FR-018**
-THE frontend SHALL render 2 Chart.js charts per design.md §8 (using CSS token colors):
+THE frontend SHALL render 2 Chart.js charts per design-internal-reference.md §8 (using CSS token colors):
 - `orders-by-day-chart`: `type: 'bar'`, x-axis labels format `DD/MM`, y-axis integers only
 - `revenue-by-month-chart`: `type: 'line'`, y-axis format abbreviate millions (vd `12.5M`), fill
   area enabled
@@ -309,7 +309,7 @@ Non-Admin → 403 (HR-10).
 
 <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
-<!-- Header (design.md §6.1) -->
+<!-- Header (design-internal-reference.md §6.1) -->
 <header class="site-header">
   <div class="container site-header-inner">
     <a href="/" class="site-logo"><span class="site-logo-icon">🏠</span><span class="site-logo-text">Move_home</span></a>
@@ -325,7 +325,7 @@ Non-Admin → 403 (HR-10).
 
 <div class="dashboard-body">
 
-  <!-- Sidebar (design.md §6.5) -->
+  <!-- Sidebar (design-internal-reference.md §6.5) -->
   <aside class="sidebar">
     <nav class="sidebar-nav">
       <a href="/admin/dashboard" class="sidebar-item sidebar-item--active">

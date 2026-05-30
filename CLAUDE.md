@@ -38,7 +38,7 @@ Bo vai tro Porter — Driver kiem nhiem boc xep.
 | Build | Maven | 3.9+ | Default IntelliJ |
 | Auth | JWT (jjwt library) | 0.12.x | Theo Spec #001 AC-03 |
 | Frontend | HTML + Vanilla JS + Vanilla CSS | (no framework) | Constitution AC-01 |
-| Charts | Chart.js | 4.x CDN | Theo design.md §8 |
+| Charts | Chart.js | 4.x CDN | Theo design-internal-reference.md §8 |
 | Email | Spring Mail + Gmail SMTP | (built-in Spring Boot) | Constitution HR-11 |
 | Image storage | Cloudinary (signed upload) | Java SDK 1.39+ | Constitution AC-10 |
 | Payment | VNPay Sandbox | REST API | Constitution HR-04, HR-15 |
@@ -55,7 +55,7 @@ Move_home/
 ├── docs/
 │   ├── CONTEXT.md               ← Business model v2.0 (source of truth #1)
 │   ├── CONTEXT_v1.5_archived.md ← DO NOT use as source — archived only
-│   └── design.md                ← UI design system v1.0 (CSS tokens, components)
+│   └── design-internal-reference.md                ← UI design system v1.0 (CSS tokens, components)
 ├── specs/
 │   ├── 001-auth-rbac/
 │   │   ├── spec.md              ← Auth + RBAC + Guest mode v2.0 (1103 lines)
@@ -77,16 +77,16 @@ Move_home/
 │   │   └── dashboard.html       ← Admin Dashboard (Spec #028)
 │   ├── driver/
 │   ├── css/
-│   │   ├── tokens.css           ← CSS variables (design.md §2)
-│   │   ├── layout.css           ← Grid, container (design.md §3)
-│   │   ├── forms.css            ← Form components (design.md §4)
-│   │   ├── data-display.css     ← Card, table, KPI (design.md §5)
-│   │   ├── nav.css              ← Header, sidebar (design.md §6)
-│   │   └── feedback.css         ← Toast, modal (design.md §7)
+│   │   ├── tokens.css           ← CSS variables (design-internal-reference.md §2)
+│   │   ├── layout.css           ← Grid, container (design-internal-reference.md §3)
+│   │   ├── forms.css            ← Form components (design-internal-reference.md §4)
+│   │   ├── data-display.css     ← Card, table, KPI (design-internal-reference.md §5)
+│   │   ├── nav.css              ← Header, sidebar (design-internal-reference.md §6)
+│   │   └── feedback.css         ← Toast, modal (design-internal-reference.md §7)
 │   └── js/
 │       ├── auth.js              ← Token storage + refresh logic
 │       ├── dashboard.js         ← Admin dashboard fetch + render
-│       └── charts-config.js     ← Chart.js default config (design.md §8)
+│       └── charts-config.js     ← Chart.js default config (design-internal-reference.md §8)
 ├── .env                         ← Secrets — NEVER commit (gitignored)
 ├── .gitignore
 ├── CLAUDE.md                    ← This file
@@ -103,12 +103,14 @@ Truoc khi viet hoac sua bat ky code/spec moi, AI assistant PHAI doc theo thu tu 
 |----------|------|-----------------|
 | 1 | `docs/CONTEXT.md` | Luon luon |
 | 2 | `.specify/memory/constitution.md` | Luon luon |
-| 3 | `docs/design.md` | Khi lam frontend |
+| 3 | `docs/design-internal-reference.md` | Khi lam frontend |
 | 4 | `specs/001-auth-rbac/spec.md` | Khi lam Auth, RBAC, JWT, Driver onboarding |
 | 5 | `specs/028-admin-dashboard/spec.md` | Khi lam Admin Dashboard |
+| 6 | `DESIGN.md` (root, UPPERCASE) | Khi lam frontend — brand identity (color palette, typography, shadow, components). Chi tiet: §5.5 |
 
 > ⛔ `spec_v1_archived.md` va `CONTEXT_v1.5_archived.md` — chi doc khi can tham chieu
 > lich su. TUYET DOI KHONG dung lam source cho code moi.
+> 📝 `DESIGN.md` (root, UPPERCASE) — brand spec Stripi/Stripe inspired. Cung cap color palette (#533afd, #061b31), typography Inter weight 300, OpenType ss01+tnum, shadow blue-tinted. KHONG sua file nay tru khi thay doi brand identity.
 
 ---
 
@@ -165,6 +167,62 @@ Instant now = Instant.now();
 - `IF <condition>, THEN <action>` — optional alternative
 
 Minimum **30% WHERE clauses** trong tong so FR cua moi spec.
+
+---
+
+## 5.5 UI Generation Workflow (Frontend)
+
+Khi sinh code FE (HTML + Vanilla JS + Vanilla CSS), AI assistant PHAI follow workflow nay:
+
+### Trinh tu doc file (uu tien tu cao xuong thap)
+
+1. **`DESIGN.md`** (root, UPPERCASE) — Brand identity (color, typography, components base, shadow, motion)
+2. **`docs/design-internal-reference.md`** — Move_home-specific tokens (Order status mapping, Driver status mapping, KPI Dashboard layout, Login form pattern)
+3. **`specs/XXX/spec.md`** (spec lien quan) — Functional requirements (FR-XXX, AC, data model)
+4. **`CLAUDE.md`** (file nay) — Coding conventions chung
+
+### Xu ly conflict giua DESIGN.md va design-internal-reference.md
+
+KHI co xung dot giua brand spec va Move_home spec, follow rule sau:
+
+| Aspect | Source of Truth | Ly do |
+|--------|----------------|-------|
+| **Color palette** (primary, accents) | `DESIGN.md` wins | Brand consistency. Vi du: primary = `#533afd` (Stripi purple), KHONG dung xanh duong Grab/Be cu trong design-internal-reference. |
+| **Status mapping** (PENDING_APPROVAL, IN_DISPUTE, ACTIVE...) | `design-internal-reference.md` wins | Business logic Move_home. DESIGN.md khong biet ve domain marketplace chuyen nha. |
+| **Component layout** (Login form, KPI 6-box Dashboard, Driver Onboarding 4-step) | `spec.md` wins | Spec dinh nghia chinh xac yeu cau chuc nang. |
+| **Typography** (sohne-var vs Inter) | `design-internal-reference.md` wins | Stack rang buoc: dung Inter (Google Fonts free), KHONG dung sohne-var (proprietary, khong co san). |
+| **Border radius** | `DESIGN.md` wins | Brand-conservative (4-8px), KHONG dung pill shape. |
+| **Shadow system** | `DESIGN.md` wins | Blue-tinted multi-layer la signature Stripi. |
+| **Spacing scale** | `DESIGN.md` wins | Base 8px scale chung. |
+| **Numeric display** | `DESIGN.md` wins | Dung OpenType `tnum` cho moi numeric (VND amount, commission, wallet). |
+
+### Quy tac vang khi sinh code FE
+
+1. **OpenType features:** Apply `font-feature-settings: "ss01"` global tren body. Apply `"tnum"` per-element tren cell hien thi tien (VND amount, wallet balance, commission, total_quote).
+
+2. **Status badges:** Lay color tu `design-internal-reference.md` Status Mapping (Order 8 status, Driver 7 status). KHONG tu doan mau.
+
+3. **Money display:** Format `Intl.NumberFormat('vi-VN')` cho VND. Vi du: `12500000` → `12.500.000 đ`. Dung tabular numerals (tnum).
+
+4. **Component styling:** Dung CSS variables tu DESIGN.md `--color-primary`, `--color-ink`, `--color-canvas`. Neu thieu, fallback `design-internal-reference.md` Section 2.
+
+5. **Forms:** Login form, Driver Onboarding form follow pattern trong `design-internal-reference.md` Section 4 (Form Components) + spec #001 Frontend Implementation Note.
+
+6. **Dashboard:** Admin Dashboard follow layout 2x3 KPI per spec #028 FR-016/017/018. Color KPI cards theo status (kpi-primary/success/warning/danger).
+
+7. **Responsive:** Mobile-first nhung KHONG fully responsive (do an 6 tuan). Focus desktop 1280px+, tablet 768px+ van dung duoc.
+
+8. **Light mode only:** KHONG implement dark mode (theo design-internal-reference §1.1).
+
+### Anti-patterns can tranh
+
+- ❌ KHONG dung mau xanh duong Grab/Be (cu) — gio dung Stripi purple `#533afd`
+- ❌ KHONG dung pill-shaped buttons (border-radius 9999px)
+- ❌ KHONG dung font weight 600-700 cho headlines (Stripi dung 300)
+- ❌ KHONG hardcode mau status — luon dung Status Mapping
+- ❌ KHONG dung neutral gray shadow — luon blue-tinted
+- ❌ KHONG dung pure black `#000000` cho heading — dung deep navy `#061b31`
+- ❌ KHONG quen `font-feature-settings: "ss01"` global + `"tnum"` per-element cho numbers
 
 ---
 
@@ -286,7 +344,7 @@ cd backend
 | Project rules | `.specify/memory/constitution.md` v1.2.0 |
 | Auth spec | `specs/001-auth-rbac/spec.md` v2.0 |
 | Admin Dashboard spec | `specs/028-admin-dashboard/spec.md` v1.0 |
-| UI Design system | `docs/design.md` v1.0 |
+| UI Design system | `docs/design-internal-reference.md` v1.0 |
 | VNPay Sandbox docs | https://sandbox.vnpayment.vn/apis/ |
 | Cloudinary Java SDK | https://cloudinary.com/documentation/java_integration |
 | Chart.js docs | https://www.chartjs.org/docs/latest/ |
