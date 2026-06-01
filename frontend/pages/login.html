@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dang nhap — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body style="background: var(--color-canvas);">
+
+<div class="auth-layout">
+
+  <!-- Left: Hero brand -->
+  <div class="auth-hero">
+    <div class="auth-hero-content">
+      <div class="auth-hero-logo">
+        <span style="font-size:32px;">🏠</span>
+        Move_home
+      </div>
+      <h1 class="auth-hero-title">Don gian hoa viec chuyen nha</h1>
+      <p class="auth-hero-subtitle">
+        Nen tang ket noi khach hang voi tai xe chuyen nghiep noi thanh Ha Noi.
+        Bao gia minh bach, thanh toan an toan qua VNPay.
+      </p>
+      <div class="auth-hero-features">
+        <div class="auth-hero-feature">
+          <div class="auth-hero-feature-icon">📍</div>
+          <span>Phu song 12 quan noi thanh Ha Noi</span>
+        </div>
+        <div class="auth-hero-feature">
+          <div class="auth-hero-feature-icon">💳</div>
+          <span>Thanh toan 100% an toan qua VNPay</span>
+        </div>
+        <div class="auth-hero-feature">
+          <div class="auth-hero-feature-icon">⭐</div>
+          <span>Tai xe da duoc kiem tra va xac minh</span>
+        </div>
+        <div class="auth-hero-feature">
+          <div class="auth-hero-feature-icon">🛡️</div>
+          <span>Bao hiem hang hoa trong qua trinh van chuyen</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Form panel -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner">
+
+      <!-- Logo tren form (hien thi khi hero an o mobile) -->
+      <a href="../index.html" class="auth-form-logo">
+        <span style="font-size:24px;">🏠</span>
+        <span class="auth-form-logo-text">Move_home</span>
+      </a>
+
+      <h1 class="auth-form-heading">Dang nhap</h1>
+      <p class="auth-form-subtext">Quan ly cong viec chuyen nha cua ban</p>
+
+      <!-- Alert khu vuc: loi server hoac thanh cong -->
+      <div class="form-alert form-alert--danger" id="alert-error" role="alert"></div>
+      <div class="form-alert form-alert--success" id="alert-success" role="status"></div>
+
+      <form id="login-form" novalidate>
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="email">
+            Email <span class="form-required" aria-hidden="true">*</span>
+          </label>
+          <input
+            class="form-input"
+            type="email"
+            id="email"
+            name="email"
+            placeholder="email@example.com"
+            autocomplete="email"
+            required
+            autofocus
+          />
+          <span class="form-error" id="email-error" role="alert" style="display:none;"></span>
+        </div>
+
+        <!-- Mat khau -->
+        <div class="form-group">
+          <label class="form-label" for="password">
+            Mat khau <span class="form-required" aria-hidden="true">*</span>
+          </label>
+          <div class="input-password-wrapper">
+            <input
+              class="form-input"
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Mat khau cua ban"
+              autocomplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              class="input-password-toggle"
+              id="pwd-toggle"
+              aria-label="Hien hoac an mat khau"
+            >👁</button>
+          </div>
+          <span class="form-error" id="password-error" role="alert" style="display:none;"></span>
+        </div>
+
+        <!-- Submit -->
+        <div class="form-group" style="margin-bottom:0;">
+          <button type="submit" class="btn btn-primary btn-md btn-full" id="submit-btn">
+            Dang nhap
+          </button>
+        </div>
+      </form>
+
+      <div class="auth-divider">hoac</div>
+
+      <div class="auth-footer">
+        Chua co tai khoan?
+        <a href="register.html">Dang ky ngay</a>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- end auth-layout -->
+
+<script type="module">
+  import { login, isLoggedIn, hasRole } from '../js/auth.js';
+
+  // Neu da dang nhap thi redirect luon
+  if (isLoggedIn()) {
+    redirectAfterLogin();
+  }
+
+  // Chuyen huong sau khi dang nhap thanh cong dua theo role
+  function redirectAfterLogin() {
+    const userInfo = localStorage.getItem('userInfo');
+    let role = null;
+    try { role = JSON.parse(userInfo)?.role; } catch {}
+
+    if (role === 'ADMIN' || role === 'MANAGER') {
+      window.location.href = 'admin/dashboard.html';
+    } else {
+      // Customer, Driver chua co trang rieng — hien thong bao
+      showAlert('success', 'Dang nhap thanh cong! Trang danh cho vai tro nay dang duoc phat trien.');
+    }
+  }
+
+  // Toggle hien/an mat khau
+  document.getElementById('pwd-toggle').addEventListener('click', function () {
+    const input = document.getElementById('password');
+    const isHidden = input.type === 'password';
+    input.type  = isHidden ? 'text' : 'password';
+    this.textContent = isHidden ? '🙈' : '👁';
+    this.setAttribute('aria-label', isHidden ? 'An mat khau' : 'Hien mat khau');
+  });
+
+  // Submit form dang nhap
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearErrors();
+
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    // Validate co ban phia client
+    let hasError = false;
+    if (!email) {
+      showFieldError('email-error', 'Vui long nhap email.');
+      hasError = true;
+    }
+    if (!password) {
+      showFieldError('password-error', 'Vui long nhap mat khau.');
+      hasError = true;
+    }
+    if (hasError) return;
+
+    // Bat dau call API
+    const btn = document.getElementById('submit-btn');
+    setLoading(btn, true, 'Dang dang nhap...');
+
+    try {
+      await login(email, password);
+      redirectAfterLogin();
+    } catch (err) {
+      handleLoginError(err);
+    } finally {
+      setLoading(btn, false, 'Dang nhap');
+    }
+  });
+
+  // Xu ly loi tra ve tu backend
+  function handleLoginError(err) {
+    const code = err.data?.errorCode || err.data?.error_code;
+    if (err.isNetworkError) {
+      showAlert('error', 'Loi ket noi. Vui long kiem tra mang va thu lai.');
+    } else if (err.status === 401 || err.status === 400) {
+      showAlert('error', 'Email hoac mat khau khong dung. Vui long kiem tra lai.');
+    } else if (err.status === 423) {
+      showAlert('error', 'Tai khoan bi khoa do nhap sai mat khau nhieu lan. Vui long thu lai sau.');
+    } else if (err.status === 403) {
+      showAlert('error', 'Tai khoan chua duoc kich hoat hoac bi cam.');
+    } else {
+      showAlert('error', err.message || 'Dang nhap that bai. Vui long thu lai.');
+    }
+  }
+
+  // Helper UI
+  function showAlert(type, msg) {
+    const elId = type === 'error' ? 'alert-error' : 'alert-success';
+    const el = document.getElementById(elId);
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function showFieldError(id, msg) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+  }
+
+  function clearErrors() {
+    document.getElementById('alert-error').style.display   = 'none';
+    document.getElementById('alert-success').style.display = 'none';
+    ['email-error', 'password-error'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }
+
+  function setLoading(btn, loading, label) {
+    btn.disabled = loading;
+    btn.classList.toggle('btn-loading', loading);
+    if (loading) {
+      btn.innerHTML = `<span class="btn-spinner"></span> ${label}`;
+    } else {
+      btn.textContent = label;
+    }
+  }
+</script>
+
+</body>
+</html>

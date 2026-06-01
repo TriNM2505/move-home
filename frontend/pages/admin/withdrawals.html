@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quan ly rut tien — Move_home Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="site-layout">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-icon">🏠</span>
+        <span class="site-logo-text">Move_home</span>
+      </a>
+      <div class="site-header-actions">
+        <span style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">Xin chao,</span>
+        <span id="header-user-name" style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-primary);margin-left:4px;">Admin</span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar" style="margin-left:var(--space-2);">AD</div>
+        <button id="logout-btn" class="btn btn-ghost btn-sm" style="margin-left:var(--space-2);">🚪 Dang xuat</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+
+    <!-- SIDEBAR — withdrawals active -->
+    <aside class="sidebar" aria-label="Menu quan tri">
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-item">
+          <span class="sidebar-icon">📊</span><span class="sidebar-label">Tong quan</span>
+        </a>
+        <a href="orders.html" class="sidebar-item">
+          <span class="sidebar-icon">📦</span><span class="sidebar-label">Don hang</span>
+        </a>
+        <a href="drivers.html" class="sidebar-item">
+          <span class="sidebar-icon">🚚</span><span class="sidebar-label">Tai xe</span>
+        </a>
+        <a href="customers.html" class="sidebar-item">
+          <span class="sidebar-icon">👥</span><span class="sidebar-label">Khach hang</span>
+        </a>
+        <a href="withdrawals.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">💰</span><span class="sidebar-label">Rut tien</span>
+        </a>
+        <div class="sidebar-divider"></div>
+        <a href="settings.html" class="sidebar-item">
+          <span class="sidebar-icon">⚙️</span><span class="sidebar-label">Cau hinh</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+
+        <h1 class="page-title">Quan ly rut tien</h1>
+
+        <!-- Empty state: chuc nang dang phat trien -->
+        <div class="empty-state" style="margin-top: var(--space-8);">
+          <div class="empty-state-icon">💰</div>
+          <h2 class="empty-state-title">Chuc nang dang phat trien</h2>
+          <p class="empty-state-desc">
+            Tinh nang quan ly yeu cau rut tien cua tai xe se duoc trien khai trong Sprint 3 (tuan 4).
+          </p>
+          <div class="empty-state-subtext">
+            <p>Khi do, ban se co the:</p>
+            <ul>
+              <li>Xem danh sach yeu cau rut tien cua tai xe</li>
+              <li>Duyet hoac tu choi yeu cau rut tien</li>
+              <li>Theo doi lich su giao dich vi tien tai xe</li>
+              <li>Xuat bao cao thanh toan hang thang</li>
+            </ul>
+          </div>
+          <a href="dashboard.html" class="btn btn-secondary btn-md" style="margin-top:var(--space-2);">
+            ← Quay lai Dashboard
+          </a>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script type="module">
+  import { setupAdminPage } from '../../js/admin-common.js';
+  document.addEventListener('DOMContentLoaded', () => {
+    setupAdminPage('../login.html');
+  });
+</script>
+</body>
+</html>

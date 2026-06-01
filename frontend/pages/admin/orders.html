@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quan ly don hang — Move_home Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+<div class="site-layout">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-icon">🏠</span>
+        <span class="site-logo-text">Move_home</span>
+      </a>
+      <div class="site-header-actions">
+        <span style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">Xin chao,</span>
+        <span id="header-user-name" style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-primary);margin-left:4px;">Admin</span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar" style="margin-left:var(--space-2);">AD</div>
+        <button id="logout-btn" class="btn btn-ghost btn-sm" style="margin-left:var(--space-2);">🚪 Dang xuat</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+
+    <!-- SIDEBAR — orders active -->
+    <aside class="sidebar" aria-label="Menu quan tri">
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-item">
+          <span class="sidebar-icon">📊</span><span class="sidebar-label">Tong quan</span>
+        </a>
+        <a href="orders.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">📦</span><span class="sidebar-label">Don hang</span>
+        </a>
+        <a href="drivers.html" class="sidebar-item">
+          <span class="sidebar-icon">🚚</span><span class="sidebar-label">Tai xe</span>
+        </a>
+        <a href="customers.html" class="sidebar-item">
+          <span class="sidebar-icon">👥</span><span class="sidebar-label">Khach hang</span>
+        </a>
+        <a href="withdrawals.html" class="sidebar-item">
+          <span class="sidebar-icon">💰</span><span class="sidebar-label">Rut tien</span>
+        </a>
+        <div class="sidebar-divider"></div>
+        <a href="settings.html" class="sidebar-item">
+          <span class="sidebar-icon">⚙️</span><span class="sidebar-label">Cau hinh</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+
+        <h1 class="page-title">Quan ly don hang</h1>
+
+        <!-- Error banner -->
+        <div id="error-banner" class="alert alert-danger mb-6" style="display:none;"></div>
+
+        <!-- Filter bar -->
+        <div class="table-filter">
+          <div class="table-filter-left">
+            <label for="status-filter" style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-secondary);">
+              Loc theo trang thai:
+            </label>
+            <select id="status-filter" class="filter-select">
+              <!-- Options duoc them boi admin-orders.js -->
+            </select>
+          </div>
+          <div class="table-filter-right" id="orders-count">Dang tai...</div>
+        </div>
+
+        <!-- Bang don hang -->
+        <div class="card">
+          <div class="card-body" style="padding: 0;">
+            <div class="table-wrapper" style="border:none; border-radius:0;">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Ma don</th>
+                    <th>Khach hang</th>
+                    <th>Tai xe</th>
+                    <th>Diem don</th>
+                    <th>Diem tra</th>
+                    <th>Tong tien</th>
+                    <th class="text-center">Hoa hong</th>
+                    <th>Trang thai</th>
+                    <th>Tao luc</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-tbody">
+                  <tr>
+                    <td colspan="9" class="table-empty-row">
+                      <span class="spinner spinner-sm" style="display:inline-block;vertical-align:middle;margin-right:8px;"></span>
+                      Dang tai...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <footer style="margin-top:var(--space-8);padding-top:var(--space-6);border-top:1px solid var(--color-border);text-align:center;color:var(--color-text-tertiary);font-size:var(--font-size-xs);">
+          Move_home Admin v2.0 &mdash; Sprint Demo 2026-06-02
+        </footer>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script type="module" src="../../js/admin-orders.js"></script>
+</body>
+</html>
