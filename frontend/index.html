@@ -12,19 +12,20 @@
 <body>
   <p>Dang chuyen huong...</p>
   <script>
-    // Kiem tra token trong localStorage, redirect den trang phu hop
+    // Map role → URL (tuong doi tu thu muc goc frontend/)
+    const ROLE_HOME = {
+      ADMIN:    'pages/admin/dashboard.html',
+      MANAGER:  'pages/manager/home.html',
+      DRIVER:   'pages/driver/home.html',
+      CUSTOMER: 'pages/customer/home.html',
+    };
+
+    // Kiem tra token, redirect den trang home phu hop theo role
     const token = localStorage.getItem('accessToken');
     if (token) {
-      const userInfo = localStorage.getItem('userInfo');
       let role = null;
-      try { role = JSON.parse(userInfo)?.role; } catch {}
-
-      if (role === 'ADMIN' || role === 'MANAGER') {
-        window.location.replace('pages/admin/dashboard.html');
-      } else {
-        // Customer, Driver chua co trang rieng (Round 5)
-        window.location.replace('pages/login.html');
-      }
+      try { role = JSON.parse(localStorage.getItem('userInfo'))?.role; } catch {}
+      window.location.replace(ROLE_HOME[role] || 'pages/login.html');
     } else {
       window.location.replace('pages/login.html');
     }

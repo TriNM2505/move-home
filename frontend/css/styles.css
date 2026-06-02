@@ -1210,3 +1210,130 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .badge-pending-verify   { color: var(--color-info); background: var(--color-info-bg); }
 .badge-suspended        { color: var(--color-danger); background: var(--color-danger-bg); }
 .badge-rejected         { color: var(--color-danger); background: var(--color-danger-bg); }
+
+/* ============================================================
+   ROUND 4.5 — Welcome landing pages (Customer / Driver / Manager)
+   ============================================================ */
+
+/* Container chiem toan bo chieu cao con lai sau header */
+.welcome-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 64px);
+  padding: var(--space-8) var(--space-4);
+  background: var(--color-canvas-soft);
+}
+
+/* Card trung tam */
+.welcome-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--color-canvas);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-12);
+  text-align: center;
+}
+
+/* Icon role */
+.welcome-avatar {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: var(--space-5);
+}
+
+/* Ten user */
+.welcome-card h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-light);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.64px;
+}
+
+/* Label vai tro */
+.welcome-role {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  margin-bottom: var(--space-6);
+}
+
+/* Khoi thong tin email + status */
+.welcome-info {
+  background: var(--color-canvas-soft);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-6);
+  text-align: left;
+}
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+.info-row:last-child { border-bottom: none; }
+.info-row > span:first-child { font-weight: var(--font-weight-medium); color: var(--color-text-secondary); }
+.info-row strong { color: var(--color-text-primary); font-weight: var(--font-weight-medium); }
+
+/* Khoi thong diep roadmap */
+.welcome-message {
+  background: var(--color-primary-50);
+  border: 1px solid var(--color-primary-100);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  text-align: left;
+}
+.welcome-message h2 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-light);
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.2px;
+}
+.welcome-message > p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Danh sach tinh nang sap co — checkmark bullet */
+.welcome-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.welcome-features li {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  padding-left: var(--space-6);
+  position: relative;
+  line-height: var(--line-height-base);
+}
+.welcome-features li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Footer link GitHub */
+.welcome-footer {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin: 0;
+}
+.welcome-footer a { color: var(--color-primary); }

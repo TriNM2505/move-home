@@ -127,25 +127,11 @@
 </div><!-- end auth-layout -->
 
 <script type="module">
-  import { login, isLoggedIn, hasRole } from '../js/auth.js';
+  import { login, isLoggedIn, getCurrentUser, redirectAfterLogin } from '../js/auth.js';
 
-  // Neu da dang nhap thi redirect luon
+  // Neu da dang nhap thi redirect luon theo role
   if (isLoggedIn()) {
-    redirectAfterLogin();
-  }
-
-  // Chuyen huong sau khi dang nhap thanh cong dua theo role
-  function redirectAfterLogin() {
-    const userInfo = localStorage.getItem('userInfo');
-    let role = null;
-    try { role = JSON.parse(userInfo)?.role; } catch {}
-
-    if (role === 'ADMIN' || role === 'MANAGER') {
-      window.location.href = 'admin/dashboard.html';
-    } else {
-      // Customer, Driver chua co trang rieng — hien thong bao
-      showAlert('success', 'Dang nhap thanh cong! Trang danh cho vai tro nay dang duoc phat trien.');
-    }
+    redirectAfterLogin(getCurrentUser());
   }
 
   // Toggle hien/an mat khau
@@ -182,8 +168,9 @@
     setLoading(btn, true, 'Dang dang nhap...');
 
     try {
-      await login(email, password);
-      redirectAfterLogin();
+      const data = await login(email, password);
+      // Redirect theo role (ADMIN/MANAGER/DRIVER/CUSTOMER)
+      redirectAfterLogin(data.user);
     } catch (err) {
       handleLoginError(err);
     } finally {

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quan ly — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="site-layout">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-icon">🏠</span>
+        <span class="site-logo-text">Move_home</span>
+      </a>
+      <div class="site-header-actions">
+        <span style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">Xin chao,</span>
+        <span id="header-user-name"
+              style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-primary);margin-left:4px;"></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar"
+             style="margin-left:var(--space-2);"></div>
+        <button id="logout-btn" class="btn btn-ghost btn-sm" style="margin-left:var(--space-2);">
+          🚪 Dang xuat
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT: Welcome card can giua -->
+  <div class="welcome-container">
+    <div class="welcome-card">
+
+      <div class="welcome-avatar">📋</div>
+
+      <h1 id="welcome-name">Xin chao!</h1>
+      <p class="welcome-role">Ban dang nhap voi vai tro Quan ly</p>
+
+      <!-- Thong tin tai khoan -->
+      <div class="welcome-info">
+        <div class="info-row">
+          <span>Email:</span>
+          <strong id="user-email">—</strong>
+        </div>
+        <div class="info-row">
+          <span>Trang thai:</span>
+          <span id="user-status">—</span>
+        </div>
+      </div>
+
+      <!-- Thong diep roadmap -->
+      <div class="welcome-message">
+        <h2>Cong cu phe duyet tai xe dang phat trien</h2>
+        <p>
+          Cam on ban da dang nhap voi vai tro Quan ly.
+          Cac tinh nang sau day se duoc trien khai theo roadmap:
+        </p>
+        <ul class="welcome-features">
+          <li>Sprint 2: Duyet ho so dang ky tai xe moi</li>
+          <li>Sprint 3: Xu ly tranh chap don hang</li>
+          <li>Sprint 4: Bao cao hieu suat tai xe</li>
+        </ul>
+      </div>
+
+      <!-- Goi y xem Admin Dashboard neu can -->
+      <div class="alert alert-info" style="display:flex;font-size:var(--font-size-sm);margin-bottom:var(--space-5);text-align:left;">
+        ℹ️&nbsp; Manager co the xem toan canh he thong tai
+        <a href="../admin/dashboard.html" style="margin-left:4px;font-weight:var(--font-weight-medium);">
+          Admin Dashboard
+        </a>
+        &nbsp;voi token co quyen ADMIN.
+      </div>
+
+      <p class="welcome-footer">
+        Theo doi tien do tai
+        <a href="https://github.com/TriNM2505/move-home" target="_blank" rel="noopener">GitHub repo</a>
+      </p>
+
+    </div>
+  </div>
+
+</div><!-- end site-layout -->
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+
+    const user = getCurrentUser();
+
+    // Manager co the xem duoc trang nay; Admin redirect sang dashboard
+    if (user?.role === 'ADMIN') {
+      window.location.href = '../admin/dashboard.html';
+      return;
+    }
+    if (user?.role !== 'MANAGER') {
+      logout('../login.html');
+      return;
+    }
+
+    renderUserInfo(user);
+    setupLogout();
+  });
+
+  function renderUserInfo(user) {
+    const nameEl = document.getElementById('header-user-name');
+    if (nameEl) nameEl.textContent = user.fullName || '';
+
+    const avatarEl = document.getElementById('header-user-avatar');
+    if (avatarEl && user.fullName) {
+      avatarEl.textContent = user.fullName
+        .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+
+    const welcomeEl = document.getElementById('welcome-name');
+    if (welcomeEl) welcomeEl.textContent = `Chao mung, ${user.fullName}!`;
+
+    const emailEl = document.getElementById('user-email');
+    if (emailEl) emailEl.textContent = user.email || '—';
+
+    const statusEl = document.getElementById('user-status');
+    if (statusEl) statusEl.innerHTML = renderStatusBadge(user.status);
+  }
+
+  function setupLogout() {
+    document.getElementById('logout-btn')
+      ?.addEventListener('click', () => logout('../login.html'));
+  }
+
+  function renderStatusBadge(status) {
+    const map = {
+      ACTIVE:    '<span class="badge badge-sm badge-success">Hoat dong</span>',
+      SUSPENDED: '<span class="badge badge-sm badge-danger">Tam khoa</span>',
+    };
+    return map[status] || `<span class="badge badge-sm badge-neutral">${status || '—'}</span>`;
+  }
+</script>
+
+</body>
+</html>

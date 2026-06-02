@@ -8,6 +8,14 @@ const TOKEN_KEY    = 'accessToken';
 const USER_KEY     = 'userInfo';
 const REFRESH_KEY  = 'refreshToken';
 
+// Map role → URL tuong doi (goi tu pages/login.html, ngang cap voi pages/admin/, pages/customer/...)
+const ROLE_HOME_URL = {
+  ADMIN:    'admin/dashboard.html',
+  MANAGER:  'manager/home.html',
+  DRIVER:   'driver/home.html',
+  CUSTOMER: 'customer/home.html',
+};
+
 /**
  * Dang nhap bang email + password.
  * Backend: POST /api/auth/login (chi ho tro email o Round 2)
@@ -81,4 +89,26 @@ export function getToken() {
 export function hasRole(role) {
   const user = getCurrentUser();
   return user?.role === role;
+}
+
+/**
+ * Redirect den trang home cua role sau khi login thanh cong.
+ * Goi tu pages/login.html — cac URL la tuong doi trong thu muc pages/.
+ * @param {object} user - UserInfo { role, ... }
+ * @param {string} fallback - URL khi role khong xac dinh (mac dinh: login.html)
+ */
+export function redirectAfterLogin(user, fallback = 'login.html') {
+  const url = ROLE_HOME_URL[user?.role] || fallback;
+  window.location.href = url;
+}
+
+/**
+ * Tra ve URL trang home theo role (khong co prefix).
+ * Dung de lay URL ma khong redirect ngay, vi du trong index.html.
+ * @param {string} role
+ * @param {string} prefix - Tien to path (vd: 'pages/')
+ * @returns {string}
+ */
+export function getHomeUrl(role, prefix = '') {
+  return prefix + (ROLE_HOME_URL[role] || 'login.html');
 }
