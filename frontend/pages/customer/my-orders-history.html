@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lịch sử đơn — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}.tabs{display:flex;gap:10px;flex-wrap:wrap}.pagination{display:flex;gap:8px;justify-content:flex-end;align-items:center}
+    @media (max-width:800px){.site-header-actions{display:none}.table-wrapper{overflow:auto}}
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html">Đặt đơn</a><a href="my-orders-pending.html" class="active">Đơn hàng</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
+  <main class="site-main"><div class="dashboard-main">
+    <header class="page-header"><h1 class="page-title">Lịch sử đơn</h1><p class="page-subtitle">Danh sách đơn đã hoàn thành hoặc đã hủy.</p></header>
+    <div class="tabs mb-8"><a class="btn-subtle" href="my-orders-pending.html">Đang chờ</a><a class="btn-subtle" href="my-orders-active.html">Đang giao</a><a class="btn-primary" href="my-orders-history.html">Lịch sử</a></div>
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Đơn gần đây</h2><div class="tabs"><span class="badge badge-neutral">Tất cả</span><span class="badge badge-completed">Hoàn thành</span><span class="badge badge-cancelled">Đã hủy</span></div></div>
+      <div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none"><table class="table table-hover"><thead><tr><th>Mã đơn</th><th>Ngày</th><th>Điểm đón</th><th>Điểm trả</th><th>Trạng thái</th><th class="text-right">Tổng tiền</th></tr></thead><tbody>
+        <tr><td><a href="order-detail.html" class="link-primary">MH2026050008</a></td><td>25/05/2026</td><td>Ba Đình</td><td>Hà Đông</td><td><span class="badge badge-completed">Hoàn thành</span></td><td class="text-right">1.250.000 VND</td></tr>
+        <tr><td><a href="order-detail.html" class="link-primary">MH2026050002</a></td><td>12/05/2026</td><td>Đống Đa</td><td>Hoàng Mai</td><td><span class="badge badge-cancelled">Đã hủy</span></td><td class="text-right">0 VND</td></tr>
+        <tr><td><a href="order-detail.html" class="link-primary">MH2026040019</a></td><td>30/04/2026</td><td>Tây Hồ</td><td>Cầu Giấy</td><td><span class="badge badge-completed">Hoàn thành</span></td><td class="text-right">1.780.000 VND</td></tr>
+      </tbody></table></div>
+      <div class="card-body pagination"><span class="text-muted">Trang 1/1</span><a href="my-orders-history.html" class="btn-subtle">Trước</a><a href="my-orders-history.html" class="btn-subtle">Sau</a></div>
+    </div>
+  </div></main>
+</div>
+</body>
+</html>

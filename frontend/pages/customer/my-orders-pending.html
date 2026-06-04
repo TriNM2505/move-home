@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đơn đang chờ — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap}.order-card{display:grid;grid-template-columns:1fr auto;gap:16px;border:1px solid var(--color-surface-pressed);border-radius:16px;padding:20px;background:var(--color-canvas);text-decoration:none;color:var(--color-ink)}.route{display:flex;gap:12px;align-items:center;color:var(--color-body);flex-wrap:wrap}.modal-preview{border:1px dashed var(--color-danger);border-radius:16px;padding:18px;background:#FEF2F2}
+    @media (max-width:800px){.site-header-actions{display:none}.order-card{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html">Đặt đơn</a><a href="my-orders-pending.html" class="active">Đơn hàng</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
+  <main class="site-main"><div class="dashboard-main">
+    <header class="page-header"><h1 class="page-title">Đơn đang chờ</h1><p class="page-subtitle">Theo dõi đơn đang chờ tài xế nhận hoặc đã có tài xế xác nhận.</p></header>
+    <div class="tabs mb-8"><a class="btn-primary" href="my-orders-pending.html">Đang chờ</a><a class="btn-subtle" href="my-orders-active.html">Đang giao</a><a class="btn-subtle" href="my-orders-history.html">Lịch sử</a></div>
+    <section class="grid-2">
+      <a class="order-card" href="order-detail.html">
+        <div><span class="badge badge-pending">Đang chờ</span><h2>MH2026060001</h2><p class="route">Ba Đình → Cầu Giấy</p><p class="text-muted">08:30, 06/06/2026</p></div>
+        <strong>1.602.000 VND</strong>
+      </a>
+      <a class="order-card" href="order-detail.html">
+        <div><span class="badge badge-in-progress">Đã nhận đơn</span><h2>MH2026060004</h2><p class="route">Đống Đa → Thanh Xuân</p><p class="text-muted">14:00, 07/06/2026</p></div>
+        <strong>980.000 VND</strong>
+      </a>
+    </section>
+    <section class="modal-preview mt-8">
+      <h2>Xác nhận hủy đơn</h2>
+      <p class="text-muted">Mẫu hộp thoại khi khách hàng hủy đơn MH2026060001 trước khi tài xế nhận.</p>
+      <a href="my-orders-pending.html" class="btn-danger">Hủy đơn</a> <a href="order-detail.html" class="btn-secondary">Đóng</a>
+    </section>
+  </div></main>
+</div>
+</body>
+</html>

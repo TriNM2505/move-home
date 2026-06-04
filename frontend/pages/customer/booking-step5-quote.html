@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo giá — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
+    .booking-shell{display:grid;grid-template-columns:280px 1fr;gap:24px}.booking-steps{display:grid;gap:10px}.booking-step{padding:12px 14px;border-radius:999px;background:var(--color-canvas-soft);font-weight:500;color:var(--color-body)}.booking-step.active{background:var(--color-primary);color:var(--color-on-primary)}
+    .price-row{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--color-surface-pressed)}.price-row.total{font-size:24px;font-weight:700;color:var(--color-primary);border-bottom:none}.route-box{display:grid;gap:10px;padding:16px;border-radius:16px;background:var(--color-canvas-soft)}
+    @media (max-width:800px){.booking-shell{grid-template-columns:1fr}.site-header-actions{display:none}}
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html" class="active">Đặt đơn</a><a href="my-orders-pending.html">Đơn hàng</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
+  <main class="site-main"><div class="dashboard-main">
+    <header class="page-header"><h1 class="page-title">Báo giá chi tiết</h1><p class="page-subtitle">Bước 5/6 — Giá minh bạch trước khi xác nhận đặt đơn.</p></header>
+    <div class="booking-shell">
+      <aside class="card-content"><div class="booking-steps"><div class="booking-step">1. Chọn xe</div><div class="booking-step">2. Điểm đón</div><div class="booking-step">3. Điểm trả</div><div class="booking-step">4. Chi tiết</div><div class="booking-step active">5. Báo giá</div><div class="booking-step">6. Thanh toán</div></div></aside>
+      <section>
+        <div class="grid-2">
+          <div class="card-elevated">
+            <h2>Lộ trình</h2>
+            <div class="route-box mt-md">
+              <strong>Điểm đón</strong><span>Số 25 ngõ 68 phố Đội Cấn, Quận Ba Đình</span>
+              <strong>Điểm trả</strong><span>Tòa A2, phố Duy Tân, Quận Cầu Giấy</span>
+              <strong>Quãng đường dự kiến</strong><span>8,6 km</span>
+            </div>
+          </div>
+          <div class="card-elevated">
+            <h2>Chi phí</h2>
+            <div class="price-row"><span>Giá cơ bản</span><strong>420.000 VND</strong></div>
+            <div class="price-row"><span>Phụ phí giờ cao điểm</span><strong>126.000 VND</strong></div>
+            <div class="price-row"><span>Phụ phí ngõ nhỏ</span><strong>200.000 VND</strong></div>
+            <div class="price-row"><span>Phụ phí tầng</span><strong>100.000 VND</strong></div>
+            <div class="price-row"><span>Phí bốc xếp</span><strong>600.000 VND</strong></div>
+            <div class="price-row"><span>Phí hoa hồng</span><strong>156.000 VND</strong></div>
+            <div class="price-row total"><span>Tổng cộng</span><span>1.602.000 VND</span></div>
+          </div>
+        </div>
+        <div class="mt-md"><a href="booking-step4-details.html" class="btn-secondary">Quay lại</a> <a href="booking-step6-payment.html" class="btn-primary">Đặt đơn ngay</a></div>
+      </section>
+    </div>
+  </div></main>
+</div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông tin cá nhân — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
+    .profile-grid{display:grid;grid-template-columns:320px 1fr;gap:24px}.profile-card{text-align:center}.profile-avatar{width:112px;height:112px;border-radius:999px;background:var(--color-primary);color:white;display:grid;place-items:center;font-size:36px;font-weight:700;margin:0 auto 16px}.info-row{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--color-surface-pressed)}
+    @media (max-width:800px){.profile-grid{grid-template-columns:1fr}.site-header-actions{display:none}.info-row{display:block}}
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html">Đặt đơn</a><a href="my-orders-pending.html">Đơn hàng</a><a href="my-profile.html" class="active">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
+  <main class="site-main"><div class="dashboard-main">
+    <header class="page-header"><h1 class="page-title">Thông tin cá nhân</h1><p class="page-subtitle">Quản lý thông tin tài khoản khách hàng.</p></header>
+    <section class="profile-grid">
+      <aside class="card-elevated profile-card"><div class="profile-avatar">AN</div><h2>Nguyễn Văn An</h2><p class="text-muted">Khách hàng thân thiết</p><span class="badge badge-success">Đang hoạt động</span><div class="mt-md"><a href="my-profile-edit.html" class="btn-primary">Chỉnh sửa</a></div></aside>
+      <div class="card-elevated">
+        <h2>Hồ sơ tài khoản</h2>
+        <div class="info-row"><span>Họ và tên</span><strong>Nguyễn Văn An</strong></div>
+        <div class="info-row"><span>Email</span><strong>an.nguyen@example.com</strong></div>
+        <div class="info-row"><span>Số điện thoại</span><strong>0901 234 567</strong></div>
+        <div class="info-row"><span>Ngày tham gia</span><strong>15/04/2026</strong></div>
+        <div class="info-row"><span>Tổng số đơn đã đặt</span><strong>12 đơn</strong></div>
+        <div class="info-row"><span>Số dư</span><strong>2.000.000 VND</strong></div>
+        <div class="mt-md"><a href="my-profile-edit.html" class="btn-primary">Chỉnh sửa</a> <a href="../login.html" class="btn-secondary">Đổi mật khẩu</a></div>
+      </div>
+    </section>
+  </div></main>
+</div>
+</body>
+</html>
