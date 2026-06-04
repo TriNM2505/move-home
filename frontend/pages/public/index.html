@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Move_home — Dịch vụ chuyển nhà tin cậy</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    :root {
+      --shadow-card: var(--shadow-level-2);
+    }
+
+    .hero-band-light {
+      background: var(--color-canvas-soft);
+    }
+
+    .public-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      flex-wrap: wrap;
+    }
+
+    .hero-inner {
+      text-align: center;
+      padding: var(--spacing-4xl) 0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero-title {
+      font-size: var(--font-size-display-xl);
+      color: var(--color-ink);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .hero-subtitle {
+      font-size: var(--font-size-body-lg);
+      color: var(--color-body);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .section-spacing {
+      padding: var(--spacing-4xl) 0;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: var(--font-size-display-lg);
+      color: var(--color-ink);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-lg);
+    }
+
+    .promo-card {
+      background: var(--color-canvas);
+      padding: var(--spacing-xl);
+      border-radius: var(--rounded-xl);
+      box-shadow: var(--shadow-card);
+      text-align: center;
+    }
+
+    .promo-icon {
+      font-size: 48px;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-lg);
+    }
+
+    .step-card {
+      background: var(--color-canvas);
+      padding: var(--spacing-xl);
+      border-radius: var(--rounded-xl);
+      text-align: center;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      background: var(--color-primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-display-md);
+      font-weight: var(--font-weight-bold);
+      margin: 0 auto var(--spacing-md);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-lg);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: var(--color-canvas);
+      padding: var(--spacing-xl);
+      border-radius: var(--rounded-xl);
+      text-align: center;
+      border: 2px solid transparent;
+      position: relative;
+    }
+
+    .pricing-card-featured {
+      border-color: var(--color-accent);
+    }
+
+    .pricing-amount {
+      font-size: var(--font-size-display-md);
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+      margin: var(--spacing-md) 0;
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-accent);
+      color: white;
+      padding: var(--spacing-xs) var(--spacing-md);
+      border-radius: var(--rounded-pill);
+      font-size: var(--font-size-body-sm);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .pricing-note {
+      text-align: center;
+      margin-top: var(--spacing-lg);
+      color: var(--color-mute);
+      font-style: italic;
+      font-size: var(--font-size-body-sm);
+    }
+
+    .btn-primary-lg, .btn-secondary-lg {
+      padding: var(--spacing-md) var(--spacing-2xl);
+      font-size: var(--font-size-body-lg);
+      border-radius: var(--rounded-pill);
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    .btn-primary-lg {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .btn-secondary-lg {
+      background: transparent;
+      color: var(--color-primary);
+      border: 2px solid var(--color-primary);
+    }
+
+    .cta-inner {
+      text-align: center;
+    }
+
+    .site-footer {
+      background: var(--color-ink);
+      color: var(--color-canvas);
+      padding: var(--spacing-4xl) 0 var(--spacing-lg);
+    }
+
+    .footer-inner {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-2xl);
+    }
+
+    .footer-column h4 {
+      margin-bottom: var(--spacing-md);
+      color: var(--color-canvas);
+    }
+
+    .footer-column a {
+      display: block;
+      color: var(--color-canvas-soft);
+      text-decoration: none;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      margin-top: var(--spacing-2xl);
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--color-surface-pressed);
+      color: var(--color-canvas-soft);
+    }
+
+    @media (max-width: 900px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ĐẦU TRANG: Biểu trưng + điều hướng + nút tài khoản -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="#" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+      </a>
+      <nav class="public-nav" aria-label="Điều hướng">
+        <a href="#features" class="nav-link">Tính năng</a>
+        <a href="#how-it-works" class="nav-link">Cách hoạt động</a>
+        <a href="#pricing" class="nav-link">Bảng giá</a>
+        <a href="#contact" class="nav-link">Liên hệ</a>
+      </nav>
+      <div class="site-header-actions">
+        <a href="../login.html" class="btn-subtle">Đăng nhập</a>
+        <a href="../register.html" class="btn-primary">Đăng ký</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MỞ ĐẦU -->
+  <section class="hero-band-light">
+    <div class="container hero-inner">
+      <h1 class="hero-title">Chuyển nhà dễ dàng, an toàn, đúng hẹn</h1>
+      <p class="hero-subtitle">
+        Đặt dịch vụ chuyển nhà với tài xế xác minh, báo giá minh bạch,
+        theo dõi đơn hàng theo thời gian thực.
+      </p>
+      <div class="hero-actions">
+        <a href="../register.html" class="btn-primary-lg">Đặt đơn ngay</a>
+        <a href="../login.html" class="btn-secondary-lg">Đã có tài khoản</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TÍNH NĂNG -->
+  <section id="features" class="container section-spacing">
+    <h2 class="section-title">Tại sao chọn Move_home?</h2>
+    <div class="features-grid">
+      <div class="promo-card">
+        <div class="promo-icon">🚚</div>
+        <h3>Đa dạng loại xe</h3>
+        <p>Xe tải 500kg, 1 tấn, 1.5 tấn phù hợp mọi nhu cầu chuyển đồ.</p>
+      </div>
+      <div class="promo-card">
+        <div class="promo-icon">✅</div>
+        <h3>Tài xế xác minh</h3>
+        <p>Toàn bộ tài xế được kiểm tra giấy phép và đặt cọc bảo đảm.</p>
+      </div>
+      <div class="promo-card">
+        <div class="promo-icon">💳</div>
+        <h3>Báo giá minh bạch</h3>
+        <p>Hiển thị chi tiết phí theo km, giờ cao điểm, phụ phí.</p>
+      </div>
+      <div class="promo-card">
+        <div class="promo-icon">📍</div>
+        <h3>Theo dõi thời gian thực</h3>
+        <p>Biết chính xác vị trí tài xế đang ở đâu trong suốt hành trình.</p>
+      </div>
+      <div class="promo-card">
+        <div class="promo-icon">⭐</div>
+        <h3>Đánh giá sau mỗi đơn</h3>
+        <p>Hệ thống đánh giá 2 chiều đảm bảo chất lượng dịch vụ.</p>
+      </div>
+      <div class="promo-card">
+        <div class="promo-icon">🛡️</div>
+        <h3>Bồi thường khi hỏng hóc</h3>
+        <p>Cam kết bồi thường nếu đồ đạc bị hư hỏng do lỗi vận chuyển.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CÁCH HOẠT ĐỘNG -->
+  <section id="how-it-works" class="hero-band-light section-spacing">
+    <div class="container">
+      <h2 class="section-title">Cách hoạt động</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Đăng ký tài khoản</h3>
+          <p>Tạo tài khoản miễn phí trong 1 phút.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Chọn xe và địa điểm</h3>
+          <p>Nhập điểm đón, điểm trả và loại xe phù hợp.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Xem báo giá</h3>
+          <p>Hệ thống tự tính giá dựa trên quãng đường và phụ phí.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <h3>Đặt đơn và đánh giá</h3>
+          <p>Tài xế nhận đơn, hoàn thành, bạn đánh giá.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BẢNG GIÁ THAM KHẢO -->
+  <section id="pricing" class="container section-spacing">
+    <h2 class="section-title">Bảng giá tham khảo</h2>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <h3>Xe tải 500kg</h3>
+        <div class="pricing-amount">Từ 300.000 VND</div>
+        <p>Phù hợp đồ ít, 1-2 người</p>
+      </div>
+      <div class="pricing-card pricing-card-featured">
+        <h3>Xe tải 1 tấn</h3>
+        <div class="pricing-amount">Từ 500.000 VND</div>
+        <p>Phù hợp gia đình nhỏ</p>
+        <div class="pricing-badge">Phổ biến nhất</div>
+      </div>
+      <div class="pricing-card">
+        <h3>Xe tải 1.5 tấn</h3>
+        <div class="pricing-amount">Từ 800.000 VND</div>
+        <p>Phù hợp gia đình lớn</p>
+      </div>
+    </div>
+    <p class="pricing-note">
+      * Giá có thể thay đổi theo giờ cao điểm, ngõ nhỏ, tầng cao, dịch vụ thêm.
+    </p>
+  </section>
+
+  <!-- KÊU GỌI HÀNH ĐỘNG -->
+  <section class="hero-band-light section-spacing">
+    <div class="container cta-inner">
+      <h2 class="section-title">Sẵn sàng đặt đơn?</h2>
+      <p>Đăng ký ngay để nhận ưu đãi cho lần đặt đơn đầu tiên.</p>
+      <a href="../register.html" class="btn-primary-lg">Đăng ký miễn phí</a>
+    </div>
+  </section>
+
+  <!-- CHÂN TRANG -->
+  <footer id="contact" class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-column">
+        <h4>Move_home</h4>
+        <p>Dịch vụ chuyển nhà uy tín tại Hà Nội.</p>
+      </div>
+      <div class="footer-column">
+        <h4>Liên hệ</h4>
+        <p>Đường dây nóng: 1900 9999</p>
+        <p>Thư điện tử: hotro@movehome.vn</p>
+      </div>
+      <div class="footer-column">
+        <h4>Pháp lý</h4>
+        <a href="#">Điều khoản sử dụng</a>
+        <a href="#">Chính sách bảo mật</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Move_home. Mọi quyền được bảo lưu.</p>
+    </div>
+  </footer>
+</body>
+</html>
