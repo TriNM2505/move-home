@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lịch sử rút tiền — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .badge-approved { background: var(--color-success-bg); color: var(--color-success-text); display: inline-flex; border-radius: var(--rounded-pill); padding: var(--spacing-xs) var(--spacing-md); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-medium); }
+    .badge-rejected { background: var(--color-danger-bg); color: var(--color-danger-text); display: inline-flex; border-radius: var(--rounded-pill); padding: var(--spacing-xs) var(--spacing-md); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-medium); }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="driver-nav" aria-label="Điều hướng tài xế">
+        <a href="home.html" class="nav-link">Trang chủ</a>
+        <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
+        <a href="in-progress.html" class="nav-link">Đang giao</a>
+        <a href="history.html" class="nav-link">Lịch sử</a>
+        <a href="profile.html" class="nav-link">Hồ sơ</a>
+        <a href="earnings.html" class="nav-link">Thu nhập</a>
+        <a href="withdrawal-request.html" class="nav-link active">Rút tiền</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
+        <div class="avatar avatar-sm avatar-initials">LC</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header flex-between">
+        <div>
+          <h1 class="page-title">Lịch sử rút tiền</h1>
+          <p class="page-subtitle">Theo dõi trạng thái các yêu cầu rút tiền.</p>
+        </div>
+        <a href="withdrawal-request.html" class="btn-primary">Tạo yêu cầu mới</a>
+      </header>
+
+      <div class="table-wrapper">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Mã yêu cầu</th>
+              <th>Số tiền</th>
+              <th>Ngày yêu cầu</th>
+              <th>Trạng thái</th>
+              <th>Ngày xử lý</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>RT2026060007</td>
+              <td class="num-money">2.000.000 VND</td>
+              <td>05/06/2026</td>
+              <td><span class="badge-pending">Đang chờ</span></td>
+              <td>Chưa xử lý</td>
+            </tr>
+            <tr>
+              <td>RT2026050012</td>
+              <td class="num-money">3.500.000 VND</td>
+              <td>28/05/2026</td>
+              <td><span class="badge-approved">Đã duyệt</span></td>
+              <td>29/05/2026</td>
+            </tr>
+            <tr>
+              <td>RT2026050006</td>
+              <td class="num-money">500.000 VND</td>
+              <td>18/05/2026</td>
+              <td><span class="badge-rejected">Bị từ chối</span></td>
+              <td>18/05/2026</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

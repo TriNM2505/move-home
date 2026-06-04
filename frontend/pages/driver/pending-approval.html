@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chờ duyệt — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .approval-page { min-height: 100vh; background: var(--color-canvas-soft); padding: var(--spacing-4xl) var(--spacing-lg); display: flex; align-items: center; }
+    .approval-card { max-width: 700px; margin: 0 auto; text-align: center; }
+    .approval-icon { width: 120px; height: 120px; margin: 0 auto var(--spacing-xl); border-radius: var(--rounded-full); background: var(--color-warning-bg); color: var(--color-warning-text); display: flex; align-items: center; justify-content: center; font-size: 56px; }
+    .next-steps { text-align: left; max-width: 520px; margin: var(--spacing-2xl) auto 0; }
+    .next-steps li { padding: var(--spacing-md) 0; border-bottom: 1px solid var(--color-surface-pressed); }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+    <nav class="driver-nav" aria-label="Điều hướng tài xế">
+      <a href="register-step1.html" class="nav-link active">Đăng ký</a>
+      <a href="home.html" class="nav-link">Trang chủ</a>
+      <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
+      <a href="in-progress.html" class="nav-link">Đang giao</a>
+      <a href="history.html" class="nav-link">Lịch sử</a>
+      <a href="profile.html" class="nav-link">Hồ sơ</a>
+      <a href="earnings.html" class="nav-link">Thu nhập</a>
+    </nav>
+    <div class="site-header-actions">
+      <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+    </div>
+  </div>
+</header>
+<main class="approval-page">
+  <section class="card-elevated approval-card">
+    <a href="../../index.html" class="auth-logo">Move_home</a>
+    <div class="approval-icon" aria-hidden="true">✓</div>
+    <h1 class="page-title">Đang chờ duyệt</h1>
+    <p class="page-subtitle mt-md">Đơn đăng ký của bạn đã được gửi đến đội ngũ quản lý. Thời gian xét duyệt: 1-2 ngày làm việc.</p>
+
+    <ul class="next-steps">
+      <li><strong>1. Kiểm tra hồ sơ:</strong> quản lý xác minh giấy phép, xe và thông tin cá nhân.</li>
+      <li><strong>2. Xác nhận đặt cọc:</strong> giao dịch đặt cọc được đối soát trong hệ thống.</li>
+      <li><strong>3. Kích hoạt tài khoản:</strong> bạn có thể nhận đơn sau khi hồ sơ được duyệt.</li>
+    </ul>
+
+    <div class="mt-8">
+      <a href="../login.html" class="btn-secondary">Đăng xuất</a>
+    </div>
+  </section>
+</main>
+</body>
+</html>

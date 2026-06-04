@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng ký Bước 2 — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .step-shell { min-height: 100vh; background: var(--color-canvas-soft); padding: var(--spacing-3xl) var(--spacing-lg); }
+    .step-card { max-width: 820px; margin: 0 auto; }
+    .step-progress { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm); margin: var(--spacing-2xl) 0; }
+    .step-progress span { height: 8px; border-radius: var(--rounded-pill); background: var(--color-surface-pressed); }
+    .step-progress span:nth-child(-n+2) { background: var(--color-primary); }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-xl); }
+    .full { grid-column: 1 / -1; }
+    .upload-box { border: 2px dashed var(--color-surface-pressed); border-radius: var(--rounded-xl); padding: var(--spacing-2xl); background: var(--color-canvas-softer); }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+    @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+    <nav class="driver-nav" aria-label="Điều hướng tài xế">
+      <a href="register-step1.html" class="nav-link active">Đăng ký</a>
+      <a href="home.html" class="nav-link">Trang chủ</a>
+      <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
+      <a href="in-progress.html" class="nav-link">Đang giao</a>
+      <a href="history.html" class="nav-link">Lịch sử</a>
+      <a href="profile.html" class="nav-link">Hồ sơ</a>
+      <a href="earnings.html" class="nav-link">Thu nhập</a>
+    </nav>
+    <div class="site-header-actions">
+      <a href="../login.html" class="btn-subtle">Đăng nhập</a>
+    </div>
+  </div>
+</header>
+<main class="step-shell">
+  <section class="card-elevated step-card">
+    <a href="../../index.html" class="auth-logo">Move_home</a>
+    <p class="auth-tagline">Hoàn thiện hồ sơ phương tiện để đội ngũ quản lý xét duyệt.</p>
+
+    <div class="step-progress" aria-label="Tiến độ đăng ký">
+      <span></span><span></span><span></span>
+    </div>
+
+    <header class="page-header">
+      <p class="text-muted">Bước 2/3</p>
+      <h1 class="page-title">Giấy phép và xe</h1>
+      <p class="page-subtitle">Thông tin mẫu được điền sẵn để phục vụ demo.</p>
+    </header>
+
+    <form>
+      <div class="form-grid">
+        <div class="form-group upload-box">
+          <label class="form-label" for="licensePhoto">Ảnh giấy phép lái xe</label>
+          <input id="licensePhoto" class="text-input" type="file">
+          <p class="text-muted mt-sm">Tệp mẫu: giay-phep-le-van-cuong.jpg</p>
+        </div>
+        <div class="form-group upload-box">
+          <label class="form-label" for="vehiclePhoto">Ảnh xe và biển số</label>
+          <input id="vehiclePhoto" class="text-input" type="file">
+          <p class="text-muted mt-sm">Tệp mẫu: xe-tai-30e-56789.jpg</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="licenseNumber">Số bằng lái</label>
+          <input id="licenseNumber" class="text-input" value="790123456789">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="licenseClass">Hạng bằng</label>
+          <select id="licenseClass" class="text-input">
+            <option>B2</option>
+            <option>C</option>
+            <option>D</option>
+            <option>B1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="plate">Biển số xe</label>
+          <input id="plate" class="text-input" value="30E-56789">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="vehicleType">Loại xe</label>
+          <select id="vehicleType" class="text-input">
+            <option>Xe tải 1 tấn</option>
+            <option>Xe tải 500kg</option>
+            <option>Xe tải 1.5 tấn</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label" for="year">Năm sản xuất</label>
+          <input id="year" class="text-input" value="2021">
+        </div>
+      </div>
+
+      <div class="flex-between mt-8">
+        <a href="register-step1.html" class="btn-secondary">Quay lại</a>
+        <a href="register-step3-deposit.html" class="btn-primary">Tiếp tục</a>
+      </div>
+    </form>
+  </section>
+</main>
+</body>
+</html>

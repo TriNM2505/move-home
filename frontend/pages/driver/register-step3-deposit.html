@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng ký Bước 3 Đặt cọc — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .step-shell { min-height: 100vh; background: var(--color-canvas-soft); padding: var(--spacing-3xl) var(--spacing-lg); }
+    .step-card { max-width: 760px; margin: 0 auto; }
+    .step-progress { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm); margin: var(--spacing-2xl) 0; }
+    .step-progress span { height: 8px; border-radius: var(--rounded-pill); background: var(--color-primary); }
+    .deposit-amount { font-size: var(--font-size-display-xl); font-weight: var(--font-weight-bold); color: var(--color-primary); }
+    .method { border: 2px solid var(--color-primary); border-radius: var(--rounded-xl); padding: var(--spacing-xl); background: var(--color-canvas); }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+    <nav class="driver-nav" aria-label="Điều hướng tài xế">
+      <a href="register-step1.html" class="nav-link active">Đăng ký</a>
+      <a href="home.html" class="nav-link">Trang chủ</a>
+      <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
+      <a href="in-progress.html" class="nav-link">Đang giao</a>
+      <a href="history.html" class="nav-link">Lịch sử</a>
+      <a href="profile.html" class="nav-link">Hồ sơ</a>
+      <a href="earnings.html" class="nav-link">Thu nhập</a>
+    </nav>
+    <div class="site-header-actions">
+      <a href="../login.html" class="btn-subtle">Đăng nhập</a>
+    </div>
+  </div>
+</header>
+<main class="step-shell">
+  <section class="card-elevated step-card">
+    <a href="../../index.html" class="auth-logo">Move_home</a>
+    <p class="auth-tagline">Khoản cọc giúp xác nhận cam kết hoạt động trên nền tảng.</p>
+
+    <div class="step-progress" aria-label="Tiến độ đăng ký">
+      <span></span><span></span><span></span>
+    </div>
+
+    <header class="page-header">
+      <p class="text-muted">Bước 3/3</p>
+      <h1 class="page-title">Đặt cọc tài xế</h1>
+      <p class="page-subtitle">Cọc 3.000.000 VND hoàn lại khi nghỉ theo chính sách Move_home.</p>
+    </header>
+
+    <div class="card-soft-tinted text-center">
+      <p class="text-muted">Số tiền cần đặt cọc</p>
+      <div class="deposit-amount">3.000.000 VND</div>
+      <p class="mt-sm">Trạng thái sau thanh toán: Chờ duyệt hồ sơ</p>
+    </div>
+
+    <section class="mt-8">
+      <h2 class="section-title">Phương thức thanh toán</h2>
+      <label class="method flex-between">
+        <span>
+          <strong>VNPay thử nghiệm</strong><br>
+          <span class="text-muted">Thanh toán bằng thẻ ngân hàng hoặc ví điện tử</span>
+        </span>
+        <input type="radio" checked>
+      </label>
+    </section>
+
+    <div class="flex-between mt-8">
+      <a href="register-step2.html" class="btn-secondary">Quay lại</a>
+      <a href="pending-approval.html" class="btn-primary">Xác nhận đặt cọc</a>
+    </div>
+  </section>
+</main>
+</body>
+</html>

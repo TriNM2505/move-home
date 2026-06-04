@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông tin Tài xế — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2xl); }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+    @media (max-width: 800px) { .profile-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="driver-nav" aria-label="Điều hướng tài xế">
+        <a href="home.html" class="nav-link">Trang chủ</a>
+        <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
+        <a href="in-progress.html" class="nav-link">Đang giao</a>
+        <a href="history.html" class="nav-link">Lịch sử</a>
+        <a href="profile.html" class="nav-link active">Hồ sơ</a>
+        <a href="earnings.html" class="nav-link">Thu nhập</a>
+        <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
+        <div class="avatar avatar-sm avatar-initials">LC</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header flex-between">
+        <div>
+          <h1 class="page-title">Thông tin Tài xế</h1>
+          <p class="page-subtitle">Hồ sơ cá nhân, giấy phép và phương tiện.</p>
+        </div>
+        <a href="earnings.html" class="btn-primary">Xem thu nhập</a>
+      </header>
+
+      <section class="grid-4 mb-8">
+        <div class="kpi kpi-primary"><div class="kpi-body"><span class="kpi-label">Tổng đơn</span><span class="kpi-value">23</span></div></div>
+        <div class="kpi kpi-success"><div class="kpi-body"><span class="kpi-label">Doanh thu</span><span class="kpi-value">28,4tr</span></div></div>
+        <div class="kpi kpi-warning"><div class="kpi-body"><span class="kpi-label">Đánh giá</span><span class="kpi-value">4,7</span></div></div>
+        <div class="kpi kpi-info"><div class="kpi-body"><span class="kpi-label">Trạng thái</span><span class="badge-active">Đang hoạt động</span></div></div>
+      </section>
+
+      <div class="profile-grid">
+        <section class="card-elevated">
+          <h2 class="section-title">Cá nhân</h2>
+          <div class="welcome-info">
+            <div class="info-row"><span>Họ tên</span><strong>Lê Văn Cường</strong></div>
+            <div class="info-row"><span>Email</span><strong>cuong.taixe@example.com</strong></div>
+            <div class="info-row"><span>Số điện thoại</span><strong>0912 345 678</strong></div>
+            <div class="info-row"><span>Ngày sinh</span><strong>16/08/1992</strong></div>
+          </div>
+          <a href="profile.html" class="btn-secondary">Chỉnh sửa</a>
+        </section>
+
+        <section class="card-elevated">
+          <h2 class="section-title">Giấy phép</h2>
+          <div class="welcome-info">
+            <div class="info-row"><span>Số bằng lái</span><strong>790123456789</strong></div>
+            <div class="info-row"><span>Hạng bằng</span><strong>B2</strong></div>
+            <div class="info-row"><span>Ngày duyệt</span><strong>04/06/2026</strong></div>
+          </div>
+          <p class="text-muted">Thay đổi giấy phép cần quản lý xét duyệt lại.</p>
+        </section>
+
+        <section class="card-elevated">
+          <h2 class="section-title">Xe</h2>
+          <div class="welcome-info">
+            <div class="info-row"><span>Biển số</span><strong>30E-56789</strong></div>
+            <div class="info-row"><span>Loại xe</span><strong>Xe tải 1 tấn</strong></div>
+            <div class="info-row"><span>Năm sản xuất</span><strong>2021</strong></div>
+          </div>
+        </section>
+
+        <section class="card-elevated">
+          <h2 class="section-title">Tài khoản</h2>
+          <div class="welcome-info">
+            <div class="info-row"><span>Vai trò</span><strong>Tài xế</strong></div>
+            <div class="info-row"><span>Ngày tham gia</span><strong>04/06/2026</strong></div>
+            <div class="info-row"><span>Cọc</span><strong>3.000.000 VND</strong></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
