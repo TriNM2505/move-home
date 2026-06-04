@@ -10,6 +10,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .customer-nav a {
+      color: var(--color-ink);
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .customer-nav a.active {
+      color: var(--color-primary);
+    }
+
+    @media (max-width: 800px) {
+      .site-header-actions {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -21,6 +45,12 @@
       <a href="../../index.html" class="site-logo">
         <span class="site-logo-text">Move_home</span>
       </a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html" class="active">Trang chủ</a>
+        <a href="booking-step1-vehicle.html">Đặt đơn</a>
+        <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-profile.html">Tài khoản</a>
+      </nav>
       <div class="site-header-actions">
         <span class="user-menu-name">Xin chào, <span id="userName"></span></span>
         <div class="avatar avatar-sm avatar-initials" id="userAvatar"></div>
@@ -38,7 +68,7 @@
         <h1>Chào mừng đến với Move_home</h1>
         <p class="text-muted mt-sm">Đặt dịch vụ chuyển nhà nhanh chóng và an toàn</p>
         <div class="mt-md">
-          <a href="#" class="btn-primary">Đặt đơn ngay</a>
+          <a href="booking-step1-vehicle.html" class="btn-primary">Đặt đơn ngay</a>
         </div>
       </div>
 

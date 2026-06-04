@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chỉnh sửa thông tin — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.field-span{grid-column:1/-1}.upload-box{border:2px dashed var(--color-surface-pressed);border-radius:16px;padding:24px;text-align:center;background:var(--color-canvas-soft)}
+    @media (max-width:800px){.form-grid{grid-template-columns:1fr}.field-span{grid-column:auto}.site-header-actions{display:none}}
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html">Đặt đơn</a><a href="my-orders-pending.html">Đơn hàng</a><a href="my-profile.html" class="active">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
+  <main class="site-main"><div class="dashboard-main">
+    <header class="page-header"><h1 class="page-title">Chỉnh sửa thông tin</h1><p class="page-subtitle">Cập nhật họ tên, số điện thoại và ảnh đại diện.</p></header>
+    <section class="card-elevated">
+      <div class="form-grid">
+        <div class="form-group field-span"><label class="form-label">Ảnh đại diện</label><div class="upload-box"><strong>Chọn ảnh đại diện mới</strong><p class="text-muted">Dữ liệu mẫu, chưa tải tệp thật trong bản demo.</p></div></div>
+        <div class="form-group"><label class="form-label" for="name">Họ và tên</label><input class="text-input" id="name" value="Nguyễn Văn An"></div>
+        <div class="form-group"><label class="form-label" for="phone">Số điện thoại</label><input class="text-input" id="phone" value="0901 234 567"></div>
+        <div class="form-group field-span"><label class="form-label" for="email">Email</label><input class="text-input" id="email" value="an.nguyen@example.com" disabled></div>
+      </div>
+      <div class="mt-md"><a href="my-profile.html" class="btn-primary">Lưu</a> <a href="my-profile.html" class="btn-secondary">Hủy</a></div>
+    </section>
+  </div></main>
+</div>
+</body>
+</html>

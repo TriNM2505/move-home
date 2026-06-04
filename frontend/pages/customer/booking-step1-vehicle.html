@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chọn xe — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+    .customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}
+    .customer-nav a.active{color:var(--color-primary)}
+    .booking-shell{display:grid;grid-template-columns:280px 1fr;gap:24px}
+    .booking-steps{display:grid;gap:10px}
+    .booking-step{padding:12px 14px;border-radius:999px;background:var(--color-canvas-soft);font-weight:500;color:var(--color-body)}
+    .booking-step.active{background:var(--color-primary);color:var(--color-on-primary)}
+    .vehicle-card{display:flex;flex-direction:column;gap:12px;border:2px solid var(--color-surface-pressed);border-radius:16px;padding:24px;background:var(--color-canvas)}
+    .vehicle-card.selected{border-color:var(--color-primary);box-shadow:var(--shadow-level-1)}
+    .vehicle-icon{width:56px;height:56px;border-radius:999px;background:#D1FAE5;display:grid;place-items:center;font-size:28px}
+    .summary-line{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--color-surface-pressed)}
+    @media (max-width: 800px){.booking-shell{grid-template-columns:1fr}.site-header-actions{display:none}}
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html" class="active">Đặt đơn</a>
+        <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-profile.html">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div>
+    </div>
+  </header>
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header">
+        <h1 class="page-title">Chọn loại xe</h1>
+        <p class="page-subtitle">Bước 1/6 — Chọn xe phù hợp với khối lượng đồ cần chuyển.</p>
+      </header>
+      <div class="booking-shell">
+        <aside class="card-content">
+          <div class="booking-steps">
+            <div class="booking-step active">1. Chọn xe</div>
+            <div class="booking-step">2. Điểm đón</div>
+            <div class="booking-step">3. Điểm trả</div>
+            <div class="booking-step">4. Chi tiết</div>
+            <div class="booking-step">5. Báo giá</div>
+            <div class="booking-step">6. Thanh toán</div>
+          </div>
+        </aside>
+        <section>
+          <div class="grid-3">
+            <article class="vehicle-card selected">
+              <div class="vehicle-icon">🚚</div>
+              <h2>Xe tải 500kg</h2>
+              <p class="text-muted">Phù hợp đồ ít, phòng trọ hoặc căn hộ nhỏ cho 1-2 người.</p>
+              <strong>Giá khởi điểm: 350.000 VND</strong>
+            </article>
+            <article class="vehicle-card">
+              <div class="vehicle-icon">🚛</div>
+              <h2>Xe tải 1 tấn</h2>
+              <p class="text-muted">Phù hợp gia đình nhỏ, nhiều thùng đồ và một số đồ nội thất.</p>
+              <strong>Giá khởi điểm: 550.000 VND</strong>
+            </article>
+            <article class="vehicle-card">
+              <div class="vehicle-icon">📦</div>
+              <h2>Xe tải 1.5 tấn</h2>
+              <p class="text-muted">Phù hợp gia đình lớn, tủ, giường và nhiều thiết bị cồng kềnh.</p>
+              <strong>Giá khởi điểm: 750.000 VND</strong>
+            </article>
+          </div>
+          <div class="card-soft-tinted mt-8">
+            <div class="summary-line"><span>Xe đang chọn</span><strong>Xe tải 500kg</strong></div>
+            <div class="summary-line"><span>Phù hợp</span><strong>Đồ ít, 1-2 người</strong></div>
+            <div class="mt-md"><a href="booking-step2-pickup.html" class="btn-primary">Tiếp tục</a></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

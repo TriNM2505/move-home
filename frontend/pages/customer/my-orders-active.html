@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đơn đang giao — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}.tabs{display:flex;gap:10px;flex-wrap:wrap}
+    .tracking-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:24px}.map-placeholder{min-height:420px;border-radius:16px;background:var(--color-canvas-soft);display:grid;place-items:center;text-align:center;padding:24px;border:1px solid var(--color-surface-pressed)}.driver-row{display:flex;gap:14px;align-items:center}.timeline{display:grid;gap:16px}.timeline-item{border-left:4px solid var(--color-primary);padding-left:16px}
+    @media (max-width:900px){.tracking-grid{grid-template-columns:1fr}.site-header-actions{display:none}}
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html">Đặt đơn</a><a href="my-orders-pending.html" class="active">Đơn hàng</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
+  <main class="site-main"><div class="dashboard-main">
+    <header class="page-header"><h1 class="page-title">Đơn đang giao</h1><p class="page-subtitle">Màn theo dõi thời gian thực dùng dữ liệu mẫu cho buổi demo.</p></header>
+    <div class="tabs mb-8"><a class="btn-subtle" href="my-orders-pending.html">Đang chờ</a><a class="btn-primary" href="my-orders-active.html">Đang giao</a><a class="btn-subtle" href="my-orders-history.html">Lịch sử</a></div>
+    <section class="tracking-grid">
+      <div class="map-placeholder"><div><h2>Bản đồ theo dõi</h2><p class="text-muted">Vị trí tài xế đang tiến về phố Duy Tân, Quận Cầu Giấy.</p><span class="badge badge-in-progress">Đang giao</span></div></div>
+      <aside class="card-elevated">
+        <h2>Thông tin tài xế</h2>
+        <div class="driver-row mt-md"><div class="avatar avatar-initials">LC</div><div><strong>Lê Văn Cường</strong><p class="text-muted">Biển số 30E-56789 · Đánh giá 4.7/5</p></div></div>
+        <div class="mt-md"><a href="tel:0901234567" class="btn-primary">Gọi tài xế</a> <a href="order-detail.html" class="btn-secondary">Chi tiết đơn</a></div>
+        <h2 class="mt-8">Tiến trình</h2>
+        <div class="timeline">
+          <div class="timeline-item"><strong>Đã nhận đơn</strong><p class="text-muted">08:05</p></div>
+          <div class="timeline-item"><strong>Đang lấy đồ</strong><p class="text-muted">08:30</p></div>
+          <div class="timeline-item"><strong>Đang giao</strong><p class="text-muted">09:10</p></div>
+        </div>
+      </aside>
+    </section>
+  </div></main>
+</div>
+</body>
+</html>
