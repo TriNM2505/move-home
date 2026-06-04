@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cách hoạt động — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .public-main { background: var(--color-canvas); }
+    .public-hero { padding: var(--spacing-5xl) 0; background: var(--color-canvas-soft); }
+    .public-hero h1 { font-size: var(--font-size-display-xl); line-height: var(--line-height-display-xl); margin-bottom: var(--spacing-lg); }
+    .public-hero p { color: var(--color-body); max-width: 720px; }
+    .public-section { padding: var(--spacing-5xl) 0; }
+    .public-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .step-number { width: 40px; height: 40px; border-radius: var(--rounded-full); background: var(--color-primary); color: var(--color-on-primary); display: inline-flex; align-items: center; justify-content: center; font-weight: var(--font-weight-bold); margin-bottom: var(--spacing-lg); }
+    .public-footer-grid { display: flex; justify-content: space-between; gap: var(--spacing-2xl); flex-wrap: wrap; }
+    .footer a { color: var(--color-on-dark); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a href="../index.html" class="site-logo">
+      <span class="site-logo-text">Move_home</span>
+    </a>
+    <nav class="public-nav" aria-label="Điều hướng công khai">
+      <a href="about.html" class="nav-link">Về chúng tôi</a>
+      <a href="how-it-works.html" class="nav-link active">Cách hoạt động</a>
+      <a href="pricing.html" class="nav-link">Bảng giá</a>
+      <a href="contact.html" class="nav-link">Liên hệ</a>
+      <a href="contact.html" class="btn-primary">Nhận tư vấn</a>
+    </nav>
+  </div>
+</header>
+
+<main class="public-main">
+  <section class="public-hero">
+    <div class="container">
+      <p class="badge badge-md badge-primary mb-lg">Quy trình rõ ràng</p>
+      <h1>Đặt dịch vụ chuyển nhà qua từng bước dễ theo dõi.</h1>
+      <p>Move_home chia quy trình thành các bước nhỏ để khách hàng biết cần chuẩn bị gì, tài xế biết cần nhận thông tin nào và quản lý có cơ sở hỗ trợ khi có phát sinh.</p>
+    </div>
+  </section>
+
+  <section class="public-section">
+    <div class="container">
+      <h2 class="page-title mb-xl">Dành cho khách hàng</h2>
+      <div class="grid-4">
+        <article class="card-elevated">
+          <span class="step-number">1</span>
+          <h3 class="section-title">Tạo tài khoản</h3>
+          <p class="text-muted">Đăng ký thông tin liên hệ để hệ thống lưu lịch sử đơn hàng và hỗ trợ khi cần.</p>
+        </article>
+        <article class="card-elevated">
+          <span class="step-number">2</span>
+          <h3 class="section-title">Nhập điểm đón và trả</h3>
+          <p class="text-muted">Chọn quận, địa chỉ chi tiết, thời gian hẹn và các điều kiện như tầng cao hoặc hẻm nhỏ.</p>
+        </article>
+        <article class="card-elevated">
+          <span class="step-number">3</span>
+          <h3 class="section-title">Xem báo giá</h3>
+          <p class="text-muted">Kiểm tra loại xe, chi phí dự kiến và thông tin cần xác nhận trước khi đặt đơn.</p>
+        </article>
+        <article class="card-elevated">
+          <span class="step-number">4</span>
+          <h3 class="section-title">Theo dõi và đánh giá</h3>
+          <p class="text-muted">Theo dõi trạng thái đơn hàng, nhận hỗ trợ khi phát sinh và đánh giá sau khi hoàn tất.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="public-section" style="background:var(--color-canvas-soft);">
+    <div class="container">
+      <h2 class="page-title mb-xl">Dành cho tài xế</h2>
+      <div class="grid-3">
+        <article class="card-content">
+          <h3 class="section-title">Gửi hồ sơ xác minh</h3>
+          <p class="text-muted">Tài xế cung cấp thông tin cá nhân, bằng lái, xe và ảnh phương tiện để quản lý xét duyệt.</p>
+        </article>
+        <article class="card-content">
+          <h3 class="section-title">Nhận đơn phù hợp</h3>
+          <p class="text-muted">Sau khi được kích hoạt, tài xế có thể xem đơn phù hợp với loại xe và khu vực hoạt động.</p>
+        </article>
+        <article class="card-content">
+          <h3 class="section-title">Theo dõi thu nhập</h3>
+          <p class="text-muted">Các đơn hoàn thành được ghi nhận để tài xế theo dõi lịch sử và yêu cầu rút tiền.</p>
+        </article>
+      </div>
+      <div class="mt-xl">
+        <a href="pricing.html" class="btn-primary">Xem bảng giá</a>
+        <a href="contact.html" class="btn-secondary">Liên hệ hỗ trợ</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container public-footer-grid">
+    <div>
+      <strong>Move_home</strong>
+      <p class="mt-sm">Quy trình chuyển nhà minh bạch.</p>
+    </div>
+    <div class="public-nav">
+      <a href="about.html">Về chúng tôi</a>
+      <a href="how-it-works.html">Cách hoạt động</a>
+      <a href="pricing.html">Bảng giá</a>
+      <a href="contact.html">Liên hệ</a>
+      <a href="terms.html">Điều khoản</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

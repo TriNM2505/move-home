@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng giá — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .public-main { background: var(--color-canvas); }
+    .public-hero { padding: var(--spacing-5xl) 0; background: var(--color-canvas-soft); }
+    .public-hero h1 { font-size: var(--font-size-display-xl); line-height: var(--line-height-display-xl); margin-bottom: var(--spacing-lg); }
+    .public-hero p { color: var(--color-body); max-width: 720px; }
+    .public-section { padding: var(--spacing-5xl) 0; }
+    .public-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .price-value { font-size: var(--font-size-display-lg); line-height: var(--line-height-display-lg); font-weight: var(--font-weight-bold); color: var(--color-primary); font-variant-numeric: tabular-nums; margin: var(--spacing-lg) 0; }
+    .featured-price { background: var(--color-primary); color: var(--color-on-primary); }
+    .featured-price h2, .featured-price .price-value { color: var(--color-on-primary); }
+    .featured-price p, .featured-price li { color: var(--color-on-primary); }
+    .public-footer-grid { display: flex; justify-content: space-between; gap: var(--spacing-2xl); flex-wrap: wrap; }
+    .footer a { color: var(--color-on-dark); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a href="../index.html" class="site-logo">
+      <span class="site-logo-text">Move_home</span>
+    </a>
+    <nav class="public-nav" aria-label="Điều hướng công khai">
+      <a href="about.html" class="nav-link">Về chúng tôi</a>
+      <a href="how-it-works.html" class="nav-link">Cách hoạt động</a>
+      <a href="pricing.html" class="nav-link active">Bảng giá</a>
+      <a href="contact.html" class="nav-link">Liên hệ</a>
+      <a href="contact.html" class="btn-primary">Nhận tư vấn</a>
+    </nav>
+  </div>
+</header>
+
+<main class="public-main">
+  <section class="public-hero">
+    <div class="container">
+      <p class="badge badge-md badge-primary mb-lg">Giá tham khảo</p>
+      <h1>Bảng giá giúp bạn ước lượng chi phí trước khi chuyển nhà.</h1>
+      <p>Giá thực tế phụ thuộc vào loại xe, quãng đường, thời gian hẹn, số tầng, điều kiện hẻm nhỏ và nhu cầu hỗ trợ bốc xếp. Vui lòng xem báo giá chi tiết trước khi xác nhận đơn.</p>
+    </div>
+  </section>
+
+  <section class="public-section">
+    <div class="container">
+      <div class="grid-3">
+        <article class="card-elevated">
+          <h2 class="section-title">Xe tải 500kg</h2>
+          <p class="text-muted">Phù hợp phòng trọ, đồ ít hoặc chuyển một phần nội thất.</p>
+          <div class="price-value">Từ 250.000 đ</div>
+          <ul class="welcome-features">
+            <li>Không gian chở đồ nhỏ gọn</li>
+            <li>Phù hợp tuyến nội thành ngắn</li>
+            <li>Dễ tiếp cận khu dân cư hẹp</li>
+          </ul>
+        </article>
+        <article class="card-elevated featured-price">
+          <p class="badge badge-md" style="background:var(--color-accent); color:var(--color-on-accent);">Phổ biến</p>
+          <h2 class="section-title">Xe tải 1 tấn</h2>
+          <p>Phù hợp căn hộ nhỏ, gia đình ít đồ hoặc chuyển văn phòng nhỏ.</p>
+          <div class="price-value">Từ 450.000 đ</div>
+          <ul class="welcome-features">
+            <li>Sức chứa cân bằng</li>
+            <li>Phù hợp nhiều tuyến trong thành phố</li>
+            <li>Dễ kết hợp hỗ trợ bốc xếp</li>
+          </ul>
+        </article>
+        <article class="card-elevated">
+          <h2 class="section-title">Xe tải 1.5 tấn</h2>
+          <p class="text-muted">Phù hợp gia đình nhiều đồ, nội thất cồng kềnh hoặc chuyển nhiều thùng hàng.</p>
+          <div class="price-value">Từ 650.000 đ</div>
+          <ul class="welcome-features">
+            <li>Không gian chở rộng hơn</li>
+            <li>Phù hợp đồ nội thất lớn</li>
+            <li>Giảm số chuyến vận chuyển</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="public-section" style="background:var(--color-canvas-soft);">
+    <div class="container">
+      <h2 class="page-title mb-xl">Yếu tố có thể làm thay đổi giá</h2>
+      <div class="card">
+        <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Yếu tố</th>
+                <th>Mô tả</th>
+                <th>Ảnh hưởng</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Quãng đường</td>
+                <td>Khoảng cách giữa điểm đón và điểm trả.</td>
+                <td>Tăng theo tuyến đường thực tế</td>
+              </tr>
+              <tr>
+                <td>Thời gian hẹn</td>
+                <td>Một số khung giờ có nhu cầu cao hơn.</td>
+                <td>Có thể phát sinh phụ phí</td>
+              </tr>
+              <tr>
+                <td>Điều kiện địa điểm</td>
+                <td>Hẻm nhỏ, tầng cao hoặc không có thang máy.</td>
+                <td>Có thể cần thêm công hỗ trợ</td>
+              </tr>
+              <tr>
+                <td>Bốc xếp</td>
+                <td>Nhu cầu hỗ trợ khuân vác đồ đạc.</td>
+                <td>Tính theo số người hỗ trợ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="mt-xl">
+        <a href="contact.html" class="btn-primary">Nhận báo giá tư vấn</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container public-footer-grid">
+    <div>
+      <strong>Move_home</strong>
+      <p class="mt-sm">Báo giá rõ ràng trước khi đặt.</p>
+    </div>
+    <div class="public-nav">
+      <a href="about.html">Về chúng tôi</a>
+      <a href="how-it-works.html">Cách hoạt động</a>
+      <a href="pricing.html">Bảng giá</a>
+      <a href="contact.html">Liên hệ</a>
+      <a href="terms.html">Điều khoản</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

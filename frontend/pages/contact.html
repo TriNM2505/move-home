@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liên hệ — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .public-main { background: var(--color-canvas); }
+    .public-hero { padding: var(--spacing-5xl) 0; background: var(--color-canvas-soft); }
+    .public-hero h1 { font-size: var(--font-size-display-xl); line-height: var(--line-height-display-xl); margin-bottom: var(--spacing-lg); }
+    .public-hero p { color: var(--color-body); max-width: 720px; }
+    .public-section { padding: var(--spacing-5xl) 0; }
+    .public-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .faq-row-public { padding: var(--spacing-lg) 0; border-bottom: 1px solid var(--color-surface-pressed); }
+    .faq-row-public:last-child { border-bottom: none; }
+    .public-footer-grid { display: flex; justify-content: space-between; gap: var(--spacing-2xl); flex-wrap: wrap; }
+    .footer a { color: var(--color-on-dark); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a href="../index.html" class="site-logo">
+      <span class="site-logo-text">Move_home</span>
+    </a>
+    <nav class="public-nav" aria-label="Điều hướng công khai">
+      <a href="about.html" class="nav-link">Về chúng tôi</a>
+      <a href="how-it-works.html" class="nav-link">Cách hoạt động</a>
+      <a href="pricing.html" class="nav-link">Bảng giá</a>
+      <a href="contact.html" class="nav-link active">Liên hệ</a>
+      <a href="contact.html" class="btn-primary">Nhận tư vấn</a>
+    </nav>
+  </div>
+</header>
+
+<main class="public-main">
+  <section class="public-hero">
+    <div class="container">
+      <p class="badge badge-md badge-primary mb-lg">Hỗ trợ khách hàng</p>
+      <h1>Liên hệ Move_home để được tư vấn trước khi chuyển nhà.</h1>
+      <p>Gửi thông tin nhu cầu, khu vực chuyển và thời gian dự kiến. Đội ngũ hỗ trợ sẽ phản hồi để giúp bạn chuẩn bị đơn hàng phù hợp hơn.</p>
+    </div>
+  </section>
+
+  <section class="public-section">
+    <div class="container">
+      <div class="grid-2">
+        <section class="card-elevated" aria-label="Biểu mẫu liên hệ">
+          <h2 class="section-title">Gửi yêu cầu tư vấn</h2>
+          <form novalidate>
+            <div class="form-group">
+              <label class="form-label" for="fullName">Họ và tên</label>
+              <input class="text-input" id="fullName" name="fullName" type="text" placeholder="Nhập họ và tên">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="phone">Số điện thoại</label>
+              <input class="text-input" id="phone" name="phone" type="tel" placeholder="Nhập số điện thoại">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="district">Khu vực cần chuyển</label>
+              <input class="text-input" id="district" name="district" type="text" placeholder="Ví dụ: Ba Đình đến Cầu Giấy">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="note">Nội dung cần hỗ trợ</label>
+              <textarea class="text-input" id="note" name="note" rows="5" placeholder="Mô tả loại đồ, thời gian dự kiến hoặc yêu cầu đặc biệt"></textarea>
+            </div>
+            <button type="button" class="btn-primary btn-full">Gửi thông tin</button>
+          </form>
+        </section>
+
+        <aside class="card-content" aria-label="Thông tin hỗ trợ">
+          <h2 class="section-title">Thông tin liên hệ</h2>
+          <div class="welcome-info">
+            <div class="info-row"><span>Hotline</span><strong>1900 1234</strong></div>
+            <div class="info-row"><span>Email</span><strong>hotro@movehome.vn</strong></div>
+            <div class="info-row"><span>Thời gian hỗ trợ</span><strong>08:00 - 21:00</strong></div>
+            <div class="info-row"><span>Khu vực</span><strong>Nội thành Hà Nội</strong></div>
+          </div>
+          <div class="card-soft-tinted mt-xl">
+            <h3 class="section-title">Cần báo giá nhanh?</h3>
+            <p class="text-muted">Chuẩn bị sẵn điểm đón, điểm trả, loại đồ cần chuyển và thời gian hẹn để được tư vấn chính xác hơn.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="public-section" style="background:var(--color-canvas-soft);">
+    <div class="container">
+      <h2 class="page-title mb-xl">Câu hỏi thường gặp</h2>
+      <div class="card-content">
+        <div class="faq-row-public">
+          <h3 class="section-title">Move_home hoạt động ở khu vực nào?</h3>
+          <p class="text-muted">Dịch vụ tập trung vào các quận nội thành Hà Nội trong giai đoạn hiện tại.</p>
+        </div>
+        <div class="faq-row-public">
+          <h3 class="section-title">Tôi có thể biết giá trước khi đặt không?</h3>
+          <p class="text-muted">Có. Hệ thống hiển thị báo giá dự kiến dựa trên thông tin tuyến đường, loại xe và điều kiện vận chuyển.</p>
+        </div>
+        <div class="faq-row-public">
+          <h3 class="section-title">Nếu đồ bị hư hỏng thì xử lý thế nào?</h3>
+          <p class="text-muted">Khách hàng có thể gửi khiếu nại để đội ngũ quản lý kiểm tra thông tin và đưa ra hướng xử lý phù hợp.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container public-footer-grid">
+    <div>
+      <strong>Move_home</strong>
+      <p class="mt-sm">Luôn sẵn sàng hỗ trợ trước và sau chuyến chuyển nhà.</p>
+    </div>
+    <div class="public-nav">
+      <a href="about.html">Về chúng tôi</a>
+      <a href="how-it-works.html">Cách hoạt động</a>
+      <a href="pricing.html">Bảng giá</a>
+      <a href="contact.html">Liên hệ</a>
+      <a href="terms.html">Điều khoản</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
