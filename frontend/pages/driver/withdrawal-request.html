@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yêu cầu rút tiền — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .withdraw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2xl); }
+    .balance-card { background: var(--color-primary); color: var(--color-on-primary); border-radius: var(--rounded-xl); padding: var(--spacing-3xl); }
+    .balance-card h2, .balance-card p { color: var(--color-on-primary); }
+    .balance-value { font-size: var(--font-size-display-xl); font-weight: var(--font-weight-bold); }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+    @media (max-width: 800px) { .withdraw-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="driver-nav" aria-label="Điều hướng tài xế">
+        <a href="home.html" class="nav-link">Trang chủ</a>
+        <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
+        <a href="in-progress.html" class="nav-link">Đang giao</a>
+        <a href="history.html" class="nav-link">Lịch sử</a>
+        <a href="profile.html" class="nav-link">Hồ sơ</a>
+        <a href="earnings.html" class="nav-link">Thu nhập</a>
+        <a href="withdrawal-request.html" class="nav-link active">Rút tiền</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
+        <div class="avatar avatar-sm avatar-initials">LC</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header">
+        <h1 class="page-title">Yêu cầu rút tiền</h1>
+        <p class="page-subtitle">Nhập số tiền muốn rút và kiểm tra thông tin ngân hàng.</p>
+      </header>
+
+      <div class="withdraw-grid">
+        <aside class="balance-card">
+          <p>Số dư có thể rút</p>
+          <div class="balance-value num-money">8.450.000 VND</div>
+          <p class="mt-md">Số tiền tối thiểu mỗi lần rút là 100.000 VND. Yêu cầu sẽ được quản lý duyệt sau.</p>
+        </aside>
+
+        <section class="card-elevated">
+          <form>
+            <div class="form-group">
+              <label class="form-label" for="amount">Số tiền muốn rút</label>
+              <input class="text-input" id="amount" name="amount" value="2.000.000 VND">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bank">Ngân hàng</label>
+              <select class="text-input" id="bank" name="bank">
+                <option>Vietcombank</option>
+                <option>BIDV</option>
+                <option>VietinBank</option>
+                <option>Techcombank</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="accountNumber">Số tài khoản</label>
+              <input class="text-input" id="accountNumber" value="1023456789">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="accountName">Tên chủ tài khoản</label>
+              <input class="text-input" id="accountName" value="LÊ VĂN CƯỜNG">
+            </div>
+            <div class="flex-between mt-8">
+              <a href="earnings.html" class="btn-secondary">Quay lại</a>
+              <a href="withdrawal-history.html" class="btn-primary">Gửi yêu cầu</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

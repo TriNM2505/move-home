@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết đơn — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .detail-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--spacing-2xl); }
+    .map-preview { min-height: 240px; border-radius: var(--rounded-xl); background: linear-gradient(135deg, #D1FAE5, #F4F5F4); border: 1px solid var(--color-surface-pressed); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-weight: var(--font-weight-semibold); }
+    .price-row { display: flex; justify-content: space-between; padding: var(--spacing-md) 0; border-bottom: 1px solid var(--color-surface-pressed); }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+    @media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="driver-nav" aria-label="Điều hướng tài xế">
+        <a href="home.html" class="nav-link">Trang chủ</a>
+        <a href="available-orders.html" class="nav-link active">Đơn có sẵn</a>
+        <a href="in-progress.html" class="nav-link">Đang giao</a>
+        <a href="history.html" class="nav-link">Lịch sử</a>
+        <a href="profile.html" class="nav-link">Hồ sơ</a>
+        <a href="earnings.html" class="nav-link">Thu nhập</a>
+        <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
+        <div class="avatar avatar-sm avatar-initials">LC</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header flex-between">
+        <div>
+          <h1 class="page-title">Chi tiết đơn MH2026060001</h1>
+          <p class="page-subtitle">Kiểm tra thông tin trước khi nhận đơn.</p>
+        </div>
+        <span class="badge-pending">Đang chờ</span>
+      </header>
+
+      <div class="detail-grid">
+        <div class="flex-col gap-lg">
+          <section class="card-elevated">
+            <h2 class="section-title">Khách hàng</h2>
+            <div class="welcome-info">
+              <div class="info-row"><span>Họ tên</span><strong>Nguyễn Văn An</strong></div>
+              <div class="info-row"><span>Số điện thoại</span><strong>0901 222 333</strong></div>
+              <div class="info-row"><span>Đánh giá</span><strong>4,8/5</strong></div>
+            </div>
+          </section>
+
+          <section class="card-elevated">
+            <h2 class="section-title">Điểm đón và điểm trả</h2>
+            <p><strong>Điểm đón:</strong> 12 Phan Đình Phùng, Quận Ba Đình, Hà Nội</p>
+            <p class="mt-sm"><strong>Điểm trả:</strong> 88 Trần Thái Tông, Quận Cầu Giấy, Hà Nội</p>
+            <div class="map-preview mt-lg">Bản đồ tuyến đường 8,4 km</div>
+          </section>
+
+          <section class="card-elevated">
+            <h2 class="section-title">Ghi chú của khách hàng</h2>
+            <p>Cần hỗ trợ bốc xếp tủ lạnh, có thang máy ở cả hai điểm. Vui lòng gọi trước khi đến 15 phút.</p>
+          </section>
+        </div>
+
+        <aside class="card-elevated">
+          <h2 class="section-title">Báo giá</h2>
+          <div class="price-row"><span>Giá cơ bản</span><strong>900.000 VND</strong></div>
+          <div class="price-row"><span>Phí bốc xếp</span><strong>300.000 VND</strong></div>
+          <div class="price-row"><span>Phụ phí giờ cao điểm</span><strong>150.000 VND</strong></div>
+          <div class="price-row"><span>Phí hoa hồng</span><strong>150.000 VND</strong></div>
+          <div class="price-row"><span>Tổng cộng</span><strong class="num-money">1.500.000 VND</strong></div>
+
+          <div class="flex-col gap-md mt-8">
+            <a href="in-progress.html" class="btn-primary btn-full">Nhận đơn</a>
+            <a href="available-orders.html" class="btn-secondary btn-full">Bỏ qua</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

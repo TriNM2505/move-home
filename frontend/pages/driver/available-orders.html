@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đơn có sẵn — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .order-card { display: grid; grid-template-columns: 1fr auto; gap: var(--spacing-lg); align-items: center; }
+    .route { font-weight: var(--font-weight-semibold); color: var(--color-ink); }
+    .order-meta { display: flex; flex-wrap: wrap; gap: var(--spacing-md); color: var(--color-body); font-size: var(--font-size-body-sm); margin-top: var(--spacing-sm); }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+    @media (max-width: 700px) { .order-card { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="driver-nav" aria-label="Điều hướng tài xế">
+        <a href="home.html" class="nav-link">Trang chủ</a>
+        <a href="available-orders.html" class="nav-link active">Đơn có sẵn</a>
+        <a href="in-progress.html" class="nav-link">Đang giao</a>
+        <a href="history.html" class="nav-link">Lịch sử</a>
+        <a href="profile.html" class="nav-link">Hồ sơ</a>
+        <a href="earnings.html" class="nav-link">Thu nhập</a>
+        <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
+        <div class="avatar avatar-sm avatar-initials">LC</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header flex-between">
+        <div>
+          <h1 class="page-title">Đơn có sẵn</h1>
+          <p class="page-subtitle">Danh sách đơn đang chờ tài xế phù hợp nhận.</p>
+        </div>
+        <a href="available-orders.html" class="btn-subtle">Làm mới</a>
+      </header>
+
+      <nav class="filter-bar" aria-label="Bộ lọc đơn">
+        <button class="filter-pill active">Gần đây</button>
+        <button class="filter-pill">Phù hợp xe</button>
+        <button class="filter-pill">Giá cao</button>
+      </nav>
+
+      <section class="flex-col gap-lg">
+        <article class="card-elevated order-card">
+          <div>
+            <p class="route">Quận Ba Đình → Quận Cầu Giấy</p>
+            <div class="order-meta">
+              <span>Mã đơn MH2026060001</span>
+              <span>Khách hàng: Nguyễn Văn An</span>
+              <span>8,4 km</span>
+              <span>Hẹn 09:30, 05/06/2026</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <strong class="num-money">1.500.000 VND</strong>
+            <div class="mt-sm"><a href="order-detail.html" class="btn-primary">Xem chi tiết</a></div>
+          </div>
+        </article>
+        <article class="card-elevated order-card">
+          <div>
+            <p class="route">Quận Thanh Xuân → Quận Hà Đông</p>
+            <div class="order-meta">
+              <span>Mã đơn MH2026060003</span>
+              <span>Khách hàng: Phạm Thu Hà</span>
+              <span>11,2 km</span>
+              <span>Hẹn 14:00, 05/06/2026</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <strong class="num-money">1.850.000 VND</strong>
+            <div class="mt-sm"><a href="order-detail.html" class="btn-primary">Xem chi tiết</a></div>
+          </div>
+        </article>
+        <article class="card-elevated order-card">
+          <div>
+            <p class="route">Quận Đống Đa → Quận Hoàn Kiếm</p>
+            <div class="order-meta">
+              <span>Mã đơn MH2026060004</span>
+              <span>Khách hàng: Trần Thị Bình</span>
+              <span>5,7 km</span>
+              <span>Hẹn 16:30, 05/06/2026</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <strong class="num-money">980.000 VND</strong>
+            <div class="mt-sm"><a href="order-detail.html" class="btn-primary">Xem chi tiết</a></div>
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>

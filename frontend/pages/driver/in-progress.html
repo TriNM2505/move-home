@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đang giao — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .work-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--spacing-2xl); }
+    .map-view { min-height: 420px; border-radius: var(--rounded-xl); background: linear-gradient(135deg, #D1FAE5, #DBEAFE); border: 1px solid var(--color-surface-pressed); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-weight: var(--font-weight-bold); font-size: var(--font-size-display-sm); text-align: center; padding: var(--spacing-2xl); }
+    .timeline-item { border-left: 4px solid var(--color-surface-pressed); padding: 0 0 var(--spacing-xl) var(--spacing-lg); }
+    .timeline-item.active { border-left-color: var(--color-primary); }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+    @media (max-width: 900px) { .work-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="driver-nav" aria-label="Điều hướng tài xế">
+        <a href="home.html" class="nav-link">Trang chủ</a>
+        <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
+        <a href="in-progress.html" class="nav-link active">Đang giao</a>
+        <a href="history.html" class="nav-link">Lịch sử</a>
+        <a href="profile.html" class="nav-link">Hồ sơ</a>
+        <a href="earnings.html" class="nav-link">Thu nhập</a>
+        <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
+        <div class="avatar avatar-sm avatar-initials">LC</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header">
+        <h1 class="page-title">Đơn đang giao</h1>
+        <p class="page-subtitle">Cập nhật tiến độ đơn MH2026060001.</p>
+      </header>
+
+      <div class="work-grid">
+        <section class="map-view">Bản đồ điều hướng đến điểm đón và điểm trả</section>
+
+        <aside class="flex-col gap-lg">
+          <section class="card-elevated">
+            <h2 class="section-title">Thông tin khách hàng</h2>
+            <div class="welcome-info">
+              <div class="info-row"><span>Khách hàng</span><strong>Nguyễn Văn An</strong></div>
+              <div class="info-row"><span>Số điện thoại</span><strong>0901 222 333</strong></div>
+              <div class="info-row"><span>Tuyến đường</span><strong>8,4 km</strong></div>
+            </div>
+            <a href="tel:0901222333" class="btn-primary btn-full">Gọi khách</a>
+          </section>
+
+          <section class="card-elevated">
+            <h2 class="section-title">Tiến độ</h2>
+            <div class="timeline-item active"><strong>Đã nhận đơn</strong><br><span class="text-muted">09:05</span></div>
+            <div class="timeline-item active"><strong>Đã đến điểm đón</strong><br><span class="text-muted">09:28</span></div>
+            <div class="timeline-item"><strong>Đang giao</strong><br><span class="text-muted">Chờ cập nhật</span></div>
+            <div class="timeline-item"><strong>Hoàn thành</strong><br><span class="text-muted">Chờ cập nhật</span></div>
+            <div class="flex-col gap-md mt-lg">
+              <a href="in-progress.html" class="btn-primary btn-full">Đã đến điểm đón</a>
+              <a href="history.html" class="btn-primary-amber btn-full">Đã hoàn thành</a>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

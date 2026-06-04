@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lịch sử nhận đơn — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="driver-nav" aria-label="Điều hướng tài xế">
+        <a href="home.html" class="nav-link">Trang chủ</a>
+        <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
+        <a href="in-progress.html" class="nav-link">Đang giao</a>
+        <a href="history.html" class="nav-link active">Lịch sử</a>
+        <a href="profile.html" class="nav-link">Hồ sơ</a>
+        <a href="earnings.html" class="nav-link">Thu nhập</a>
+        <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
+        <div class="avatar avatar-sm avatar-initials">LC</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header flex-between">
+        <div>
+          <h1 class="page-title">Lịch sử nhận đơn</h1>
+          <p class="page-subtitle">Theo dõi các đơn đã hoàn thành hoặc đã hủy.</p>
+        </div>
+        <a href="available-orders.html" class="btn-primary">Xem đơn có sẵn</a>
+      </header>
+
+      <nav class="filter-bar" aria-label="Bộ lọc lịch sử">
+        <button class="filter-pill active">Tất cả</button>
+        <button class="filter-pill">Hoàn thành</button>
+        <button class="filter-pill">Đã hủy</button>
+      </nav>
+
+      <div class="table-wrapper">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Mã đơn</th>
+              <th>Ngày</th>
+              <th>Khách hàng</th>
+              <th>Tuyến đường</th>
+              <th>Trạng thái</th>
+              <th class="text-right">Thu nhập</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>MH2026060001</td>
+              <td>05/06/2026</td>
+              <td>Nguyễn Văn An</td>
+              <td>Ba Đình → Cầu Giấy</td>
+              <td><span class="badge-completed">Hoàn thành</span></td>
+              <td class="text-right num-money">1.050.000 VND</td>
+            </tr>
+            <tr>
+              <td>MH2026050028</td>
+              <td>31/05/2026</td>
+              <td>Trần Thị Bình</td>
+              <td>Đống Đa → Hoàn Kiếm</td>
+              <td><span class="badge-completed">Hoàn thành</span></td>
+              <td class="text-right num-money">686.000 VND</td>
+            </tr>
+            <tr>
+              <td>MH2026050019</td>
+              <td>29/05/2026</td>
+              <td>Phạm Thu Hà</td>
+              <td>Thanh Xuân → Hà Đông</td>
+              <td><span class="badge-cancelled">Đã hủy</span></td>
+              <td class="text-right num-money">0 VND</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar">
+        <span class="pagination-info">Hiển thị 1-3 trong 23 đơn</span>
+        <div class="pagination-controls">
+          <button class="pagination-btn-page active">1</button>
+          <button class="pagination-btn-page">2</button>
+          <button class="pagination-btn-page">3</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

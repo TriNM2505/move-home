@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thu nhập — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    .bar-chart { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--spacing-md); align-items: end; height: 220px; padding-top: var(--spacing-xl); }
+    .bar { background: var(--color-primary); border-radius: var(--rounded-md) var(--rounded-md) 0 0; min-height: 32px; }
+    .bar-label { text-align: center; color: var(--color-body); font-size: var(--font-size-caption); margin-top: var(--spacing-sm); }
+    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="driver-nav" aria-label="Điều hướng tài xế">
+        <a href="home.html" class="nav-link">Trang chủ</a>
+        <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
+        <a href="in-progress.html" class="nav-link">Đang giao</a>
+        <a href="history.html" class="nav-link">Lịch sử</a>
+        <a href="profile.html" class="nav-link">Hồ sơ</a>
+        <a href="earnings.html" class="nav-link active">Thu nhập</a>
+        <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
+        <div class="avatar avatar-sm avatar-initials">LC</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header flex-between">
+        <div>
+          <h1 class="page-title">Thu nhập</h1>
+          <p class="page-subtitle">Tổng hợp doanh thu, hoa hồng và giao dịch nhận tiền.</p>
+        </div>
+        <a href="withdrawal-request.html" class="btn-primary">Yêu cầu rút tiền</a>
+      </header>
+
+      <section class="grid-3 mb-8">
+        <div class="kpi kpi-success"><div class="kpi-body"><span class="kpi-label">Tổng thu nhập</span><span class="kpi-value num-money">28,4tr</span></div></div>
+        <div class="kpi kpi-warning"><div class="kpi-body"><span class="kpi-label">Hoa hồng đã trả</span><span class="kpi-value num-money">12,1tr</span></div></div>
+        <div class="kpi kpi-primary"><div class="kpi-body"><span class="kpi-label">Số đơn</span><span class="kpi-value">23</span></div></div>
+      </section>
+
+      <section class="card-elevated mb-8">
+        <div class="card-header" style="margin: calc(var(--spacing-2xl) * -1) calc(var(--spacing-2xl) * -1) var(--spacing-xl);">
+          <h2 class="card-title">Thu nhập 7 ngày gần đây</h2>
+          <select class="filter-select" aria-label="Chọn tháng">
+            <option>Tháng 06/2026</option>
+            <option>Tháng 05/2026</option>
+          </select>
+        </div>
+        <div class="bar-chart" aria-label="Biểu đồ thu nhập">
+          <div><div class="bar" style="height:45%;"></div><div class="bar-label">T2</div></div>
+          <div><div class="bar" style="height:70%;"></div><div class="bar-label">T3</div></div>
+          <div><div class="bar" style="height:55%;"></div><div class="bar-label">T4</div></div>
+          <div><div class="bar" style="height:88%;"></div><div class="bar-label">T5</div></div>
+          <div><div class="bar" style="height:64%;"></div><div class="bar-label">T6</div></div>
+          <div><div class="bar" style="height:92%;"></div><div class="bar-label">T7</div></div>
+          <div><div class="bar" style="height:50%;"></div><div class="bar-label">CN</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Giao dịch thu nhập</h2>
+          <a href="withdrawal-history.html" class="link-primary">Xem lịch sử rút tiền</a>
+        </div>
+        <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+          <table class="table table-hover">
+            <thead>
+              <tr><th>Mã đơn</th><th>Loại giao dịch</th><th>Ngày</th><th class="text-right">Số tiền</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>MH2026060001</td><td>Thu nhập tài xế</td><td>05/06/2026</td><td class="text-right num-money">1.050.000 VND</td></tr>
+              <tr><td>MH2026050028</td><td>Thu nhập tài xế</td><td>31/05/2026</td><td class="text-right num-money">686.000 VND</td></tr>
+              <tr><td>MH2026050024</td><td>Thu nhập tài xế</td><td>30/05/2026</td><td class="text-right num-money">910.000 VND</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>
