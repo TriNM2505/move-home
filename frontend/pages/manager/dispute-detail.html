@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xử lý khiếu nại — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản lý</span>
+      </a>
+
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Quản lý</span>
+        <div class="avatar avatar-sm avatar-initials">QL</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản lý">
+      <nav class="sidebar-nav">
+        <a href="driver-approvals.html" class="sidebar-item">
+          <span class="sidebar-icon">✓</span>
+          <span>Duyệt tài xế</span>
+        </a>
+        <a href="withdrawal-pending.html" class="sidebar-item">
+          <span class="sidebar-icon">₫</span>
+          <span>Rút tiền</span>
+        </a>
+        <a href="disputes.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">!</span>
+          <span>Khiếu nại</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+        <header class="page-header">
+          <h1 class="page-title">Xử lý khiếu nại</h1>
+          <p class="page-subtitle">Đơn MH202606050001 có báo cáo trầy xước tủ gỗ sau khi vận chuyển.</p>
+        </header>
+
+        <section class="grid-2 mb-8" aria-label="Thông tin đơn và người liên quan">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Thông tin đơn hàng</h2>
+              <span class="badge badge-sm badge-danger">Khiếu nại</span>
+            </div>
+            <div class="card-body">
+              <div class="welcome-info">
+                <div class="info-row"><span>Mã đơn</span><strong>MH202606050001</strong></div>
+                <div class="info-row"><span>Khách hàng</span><strong>Nguyễn Thu Hà</strong></div>
+                <div class="info-row"><span>Tài xế</span><strong>Nguyễn Văn Hùng</strong></div>
+                <div class="info-row"><span>Tổng tiền</span><strong class="num-money">2.400.000 đ</strong></div>
+                <div class="info-row"><span>Ngày hoàn thành</span><strong>05/06/2026 10:20</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Tuyến vận chuyển</h2>
+              <span class="card-meta">Nội thành Hà Nội</span>
+            </div>
+            <div class="card-body">
+              <div class="welcome-info">
+                <div class="info-row"><span>Điểm đón</span><strong>Quận Ba Đình</strong></div>
+                <div class="info-row"><span>Địa chỉ đón</span><strong>12 Kim Mã</strong></div>
+                <div class="info-row"><span>Điểm trả</span><strong>Quận Cầu Giấy</strong></div>
+                <div class="info-row"><span>Địa chỉ trả</span><strong>88 Duy Tân</strong></div>
+                <div class="info-row"><span>Loại xe</span><strong>Xe tải 1 tấn</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid-2 mb-8" aria-label="Nội dung khiếu nại và phản hồi">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Nội dung khách hàng báo cáo</h2>
+              <span class="card-meta">Gửi lúc 11:05</span>
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Khách hàng báo tủ gỗ bị trầy ở cạnh trái sau khi chuyển lên tầng. Khách yêu cầu hỗ trợ bồi thường chi phí sửa chữa.</p>
+              <div class="grid-2 mt-lg">
+                <div class="card-soft-tinted text-center">
+                  <div class="empty-state-icon" aria-hidden="true">▣</div>
+                  <p class="empty-state-desc">Ảnh cạnh tủ bị trầy</p>
+                </div>
+                <div class="card-soft-tinted text-center">
+                  <div class="empty-state-icon" aria-hidden="true">▣</div>
+                  <p class="empty-state-desc">Ảnh vị trí đặt tủ sau giao</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Phản hồi tài xế</h2>
+              <span class="badge badge-sm badge-warning">Đã phản hồi</span>
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Tài xế xác nhận tủ khó di chuyển qua cầu thang hẹp. Tài xế cho biết đã báo khách trước khi chuyển và đề nghị chia sẻ một phần chi phí sửa chữa.</p>
+              <div class="welcome-info mt-lg">
+                <div class="info-row"><span>Thời điểm phản hồi</span><strong>05/06/2026 12:10</strong></div>
+                <div class="info-row"><span>Đề xuất tài xế</span><strong class="num-money">500.000 đ</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Phán quyết xử lý khiếu nại">
+          <div class="card-header">
+            <h2 class="card-title">Phán quyết đề xuất</h2>
+            <span class="card-meta">Quản lý cần xác nhận</span>
+          </div>
+          <div class="card-body">
+            <div class="grid-3">
+              <div class="card-soft-tinted">
+                <h3 class="section-title">Hoàn tiền khách hàng</h3>
+                <p class="text-muted">Áp dụng khi thiệt hại thuộc trách nhiệm vận chuyển.</p>
+                <p class="mt-sm"><strong class="num-money">700.000 đ</strong></p>
+              </div>
+              <div class="card-soft-tinted">
+                <h3 class="section-title">Khấu trừ tài xế</h3>
+                <p class="text-muted">Ghi nhận khoản khấu trừ vào ví tài xế.</p>
+                <p class="mt-sm"><strong class="num-money">500.000 đ</strong></p>
+              </div>
+              <div class="card-soft-tinted">
+                <h3 class="section-title">Đóng khiếu nại</h3>
+                <p class="text-muted">Dùng khi không đủ bằng chứng để xử lý tài chính.</p>
+                <p class="mt-sm"><span class="badge badge-sm badge-neutral">Không phát sinh tiền</span></p>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <a href="disputes.html" class="btn btn-secondary btn-md">Không xử lý</a>
+            <a href="disputes.html" class="btn btn-danger btn-md">Khấu trừ tài xế</a>
+            <a href="disputes.html" class="btn btn-primary btn-md">Hoàn tiền khách hàng</a>
+          </div>
+        </section>
+
+        <p class="text-muted mt-lg">
+          <a href="disputes.html" class="link-primary">Quay lại danh sách khiếu nại</a>
+        </p>
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

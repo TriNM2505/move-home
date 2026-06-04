@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết tài xế — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản lý</span>
+      </a>
+
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Quản lý</span>
+        <div class="avatar avatar-sm avatar-initials">QL</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản lý">
+      <nav class="sidebar-nav">
+        <a href="driver-approvals.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">✓</span>
+          <span>Duyệt tài xế</span>
+        </a>
+        <a href="withdrawal-pending.html" class="sidebar-item">
+          <span class="sidebar-icon">₫</span>
+          <span>Rút tiền</span>
+        </a>
+        <a href="disputes.html" class="sidebar-item">
+          <span class="sidebar-icon">!</span>
+          <span>Khiếu nại</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+        <header class="page-header">
+          <h1 class="page-title">Chi tiết tài xế</h1>
+          <p class="page-subtitle">Hồ sơ đăng ký của Nguyễn Văn Hùng đang chờ quản lý xét duyệt.</p>
+        </header>
+
+        <section class="grid-2 mb-8" aria-label="Thông tin hồ sơ tài xế">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Thông tin cá nhân</h2>
+              <span class="badge badge-sm badge-pending-approval">Chờ duyệt</span>
+            </div>
+            <div class="card-body">
+              <div class="welcome-info">
+                <div class="info-row"><span>Họ tên</span><strong>Nguyễn Văn Hùng</strong></div>
+                <div class="info-row"><span>Email</span><strong>hung.nguyen@example.com</strong></div>
+                <div class="info-row"><span>Số điện thoại</span><strong>0912 345 678</strong></div>
+                <div class="info-row"><span>Ngày sinh</span><strong>12/08/1994</strong></div>
+                <div class="info-row"><span>Ngày gửi hồ sơ</span><strong>04/06/2026</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Thông tin phương tiện</h2>
+              <span class="card-meta">Đã đối chiếu biển số</span>
+            </div>
+            <div class="card-body">
+              <div class="welcome-info">
+                <div class="info-row"><span>Loại xe</span><strong>Xe tải 1 tấn</strong></div>
+                <div class="info-row"><span>Biển số</span><strong>30H-456.78</strong></div>
+                <div class="info-row"><span>Năm sản xuất</span><strong>2021</strong></div>
+                <div class="info-row"><span>Bằng lái</span><strong>Hạng C</strong></div>
+                <div class="info-row"><span>Số bằng lái</span><strong>790123456789</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card mb-8" aria-label="Giấy tờ đã tải lên">
+          <div class="card-header">
+            <h2 class="card-title">Giấy tờ xác minh</h2>
+            <span class="card-meta">Ảnh minh họa trong dữ liệu mẫu</span>
+          </div>
+          <div class="card-body">
+            <div class="grid-3">
+              <div class="card-soft-tinted text-center">
+                <div class="empty-state-icon" aria-hidden="true">▣</div>
+                <h3 class="empty-state-title">Giấy phép lái xe</h3>
+                <p class="empty-state-desc">Ảnh rõ số bằng, họ tên và ngày cấp.</p>
+              </div>
+              <div class="card-soft-tinted text-center">
+                <div class="empty-state-icon" aria-hidden="true">▣</div>
+                <h3 class="empty-state-title">Ảnh xe phía trước</h3>
+                <p class="empty-state-desc">Biển số trùng với thông tin đăng ký.</p>
+              </div>
+              <div class="card-soft-tinted text-center">
+                <div class="empty-state-icon" aria-hidden="true">▣</div>
+                <h3 class="empty-state-title">Ảnh thùng xe</h3>
+                <p class="empty-state-desc">Khoang chở hàng sạch và còn sử dụng tốt.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Ghi chú xét duyệt">
+          <div class="card-header">
+            <h2 class="card-title">Kết luận kiểm tra</h2>
+            <span class="badge badge-sm badge-success">Đủ điều kiện</span>
+          </div>
+          <div class="card-body">
+            <p class="text-muted">Hồ sơ có đầy đủ giấy phép, thông tin xe và ảnh xác minh. Không phát hiện thông tin mâu thuẫn trong dữ liệu mẫu.</p>
+          </div>
+          <div class="card-footer">
+            <a href="driver-rejected.html" class="btn btn-danger btn-md">Từ chối</a>
+            <a href="driver-approvals.html" class="btn btn-primary btn-md">Duyệt hồ sơ</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lịch sử từ chối tài xế — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản lý</span>
+      </a>
+
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Quản lý</span>
+        <div class="avatar avatar-sm avatar-initials">QL</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản lý">
+      <nav class="sidebar-nav">
+        <a href="driver-approvals.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">✓</span>
+          <span>Duyệt tài xế</span>
+        </a>
+        <a href="withdrawal-pending.html" class="sidebar-item">
+          <span class="sidebar-icon">₫</span>
+          <span>Rút tiền</span>
+        </a>
+        <a href="disputes.html" class="sidebar-item">
+          <span class="sidebar-icon">!</span>
+          <span>Khiếu nại</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+        <header class="page-header">
+          <h1 class="page-title">Lịch sử từ chối tài xế</h1>
+          <p class="page-subtitle">Theo dõi các hồ sơ tài xế không đạt yêu cầu và lý do xử lý.</p>
+        </header>
+
+        <section class="mb-8" aria-label="Tóm tắt lịch sử từ chối">
+          <div class="grid-3">
+            <div class="kpi kpi-danger">
+              <div class="kpi-icon">4</div>
+              <div class="kpi-body">
+                <div class="kpi-value">4</div>
+                <div class="kpi-label">Hồ sơ bị từ chối</div>
+                <div class="kpi-sub">Trong tháng này</div>
+              </div>
+            </div>
+            <div class="kpi kpi-warning">
+              <div class="kpi-icon">2</div>
+              <div class="kpi-body">
+                <div class="kpi-value">2</div>
+                <div class="kpi-label">Thiếu giấy tờ</div>
+                <div class="kpi-sub">Lý do phổ biến nhất</div>
+              </div>
+            </div>
+            <div class="kpi kpi-primary">
+              <div class="kpi-icon">1</div>
+              <div class="kpi-body">
+                <div class="kpi-value">1</div>
+                <div class="kpi-label">Biển số không khớp</div>
+                <div class="kpi-sub">Cần đăng ký lại</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Bảng lịch sử từ chối tài xế">
+          <div class="card-header">
+            <h2 class="card-title">Hồ sơ đã xử lý</h2>
+            <a href="driver-approvals.html" class="link-primary">Quay lại danh sách chờ duyệt</a>
+          </div>
+          <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Họ tên</th>
+                  <th>Email</th>
+                  <th>Ngày từ chối</th>
+                  <th>Người xử lý</th>
+                  <th>Lý do</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Lê Văn Nam</td>
+                  <td>nam.le@example.com</td>
+                  <td>04/06/2026</td>
+                  <td>Quản lý An</td>
+                  <td>Ảnh giấy phép lái xe bị mờ, không đọc được số bằng.</td>
+                  <td><span class="badge badge-sm badge-rejected">Bị từ chối</span></td>
+                </tr>
+                <tr>
+                  <td>Đỗ Minh Quân</td>
+                  <td>quan.do@example.com</td>
+                  <td>03/06/2026</td>
+                  <td>Quản lý An</td>
+                  <td>Biển số xe trong ảnh không khớp với thông tin đăng ký.</td>
+                  <td><span class="badge badge-sm badge-rejected">Bị từ chối</span></td>
+                </tr>
+                <tr>
+                  <td>Vũ Thành Long</td>
+                  <td>long.vu@example.com</td>
+                  <td>02/06/2026</td>
+                  <td>Quản lý Bình</td>
+                  <td>Thiếu ảnh phương tiện phía trước và ảnh thùng xe.</td>
+                  <td><span class="badge badge-sm badge-rejected">Bị từ chối</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
