@@ -1,106 +1,125 @@
-// Trang quan ly khach hang — GET /api/admin/dashboard/customers
-// Response: List<CustomerListItem>
+// Trang quản lý khách hàng — GET /api/admin/dashboard/customers
+// Response: List<CustomerListItem> — client-side pagination (Sprint 2 sẽ server-side)
 
+import {
+  setupAdminPage, formatDate,
+  customerStatusBadge, esc, showError, hideError,
+  renderPagination, clientSidePaginate,
+} from './admin-common.js';
 import { getAuthenticated } from './api.js';
-import { setupAdminPage, formatDate, customerStatusBadge, esc, showError, hideError } from './admin-common.js';
 
-let currentStatus = '';
+let allCustomers  = [];   // toàn bộ list từ API
+let currentPage   = 0;
+let currentSize   = 10;
+let currentStatus = '';   // rỗng = tất cả
 
-const FILTER_OPTIONS = [
-  { value: '',               label: 'Tat ca trang thai' },
-  { value: 'ACTIVE',         label: 'Hoat dong (ACTIVE)' },
-  { value: 'PENDING_VERIFY', label: 'Cho xac thuc (PENDING_VERIFY)' },
-  { value: 'SUSPENDED',      label: 'Tam khoa (SUSPENDED)' },
-];
-
-function showLoading(colSpan = 7) {
-  const tbody = document.getElementById('customers-tbody');
+// Hiển thị spinner
+function showLoading() {
+  const tbody = document.getElementById('customersTableBody');
   if (!tbody) return;
   tbody.innerHTML = `
     <tr>
-      <td colspan="${colSpan}" class="table-empty-row">
-        <span class="spinner spinner-sm" style="display:inline-block;vertical-align:middle;margin-right:8px;"></span>
-        Dang tai du lieu...
+      <td colspan="7" class="table-empty-row">
+        <span class="spinner spinner-sm"></span>
+        Đang tải dữ liệu...
       </td>
     </tr>`;
 }
 
-function renderCustomers(customers) {
-  const tbody   = document.getElementById('customers-tbody');
-  const countEl = document.getElementById('customers-count');
+// Render bảng khách hàng
+function renderCustomersTable(customers) {
+  const tbody = document.getElementById('customersTableBody');
   if (!tbody) return;
-
-  if (countEl) {
-    countEl.textContent = `Hien thi ${customers.length} khach hang`;
-  }
 
   if (!customers.length) {
     tbody.innerHTML = `
       <tr>
         <td colspan="7" class="table-empty-row">
-          👥 Khong co khach hang nao voi trang thai nay.
+          👥 Không có khách hàng nào với trạng thái này.
         </td>
       </tr>`;
     return;
   }
 
   tbody.innerHTML = customers.map(c => {
-    // Hien thi email da xac thuc: ✓ xanh hoac ✗ do
-    const emailVerifiedHtml = c.emailVerified
-      ? '<span class="verified-yes">✓ Da xac thuc</span>'
-      : '<span class="verified-no">✗ Chua xac thuc</span>';
-
+    const emailVerified = c.emailVerified
+      ? `<span class="verified-yes">✅ Đã xác thực</span>`
+      : `<span class="verified-no">❌ Chưa xác thực</span>`;
     return `
-    <tr>
-      <td><strong>${esc(c.fullName)}</strong></td>
-      <td style="font-size:var(--font-size-xs);">${esc(c.email)}</td>
-      <td>${esc(c.phone) || '—'}</td>
-      <td>${emailVerifiedHtml}</td>
-      <td class="text-center">${c.totalOrdersPlaced ?? 0}</td>
-      <td>${customerStatusBadge(c.status)}</td>
-      <td style="font-size:var(--font-size-xs);white-space:nowrap;">
-        ${formatDate(c.createdAt)}
-      </td>
-    </tr>`;
+      <tr>
+        <td><strong>${esc(c.fullName)}</strong></td>
+        <td class="text-muted">${esc(c.email)}</td>
+        <td>${esc(c.phone) || '—'}</td>
+        <td>${emailVerified}</td>
+        <td class="text-right">${c.totalOrdersPlaced ?? 0}</td>
+        <td class="text-muted">${formatDate(c.createdAt)}</td>
+        <td>${customerStatusBadge(c.status)}</td>
+      </tr>`;
   }).join('');
 }
 
+// Lọc và re-render với pagination
+function applyFilterAndRender() {
+  const filtered = currentStatus
+    ? allCustomers.filter(c => c.status === currentStatus)
+    : allCustomers;
+
+  const countEl = document.getElementById('customers-count');
+  if (countEl) countEl.textContent = `${filtered.length} khách hàng`;
+
+  const pageData = clientSidePaginate(filtered, currentPage, currentSize);
+  renderCustomersTable(pageData.content);
+  renderPagination('paginationContainer', pageData, changePage, changeSize, 'khách hàng');
+}
+
+// Tải toàn bộ từ API (List response)
 async function loadCustomers() {
   hideError();
   showLoading();
+  allCustomers = [];
 
   try {
-    let url = '/api/admin/dashboard/customers';
-    if (currentStatus) url += `?status=${encodeURIComponent(currentStatus)}`;
-
-    const customers = await getAuthenticated(url);
-    renderCustomers(Array.isArray(customers) ? customers : []);
+    const data = await getAuthenticated('/api/admin/dashboard/customers');
+    allCustomers = Array.isArray(data) ? data : [];
+    applyFilterAndRender();
   } catch (err) {
-    console.error('Loi khi tai khach hang:', err);
-    showError(err.message || 'Khong the tai danh sach khach hang. Thu lai sau.');
-    const tbody = document.getElementById('customers-tbody');
+    console.error('Lỗi khi tải khách hàng:', err);
+    showError(err.message || 'Không thể tải danh sách khách hàng. Vui lòng thử lại.');
+    const tbody = document.getElementById('customersTableBody');
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="7" class="table-empty-row">⚠️ Loi tai du lieu.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="table-empty-row">⚠️ Lỗi tải dữ liệu.</td></tr>`;
     }
   }
 }
 
+function changePage(newPage) {
+  currentPage = newPage;
+  applyFilterAndRender();
+}
+
+function changeSize(newSize) {
+  currentSize = newSize;
+  currentPage = 0;
+  applyFilterAndRender();
+}
+
+// ============================================================
+// INIT
+// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
   if (!setupAdminPage('../login.html')) return;
 
-  const select = document.getElementById('status-filter');
-  if (select) {
-    FILTER_OPTIONS.forEach(opt => {
-      const option = document.createElement('option');
-      option.value = opt.value;
-      option.textContent = opt.label;
-      select.appendChild(option);
-    });
-    select.addEventListener('change', () => {
-      currentStatus = select.value;
-      loadCustomers();
-    });
-  }
+  // Filter pills — event delegation
+  document.getElementById('filterContainer')?.addEventListener('click', (e) => {
+    const pill = e.target.closest('[data-status]');
+    if (!pill) return;
+    currentStatus = pill.dataset.status || '';
+    currentPage   = 0;
+    document.querySelectorAll('#filterContainer [data-status]')
+      .forEach(b => b.classList.remove('active'));
+    pill.classList.add('active');
+    applyFilterAndRender();
+  });
 
   loadCustomers();
 });

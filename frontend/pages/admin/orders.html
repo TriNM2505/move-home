@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quan ly don hang — Move_home Admin</title>
+  <title>Đơn hàng — Move_home Admin</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
   <link rel="stylesheet" href="../../css/styles.css">
 </head>
 <body>
@@ -18,41 +21,39 @@
   <header class="site-header">
     <div class="container site-header-inner">
       <a href="../../index.html" class="site-logo">
-        <span class="site-logo-icon">🏠</span>
         <span class="site-logo-text">Move_home</span>
       </a>
       <div class="site-header-actions">
-        <span style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">Xin chao,</span>
-        <span id="header-user-name" style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-primary);margin-left:4px;">Admin</span>
-        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar" style="margin-left:var(--space-2);">AD</div>
-        <button id="logout-btn" class="btn btn-ghost btn-sm" style="margin-left:var(--space-2);">🚪 Dang xuat</button>
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Admin</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">AD</div>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
     </div>
   </header>
 
   <div class="site-body">
 
-    <!-- SIDEBAR — orders active -->
-    <aside class="sidebar" aria-label="Menu quan tri">
+    <!-- SIDEBAR — Đơn hàng active -->
+    <aside class="sidebar" aria-label="Menu quản trị">
       <nav class="sidebar-nav">
         <a href="dashboard.html" class="sidebar-item">
-          <span class="sidebar-icon">📊</span><span class="sidebar-label">Tong quan</span>
+          <span class="sidebar-icon">📊</span><span>Tổng quan</span>
         </a>
         <a href="orders.html" class="sidebar-item sidebar-item--active">
-          <span class="sidebar-icon">📦</span><span class="sidebar-label">Don hang</span>
+          <span class="sidebar-icon">📦</span><span>Đơn hàng</span>
         </a>
         <a href="drivers.html" class="sidebar-item">
-          <span class="sidebar-icon">🚚</span><span class="sidebar-label">Tai xe</span>
+          <span class="sidebar-icon">🚛</span><span>Tài xế</span>
         </a>
         <a href="customers.html" class="sidebar-item">
-          <span class="sidebar-icon">👥</span><span class="sidebar-label">Khach hang</span>
+          <span class="sidebar-icon">👥</span><span>Khách hàng</span>
         </a>
         <a href="withdrawals.html" class="sidebar-item">
-          <span class="sidebar-icon">💰</span><span class="sidebar-label">Rut tien</span>
+          <span class="sidebar-icon">💰</span><span>Rút tiền</span>
         </a>
         <div class="sidebar-divider"></div>
         <a href="settings.html" class="sidebar-item">
-          <span class="sidebar-icon">⚙️</span><span class="sidebar-label">Cau hinh</span>
+          <span class="sidebar-icon">⚙️</span><span>Cấu hình</span>
         </a>
       </nav>
     </aside>
@@ -61,56 +62,58 @@
     <main class="site-main" id="main-content">
       <div class="dashboard-main">
 
-        <h1 class="page-title">Quan ly don hang</h1>
+        <h1 class="page-title">Đơn hàng</h1>
 
         <!-- Error banner -->
-        <div id="error-banner" class="alert alert-danger mb-6" style="display:none;"></div>
+        <div id="error-banner" class="alert alert-danger mb-6" style="display:none;" role="alert"></div>
 
-        <!-- Filter bar -->
-        <div class="table-filter">
-          <div class="table-filter-left">
-            <label for="status-filter" style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-secondary);">
-              Loc theo trang thai:
-            </label>
-            <select id="status-filter" class="filter-select">
-              <!-- Options duoc them boi admin-orders.js -->
-            </select>
-          </div>
-          <div class="table-filter-right" id="orders-count">Dang tai...</div>
+        <!-- Filter pills -->
+        <div class="filter-bar" id="filterContainer">
+          <button class="filter-pill active" data-status="">Tất cả</button>
+          <button class="filter-pill" data-status="PENDING">Đang chờ</button>
+          <button class="filter-pill" data-status="ACCEPTED">Đã nhận đơn</button>
+          <button class="filter-pill" data-status="IN_PROGRESS">Đang giao</button>
+          <button class="filter-pill" data-status="COMPLETED">Hoàn thành</button>
+          <button class="filter-pill" data-status="CANCELLED">Đã hủy</button>
+          <button class="filter-pill" data-status="DISPUTED">Khiếu nại</button>
         </div>
 
-        <!-- Bang don hang -->
+        <!-- Đếm kết quả -->
+        <div class="table-filter-right mb-md" id="orders-count"></div>
+
+        <!-- Bảng đơn hàng -->
         <div class="card">
-          <div class="card-body" style="padding: 0;">
-            <div class="table-wrapper" style="border:none; border-radius:0;">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Ma don</th>
-                    <th>Khach hang</th>
-                    <th>Tai xe</th>
-                    <th>Diem don</th>
-                    <th>Diem tra</th>
-                    <th>Tong tien</th>
-                    <th class="text-center">Hoa hong</th>
-                    <th>Trang thai</th>
-                    <th>Tao luc</th>
-                  </tr>
-                </thead>
-                <tbody id="orders-tbody">
-                  <tr>
-                    <td colspan="9" class="table-empty-row">
-                      <span class="spinner spinner-sm" style="display:inline-block;vertical-align:middle;margin-right:8px;"></span>
-                      Dang tai...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Mã đơn</th>
+                  <th>Khách hàng</th>
+                  <th>Tài xế</th>
+                  <th>Điểm đón</th>
+                  <th>Điểm trả</th>
+                  <th>Trạng thái</th>
+                  <th class="text-right">Tổng tiền</th>
+                  <th>Ngày tạo</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <tr>
+                  <td colspan="8" class="table-empty-row">
+                    <span class="spinner spinner-sm"></span>
+                    Đang tải...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <footer style="margin-top:var(--space-8);padding-top:var(--space-6);border-top:1px solid var(--color-border);text-align:center;color:var(--color-text-tertiary);font-size:var(--font-size-xs);">
+        <!-- Phân trang -->
+        <div id="paginationContainer"></div>
+
+        <!-- Footer -->
+        <footer class="text-center text-muted" style="padding-top:var(--spacing-2xl); border-top:1px solid var(--color-surface-pressed); font-size:var(--font-size-caption); margin-top:var(--spacing-3xl);">
           Move_home Admin v2.0 &mdash; Sprint Demo 2026-06-02
         </footer>
 

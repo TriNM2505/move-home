@@ -3,32 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Move_home</title>
-  <style>
-    body { margin: 0; display: flex; align-items: center; justify-content: center;
-           min-height: 100vh; font-family: sans-serif; background: #f6f9fc; color: #64748d; }
-  </style>
+  <title>Move_home — Đang chuyển hướng...</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <p>Dang chuyen huong...</p>
-  <script>
-    // Map role → URL (tuong doi tu thu muc goc frontend/)
-    const ROLE_HOME = {
-      ADMIN:    'pages/admin/dashboard.html',
-      MANAGER:  'pages/manager/home.html',
-      DRIVER:   'pages/driver/home.html',
-      CUSTOMER: 'pages/customer/home.html',
-    };
 
-    // Kiem tra token, redirect den trang home phu hop theo role
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      let role = null;
-      try { role = JSON.parse(localStorage.getItem('userInfo'))?.role; } catch {}
-      window.location.replace(ROLE_HOME[role] || 'pages/login.html');
-    } else {
-      window.location.replace('pages/login.html');
-    }
-  </script>
+<main class="auth-page">
+  <div class="text-center">
+    <div class="spinner spinner-md" style="margin: 0 auto 16px;"></div>
+    <p class="text-muted">Đang tải, vui lòng đợi...</p>
+  </div>
+</main>
+
+<script>
+  // Map role → URL tương đối từ thư mục gốc frontend/
+  const ROLE_HOME = {
+    ADMIN:    'pages/admin/dashboard.html',
+    MANAGER:  'pages/manager/home.html',
+    DRIVER:   'pages/driver/home.html',
+    CUSTOMER: 'pages/customer/home.html',
+  };
+
+  // Kiểm tra token và redirect đến trang home phù hợp theo role
+  const token = localStorage.getItem('accessToken');
+  if (token) {
+    let role = null;
+    try { role = JSON.parse(localStorage.getItem('userInfo'))?.role; } catch {}
+    window.location.replace(ROLE_HOME[role] || 'pages/login.html');
+  } else {
+    window.location.replace('pages/login.html');
+  }
+</script>
+
 </body>
 </html>

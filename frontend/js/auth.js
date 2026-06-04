@@ -1,14 +1,14 @@
-// Quan ly xac thuc: login, register, logout, kiem tra trang thai dang nhap
-// Token duoc luu trong localStorage theo key 'accessToken' va 'userInfo'
+// Quản lý xác thực: đăng nhập, đăng ký, đăng xuất, kiểm tra trạng thái đăng nhập
+// Token được lưu trong localStorage theo key 'accessToken' và 'userInfo'
 
 import { post } from './api.js';
 
-// Key luu tru trong localStorage
+// Key lưu trữ trong localStorage
 const TOKEN_KEY    = 'accessToken';
 const USER_KEY     = 'userInfo';
 const REFRESH_KEY  = 'refreshToken';
 
-// Map role → URL tuong doi (goi tu pages/login.html, ngang cap voi pages/admin/, pages/customer/...)
+// Map role → URL tương đối (gọi từ pages/login.html, ngang cấp với pages/admin/, pages/customer/...)
 const ROLE_HOME_URL = {
   ADMIN:    'admin/dashboard.html',
   MANAGER:  'manager/home.html',
@@ -17,13 +17,13 @@ const ROLE_HOME_URL = {
 };
 
 /**
- * Dang nhap bang email + password.
- * Backend: POST /api/auth/login (chi ho tro email o Round 2)
+ * Đăng nhập bằng email + password.
+ * Backend: POST /api/auth/login
  * @returns {Promise<object>} AuthResponse { accessToken, refreshToken, user, ... }
  */
 export async function login(email, password) {
   const data = await post('/api/auth/login', { email, password });
-  // Luu token va thong tin user
+  // Lưu token và thông tin user vào localStorage
   localStorage.setItem(TOKEN_KEY,   data.accessToken);
   localStorage.setItem(REFRESH_KEY, data.refreshToken || '');
   localStorage.setItem(USER_KEY,    JSON.stringify(data.user));
@@ -31,7 +31,7 @@ export async function login(email, password) {
 }
 
 /**
- * Dang ky tai khoan Customer moi.
+ * Đăng ký tài khoản Customer mới.
  * Backend: POST /api/auth/register/customer
  * @param {object} registerData - { email, password, fullName, phone?, termsAccepted }
  * @returns {Promise<object>} { userId, message }
@@ -41,8 +41,8 @@ export async function register(registerData) {
 }
 
 /**
- * Dang xuat: xoa token trong localStorage va redirect den trang login.
- * @param {string} loginUrl - Duong dan tuong doi den trang login
+ * Đăng xuất: xóa token trong localStorage và redirect đến trang đăng nhập.
+ * @param {string} loginUrl - Đường dẫn tương đối đến trang đăng nhập
  */
 export function logout(loginUrl = 'login.html') {
   localStorage.removeItem(TOKEN_KEY);
@@ -52,7 +52,7 @@ export function logout(loginUrl = 'login.html') {
 }
 
 /**
- * Kiem tra user dang dang nhap (co token trong localStorage).
+ * Kiểm tra user đang đăng nhập (có token trong localStorage).
  * @returns {boolean}
  */
 export function isLoggedIn() {
@@ -60,7 +60,7 @@ export function isLoggedIn() {
 }
 
 /**
- * Lay thong tin user hien tai tu localStorage.
+ * Lấy thông tin user hiện tại từ localStorage.
  * @returns {object|null} UserInfo { id, email, fullName, role, status, mustChangePassword }
  */
 export function getCurrentUser() {
@@ -74,7 +74,7 @@ export function getCurrentUser() {
 }
 
 /**
- * Lay access token.
+ * Lấy access token.
  * @returns {string|null}
  */
 export function getToken() {
@@ -82,7 +82,7 @@ export function getToken() {
 }
 
 /**
- * Kiem tra user co role cu the khong.
+ * Kiểm tra user có role cụ thể không.
  * @param {string} role - 'ADMIN', 'MANAGER', 'DRIVER', 'CUSTOMER'
  * @returns {boolean}
  */
@@ -92,10 +92,10 @@ export function hasRole(role) {
 }
 
 /**
- * Redirect den trang home cua role sau khi login thanh cong.
- * Goi tu pages/login.html — cac URL la tuong doi trong thu muc pages/.
+ * Redirect đến trang home của role sau khi đăng nhập thành công.
+ * Gọi từ pages/login.html — các URL là tương đối trong thư mục pages/.
  * @param {object} user - UserInfo { role, ... }
- * @param {string} fallback - URL khi role khong xac dinh (mac dinh: login.html)
+ * @param {string} fallback - URL khi role không xác định (mặc định: login.html)
  */
 export function redirectAfterLogin(user, fallback = 'login.html') {
   const url = ROLE_HOME_URL[user?.role] || fallback;
@@ -103,10 +103,10 @@ export function redirectAfterLogin(user, fallback = 'login.html') {
 }
 
 /**
- * Tra ve URL trang home theo role (khong co prefix).
- * Dung de lay URL ma khong redirect ngay, vi du trong index.html.
+ * Trả về URL trang home theo role (không có prefix).
+ * Dùng để lấy URL mà không redirect ngay, ví dụ trong index.html.
  * @param {string} role
- * @param {string} prefix - Tien to path (vd: 'pages/')
+ * @param {string} prefix - Tiền tố path (vd: 'pages/')
  * @returns {string}
  */
 export function getHomeUrl(role, prefix = '') {

@@ -3,54 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cau hinh he thong — Move_home Admin</title>
+  <title>Cấu hình — Move_home Admin</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
   <link rel="stylesheet" href="../../css/styles.css">
 </head>
 <body>
+
+<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false"></div>
 
 <div class="site-layout">
 
   <!-- HEADER -->
   <header class="site-header">
     <div class="container site-header-inner">
+
       <a href="../../index.html" class="site-logo">
-        <span class="site-logo-icon">🏠</span>
         <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Admin</span>
       </a>
+
       <div class="site-header-actions">
-        <span style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">Xin chao,</span>
-        <span id="header-user-name" style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-primary);margin-left:4px;">Admin</span>
-        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar" style="margin-left:var(--space-2);">AD</div>
-        <button id="logout-btn" class="btn btn-ghost btn-sm" style="margin-left:var(--space-2);">🚪 Dang xuat</button>
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Admin</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">AD</div>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
+
     </div>
   </header>
 
   <div class="site-body">
 
-    <!-- SIDEBAR — settings active -->
-    <aside class="sidebar" aria-label="Menu quan tri">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="Menu quản trị">
       <nav class="sidebar-nav">
         <a href="dashboard.html" class="sidebar-item">
-          <span class="sidebar-icon">📊</span><span class="sidebar-label">Tong quan</span>
+          <span class="sidebar-icon">📊</span>
+          <span>Tổng quan</span>
         </a>
         <a href="orders.html" class="sidebar-item">
-          <span class="sidebar-icon">📦</span><span class="sidebar-label">Don hang</span>
+          <span class="sidebar-icon">📦</span>
+          <span>Đơn hàng</span>
         </a>
         <a href="drivers.html" class="sidebar-item">
-          <span class="sidebar-icon">🚚</span><span class="sidebar-label">Tai xe</span>
+          <span class="sidebar-icon">🚛</span>
+          <span>Tài xế</span>
         </a>
         <a href="customers.html" class="sidebar-item">
-          <span class="sidebar-icon">👥</span><span class="sidebar-label">Khach hang</span>
+          <span class="sidebar-icon">👥</span>
+          <span>Khách hàng</span>
         </a>
         <a href="withdrawals.html" class="sidebar-item">
-          <span class="sidebar-icon">💰</span><span class="sidebar-label">Rut tien</span>
+          <span class="sidebar-icon">💰</span>
+          <span>Rút tiền</span>
         </a>
         <div class="sidebar-divider"></div>
         <a href="settings.html" class="sidebar-item sidebar-item--active">
-          <span class="sidebar-icon">⚙️</span><span class="sidebar-label">Cau hinh</span>
+          <span class="sidebar-icon">⚙️</span>
+          <span>Cấu hình</span>
         </a>
       </nav>
     </aside>
@@ -59,29 +72,19 @@
     <main class="site-main" id="main-content">
       <div class="dashboard-main">
 
-        <h1 class="page-title">Cau hinh he thong</h1>
+        <header class="page-header">
+          <h1 class="page-title">Cấu hình hệ thống</h1>
+          <p class="page-subtitle">Quản lý cấu hình và tham số hệ thống</p>
+        </header>
 
-        <!-- Empty state: chuc nang dang phat trien -->
-        <div class="empty-state" style="margin-top: var(--space-8);">
-          <div class="empty-state-icon">⚙️</div>
-          <h2 class="empty-state-title">Chuc nang dang phat trien</h2>
-          <p class="empty-state-desc">
-            Tinh nang cau hinh he thong se duoc trien khai trong Sprint 5 (tuan 6).
+        <section class="empty-state-card" aria-label="Trạng thái tính năng cấu hình">
+          <div class="empty-state-icon" aria-hidden="true">⚙️</div>
+          <h2 class="empty-state-headline">Tính năng đang phát triển</h2>
+          <p class="empty-state-body">
+            Tính năng cấu hình sẽ cho phép quản trị viên điều chỉnh tỷ lệ hoa hồng (mặc định 30%), phụ phí giờ cao điểm, và các tham số kinh doanh khác. Dự kiến phát hành trong Sprint 5.
           </p>
-          <div class="empty-state-subtext">
-            <p>Cac muc cau hinh du kien:</p>
-            <ul>
-              <li>Ty le hoa hong mac dinh (hien tai co dinh: 30%)</li>
-              <li>Phu phi gio cao diem (7–9h va 17–19h)</li>
-              <li>Phu phi ngo hep / tang cao / thang may</li>
-              <li>Bang gia co so theo khoang cach (km)</li>
-              <li>Thoi gian escrow sau COMPLETED (hien tai: 2 gio)</li>
-            </ul>
-          </div>
-          <a href="dashboard.html" class="btn btn-secondary btn-md" style="margin-top:var(--space-2);">
-            ← Quay lai Dashboard
-          </a>
-        </div>
+          <p class="empty-state-meta">Dự kiến ra mắt: Tuần 5 của dự án</p>
+        </section>
 
       </div>
     </main>
@@ -89,11 +92,5 @@
   </div>
 </div>
 
-<script type="module">
-  import { setupAdminPage } from '../../js/admin-common.js';
-  document.addEventListener('DOMContentLoaded', () => {
-    setupAdminPage('../login.html');
-  });
-</script>
 </body>
 </html>

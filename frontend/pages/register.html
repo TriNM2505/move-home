@@ -3,304 +3,166 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dang ky — Move_home</title>
+  <title>Đăng ký — Move_home</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
   <link rel="stylesheet" href="../css/styles.css">
 </head>
-<body style="background: var(--color-canvas);">
+<body>
 
-<div class="auth-layout">
+<main class="auth-page">
+  <div class="auth-card card-elevated">
 
-  <!-- Left: Hero brand -->
-  <div class="auth-hero">
-    <div class="auth-hero-content">
-      <div class="auth-hero-logo">
-        <span style="font-size:32px;">🏠</span>
-        Move_home
+    <!-- Logo -->
+    <a href="../index.html" class="auth-logo">Move_home</a>
+
+    <!-- Tiêu đề -->
+    <h2 style="text-align:center; margin:0 0 4px; font-size:20px; font-weight:700; color:var(--color-ink);">
+      Tạo tài khoản mới
+    </h2>
+    <p class="auth-tagline">Đặt dịch vụ chuyển nhà chỉ trong vài bước</p>
+
+    <!-- Thông báo lỗi -->
+    <div id="errorMessage" class="error-alert" hidden role="alert"></div>
+
+    <!-- Thông báo thành công -->
+    <div id="successMessage" class="alert alert-success" hidden role="status"></div>
+
+    <!-- Form đăng ký -->
+    <form id="registerForm" novalidate>
+
+      <!-- Họ và tên -->
+      <div class="form-group">
+        <label for="fullName" class="form-label">Họ và tên <span class="form-required" aria-hidden="true">*</span></label>
+        <input id="fullName" name="fullName" type="text" class="text-input"
+               placeholder="Nhập họ và tên" required autofocus>
+        <span class="form-error" id="fullName-error" role="alert" hidden></span>
       </div>
-      <h1 class="auth-hero-title">Bat dau chuyen nha an tam</h1>
-      <p class="auth-hero-subtitle">
-        Tao tai khoan mien phi trong 1 phut.
-        Dat don, theo doi hanh trinh, va thanh toan an toan — tat ca trong mot ung dung.
-      </p>
-      <div class="auth-hero-features">
-        <div class="auth-hero-feature">
-          <div class="auth-hero-feature-icon">🆓</div>
-          <span>Mien phi dang ky va su dung</span>
-        </div>
-        <div class="auth-hero-feature">
-          <div class="auth-hero-feature-icon">📱</div>
-          <span>Theo doi don hang theo thoi gian thuc</span>
-        </div>
-        <div class="auth-hero-feature">
-          <div class="auth-hero-feature-icon">💬</div>
-          <span>Ho tro khach hang 24/7</span>
-        </div>
-        <div class="auth-hero-feature">
-          <div class="auth-hero-feature-icon">🔒</div>
-          <span>Bao mat du lieu ca nhan tuyet doi</span>
-        </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email" class="form-label">Email <span class="form-required" aria-hidden="true">*</span></label>
+        <input id="email" name="email" type="email" class="text-input"
+               placeholder="Nhập email của bạn" required autocomplete="email">
+        <span class="form-error" id="email-error" role="alert" hidden></span>
       </div>
-    </div>
-  </div>
 
-  <!-- Right: Form panel -->
-  <div class="auth-form-panel">
-    <div class="auth-form-inner">
+      <!-- Số điện thoại -->
+      <div class="form-group">
+        <label for="phone" class="form-label">Số điện thoại</label>
+        <input id="phone" name="phone" type="tel" class="text-input"
+               placeholder="+84xxxxxxxxx" autocomplete="tel">
+        <span class="form-error" id="phone-error" role="alert" hidden></span>
+      </div>
 
-      <a href="../index.html" class="auth-form-logo">
-        <span style="font-size:24px;">🏠</span>
-        <span class="auth-form-logo-text">Move_home</span>
-      </a>
-
-      <h1 class="auth-form-heading">Tao tai khoan</h1>
-      <p class="auth-form-subtext">Dang ky de su dung dich vu chuyen nha</p>
-
-      <!-- Alert khu vuc -->
-      <div class="form-alert form-alert--danger"  id="alert-error"   role="alert"></div>
-      <div class="form-alert form-alert--success" id="alert-success" role="status"></div>
-
-      <form id="register-form" novalidate>
-
-        <!-- Ho ten -->
-        <div class="form-group">
-          <label class="form-label" for="fullName">
-            Ho va ten <span class="form-required">*</span>
-          </label>
-          <input
-            class="form-input"
-            type="text"
-            id="fullName"
-            name="fullName"
-            placeholder="Nguyen Van A"
-            autocomplete="name"
-            required
-            autofocus
-          />
-          <span class="form-error" id="fullName-error" role="alert" style="display:none;"></span>
+      <!-- Mật khẩu -->
+      <div class="form-group">
+        <label for="password" class="form-label">Mật khẩu <span class="form-required" aria-hidden="true">*</span></label>
+        <div class="input-wrapper">
+          <input id="password" name="password" type="password" class="text-input"
+                 placeholder="Tối thiểu 8 ký tự" required minlength="8" autocomplete="new-password">
+          <button type="button" class="input-toggle-btn" id="pwd-toggle" aria-label="Hiện hoặc ẩn mật khẩu">👁</button>
         </div>
+        <span class="form-error" id="password-error" role="alert" hidden></span>
+      </div>
 
-        <!-- Email -->
-        <div class="form-group">
-          <label class="form-label" for="email">
-            Email <span class="form-required">*</span>
-          </label>
-          <input
-            class="form-input"
-            type="email"
-            id="email"
-            name="email"
-            placeholder="email@example.com"
-            autocomplete="email"
-            required
-          />
-          <span class="form-error" id="email-error" role="alert" style="display:none;"></span>
+      <!-- Xác nhận mật khẩu -->
+      <div class="form-group">
+        <label for="passwordConfirm" class="form-label">Xác nhận mật khẩu <span class="form-required" aria-hidden="true">*</span></label>
+        <div class="input-wrapper">
+          <input id="passwordConfirm" name="passwordConfirm" type="password" class="text-input"
+                 placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
+          <button type="button" class="input-toggle-btn" id="pwd-confirm-toggle" aria-label="Hiện hoặc ẩn mật khẩu xác nhận">👁</button>
         </div>
+        <span class="form-error" id="passwordConfirm-error" role="alert" hidden></span>
+      </div>
 
-        <!-- So dien thoai -->
-        <div class="form-group">
-          <label class="form-label" for="phone">
-            So dien thoai
-            <span style="color:var(--color-text-tertiary);font-weight:400;">(tuy chon)</span>
-          </label>
-          <input
-            class="form-input"
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="0912345678 hoac +84912345678"
-            autocomplete="tel"
-          />
-          <span class="form-error"  id="phone-error"  role="alert" style="display:none;"></span>
-          <span class="form-hint">Dinh dang: 0912345678 hoac +84912345678</span>
-        </div>
-
-        <!-- Mat khau -->
-        <div class="form-group">
-          <label class="form-label" for="password">
-            Mat khau <span class="form-required">*</span>
-          </label>
-          <div class="input-password-wrapper">
-            <input
-              class="form-input"
-              type="password"
-              id="password"
-              name="password"
-              placeholder="Toi thieu 8 ky tu"
-              autocomplete="new-password"
-              required
-              oninput="updateStrength(this.value)"
-            />
-            <button
-              type="button"
-              class="input-password-toggle"
-              id="pwd-toggle"
-              aria-label="Hien hoac an mat khau"
-            >👁</button>
-          </div>
-          <!-- Strength indicator -->
-          <div class="password-strength" id="strength-container" style="display:none;">
-            <div class="password-strength-bar">
-              <div class="password-strength-fill" id="strength-fill" data-level="0"></div>
-            </div>
-            <span class="password-strength-label" id="strength-label">Qua yeu</span>
-          </div>
-          <span class="form-error" id="password-error" role="alert" style="display:none;"></span>
-          <span class="form-hint">
-            It nhat 8 ky tu, co chu hoa, chu thuong, so va ky tu dac biet (@$!%*?&amp;_.#)
+      <!-- Điều khoản -->
+      <div class="form-group">
+        <label class="form-check">
+          <input type="checkbox" class="form-check-input" id="termsAccepted" name="termsAccepted" required>
+          <span class="form-check-box" aria-hidden="true"></span>
+          <span class="form-check-label">
+            Tôi đồng ý với
+            <a href="#" class="link-primary">điều khoản sử dụng</a>
+            và
+            <a href="#" class="link-primary">chính sách bảo mật</a>
           </span>
-        </div>
-
-        <!-- Xac nhan mat khau -->
-        <div class="form-group">
-          <label class="form-label" for="passwordConfirm">
-            Xac nhan mat khau <span class="form-required">*</span>
-          </label>
-          <div class="input-password-wrapper">
-            <input
-              class="form-input"
-              type="password"
-              id="passwordConfirm"
-              name="passwordConfirm"
-              placeholder="Nhap lai mat khau"
-              autocomplete="new-password"
-              required
-            />
-            <button
-              type="button"
-              class="input-password-toggle"
-              id="pwd-confirm-toggle"
-              aria-label="Hien hoac an mat khau xac nhan"
-            >👁</button>
-          </div>
-          <span class="form-error" id="passwordConfirm-error" role="alert" style="display:none;"></span>
-        </div>
-
-        <!-- Dong y dieu khoan -->
-        <div class="form-group">
-          <label class="form-check">
-            <input type="checkbox" class="form-check-input" id="termsAccepted" name="termsAccepted" required>
-            <span class="form-check-box" aria-hidden="true"></span>
-            <span class="form-check-label">
-              Toi dong y voi
-              <a href="#" target="_blank">Dieu khoan dich vu</a>
-              va
-              <a href="#" target="_blank">Chinh sach bao mat</a>
-              cua Move_home
-            </span>
-          </label>
-          <span class="form-error" id="terms-error" role="alert" style="display:none;"></span>
-        </div>
-
-        <!-- Submit -->
-        <div class="form-group" style="margin-bottom:0;">
-          <button type="submit" class="btn btn-primary btn-md btn-full" id="submit-btn">
-            Tao tai khoan
-          </button>
-        </div>
-
-      </form>
-
-      <div class="auth-divider">hoac</div>
-
-      <div class="auth-footer">
-        Da co tai khoan?
-        <a href="login.html">Dang nhap ngay</a>
+        </label>
+        <span class="form-error" id="terms-error" role="alert" hidden></span>
       </div>
 
-    </div>
+      <!-- Nút đăng ký -->
+      <div class="form-group">
+        <button id="registerBtn" type="submit" class="btn-primary btn-full">
+          Đăng ký
+        </button>
+      </div>
+
+    </form>
+
+    <div class="auth-divider">hoặc</div>
+
+    <p class="auth-footer-text">
+      Đã có tài khoản?
+      <a href="login.html" class="link-primary">Đăng nhập</a>
+    </p>
+
   </div>
+</main>
 
-</div><!-- end auth-layout -->
-
+<!-- auth.js và api.js là ES modules — load qua type="module" import -->
 <script type="module">
   import { register } from '../js/auth.js';
 
-  // Toggle hien/an mat khau
-  function setupPasswordToggle(btnId, inputId) {
-    document.getElementById(btnId).addEventListener('click', function () {
-      const input = document.getElementById(inputId);
-      const isHidden = input.type === 'password';
-      input.type = isHidden ? 'text' : 'password';
-      this.textContent = isHidden ? '🙈' : '👁';
+  // Hiện/ẩn mật khẩu
+  function setupToggle(btnId, inputId) {
+    document.getElementById(btnId)?.addEventListener('click', function () {
+      const el = document.getElementById(inputId);
+      const hidden = el.type === 'password';
+      el.type = hidden ? 'text' : 'password';
+      this.textContent = hidden ? '🙈' : '👁';
+      this.setAttribute('aria-label', hidden ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
     });
   }
-  setupPasswordToggle('pwd-toggle', 'password');
-  setupPasswordToggle('pwd-confirm-toggle', 'passwordConfirm');
+  setupToggle('pwd-toggle', 'password');
+  setupToggle('pwd-confirm-toggle', 'passwordConfirm');
 
-  // Danh gia do manh mat khau
-  window.updateStrength = function(value) {
-    const container = document.getElementById('strength-container');
-    const fill      = document.getElementById('strength-fill');
-    const label     = document.getElementById('strength-label');
-
-    if (!value) {
-      container.style.display = 'none';
-      return;
-    }
-    container.style.display = 'flex';
-
-    let score = 0;
-    if (value.length >= 8)            score++;
-    if (/[A-Z]/.test(value))          score++;
-    if (/[a-z]/.test(value))          score++;
-    if (/[0-9]/.test(value))          score++;
-    if (/[@$!%*?&_.#^()\-]/.test(value)) score++;
-
-    const level = Math.min(Math.floor(score * 0.8) + (score >= 4 ? 1 : 0), 4);
-    fill.setAttribute('data-level', level);
-
-    const labels = ['', 'Qua yeu', 'Trung binh', 'Kha tot', 'Manh'];
-    label.textContent = labels[level] || 'Qua yeu';
-  };
-
-  // Validate form truoc khi submit
-  function validateForm(data) {
+  // Validate phía client
+  function validate(data) {
     const errors = {};
-
     if (!data.fullName || data.fullName.trim().length < 2) {
-      errors.fullName = 'Ho ten phai co it nhat 2 ky tu.';
+      errors.fullName = 'Họ và tên phải có ít nhất 2 ký tự.';
     }
-
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!data.email || !emailRe.test(data.email)) {
-      errors.email = 'Email khong dung dinh dang.';
+    if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      errors.email = 'Email không hợp lệ.';
     }
-
-    if (data.phone) {
-      const phoneRe = /^(\+84|0)[0-9]{9,10}$/;
-      if (!phoneRe.test(data.phone.replace(/\s/g, ''))) {
-        errors.phone = 'So dien thoai khong hop le. Vi du: 0912345678';
-      }
+    if (data.phone && !/^(\+84|0)[0-9]{9,10}$/.test(data.phone.replace(/\s/g, ''))) {
+      errors.phone = 'Số điện thoại không đúng định dạng (vd: +84901234567).';
     }
-
     if (!data.password || data.password.length < 8) {
-      errors.password = 'Mat khau phai co it nhat 8 ky tu.';
-    } else {
-      const pwRe = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_.#^()\-]).{8,}$/;
-      if (!pwRe.test(data.password)) {
-        errors.password = 'Mat khau phai co it nhat 1 chu hoa, 1 chu thuong, 1 so, 1 ky tu dac biet.';
-      }
+      errors.password = 'Mật khẩu phải có ít nhất 8 ký tự.';
+    } else if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_.#^()\-]).{8,}$/.test(data.password)) {
+      errors.password = 'Mật khẩu phải chứa chữ hoa, số và ký tự đặc biệt.';
     }
-
     if (data.password !== data.passwordConfirm) {
-      errors.passwordConfirm = 'Mat khau xac nhan khong khop.';
+      errors.passwordConfirm = 'Mật khẩu xác nhận không khớp.';
     }
-
     if (!data.termsAccepted) {
-      errors.terms = 'Ban phai dong y dieu khoan de tao tai khoan.';
+      errors.terms = 'Vui lòng đồng ý với điều khoản sử dụng.';
     }
-
     return errors;
   }
 
-  // Submit
-  document.getElementById('register-form').addEventListener('submit', async (e) => {
+  // Submit đăng ký
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     clearErrors();
 
-    const formData = {
+    const data = {
       fullName:        document.getElementById('fullName').value.trim(),
       email:           document.getElementById('email').value.trim().toLowerCase(),
       phone:           document.getElementById('phone').value.trim() || null,
@@ -309,112 +171,88 @@
       termsAccepted:   document.getElementById('termsAccepted').checked,
     };
 
-    // Validate phia client
-    const errors = validateForm(formData);
-    if (Object.keys(errors).length > 0) {
-      Object.entries(errors).forEach(([field, msg]) => {
-        const map = {
-          fullName: 'fullName-error', email: 'email-error',
-          phone: 'phone-error', password: 'password-error',
-          passwordConfirm: 'passwordConfirm-error', terms: 'terms-error',
-        };
-        showFieldError(map[field], msg);
-      });
+    const errors = validate(data);
+    if (Object.keys(errors).length) {
+      const map = {
+        fullName: 'fullName-error', email: 'email-error', phone: 'phone-error',
+        password: 'password-error', passwordConfirm: 'passwordConfirm-error', terms: 'terms-error',
+      };
+      Object.entries(errors).forEach(([k, msg]) => showFieldError(map[k], msg));
       return;
     }
 
-    const btn = document.getElementById('submit-btn');
-    setLoading(btn, true, 'Dang tao tai khoan...');
+    const btn = document.getElementById('registerBtn');
+    setLoading(btn, true);
 
     try {
-      // Gui request len backend (khong gui passwordConfirm)
-      const payload = {
-        fullName:      formData.fullName,
-        email:         formData.email,
-        password:      formData.password,
-        termsAccepted: formData.termsAccepted,
-      };
-      if (formData.phone) payload.phone = formData.phone;
-
+      const payload = { fullName: data.fullName, email: data.email, password: data.password, termsAccepted: true };
+      if (data.phone) payload.phone = data.phone;
       await register(payload);
-
-      // Thanh cong — hien thong bao va chuyen sang login sau 2.5s
-      showAlert('success', '🎉 Tai khoan da duoc tao! Vui long kiem tra email de xac thuc truoc khi dang nhap. Chuyen huong sau 3 giay...');
+      showSuccess('🎉 Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản. Đang chuyển về trang đăng nhập...');
       setTimeout(() => { window.location.href = 'login.html'; }, 3000);
-
     } catch (err) {
-      handleRegisterError(err);
+      handleError(err);
     } finally {
-      setLoading(btn, false, 'Tao tai khoan');
+      setLoading(btn, false);
     }
   });
 
-  // Xu ly loi backend
-  function handleRegisterError(err) {
+  function handleError(err) {
     if (err.isNetworkError) {
-      showAlert('error', 'Loi ket noi. Vui long kiem tra mang va thu lai.');
+      showError('Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.');
       return;
     }
-
     if (err.status === 409) {
       const field = err.data?.field;
-      if (field === 'email') {
-        showFieldError('email-error', 'Email nay da duoc su dung. Vui long dung email khac.');
-      } else if (field === 'phone') {
-        showFieldError('phone-error', 'So dien thoai nay da duoc su dung.');
-      } else {
-        showAlert('error', 'Thong tin da ton tai. Vui long kiem tra lai.');
-      }
+      if (field === 'email')      showFieldError('email-error', 'Email này đã được sử dụng. Vui lòng dùng email khác.');
+      else if (field === 'phone') showFieldError('phone-error', 'Số điện thoại này đã được sử dụng.');
+      else                        showError('Thông tin đã tồn tại. Vui lòng kiểm tra lại.');
       return;
     }
-
     if (err.status === 422 && err.data?.details) {
-      // Map loi tung field tu backend
-      const fieldMap = {
-        fullName:      'fullName-error',
-        email:         'email-error',
-        phone:         'phone-error',
-        password:      'password-error',
-        termsAccepted: 'terms-error',
-      };
-      err.data.details.forEach(d => {
-        const errId = fieldMap[d.field];
-        if (errId) showFieldError(errId, d.message);
-      });
+      const map = { fullName: 'fullName-error', email: 'email-error', phone: 'phone-error', password: 'password-error', termsAccepted: 'terms-error' };
+      err.data.details.forEach(d => { if (map[d.field]) showFieldError(map[d.field], d.message); });
       return;
     }
-
-    showAlert('error', err.message || 'Dang ky that bai. Vui long thu lai.');
+    showError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');
   }
 
-  // Helper UI
-  function showAlert(type, msg) {
-    const el = document.getElementById(type === 'error' ? 'alert-error' : 'alert-success');
+  function showError(msg) {
+    const el = document.getElementById('errorMessage');
     el.textContent = msg;
-    el.style.display = 'block';
+    el.removeAttribute('hidden');
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function showSuccess(msg) {
+    const el = document.getElementById('successMessage');
+    el.textContent = msg;
+    el.removeAttribute('hidden');
+    el.style.display = 'flex';
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   function showFieldError(id, msg) {
     const el = document.getElementById(id);
-    if (el) { el.textContent = msg; el.style.display = 'block'; }
+    if (el) { el.textContent = msg; el.removeAttribute('hidden'); }
   }
 
   function clearErrors() {
-    ['alert-error', 'alert-success', 'fullName-error', 'email-error',
-     'phone-error', 'password-error', 'passwordConfirm-error', 'terms-error']
-      .forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-      });
+    ['errorMessage', 'successMessage',
+     'fullName-error', 'email-error', 'phone-error',
+     'password-error', 'passwordConfirm-error', 'terms-error'
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.setAttribute('hidden', ''); el.textContent = ''; }
+    });
   }
 
-  function setLoading(btn, loading, label) {
+  function setLoading(btn, loading) {
     btn.disabled = loading;
     btn.classList.toggle('btn-loading', loading);
     btn.innerHTML = loading
-      ? `<span class="btn-spinner"></span> ${label}`
-      : label;
+      ? `<span class="btn-spinner"></span> Đang tạo tài khoản...`
+      : 'Đăng ký';
   }
 </script>
 

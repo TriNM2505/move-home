@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bang dieu khien — Move_home Admin</title>
+  <title>Tổng quan — Move_home Admin</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
   <link rel="stylesheet" href="../../css/styles.css">
 </head>
 <body>
@@ -13,8 +16,11 @@
 <!-- Toast container -->
 <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false"></div>
 
+<!-- Error banner dùng bởi admin-common.js showError() -->
+<div class="alert alert-danger" id="error-banner" style="display:none; margin:16px;" role="alert"></div>
+
 <!-- ============================================================
-     SITE LAYOUT: Header + Sidebar + Main
+     SITE LAYOUT: Sidebar + Main
      ============================================================ -->
 <div class="site-layout">
 
@@ -22,35 +28,15 @@
   <header class="site-header">
     <div class="container site-header-inner">
 
-      <!-- Logo -->
       <a href="../../index.html" class="site-logo">
-        <span class="site-logo-icon">🏠</span>
         <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Admin</span>
       </a>
 
-      <!-- Header right: user info + logout -->
       <div class="site-header-actions">
-        <!-- Ten admin -->
-        <span style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">
-          Xin chao,
-        </span>
-        <span
-          id="header-user-name"
-          style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-primary);margin-left:4px;"
-        >Admin</span>
-
-        <!-- Avatar -->
-        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar"
-             style="margin-left:var(--space-2);">AD</div>
-
-        <!-- Nut dang xuat -->
-        <button
-          id="logout-btn"
-          class="btn btn-ghost btn-sm"
-          style="margin-left:var(--space-2);"
-        >
-          🚪 Dang xuat
-        </button>
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Admin</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">AD</div>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
 
     </div>
@@ -60,32 +46,32 @@
   <div class="site-body">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar" aria-label="Menu quan tri">
+    <aside class="sidebar" aria-label="Menu quản trị">
       <nav class="sidebar-nav">
         <a href="dashboard.html" class="sidebar-item sidebar-item--active">
           <span class="sidebar-icon">📊</span>
-          <span class="sidebar-label">Tong quan</span>
+          <span>Tổng quan</span>
         </a>
         <a href="orders.html" class="sidebar-item">
           <span class="sidebar-icon">📦</span>
-          <span class="sidebar-label">Don hang</span>
+          <span>Đơn hàng</span>
         </a>
         <a href="drivers.html" class="sidebar-item">
-          <span class="sidebar-icon">🚚</span>
-          <span class="sidebar-label">Tai xe</span>
+          <span class="sidebar-icon">🚛</span>
+          <span>Tài xế</span>
         </a>
         <a href="customers.html" class="sidebar-item">
           <span class="sidebar-icon">👥</span>
-          <span class="sidebar-label">Khach hang</span>
+          <span>Khách hàng</span>
         </a>
         <a href="withdrawals.html" class="sidebar-item">
           <span class="sidebar-icon">💰</span>
-          <span class="sidebar-label">Rut tien</span>
+          <span>Rút tiền</span>
         </a>
         <div class="sidebar-divider"></div>
         <a href="settings.html" class="sidebar-item">
           <span class="sidebar-icon">⚙️</span>
-          <span class="sidebar-label">Cau hinh</span>
+          <span>Cấu hình</span>
         </a>
       </nav>
     </aside>
@@ -94,29 +80,37 @@
     <main class="site-main" id="main-content">
       <div class="dashboard-main">
 
-        <h1 class="page-title">Bang dieu khien</h1>
+        <h1 class="page-title">Tổng quan</h1>
 
         <!-- ================================================
-             A. KPI CARDS (4 cols)
+             A. KPI CARDS (4 cols desktop, 2 tablet, 1 mobile)
              ================================================ -->
-        <section id="kpi-section" aria-label="Chi so tong quan" style="margin-bottom: var(--space-8);">
-          <!-- Skeleton hien trong khi load — se duoc thay the boi dashboard.js -->
+        <section id="kpi-section" aria-label="Chỉ số tổng quan" class="mb-8">
+          <!-- Skeleton hiển thị khi đang tải — dashboard.js sẽ thay thế -->
           <div class="grid-4">
-            <div class="kpi kpi-primary"><div class="skeleton" style="height:80px;width:100%;border-radius:var(--radius-md);"></div></div>
-            <div class="kpi kpi-success"><div class="skeleton" style="height:80px;width:100%;border-radius:var(--radius-md);"></div></div>
-            <div class="kpi kpi-warning"><div class="skeleton" style="height:80px;width:100%;border-radius:var(--radius-md);"></div></div>
-            <div class="kpi kpi-info"   ><div class="skeleton" style="height:80px;width:100%;border-radius:var(--radius-md);"></div></div>
+            <div class="kpi kpi-primary">
+              <div class="skeleton" style="height:80px;width:100%;border-radius:var(--rounded-md);"></div>
+            </div>
+            <div class="kpi kpi-success">
+              <div class="skeleton" style="height:80px;width:100%;border-radius:var(--rounded-md);"></div>
+            </div>
+            <div class="kpi kpi-warning">
+              <div class="skeleton" style="height:80px;width:100%;border-radius:var(--rounded-md);"></div>
+            </div>
+            <div class="kpi kpi-info">
+              <div class="skeleton" style="height:80px;width:100%;border-radius:var(--rounded-md);"></div>
+            </div>
           </div>
         </section>
 
         <!-- ================================================
              B. REVENUE CHART (full width)
              ================================================ -->
-        <section style="margin-bottom: var(--space-8);" aria-label="Bieu do doanh thu">
+        <section class="mb-8" aria-label="Biểu đồ doanh thu">
           <div class="card">
             <div class="card-header">
-              <h3 class="card-title">Doanh thu 30 ngay qua</h3>
-              <span class="card-meta" id="revenue-chart-meta">Dang tai...</span>
+              <h3 class="card-title">Doanh thu 30 ngày qua</h3>
+              <span class="card-meta" id="revenue-chart-meta">Đang tải...</span>
             </div>
             <div class="card-body">
               <div class="chart-wrapper">
@@ -127,46 +121,45 @@
         </section>
 
         <!-- ================================================
-             C. HAI COT: Top 5 Drivers + Status Distribution
+             C. HAI CỘT: Top 5 Tài xế + Phân bổ trạng thái
              ================================================ -->
-        <section style="margin-bottom: var(--space-8);" aria-label="Thong ke tai xe va don hang">
+        <section class="mb-8" aria-label="Thống kê tài xế và đơn hàng">
           <div class="grid-2">
 
-            <!-- Left: Top 5 Drivers -->
+            <!-- Left: Top 5 Tài xế -->
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">Top 5 Tai xe</h3>
-                <span class="card-meta">Doanh thu cao nhat</span>
+                <h3 class="card-title">Top 5 tài xế</h3>
+                <span class="card-meta">Doanh thu cao nhất tháng này</span>
               </div>
-              <div class="card-body" style="padding: 0;">
-                <div class="table-wrapper" style="border: none; border-radius: 0;">
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Tai xe</th>
-                        <th class="text-center">Don</th>
-                        <th>Doanh thu</th>
-                        <th>Danh gia</th>
-                      </tr>
-                    </thead>
-                    <tbody id="top-drivers-body">
-                      <tr>
-                        <td colspan="4" class="table-empty-row">
-                          <span class="spinner spinner-sm" style="display:inline-block;vertical-align:middle;margin-right:8px;"></span>
-                          Dang tai...
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <!-- Table full-bleed, không dùng card-body để tránh padding thừa -->
+              <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Tài xế</th>
+                      <th class="text-center">Đơn</th>
+                      <th>Doanh thu</th>
+                      <th>Đánh giá</th>
+                    </tr>
+                  </thead>
+                  <tbody id="top-drivers-body">
+                    <tr>
+                      <td colspan="4" class="table-empty-row">
+                        <span class="spinner spinner-sm"></span>
+                        Đang tải...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <!-- Right: Status Distribution Donut -->
+            <!-- Right: Phân bổ trạng thái đơn hàng (donut) -->
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">Phan bo don hang</h3>
-                <span class="card-meta">Theo trang thai</span>
+                <h3 class="card-title">Phân bổ trạng thái đơn hàng</h3>
+                <span class="card-meta">Theo trạng thái</span>
               </div>
               <div class="card-body">
                 <div class="chart-wrapper-sm">
@@ -181,41 +174,40 @@
         <!-- ================================================
              D. RECENT ORDERS TABLE (full width)
              ================================================ -->
-        <section aria-label="Don hang gan nhat">
+        <section class="mb-8" aria-label="Đơn hàng gần nhất">
           <div class="card">
             <div class="card-header">
-              <h3 class="card-title">Don hang gan nhat</h3>
-              <a href="#" class="btn btn-secondary btn-sm">Xem tat ca</a>
+              <h3 class="card-title">Đơn hàng gần đây</h3>
+              <a href="orders.html" class="link-primary">Xem tất cả →</a>
             </div>
-            <div class="card-body" style="padding: 0;">
-              <div class="table-wrapper" style="border: none; border-radius: 0;">
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Ma don</th>
-                      <th>Khach hang</th>
-                      <th>Tai xe</th>
-                      <th>Trang thai</th>
-                      <th>Bao gia</th>
-                      <th>Ngay tao</th>
-                    </tr>
-                  </thead>
-                  <tbody id="recent-orders-body">
-                    <tr>
-                      <td colspan="6" class="table-empty-row">
-                        <span class="spinner spinner-sm" style="display:inline-block;vertical-align:middle;margin-right:8px;"></span>
-                        Dang tai...
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <!-- Table full-bleed -->
+            <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Tài xế</th>
+                    <th>Trạng thái</th>
+                    <th class="text-right">Tổng tiền</th>
+                    <th>Ngày tạo</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-orders-body">
+                  <tr>
+                    <td colspan="6" class="table-empty-row">
+                      <span class="spinner spinner-sm"></span>
+                      Đang tải...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
 
-        <!-- Footer nho -->
-        <footer style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-tertiary); font-size: var(--font-size-xs);">
+        <!-- Footer nhỏ -->
+        <footer class="text-center text-muted" style="padding-top:var(--spacing-2xl); border-top:1px solid var(--color-surface-pressed); font-size:var(--font-size-caption);">
           Move_home Admin v2.0 &mdash; Sprint Demo 2026-06-02
         </footer>
 
@@ -225,15 +217,14 @@
   </div><!-- end site-body -->
 </div><!-- end site-layout -->
 
-<!-- Chart.js CDN (defer — tai sau khi HTML render) -->
+<!-- Chart.js CDN (defer — tải sau khi HTML render xong) -->
 <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<!-- Dashboard logic — type module de dung ES6 import/export -->
+<!-- Dashboard logic — ES module -->
 <script type="module" src="../../js/dashboard.js"></script>
 
-<!-- Them meta label cho revenue chart khi Chart.js san sang -->
+<!-- Cập nhật meta label biểu đồ sau khi dữ liệu tải xong -->
 <script>
-  // Cap nhat meta label sau khi data load
-  window.updateRevenueChartMeta = function(from, to) {
+  window.updateRevenueChartMeta = function (from, to) {
     const el = document.getElementById('revenue-chart-meta');
     if (el) el.textContent = `${from} — ${to}`;
   };

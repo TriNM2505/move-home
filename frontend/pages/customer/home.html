@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Khach hang — Move_home</title>
+  <title>Trang chủ — Move_home</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
   <link rel="stylesheet" href="../../css/styles.css">
 </head>
 <body>
@@ -16,123 +19,123 @@
   <header class="site-header">
     <div class="container site-header-inner">
       <a href="../../index.html" class="site-logo">
-        <span class="site-logo-icon">🏠</span>
         <span class="site-logo-text">Move_home</span>
       </a>
       <div class="site-header-actions">
-        <span style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">Xin chao,</span>
-        <span id="header-user-name"
-              style="font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-primary);margin-left:4px;"></span>
-        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar"
-             style="margin-left:var(--space-2);"></div>
-        <button id="logout-btn" class="btn btn-ghost btn-sm" style="margin-left:var(--space-2);">
-          🚪 Dang xuat
-        </button>
+        <span class="user-menu-name">Xin chào, <span id="userName"></span></span>
+        <div class="avatar avatar-sm avatar-initials" id="userAvatar"></div>
+        <button id="logoutBtn" class="btn-subtle">Đăng xuất</button>
       </div>
     </div>
   </header>
 
-  <!-- CONTENT: Welcome card can giua -->
-  <div class="welcome-container">
-    <div class="welcome-card">
+  <!-- MAIN CONTENT -->
+  <main class="site-main">
+    <div class="dashboard-main">
 
-      <div class="welcome-avatar">🏠</div>
-
-      <h1 id="welcome-name">Xin chao!</h1>
-      <p class="welcome-role">Ban dang nhap voi vai tro Khach hang</p>
-
-      <!-- Thong tin tai khoan -->
-      <div class="welcome-info">
-        <div class="info-row">
-          <span>Email:</span>
-          <strong id="user-email">—</strong>
-        </div>
-        <div class="info-row">
-          <span>Trang thai:</span>
-          <span id="user-status">—</span>
+      <!-- Hero -->
+      <div class="card-soft-tinted text-center">
+        <h1>Chào mừng đến với Move_home</h1>
+        <p class="text-muted mt-sm">Đặt dịch vụ chuyển nhà nhanh chóng và an toàn</p>
+        <div class="mt-md">
+          <a href="#" class="btn-primary">Đặt đơn ngay</a>
         </div>
       </div>
 
-      <!-- Thong diep roadmap -->
-      <div class="welcome-message">
-        <h2>Cong cu dat don chuyen nha dang phat trien</h2>
-        <p>
-          Cam on ban da dang ky tai khoan Khach hang.
-          Cac tinh nang sau day se duoc trien khai theo roadmap:
-        </p>
-        <ul class="welcome-features">
-          <li>Sprint 2: Dat don chuyen nha online voi bao gia tu dong</li>
-          <li>Sprint 3: Theo doi tien trinh van chuyen real-time</li>
-          <li>Sprint 4: Lich su don hang + Danh gia tai xe</li>
-        </ul>
+      <!-- 3 promo cards -->
+      <div class="grid-3 mt-8">
+        <div class="card-elevated">
+          <div style="font-size:40px; margin-bottom:12px;">⚡</div>
+          <h3>Đặt đơn nhanh chóng</h3>
+          <p class="text-muted mt-sm">Chỉ vài thao tác đơn giản, hoàn tất trong 2 phút</p>
+        </div>
+        <div class="card-elevated">
+          <div style="font-size:40px; margin-bottom:12px;">🛡️</div>
+          <h3>Tài xế xác minh</h3>
+          <p class="text-muted mt-sm">100% tài xế được kiểm tra giấy phép và phương tiện</p>
+        </div>
+        <div class="card-elevated">
+          <div style="font-size:40px; margin-bottom:12px;">💳</div>
+          <h3>Giá minh bạch</h3>
+          <p class="text-muted mt-sm">Báo giá rõ ràng trước khi đặt, không phí ẩn</p>
+        </div>
       </div>
 
-      <p class="welcome-footer">
-        Theo doi tien do tai
-        <a href="https://github.com/TriNM2505/move-home" target="_blank" rel="noopener">GitHub repo</a>
-      </p>
+      <!-- Dịch vụ -->
+      <section class="mt-8">
+        <h2 class="section-title">Dịch vụ của chúng tôi</h2>
+        <div class="flex flex-wrap gap-sm">
+          <button class="btn-subtle">🚚 Xe tải 500kg</button>
+          <button class="btn-subtle">🚛 Xe tải 1 tấn</button>
+          <button class="btn-subtle">📦 Xe tải 1.5 tấn</button>
+        </div>
+      </section>
+
+      <!-- Thông tin tài khoản -->
+      <section class="mt-8">
+        <div class="card-content">
+          <h2 class="section-title">Thông tin tài khoản</h2>
+          <div class="welcome-info">
+            <div class="info-row">
+              <span>Email:</span>
+              <strong id="userEmail">—</strong>
+            </div>
+            <div class="info-row">
+              <span>Trạng thái:</span>
+              <span id="userStatus">—</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
     </div>
-  </div>
+  </main>
 
-</div><!-- end site-layout -->
+</div>
 
 <script type="module">
   import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Guard: chuyen den login neu chua dang nhap
+    // Guard: chuyển về login nếu chưa đăng nhập
     if (!isLoggedIn()) {
       window.location.href = '../login.html';
       return;
     }
-
     const user = getCurrentUser();
-
-    // Kiem tra role dung la CUSTOMER
     if (user?.role !== 'CUSTOMER') {
-      // Sai role — dang xuat va ve login
       logout('../login.html');
       return;
     }
-
     renderUserInfo(user);
-    setupLogout();
+    document.getElementById('logoutBtn')
+      ?.addEventListener('click', () => logout('../login.html'));
   });
 
   function renderUserInfo(user) {
     // Header
-    const nameEl = document.getElementById('header-user-name');
+    const nameEl = document.getElementById('userName');
     if (nameEl) nameEl.textContent = user.fullName || '';
 
-    const avatarEl = document.getElementById('header-user-avatar');
+    const avatarEl = document.getElementById('userAvatar');
     if (avatarEl && user.fullName) {
       avatarEl.textContent = user.fullName
         .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
     }
 
-    // Card
-    const welcomeEl = document.getElementById('welcome-name');
-    if (welcomeEl) welcomeEl.textContent = `Chao mung, ${user.fullName}!`;
-
-    const emailEl = document.getElementById('user-email');
+    // Thông tin tài khoản
+    const emailEl = document.getElementById('userEmail');
     if (emailEl) emailEl.textContent = user.email || '—';
 
-    const statusEl = document.getElementById('user-status');
+    const statusEl = document.getElementById('userStatus');
     if (statusEl) statusEl.innerHTML = renderStatusBadge(user.status);
   }
 
-  function setupLogout() {
-    document.getElementById('logout-btn')
-      ?.addEventListener('click', () => logout('../login.html'));
-  }
-
-  // Render badge trang thai theo mau semantic
   function renderStatusBadge(status) {
     const map = {
-      ACTIVE:         '<span class="badge badge-sm badge-success">Hoat dong</span>',
-      PENDING_VERIFY: '<span class="badge badge-sm badge-warning">Cho xac thuc email</span>',
-      SUSPENDED:      '<span class="badge badge-sm badge-danger">Tam khoa</span>',
+      ACTIVE:         '<span class="badge badge-sm badge-success">Đang hoạt động</span>',
+      PENDING_VERIFY: '<span class="badge badge-sm badge-warning">Chờ xác thực email</span>',
+      SUSPENDED:      '<span class="badge badge-sm badge-danger">Tạm khóa</span>',
     };
     return map[status] || `<span class="badge badge-sm badge-neutral">${status || '—'}</span>`;
   }
