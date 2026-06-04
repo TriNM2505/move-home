@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lịch sử rút tiền — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản lý</span>
+      </a>
+
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Quản lý</span>
+        <div class="avatar avatar-sm avatar-initials">QL</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản lý">
+      <nav class="sidebar-nav">
+        <a href="driver-approvals.html" class="sidebar-item">
+          <span class="sidebar-icon">✓</span>
+          <span>Duyệt tài xế</span>
+        </a>
+        <a href="withdrawal-pending.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">₫</span>
+          <span>Rút tiền</span>
+        </a>
+        <a href="disputes.html" class="sidebar-item">
+          <span class="sidebar-icon">!</span>
+          <span>Khiếu nại</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+        <header class="page-header">
+          <h1 class="page-title">Lịch sử rút tiền</h1>
+          <p class="page-subtitle">Theo dõi các yêu cầu rút tiền đã được phê duyệt hoặc từ chối.</p>
+        </header>
+
+        <section class="mb-8" aria-label="Tóm tắt lịch sử rút tiền">
+          <div class="grid-3">
+            <div class="kpi kpi-success">
+              <div class="kpi-icon">8</div>
+              <div class="kpi-body">
+                <div class="kpi-value">8</div>
+                <div class="kpi-label">Yêu cầu đã duyệt</div>
+                <div class="kpi-sub">Trong tháng này</div>
+              </div>
+            </div>
+            <div class="kpi kpi-primary">
+              <div class="kpi-icon">₫</div>
+              <div class="kpi-body">
+                <div class="kpi-value num-money">32.000.000 đ</div>
+                <div class="kpi-label">Tổng tiền đã duyệt</div>
+                <div class="kpi-sub">Đã ghi nhận giao dịch</div>
+              </div>
+            </div>
+            <div class="kpi kpi-danger">
+              <div class="kpi-icon">1</div>
+              <div class="kpi-body">
+                <div class="kpi-value">1</div>
+                <div class="kpi-label">Yêu cầu bị từ chối</div>
+                <div class="kpi-sub">Thông tin ngân hàng không khớp</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Bảng lịch sử rút tiền">
+          <div class="card-header">
+            <h2 class="card-title">Yêu cầu đã xử lý</h2>
+            <a href="withdrawal-pending.html" class="link-primary">Xem yêu cầu chờ duyệt</a>
+          </div>
+          <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Tài xế</th>
+                  <th>Số tiền</th>
+                  <th>Trạng thái</th>
+                  <th>Người duyệt</th>
+                  <th>Ngày xử lý</th>
+                  <th class="table-col-action">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Nguyễn Văn Hùng</td>
+                  <td class="col-money">4.500.000 đ</td>
+                  <td><span class="badge badge-sm badge-success">Đã duyệt</span></td>
+                  <td>Quản lý An</td>
+                  <td>05/06/2026</td>
+                  <td class="table-col-action"><a href="withdrawal-detail.html" class="btn btn-secondary btn-sm">Xem</a></td>
+                </tr>
+                <tr>
+                  <td>Trần Minh Đức</td>
+                  <td class="col-money">3.000.000 đ</td>
+                  <td><span class="badge badge-sm badge-success">Đã duyệt</span></td>
+                  <td>Quản lý Bình</td>
+                  <td>04/06/2026</td>
+                  <td class="table-col-action"><a href="withdrawal-detail.html" class="btn btn-secondary btn-sm">Xem</a></td>
+                </tr>
+                <tr>
+                  <td>Đỗ Minh Quân</td>
+                  <td class="col-money">2.500.000 đ</td>
+                  <td><span class="badge badge-sm badge-danger">Từ chối</span></td>
+                  <td>Quản lý An</td>
+                  <td>03/06/2026</td>
+                  <td class="table-col-action"><a href="withdrawal-detail.html" class="btn btn-secondary btn-sm">Xem</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

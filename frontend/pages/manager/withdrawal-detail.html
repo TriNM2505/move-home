@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết yêu cầu rút tiền — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản lý</span>
+      </a>
+
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Quản lý</span>
+        <div class="avatar avatar-sm avatar-initials">QL</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản lý">
+      <nav class="sidebar-nav">
+        <a href="driver-approvals.html" class="sidebar-item">
+          <span class="sidebar-icon">✓</span>
+          <span>Duyệt tài xế</span>
+        </a>
+        <a href="withdrawal-pending.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">₫</span>
+          <span>Rút tiền</span>
+        </a>
+        <a href="disputes.html" class="sidebar-item">
+          <span class="sidebar-icon">!</span>
+          <span>Khiếu nại</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+        <header class="page-header">
+          <h1 class="page-title">Chi tiết yêu cầu rút tiền</h1>
+          <p class="page-subtitle">Yêu cầu rút tiền của Nguyễn Văn Hùng đang chờ phê duyệt.</p>
+        </header>
+
+        <section class="grid-2 mb-8" aria-label="Thông tin yêu cầu rút tiền">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Thông tin tài xế</h2>
+              <span class="badge badge-sm badge-success">Đang hoạt động</span>
+            </div>
+            <div class="card-body">
+              <div class="welcome-info">
+                <div class="info-row"><span>Họ tên</span><strong>Nguyễn Văn Hùng</strong></div>
+                <div class="info-row"><span>Email</span><strong>hung.nguyen@example.com</strong></div>
+                <div class="info-row"><span>Số điện thoại</span><strong>0912 345 678</strong></div>
+                <div class="info-row"><span>Số dư ví hiện tại</span><strong class="num-money">8.200.000 đ</strong></div>
+                <div class="info-row"><span>Số đơn hoàn thành</span><strong>42</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Thông tin rút tiền</h2>
+              <span class="badge badge-sm badge-warning">Chờ duyệt</span>
+            </div>
+            <div class="card-body">
+              <div class="welcome-info">
+                <div class="info-row"><span>Mã yêu cầu</span><strong>WD202606050001</strong></div>
+                <div class="info-row"><span>Số tiền</span><strong class="num-money">4.500.000 đ</strong></div>
+                <div class="info-row"><span>Ngày yêu cầu</span><strong>05/06/2026 08:45</strong></div>
+                <div class="info-row"><span>Ngân hàng</span><strong>Vietcombank</strong></div>
+                <div class="info-row"><span>Số tài khoản</span><strong>0123456789</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card mb-8" aria-label="Kiểm tra xử lý">
+          <div class="card-header">
+            <h2 class="card-title">Kiểm tra trước khi duyệt</h2>
+            <span class="card-meta">Dữ liệu mẫu</span>
+          </div>
+          <div class="card-body">
+            <div class="grid-3">
+              <div class="card-soft-tinted">
+                <h3 class="section-title">Số dư ví</h3>
+                <p class="text-muted">Số tiền yêu cầu nhỏ hơn số dư ví hiện tại.</p>
+                <p class="mt-sm"><span class="badge badge-sm badge-success">Đạt</span></p>
+              </div>
+              <div class="card-soft-tinted">
+                <h3 class="section-title">Tài khoản ngân hàng</h3>
+                <p class="text-muted">Tên chủ tài khoản trùng với tên tài xế.</p>
+                <p class="mt-sm"><span class="badge badge-sm badge-success">Đạt</span></p>
+              </div>
+              <div class="card-soft-tinted">
+                <h3 class="section-title">Lịch sử rút tiền</h3>
+                <p class="text-muted">Không có yêu cầu trùng trong ngày.</p>
+                <p class="mt-sm"><span class="badge badge-sm badge-success">Đạt</span></p>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <a href="withdrawal-history.html" class="btn btn-secondary btn-md">Xem lịch sử</a>
+            <a href="withdrawal-history.html" class="btn btn-danger btn-md">Từ chối</a>
+            <a href="withdrawal-history.html" class="btn btn-primary btn-md">Duyệt yêu cầu</a>
+          </div>
+        </section>
+
+        <p class="text-muted">
+          <a href="withdrawal-pending.html" class="link-primary">Quay lại yêu cầu chờ duyệt</a>
+        </p>
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duyệt tài xế — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản lý</span>
+      </a>
+
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Quản lý</span>
+        <div class="avatar avatar-sm avatar-initials">QL</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản lý">
+      <nav class="sidebar-nav">
+        <a href="driver-approvals.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">✓</span>
+          <span>Duyệt tài xế</span>
+        </a>
+        <a href="withdrawal-pending.html" class="sidebar-item">
+          <span class="sidebar-icon">₫</span>
+          <span>Rút tiền</span>
+        </a>
+        <a href="disputes.html" class="sidebar-item">
+          <span class="sidebar-icon">!</span>
+          <span>Khiếu nại</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+        <header class="page-header">
+          <h1 class="page-title">Tài xế chờ duyệt</h1>
+          <p class="page-subtitle">Kiểm tra hồ sơ, giấy phép lái xe và thông tin phương tiện trước khi kích hoạt tài khoản.</p>
+        </header>
+
+        <section class="mb-8" aria-label="Chỉ số duyệt tài xế">
+          <div class="grid-3">
+            <div class="kpi kpi-warning">
+              <div class="kpi-icon">3</div>
+              <div class="kpi-body">
+                <div class="kpi-value">3</div>
+                <div class="kpi-label">Hồ sơ chờ duyệt</div>
+                <div class="kpi-sub">Cần xử lý trong hôm nay</div>
+              </div>
+            </div>
+            <div class="kpi kpi-success">
+              <div class="kpi-icon">2</div>
+              <div class="kpi-body">
+                <div class="kpi-value">2</div>
+                <div class="kpi-label">Hồ sơ đủ giấy tờ</div>
+                <div class="kpi-sub">Có thể duyệt ngay</div>
+              </div>
+            </div>
+            <div class="kpi kpi-danger">
+              <div class="kpi-icon">1</div>
+              <div class="kpi-body">
+                <div class="kpi-value">1</div>
+                <div class="kpi-label">Cần kiểm tra thêm</div>
+                <div class="kpi-sub">Thiếu ảnh phương tiện rõ nét</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Danh sách tài xế chờ duyệt">
+          <div class="card-header">
+            <h2 class="card-title">Danh sách hồ sơ</h2>
+            <span class="card-meta">Cập nhật lúc 09:30</span>
+          </div>
+          <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Họ tên</th>
+                  <th>Email</th>
+                  <th>Loại xe</th>
+                  <th>Biển số</th>
+                  <th>Ngày gửi</th>
+                  <th>Trạng thái</th>
+                  <th class="table-col-action">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-warning">
+                  <td>Nguyễn Văn Hùng</td>
+                  <td>hung.nguyen@example.com</td>
+                  <td>Xe tải 1 tấn</td>
+                  <td>30H-456.78</td>
+                  <td>04/06/2026</td>
+                  <td><span class="badge badge-sm badge-pending-approval">Chờ duyệt</span></td>
+                  <td class="table-col-action"><a href="driver-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
+                </tr>
+                <tr>
+                  <td>Trần Minh Đức</td>
+                  <td>duc.tran@example.com</td>
+                  <td>Xe tải 500kg</td>
+                  <td>29C-123.45</td>
+                  <td>04/06/2026</td>
+                  <td><span class="badge badge-sm badge-pending-approval">Chờ duyệt</span></td>
+                  <td class="table-col-action"><a href="driver-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
+                </tr>
+                <tr>
+                  <td>Phạm Quốc Bảo</td>
+                  <td>bao.pham@example.com</td>
+                  <td>Xe tải 1.5 tấn</td>
+                  <td>30G-888.12</td>
+                  <td>03/06/2026</td>
+                  <td><span class="badge badge-sm badge-warning">Cần kiểm tra</span></td>
+                  <td class="table-col-action"><a href="driver-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đơn khiếu nại — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản lý</span>
+      </a>
+
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, Quản lý</span>
+        <div class="avatar avatar-sm avatar-initials">QL</div>
+        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản lý">
+      <nav class="sidebar-nav">
+        <a href="driver-approvals.html" class="sidebar-item">
+          <span class="sidebar-icon">✓</span>
+          <span>Duyệt tài xế</span>
+        </a>
+        <a href="withdrawal-pending.html" class="sidebar-item">
+          <span class="sidebar-icon">₫</span>
+          <span>Rút tiền</span>
+        </a>
+        <a href="disputes.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">!</span>
+          <span>Khiếu nại</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+        <header class="page-header">
+          <h1 class="page-title">Đơn khiếu nại</h1>
+          <p class="page-subtitle">Xử lý các đơn hàng có báo cáo hư hỏng hoặc tranh chấp sau khi hoàn thành.</p>
+        </header>
+
+        <section class="mb-8" aria-label="Chỉ số khiếu nại">
+          <div class="grid-3">
+            <div class="kpi kpi-danger">
+              <div class="kpi-icon">4</div>
+              <div class="kpi-body">
+                <div class="kpi-value">4</div>
+                <div class="kpi-label">Khiếu nại đang mở</div>
+                <div class="kpi-sub">Cần phản hồi trong ngày</div>
+              </div>
+            </div>
+            <div class="kpi kpi-warning">
+              <div class="kpi-icon">2</div>
+              <div class="kpi-body">
+                <div class="kpi-value">2</div>
+                <div class="kpi-label">Chờ tài xế phản hồi</div>
+                <div class="kpi-sub">Đang trong thời gian xác minh</div>
+              </div>
+            </div>
+            <div class="kpi kpi-primary">
+              <div class="kpi-icon">₫</div>
+              <div class="kpi-body">
+                <div class="kpi-value num-money">7.200.000 đ</div>
+                <div class="kpi-label">Số tiền liên quan</div>
+                <div class="kpi-sub">Tổng giá trị tranh chấp</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Danh sách đơn khiếu nại">
+          <div class="card-header">
+            <h2 class="card-title">Danh sách khiếu nại</h2>
+            <span class="card-meta">Sắp xếp theo ngày mới nhất</span>
+          </div>
+          <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Mã đơn</th>
+                  <th>Khách hàng</th>
+                  <th>Tài xế</th>
+                  <th>Lý do</th>
+                  <th>Ngày gửi</th>
+                  <th>Số tiền</th>
+                  <th>Trạng thái</th>
+                  <th class="table-col-action">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-warning">
+                  <td>MH202606050001</td>
+                  <td>Nguyễn Thu Hà</td>
+                  <td>Nguyễn Văn Hùng</td>
+                  <td>Trầy xước tủ gỗ khi vận chuyển</td>
+                  <td>05/06/2026</td>
+                  <td class="col-money">2.400.000 đ</td>
+                  <td><span class="badge badge-sm badge-danger">Khiếu nại</span></td>
+                  <td class="table-col-action"><a href="dispute-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
+                </tr>
+                <tr>
+                  <td>MH202606040018</td>
+                  <td>Trần Quốc Anh</td>
+                  <td>Phạm Quốc Bảo</td>
+                  <td>Thiếu một thùng đồ gia dụng</td>
+                  <td>04/06/2026</td>
+                  <td class="col-money">1.800.000 đ</td>
+                  <td><span class="badge badge-sm badge-warning">Chờ phản hồi</span></td>
+                  <td class="table-col-action"><a href="dispute-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
+                </tr>
+                <tr>
+                  <td>MH202606030012</td>
+                  <td>Lê Minh Châu</td>
+                  <td>Trần Minh Đức</td>
+                  <td>Giao trễ so với thời gian hẹn</td>
+                  <td>03/06/2026</td>
+                  <td class="col-money">3.000.000 đ</td>
+                  <td><span class="badge badge-sm badge-danger">Khiếu nại</span></td>
+                  <td class="table-col-action"><a href="dispute-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
