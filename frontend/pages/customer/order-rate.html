@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đánh giá tài xế — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.rate-layout{display:grid;grid-template-columns:1fr 360px;gap:24px}.driver-mini{display:flex;gap:16px;align-items:center}.avatar-lg{width:72px;height:72px;border-radius:999px;background:var(--color-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px}.stars{display:flex;gap:8px;font-size:42px;color:var(--color-accent);line-height:1}.tag-list{display:flex;gap:10px;flex-wrap:wrap}.tag{background:var(--color-canvas-soft);border:1px solid var(--color-surface-pressed);border-radius:999px;padding:10px 16px;font-weight:500}.tag.active{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}textarea.text-input{min-height:140px;resize:vertical}@media(max-width:900px){.rate-layout{grid-template-columns:1fr}.site-header-actions{flex-direction:column;align-items:flex-end}}
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <div class="site-header-actions customer-nav">
+        <a href="home.html" class="btn-subtle">Trang chủ</a>
+        <a href="home.html" class="btn-subtle">Đơn hàng</a>
+        <a href="my-wallet.html" class="btn-subtle">Ví của tôi</a>
+        <a href="../login.html" class="btn-secondary">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header">
+        <h1 class="page-title">Đánh giá tài xế</h1>
+        <p class="page-subtitle">Chia sẻ trải nghiệm sau đơn MH2026050021 để Move_home cải thiện chất lượng dịch vụ.</p>
+      </header>
+      <div class="rate-layout">
+        <form class="card">
+          <div class="card-header"><h2 class="card-title">Nội dung đánh giá</h2><span class="badge-completed">Hoàn thành</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Mức hài lòng</label>
+              <div class="stars" aria-label="Đánh giá 5 sao"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+              <p class="text-muted mt-sm">5 sao • Rất hài lòng</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Điểm nổi bật</label>
+              <div class="tag-list"><span class="tag active">Đúng giờ</span><span class="tag active">Lịch sự</span><span class="tag active">Xe sạch</span><span class="tag">Hỗ trợ tốt</span></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="comment">Nhận xét thêm</label>
+              <textarea id="comment" class="text-input">Tài xế đến đúng giờ, hỗ trợ bốc xếp cẩn thận và giao hàng không trầy xước.</textarea>
+            </div>
+            <div class="flex flex-wrap gap-sm"><a href="home.html" class="btn-secondary">Hủy</a><a href="my-wallet.html" class="btn-primary">Gửi đánh giá</a></div>
+          </div>
+        </form>
+        <aside class="stack">
+          <section class="card-soft-tinted">
+            <div class="driver-mini"><div class="avatar-lg">LC</div><div><h2 class="section-title">Lê Văn Cường</h2><p class="text-muted">Xe tải 1 tấn • 30E-56789</p><p class="star-rating mt-sm">★ 4,7/5</p></div></div>
+          </section>
+          <section class="card">
+            <div class="card-header"><h2 class="card-title">Tóm tắt đơn</h2></div>
+            <div class="card-body">
+              <div class="info-row"><span>Điểm đón</span><strong>25 Kim Mã</strong></div>
+              <div class="info-row"><span>Điểm trả</span><strong>18 Hàng Bài</strong></div>
+              <div class="info-row"><span>Tổng tiền</span><strong>2.300.000 đ</strong></div>
+              <div class="info-row"><span>Ngày hoàn thành</span><strong>05/06/2026</strong></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
