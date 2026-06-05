@@ -10,6 +10,67 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-2xl);
+    }
+
+    .settings-card {
+      background: var(--color-canvas);
+      border-radius: var(--rounded-xl);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-card, var(--shadow-level-1));
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+    }
+
+    .settings-card:hover:not(.disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card-hover, var(--shadow-level-2));
+      text-decoration: none;
+    }
+
+    .settings-card.disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .settings-icon {
+      font-size: 40px;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .settings-card h3 {
+      color: var(--color-ink);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .settings-card p {
+      color: var(--color-body);
+      font-size: var(--font-size-body-sm);
+    }
+
+    .settings-meta {
+      position: absolute;
+      top: var(--spacing-md);
+      right: var(--spacing-md);
+      background: var(--color-canvas-soft);
+      color: var(--color-mute);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--rounded-pill);
+      font-size: var(--font-size-body-xs, var(--font-size-caption));
+      font-style: italic;
+    }
+
+    @media (max-width: 900px) {
+      .settings-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
@@ -60,6 +121,14 @@
           <span class="sidebar-icon">💰</span>
           <span>Rút tiền</span>
         </a>
+        <a href="transactions.html" class="sidebar-item">
+          <span class="sidebar-icon">💳</span>
+          <span>Giao dịch</span>
+        </a>
+        <a href="reports.html" class="sidebar-item">
+          <span class="sidebar-icon">📈</span>
+          <span>Báo cáo</span>
+        </a>
         <div class="sidebar-divider"></div>
         <a href="settings.html" class="sidebar-item sidebar-item--active">
           <span class="sidebar-icon">⚙️</span>
@@ -77,14 +146,27 @@
           <p class="page-subtitle">Quản lý cấu hình và tham số hệ thống</p>
         </header>
 
-        <section class="empty-state-card" aria-label="Trạng thái tính năng cấu hình">
-          <div class="empty-state-icon" aria-hidden="true">⚙️</div>
-          <h2 class="empty-state-headline">Tính năng đang phát triển</h2>
-          <p class="empty-state-body">
-            Tính năng cấu hình sẽ cho phép quản trị viên điều chỉnh tỷ lệ hoa hồng (mặc định 30%), phụ phí giờ cao điểm, và các tham số kinh doanh khác. Dự kiến phát hành trong Sprint 5.
-          </p>
-          <p class="empty-state-meta">Dự kiến ra mắt: Tuần 5 của dự án</p>
-        </section>
+        <div class="settings-grid">
+          <a href="commission-settings.html" class="settings-card">
+            <div class="settings-icon" aria-hidden="true">💹</div>
+            <h3>Cấu hình hoa hồng</h3>
+            <p>Tỷ lệ hoa hồng, phụ phí giờ cao điểm, phụ phí ngõ nhỏ</p>
+          </a>
+
+          <div class="settings-card disabled">
+            <div class="settings-icon" aria-hidden="true">🔔</div>
+            <h3>Cấu hình thông báo</h3>
+            <p>Mẫu thư điện tử, tin nhắn, thông báo đẩy</p>
+            <span class="settings-meta">Sắp ra mắt</span>
+          </div>
+
+          <div class="settings-card disabled">
+            <div class="settings-icon" aria-hidden="true">🔐</div>
+            <h3>Cấu hình bảo mật</h3>
+            <p>Thời hạn phiên đăng nhập, chính sách mật khẩu, xác thực hai lớp</p>
+            <span class="settings-meta">Sắp ra mắt</span>
+          </div>
+        </div>
 
       </div>
     </main>
