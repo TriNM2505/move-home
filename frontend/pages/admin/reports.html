@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo cáo phân tích — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>.quick-nav{display:flex;gap:8px;flex-wrap:wrap}.chart-fake{height:220px;display:flex;align-items:end;gap:14px;padding:20px;background:var(--color-canvas-soft);border-radius:16px}.chart-fake span{flex:1;background:var(--color-primary);border-radius:8px 8px 0 0;min-height:30px}.district{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--color-surface-pressed)}@media(max-width:900px){.grid-2,.grid-4{grid-template-columns:1fr}.site-header-actions{flex-direction:column;align-items:flex-end}}</style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span><span class="user-menu-name" style="color:var(--color-mute);font-weight:400;margin-left:8px;">Quản trị</span></a><div class="site-header-actions quick-nav"><a href="dashboard.html" class="btn-subtle">Tổng quan</a><a href="transactions.html" class="btn-subtle">Giao dịch</a><a href="commission-settings.html" class="btn-subtle">Hoa hồng</a><a href="../login.html" class="btn-secondary">Đăng xuất</a></div></div></header>
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản trị"><nav class="sidebar-nav"><a href="dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span>Tổng quan</span></a><a href="orders.html" class="sidebar-item"><span class="sidebar-icon">📦</span><span>Đơn hàng</span></a><a href="drivers.html" class="sidebar-item"><span class="sidebar-icon">🚚</span><span>Tài xế</span></a><a href="customers.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span>Khách hàng</span></a><a href="withdrawals.html" class="sidebar-item"><span class="sidebar-icon">💰</span><span>Rút tiền</span></a><div class="sidebar-divider"></div><a href="commission-settings.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span>Hoa hồng</span></a></nav></aside>
+    <main class="site-main"><div class="dashboard-main">
+      <header class="page-header flex-between flex-wrap gap-md"><div><h1 class="page-title">Báo cáo phân tích</h1><p class="page-subtitle">Tổng hợp doanh thu, khu vực, hiệu suất tài xế và tỷ lệ giữ chân khách hàng.</p></div><div class="quick-nav"><input class="text-input" style="width:220px" value="01/06/2026 - 30/06/2026"><a href="transactions.html" class="btn-primary">Xuất báo cáo</a></div></header>
+      <section class="grid-4 mb-8"><div class="kpi kpi-primary"><div class="kpi-body"><div class="kpi-value">482</div><div class="kpi-label">Đơn trong kỳ</div></div></div><div class="kpi kpi-success"><div class="kpi-body"><div class="kpi-value">726tr</div><div class="kpi-label">Doanh thu</div></div></div><div class="kpi kpi-warning"><div class="kpi-body"><div class="kpi-value">218tr</div><div class="kpi-label">Hoa hồng</div></div></div><div class="kpi kpi-info"><div class="kpi-body"><div class="kpi-value">42%</div><div class="kpi-label">Khách quay lại</div></div></div></section>
+      <div class="grid-2 mb-8"><section class="card"><div class="card-header"><h2 class="card-title">Doanh thu theo tháng</h2></div><div class="card-body"><div class="chart-fake" aria-label="Biểu đồ cột doanh thu"><span style="height:48%"></span><span style="height:62%"></span><span style="height:75%"></span><span style="height:58%"></span><span style="height:88%"></span><span style="height:100%"></span></div></div></section><section class="card"><div class="card-header"><h2 class="card-title">Đơn theo quận</h2></div><div class="card-body"><div class="district"><span>Cầu Giấy</span><strong>86 đơn</strong></div><div class="district"><span>Ba Đình</span><strong>72 đơn</strong></div><div class="district"><span>Hoàn Kiếm</span><strong>64 đơn</strong></div><div class="district"><span>Hà Đông</span><strong>58 đơn</strong></div><div class="district"><span>Đống Đa</span><strong>51 đơn</strong></div></div></section></div>
+      <div class="grid-2"><section class="card"><div class="card-header"><h2 class="card-title">Hiệu suất tài xế</h2></div><div class="card-body"><p class="text-muted mb-md">Tài xế hoạt động trung bình 6,8 giờ mỗi ngày, tỷ lệ nhận đơn đạt 81%.</p><a href="driver-detail.html" class="btn-subtle">Xem tài xế nổi bật</a></div></section><section class="card"><div class="card-header"><h2 class="card-title">Giữ chân khách hàng</h2></div><div class="card-body"><p class="text-muted mb-md">42% khách hàng đặt từ hai đơn trở lên trong tháng, tăng 8% so với kỳ trước.</p><a href="customer-detail.html" class="btn-subtle">Xem khách hàng tiêu biểu</a></div></section></div>
+    </div></main>
+  </div>
+</div>
+</body>
+</html>

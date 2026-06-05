@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giao dịch hệ thống — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>.quick-nav{display:flex;gap:8px;flex-wrap:wrap}.summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.amount-plus{color:var(--color-success);font-weight:700}.amount-minus{color:var(--color-danger);font-weight:700}@media(max-width:900px){.summary-strip{grid-template-columns:1fr 1fr}.site-header-actions{flex-direction:column;align-items:flex-end}}@media(max-width:560px){.summary-strip{grid-template-columns:1fr}}</style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span><span class="user-menu-name" style="color:var(--color-mute);font-weight:400;margin-left:8px;">Quản trị</span></a><div class="site-header-actions quick-nav"><a href="dashboard.html" class="btn-subtle">Tổng quan</a><a href="order-detail.html" class="btn-subtle">Chi tiết đơn</a><a href="reports.html" class="btn-subtle">Báo cáo</a><a href="../login.html" class="btn-secondary">Đăng xuất</a></div></div></header>
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản trị"><nav class="sidebar-nav"><a href="dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span>Tổng quan</span></a><a href="orders.html" class="sidebar-item"><span class="sidebar-icon">📦</span><span>Đơn hàng</span></a><a href="drivers.html" class="sidebar-item"><span class="sidebar-icon">🚚</span><span>Tài xế</span></a><a href="customers.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span>Khách hàng</span></a><a href="withdrawals.html" class="sidebar-item"><span class="sidebar-icon">💰</span><span>Rút tiền</span></a><div class="sidebar-divider"></div><a href="commission-settings.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span>Hoa hồng</span></a></nav></aside>
+    <main class="site-main"><div class="dashboard-main">
+      <header class="page-header"><h1 class="page-title">Giao dịch hệ thống</h1><p class="page-subtitle">Đối soát thanh toán, hoa hồng, thu nhập tài xế và hoàn tiền.</p></header>
+      <section class="summary-strip mb-8"><div class="kpi kpi-success"><div class="kpi-body"><div class="kpi-value">86,4tr</div><div class="kpi-label">Tổng thu hôm nay</div></div></div><div class="kpi kpi-primary"><div class="kpi-body"><div class="kpi-value">25,9tr</div><div class="kpi-label">Hoa hồng nền tảng</div></div></div><div class="kpi kpi-info"><div class="kpi-body"><div class="kpi-value">60,5tr</div><div class="kpi-label">Thu nhập tài xế</div></div></div><div class="kpi kpi-warning"><div class="kpi-body"><div class="kpi-value">1,2tr</div><div class="kpi-label">Hoàn tiền</div></div></div></section>
+      <div class="filter-bar"><button class="filter-pill active">Tất cả</button><button class="filter-pill">Thanh toán đơn</button><button class="filter-pill">Phí hoa hồng</button><button class="filter-pill">Thu nhập tài xế</button><button class="filter-pill">Hoàn tiền</button><button class="filter-pill">Nạp ví</button><button class="filter-pill">Rút tiền</button></div>
+      <section class="card"><div class="card-header"><h2 class="card-title">Lịch sử giao dịch</h2><a href="reports.html" class="btn-subtle">Xuất báo cáo</a></div><div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none;overflow-x:auto;"><table class="table" style="min-width:960px;"><thead><tr><th>Mã giao dịch</th><th>Người dùng</th><th>Vai trò</th><th>Mã đơn</th><th>Loại</th><th>Ngày</th><th class="text-right">Số tiền</th></tr></thead><tbody><tr><td>GD202606001</td><td>Nguyễn Văn An</td><td>Khách hàng</td><td><a href="order-detail.html" class="link-primary">MH2026060001</a></td><td>Thanh toán đơn</td><td>06/06/2026</td><td class="text-right amount-minus">-1.500.000 đ</td></tr><tr><td>GD202606002</td><td>Hệ thống</td><td>Quản trị</td><td>MH2026060001</td><td>Phí hoa hồng</td><td>06/06/2026</td><td class="text-right amount-plus">+450.000 đ</td></tr><tr><td>GD202606003</td><td>Lê Văn Cường</td><td>Tài xế</td><td>MH2026060001</td><td>Thu nhập tài xế</td><td>06/06/2026</td><td class="text-right amount-plus">+1.050.000 đ</td></tr><tr><td>GD202606004</td><td>Trần Thị Bình</td><td>Khách hàng</td><td>MH2026050021</td><td>Hoàn tiền</td><td>05/06/2026</td><td class="text-right amount-plus">+200.000 đ</td></tr></tbody></table></div></section>
+      <div class="pagination-bar"><span class="pagination-info">Hiển thị 1-4 trong 128 giao dịch</span><div class="pagination-controls"><button class="pagination-btn-prev" disabled>Trước</button><button class="pagination-btn-page active">1</button><button class="pagination-btn-page">2</button><button class="pagination-btn-page">3</button><button class="pagination-btn-next">Sau</button></div></div>
+    </div></main>
+  </div>
+</div>
+</body>
+</html>

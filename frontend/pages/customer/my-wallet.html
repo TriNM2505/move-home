@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ví của tôi — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.wallet-hero{background:var(--color-primary);color:#fff;border-radius:16px;padding:32px;display:flex;justify-content:space-between;gap:20px;align-items:center}.wallet-hero h1,.wallet-hero p{color:#fff}.balance{font-size:42px;font-weight:700;line-height:1.1}.amount-plus{color:var(--color-success);font-weight:700}.amount-minus{color:var(--color-danger);font-weight:700}.wallet-actions{display:flex;gap:10px;flex-wrap:wrap}@media(max-width:800px){.wallet-hero{flex-direction:column;align-items:flex-start}.site-header-actions{flex-direction:column;align-items:flex-end}}
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <div class="site-header-actions customer-nav">
+        <a href="home.html" class="btn-subtle">Trang chủ</a>
+        <a href="order-rate.html" class="btn-subtle">Đánh giá</a>
+        <a href="my-wallet.html" class="btn-primary">Ví của tôi</a>
+        <a href="../login.html" class="btn-secondary">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+  <main class="site-main">
+    <div class="dashboard-main">
+      <section class="wallet-hero mb-8">
+        <div>
+          <p>Số dư hiện tại</p>
+          <div class="balance">3.250.000 đ</div>
+          <p class="mt-sm">Cập nhật lúc 09:15, 05/06/2026</p>
+        </div>
+        <div class="wallet-actions">
+          <a href="my-wallet.html" class="btn-primary-amber">Nạp tiền</a>
+          <a href="home.html" class="btn-secondary">Đặt đơn mới</a>
+        </div>
+      </section>
+      <section class="grid-3 mb-8">
+        <div class="kpi kpi-success"><div class="kpi-body"><div class="kpi-value">8,5tr</div><div class="kpi-label">Đã nạp tháng này</div></div></div>
+        <div class="kpi kpi-primary"><div class="kpi-body"><div class="kpi-value">5,1tr</div><div class="kpi-label">Đã thanh toán</div></div></div>
+        <div class="kpi kpi-warning"><div class="kpi-body"><div class="kpi-value">200k</div><div class="kpi-label">Đã hoàn tiền</div></div></div>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">Lịch sử giao dịch ví</h2><span class="card-meta">Dữ liệu mô phỏng</span></div>
+        <div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none;overflow-x:auto;">
+          <table class="table" style="min-width:860px;">
+            <thead><tr><th>Mã giao dịch</th><th>Loại</th><th>Mã đơn</th><th>Ngày</th><th>Trạng thái</th><th class="text-right">Số tiền</th></tr></thead>
+            <tbody>
+              <tr><td>VD202606001</td><td>Nạp ví</td><td>Không có</td><td>05/06/2026</td><td><span class="badge-completed">Hoàn thành</span></td><td class="text-right amount-plus">+3.000.000 đ</td></tr>
+              <tr><td>VD202606002</td><td>Thanh toán đơn</td><td>MH2026060001</td><td>06/06/2026</td><td><span class="badge-in-progress">Đang giao</span></td><td class="text-right amount-minus">-1.500.000 đ</td></tr>
+              <tr><td>VD202605021</td><td>Hoàn tiền</td><td>MH2026050021</td><td>22/05/2026</td><td><span class="badge-completed">Hoàn thành</span></td><td class="text-right amount-plus">+200.000 đ</td></tr>
+              <tr><td>VD202605020</td><td>Thanh toán đơn</td><td>MH2026050021</td><td>20/05/2026</td><td><span class="badge-completed">Hoàn thành</span></td><td class="text-right amount-minus">-2.300.000 đ</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <div class="pagination-bar"><span class="pagination-info">Hiển thị 1-4 trong 24 giao dịch</span><div class="pagination-controls"><button class="pagination-btn-prev" disabled>Trước</button><button class="pagination-btn-page active">1</button><button class="pagination-btn-page">2</button><button class="pagination-btn-next">Sau</button></div></div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

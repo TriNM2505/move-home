@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết đơn hàng — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .quick-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.detail-grid{display:grid;grid-template-columns:1.4fr .8fr;gap:24px}.stack{display:flex;flex-direction:column;gap:16px}.info-list{display:grid;gap:12px}.info-line{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--color-surface-pressed);padding-bottom:10px}.timeline{display:grid;gap:12px}.timeline-item{border-left:4px solid var(--color-primary);padding-left:14px}.price-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-surface-pressed)}.price-total{font-size:20px;font-weight:700;color:var(--color-primary)}@media(max-width:900px){.detail-grid{grid-template-columns:1fr}.site-header-actions{align-items:flex-end;flex-direction:column}}
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span><span class="user-menu-name" style="color:var(--color-mute);font-weight:400;margin-left:8px;">Quản trị</span></a>
+      <div class="site-header-actions quick-nav">
+        <a href="orders.html" class="btn-subtle">Đơn hàng</a>
+        <a href="transactions.html" class="btn-subtle">Giao dịch</a>
+        <a href="reports.html" class="btn-subtle">Báo cáo</a>
+        <a href="../login.html" class="btn-secondary">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản trị">
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span>Tổng quan</span></a>
+        <a href="orders.html" class="sidebar-item sidebar-item--active"><span class="sidebar-icon">📦</span><span>Đơn hàng</span></a>
+        <a href="drivers.html" class="sidebar-item"><span class="sidebar-icon">🚚</span><span>Tài xế</span></a>
+        <a href="customers.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span>Khách hàng</span></a>
+        <a href="withdrawals.html" class="sidebar-item"><span class="sidebar-icon">💰</span><span>Rút tiền</span></a>
+        <div class="sidebar-divider"></div>
+        <a href="commission-settings.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span>Hoa hồng</span></a>
+      </nav>
+    </aside>
+    <main class="site-main">
+      <div class="dashboard-main">
+        <header class="page-header">
+          <h1 class="page-title">Chi tiết đơn hàng MH2026060001</h1>
+          <p class="page-subtitle">Theo dõi toàn bộ thông tin đơn, giao dịch và mốc xử lý.</p>
+        </header>
+        <div class="detail-grid">
+          <section class="stack">
+            <div class="card"><div class="card-header"><h2 class="card-title">Thông tin đơn</h2><span class="badge-in-progress">Đang giao</span></div><div class="card-body info-list">
+              <div class="info-line"><span>Khách hàng</span><strong>Nguyễn Văn An</strong></div>
+              <div class="info-line"><span>Tài xế</span><strong>Lê Văn Cường</strong></div>
+              <div class="info-line"><span>Điểm đón</span><strong>25 Kim Mã, Ba Đình</strong></div>
+              <div class="info-line"><span>Điểm trả</span><strong>18 Hàng Bài, Hoàn Kiếm</strong></div>
+              <div class="info-line"><span>Thời gian hẹn</span><strong>08:30, 06/06/2026</strong></div>
+            </div></div>
+            <div class="card"><div class="card-header"><h2 class="card-title">Dòng thời gian</h2></div><div class="card-body timeline">
+              <div class="timeline-item"><strong>07:45</strong><p class="text-muted">Khách hàng tạo đơn và thanh toán qua ví Move_home.</p></div>
+              <div class="timeline-item"><strong>07:56</strong><p class="text-muted">Tài xế Lê Văn Cường đã nhận đơn.</p></div>
+              <div class="timeline-item"><strong>08:28</strong><p class="text-muted">Tài xế bắt đầu vận chuyển hàng hóa.</p></div>
+            </div></div>
+            <div class="card"><div class="card-header"><h2 class="card-title">Giao dịch liên quan</h2><a href="transactions.html" class="link-primary">Xem tất cả</a></div><div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none;"><table class="table"><thead><tr><th>Loại</th><th>Người dùng</th><th class="text-right">Số tiền</th></tr></thead><tbody><tr><td>Thanh toán đơn</td><td>Nguyễn Văn An</td><td class="text-right">1.500.000 đ</td></tr><tr><td>Phí hoa hồng</td><td>Hệ thống</td><td class="text-right">450.000 đ</td></tr><tr><td>Thu nhập tài xế</td><td>Lê Văn Cường</td><td class="text-right">1.050.000 đ</td></tr></tbody></table></div></div>
+          </section>
+          <aside class="stack">
+            <div class="card"><div class="card-header"><h2 class="card-title">Bảng giá</h2></div><div class="card-body">
+              <div class="price-row"><span>Giá cơ bản</span><strong>950.000 đ</strong></div>
+              <div class="price-row"><span>Phụ phí giờ cao điểm</span><strong>285.000 đ</strong></div>
+              <div class="price-row"><span>Phí bốc xếp</span><strong>300.000 đ</strong></div>
+              <div class="price-row price-total"><span>Tổng cộng</span><span>1.500.000 đ</span></div>
+            </div></div>
+            <div class="card-soft-tinted">
+              <h2 class="section-title">Thao tác quản trị</h2>
+              <p class="text-muted mb-lg">Các thao tác bên dưới là dữ liệu mô phỏng cho bản demo.</p>
+              <div class="flex flex-wrap gap-sm"><a href="customer-detail.html" class="btn-subtle">Xem khách hàng</a><a href="driver-detail.html" class="btn-subtle">Xem tài xế</a><a href="orders.html" class="btn-danger">Hủy đơn</a></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

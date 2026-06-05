@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết tài xế — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>.quick-nav{display:flex;gap:8px;flex-wrap:wrap}.profile-head{display:flex;align-items:center;gap:18px}.avatar-lg{width:72px;height:72px;border-radius:999px;background:var(--color-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px}.metric{background:var(--color-canvas);border:1px solid var(--color-surface-pressed);border-radius:16px;padding:20px}.bar{height:12px;background:var(--color-canvas-soft);border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:var(--color-primary)}@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}.site-header-actions{flex-direction:column;align-items:flex-end}}</style>
+</head>
+<body>
+<div class="site-layout">
+  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span><span class="user-menu-name" style="color:var(--color-mute);font-weight:400;margin-left:8px;">Quản trị</span></a><div class="site-header-actions quick-nav"><a href="drivers.html" class="btn-subtle">Tài xế</a><a href="transactions.html" class="btn-subtle">Giao dịch</a><a href="reports.html" class="btn-subtle">Báo cáo</a><a href="../login.html" class="btn-secondary">Đăng xuất</a></div></div></header>
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản trị"><nav class="sidebar-nav"><a href="dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span>Tổng quan</span></a><a href="orders.html" class="sidebar-item"><span class="sidebar-icon">📦</span><span>Đơn hàng</span></a><a href="drivers.html" class="sidebar-item sidebar-item--active"><span class="sidebar-icon">🚚</span><span>Tài xế</span></a><a href="customers.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span>Khách hàng</span></a><a href="withdrawals.html" class="sidebar-item"><span class="sidebar-icon">💰</span><span>Rút tiền</span></a><div class="sidebar-divider"></div><a href="commission-settings.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span>Hoa hồng</span></a></nav></aside>
+    <main class="site-main"><div class="dashboard-main">
+      <header class="page-header"><h1 class="page-title">Chi tiết tài xế</h1><p class="page-subtitle">Hồ sơ, phương tiện, hiệu suất và lịch sử hoạt động.</p></header>
+      <section class="card mb-8"><div class="card-body profile-head"><div class="avatar-lg">LC</div><div><h2>Lê Văn Cường</h2><p class="text-muted">Tài xế đang hoạt động • Xe tải 1 tấn • Biển số 30E-56789</p><span class="badge-active mt-sm">Đang hoạt động</span></div></div></section>
+      <section class="grid-4 mb-8"><div class="kpi kpi-primary"><div class="kpi-body"><div class="kpi-value">23</div><div class="kpi-label">Đơn đã giao</div></div></div><div class="kpi kpi-success"><div class="kpi-body"><div class="kpi-value">31,2tr</div><div class="kpi-label">Doanh thu tháng</div></div></div><div class="kpi kpi-warning"><div class="kpi-body"><div class="kpi-value">4,7</div><div class="kpi-label">Đánh giá trung bình</div></div></div><div class="kpi kpi-info"><div class="kpi-body"><div class="kpi-value">96%</div><div class="kpi-label">Tỷ lệ hoàn thành</div></div></div></section>
+      <div class="grid-2 mb-8">
+        <section class="card"><div class="card-header"><h2 class="card-title">Giấy phép và xe</h2></div><div class="card-body"><div class="info-row"><span>Số bằng lái</span><strong>GPLX-C-029384</strong></div><div class="info-row"><span>Hạng bằng</span><strong>C</strong></div><div class="info-row"><span>Loại xe</span><strong>Xe tải 1 tấn</strong></div><div class="info-row"><span>Năm sản xuất</span><strong>2021</strong></div><div class="info-row"><span>Trạng thái hồ sơ</span><strong>Đã xác minh</strong></div></div></section>
+        <section class="card"><div class="card-header"><h2 class="card-title">Thu nhập 30 ngày</h2></div><div class="card-body"><p class="text-muted mb-md">Mô phỏng biểu đồ doanh thu theo tuần.</p><div class="mb-md"><strong>Tuần 1</strong><div class="bar mt-sm"><span style="width:72%"></span></div></div><div class="mb-md"><strong>Tuần 2</strong><div class="bar mt-sm"><span style="width:88%"></span></div></div><div class="mb-md"><strong>Tuần 3</strong><div class="bar mt-sm"><span style="width:63%"></span></div></div><div><strong>Tuần 4</strong><div class="bar mt-sm"><span style="width:94%"></span></div></div></div></section>
+      </div>
+      <section class="card mb-8"><div class="card-header"><h2 class="card-title">Lịch sử đơn gần đây</h2><a href="order-detail.html" class="link-primary">Xem chi tiết đơn</a></div><div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none;"><table class="table"><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Trạng thái</th><th class="text-right">Thu nhập</th></tr></thead><tbody><tr><td>MH2026060001</td><td>Nguyễn Văn An</td><td><span class="badge-in-progress">Đang giao</span></td><td class="text-right">1.050.000 đ</td></tr><tr><td>MH2026060002</td><td>Trần Thị Bình</td><td><span class="badge-completed">Hoàn thành</span></td><td class="text-right">1.610.000 đ</td></tr></tbody></table></div></section>
+      <div class="flex flex-wrap gap-sm"><a href="drivers.html" class="btn-secondary">Quay lại</a><a href="drivers.html" class="btn-danger">Khóa tài khoản</a><a href="drivers.html" class="btn-primary">Duyệt lại hồ sơ</a></div>
+    </div></main>
+  </div>
+</div>
+</body>
+</html>
