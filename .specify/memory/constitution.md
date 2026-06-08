@@ -1,5 +1,44 @@
 <!--
 === SYNC IMPACT REPORT ===
+Version Change: 1.2.0 → 1.3.0
+Date: 2026-06-04
+Type of bump: MINOR (thêm HR-19/20/21, AC-14/15/16, ES-07/08, D10/D11/D12/D13)
+
+Amendment v1.3.0 (2026-06-04):
+- Source: Sprint 1 complete + brand migration + 65-screen scope + team workflow.
+- HR-19: THÊM (Brand identity locked - forest green primary + amber accent + Be Vietnam Pro font).
+- HR-20: THÊM (Vietnamese diacritics mandatory trong tất cả UI text).
+- HR-21: THÊM (DB tables không dùng PostgreSQL reserved words - app_user not user, service_order not order).
+- AC-14: THÊM (Status fields VARCHAR + CHECK constraint, NOT ENUM type).
+- AC-15: THÊM (Pagination pattern - server-side cho list lớn, client-side cho list nhỏ).
+- AC-16: THÊM (Empty/Loading/Error states mandatory cho mỗi list page).
+- ES-07: THÊM (Vietnamese commit message OK với English type prefix).
+- ES-08: THÊM (Multi-AI workflow - Claude Code cho phase lớn, Codex CLI cho fixes nhỏ).
+- D10: THÊM (Brand migration Stripi → Move_home, v0.9-brand-migration milestone).
+- D11: THÊM (65-screen scope chia 6 sprints, Sprint 1 đã DONE 12 screens).
+- D12: THÊM (SDD framework SpecKit - specs/ + .specify/ pattern).
+- D13: THÊM (Multi-AI workflow strategy - Claude + Codex song song).
+- Layer 1: 18 → 21 HR
+- Layer 2: 13 → 16 AC
+- Layer 3: 6 → 8 ES
+- Decisions: 9 → 13
+- Update HR-08, HR-12 wording theo marketplace pivot D9.
+
+Templates:
+  - .specify/memory/constitution.md          ✅ (this file)
+  - DESIGN.md                                ✅ Synced (v1 → v2 brand migration)
+  - docs/SCREEN_INVENTORY.md                 ✅ Sync với D11 (65 screens scope)
+  - docs/SCREEN_TASKS.md                     ✅ Sync với team workflow
+
+Deferred TODOs (vẫn pending từ v1.2.0):
+  - TODO(DECISION_MAKER): Leader/PM
+  - TODO(DEPLOY_PROVIDER): Backend cloud
+  - TODO(DEMO_DATE): Final defense date
+  - TODO(CLOUDINARY_CREDS)
+  - TODO(CORS_PROD_ORIGIN)
+
+---
+
 Version Change: 1.1.0 → 1.2.0
 Date: 2026-05-29
 Type of bump: MINOR (thêm HR-17, HR-18, AC-13, D9; sửa HR-12 theo marketplace pivot)
@@ -66,7 +105,7 @@ Deferred TODOs:
 
 **Hệ thống Dịch Vụ Chuyển Nhà — SWP @ FPT University**
 
-> **Source of Truth hierarchy:** `CONTEXT.md v2.0` → Constitution v1.2.0 → Specs → Code.
+> **Source of Truth hierarchy:** `CONTEXT.md v2.0` → Constitution v1.3.0 → Specs → Code.
 > Khi có mâu thuẫn giữa Constitution và CONTEXT, CONTEXT thắng. Báo ngay cho leader nhóm.
 
 ---
@@ -164,16 +203,15 @@ mà không có ai chịu trách nhiệm.
 
 ---
 
-### HR-08 — Chỉ assign Staff FREE, enforce trong database transaction
+### HR-08 — Driver concurrency lock
 
-**Rule:** Khi tạo Trip, hệ thống PHẢI kiểm tra `availability_status = FREE` cho mọi Driver và
-Porter được chọn, trong cùng một database transaction trước INSERT Trip. Nếu bất kỳ ai BUSY →
-rollback, trả lỗi, Trip không được tạo.
+**Rule:** Khi 2 Driver cùng click "Nhận đơn" tại cùng 1 order, chỉ 1 Driver được accept. Backend
+dùng database lock (pessimistic) hoặc optimistic locking với version field. Driver thua cuộc
+nhận HTTP 409 + message Vietnamese.
 
-**Lý do:** Chống phân trùng lịch mà không cần hệ thống đặt lịch theo khung giờ phức tạp.
+**Lý do:** Marketplace pivot D9 - Driver tự pick order, race condition phổ biến.
 
-**Vi phạm → hậu quả:** Hai đơn được gán cùng một Driver → cả hai chuyến thất bại vận hành;
-khách bị bỏ lỡ.
+**Vi phạm → hậu quả:** 2 driver nhận cùng 1 order, customer confusion, một driver làm không công.
 
 ---
 
@@ -216,25 +254,21 @@ DB mất nhất quán, không thể hoàn tác.
 
 ---
 
-### HR-12 — Quy trinh tao tai khoan theo role
+### HR-12 — Driver tự đăng ký qua 4 bước onboarding
 
-**Rule:**
-- **Customer:** Tu dang ky qua `POST /api/auth/register` (theo Spec #001).
-- **Driver:** Tu dang ky tu ngoai qua `POST /api/auth/register` voi role=DRIVER, di qua 4 buoc
-  onboarding: `PENDING_VERIFY → PENDING_DOCUMENTS → PENDING_DEPOSIT → PENDING_APPROVAL → ACTIVE`
-  truoc khi nhan duoc don. KHONG the bo qua bat ky buoc nao.
-- **Manager + Admin:** CHI Admin tao tai khoan qua `POST /api/admin/staff` (Spec #015). Tao xong
-  gui email co password tam (`must_change_password=true`, FR-031 spec #001). Manager/Admin KHONG
-  duoc tu dang ky.
-- **Guest:** Khong co account, chi xem 6 trang public (`/api/public/*`).
+**Rule:** Driver tự register qua flow 4 bước:
 
-**Lý do:** Driver là đối tác đăng ký tự do trong mô hình marketplace v2.0. Manager + Admin là
-nhân viên nội bộ công ty phải được Admin ủy quyền để kiểm soát quyền quản trị.
+- `PENDING_VERIFY` (email verification)
+- `PENDING_DOCUMENTS` (upload bằng lái + ảnh xe)
+- `PENDING_DEPOSIT` (đặt cọc 3,000,000 VND)
+- `PENDING_APPROVAL` (manager review)
+- → `ACTIVE` (work)
 
-**Vi phạm → hậu quả:**
-- Cho phép Manager/Admin tự đăng ký → mất kiểm soát quyền quản trị → rủi ro bảo mật nghiêm
-  trọng (giả mạo Admin).
-- Chặn Driver tự đăng ký → không có Driver vào hệ thống → mô hình sập.
+Manager/Admin KHÔNG tự đăng ký - phải seed qua migration hoặc admin invitation.
+Customer tự đăng ký free, không cần approval.
+
+**Lý do:** Marketplace pivot D9 - Driver là gig worker, không phải staff. Onboarding strict để
+filter out tài xế không nghiêm túc (deposit gate).
 
 ---
 
@@ -345,6 +379,71 @@ sai báo cáo commission, liên quan pháp lý (Driver kiện nếu số dư âm
 - Driver thấy số dư âm → kiện cáo → ảnh hưởng uy tín dự án.
 - Công ty báo cáo sai doanh thu (commission tính trên wallet sai).
 - Audit fail nếu không có wallet_transaction tương ứng — có thể bị fraud nội bộ.
+
+---
+
+### HR-19 — Brand identity locked (Move_home forest green + amber)
+
+**Rule:** Tất cả UI phải dùng Move_home brand identity:
+
+- Primary color: `#1B4D3E` (forest green) - trust + safety
+- Accent color: `#F5A623` (amber) - warmth + CTAs
+- Font: Be Vietnam Pro (Google Fonts `subset=vietnamese`)
+- Shape signature: pill `999px` cho buttons
+- Card radius: `16px` (`rounded-xl`)
+
+Constants được define trong `frontend/css/styles.css`. Mọi page mới phải dùng CSS variables đã
+có, KHÔNG inline color khác brand.
+
+**Lý do:** Brand consistency cho hệ thống tin cậy (chuyển nhà liên quan an toàn đồ đạc). Stripi
+purple (US fintech) không phù hợp với Vietnamese moving service (feedback thầy Sprint 1 review,
+brand đã migrate từ Stripi sang Move_home).
+
+**Vi phạm → hậu quả:** UX inconsistent giữa các page, user mất tin tưởng. Brand identity bị phá
+vỡ, signal tính amateur trong final defense.
+
+---
+
+### HR-20 — Vietnamese diacritics mandatory trong UI
+
+**Rule:** TẤT CẢ text user-facing PHẢI có dấu tiếng Việt đầy đủ. KHÔNG được dùng
+"tieng Viet khong dau" trong:
+
+- Page title (vd: "Đặt đơn" NOT "Dat don")
+- Button labels (vd: "Đăng ký" NOT "Dang ky")
+- Form labels + placeholders
+- Status badges (vd: "Đang chờ", "Hoàn thành", "Đã hủy")
+- Error messages
+- Empty state messages
+- Email templates
+- Notifications
+
+Exception: ID, log, technical strings (status enum value như `PENDING`, `COMPLETED`) có thể dùng
+English nhưng display luôn phải map sang tiếng Việt.
+
+**Lý do:** Người dùng Việt Nam, không-có-dấu = unprofessional + khó đọc + thiếu tôn trọng người
+dùng. Tiếng Việt là core identity của dự án.
+
+**Vi phạm → hậu quả:** UX kém chất lượng, mất điểm trong final defense, khách hàng feel "không
+thuộc về" sản phẩm.
+
+---
+
+### HR-21 — DB tables không dùng PostgreSQL reserved words
+
+**Rule:** Mọi table mới phải tránh PostgreSQL reserved words:
+
+- ❌ KHÔNG dùng: `user`, `order`, `group`, `table`, `select`, `where`, `from`
+- ✅ DÙNG: `app_user`, `service_order`, `user_group`, ...
+
+Khi `@Entity` Java map với reserved word, phải dùng `@Entity(name="...")` để JPQL không conflict
+với `ORDER BY` / `SELECT`.
+
+**Lý do:** Reserved words gây SQL syntax error khó debug, đặc biệt với JPA/Hibernate generate
+query động. Tránh từ đầu rẻ hơn fix sau.
+
+**Vi phạm → hậu quả:** Migration fail random, JPQL query crash production, mất hours debug
+"tại sao SELECT từ order không chạy".
 
 ---
 
@@ -637,6 +736,80 @@ chỉ còn Y" không trả lời được.
 
 ---
 
+### AC-14 — Status fields VARCHAR + CHECK constraint, NOT ENUM type
+
+**Rule:** Mọi column lưu enum status PHẢI dùng:
+
+- PostgreSQL: `VARCHAR(20) NOT NULL DEFAULT '...' CHECK (status IN (...))`
+- Java: `String` (NOT enum `@Enumerated`)
+
+Ví dụ ĐÚNG:
+```sql
+status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
+    CHECK (status IN ('PENDING', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'))
+```
+
+Ví dụ SAI:
+```sql
+status order_status_enum NOT NULL  -- KHÔNG dùng CREATE TYPE enum
+```
+
+**Lý do:** PostgreSQL ENUM type khó migrate (cần ALTER TYPE phức tạp), khó add value mới, không
+tương thích với Java String mapping đơn giản. VARCHAR + CHECK linh hoạt hơn, dễ migrate.
+
+---
+
+### AC-15 — Pagination pattern
+
+**Rule:** List endpoints phải có pagination theo 2 patterns:
+
+Server-side pagination (cho list lớn >50 records, vd: orders):
+
+- Spring Data `Pageable` + `Page<T>`
+- Default page size 10, max 100
+- Response include: `content`, `totalElements`, `totalPages`, `number`, `size`, `first`, `last`
+
+Client-side pagination (cho list nhỏ <50 records, vd: drivers, customers):
+
+- Backend trả `List<T>`
+- Frontend dùng `clientSidePaginate(items, page, size)` từ `admin-common.js`
+
+Frontend pagination UI mandatory:
+
+- Page number buttons với ellipsis logic
+- Previous/Next với disabled states
+- Page size selector (10/20/50/100)
+- Info text "Hiển thị X-Y trong Z [entityLabel]"
+
+**Lý do:** UX scalable, không crash khi data lớn. Standard pattern cho admin tables.
+
+---
+
+### AC-16 — Empty/Loading/Error states mandatory
+
+**Rule:** Mỗi list page hoặc data-driven page PHẢI implement 3 states:
+
+Empty state: data = 0 records
+
+- Empty illustration hoặc icon
+- Vietnamese message: "Không có [entity] để hiển thị"
+- Optional CTA action
+
+Loading state: trong khi fetch
+
+- Skeleton hoặc text "Đang tải..."
+- Non-blocking UI
+
+Error state: API fail
+
+- Error message Vietnamese: "Không thể tải dữ liệu"
+- Button "Tải lại" hoặc "Thử lại"
+
+**Lý do:** Production-grade UX. User không bị stuck khi network slow hoặc data empty. Signal
+product polish trong final defense.
+
+---
+
 ## LAYER 3 — ENGINEERING STANDARDS
 
 > Override được nếu có lý do ghi rõ trong PR description.
@@ -709,6 +882,54 @@ cuối kỳ.
 
 ---
 
+### ES-07 — Vietnamese commit message OK
+
+**Rule:** Commit message theo Conventional Commits format nhưng description có thể là Vietnamese:
+
+- Type: English (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `design`)
+- Scope: English/kebab-case (`auth`, `frontend`, `customer`, `driver`)
+- Description: Vietnamese OK
+
+Ví dụ:
+
+- `feat(frontend): chuyển brand từ Stripi sang Move_home`
+- `fix(driver/home): thêm nav menu cho consistency`
+- `docs: cập nhật SCREEN_INVENTORY với 65 màn hình`
+
+KHÔNG dùng dấu `"` trong description khi commit qua PowerShell (gây parse error). Body message
+OK dùng tiếng Việt có dấu.
+
+**Lý do:** Team Vietnamese, viết tiếng Việt dễ hiểu hơn. Type prefix English chuẩn Conventional
+Commits cho changelog tool.
+
+---
+
+### ES-08 — Multi-AI workflow strategy
+
+**Rule:** Project dùng cả Claude Code + Codex CLI. Phân chia rõ:
+
+Claude Code (Anthropic):
+
+- Phase lớn (Sprint deliverables, multi-file refactor)
+- Spec writing (per SDD framework)
+- Architecture decisions
+
+Codex CLI (OpenAI GPT-5.5):
+
+- Phase nhỏ (single file fixes, stub generation)
+- Pattern matching (làm 13 màn theo template)
+- Quick verification
+
+Document AI usage trong commit message body:
+
+- `Generated by: Claude Code v2.1.159`
+- `Generated by: Codex CLI v0.137.0 (GPT-5.5)`
+
+**Lý do:** Tránh phụ thuộc 1 AI provider, tận dụng strengths của từng tool, quota management hợp
+lý.
+
+---
+
 ## AI Self-Check Protocol
 
 > Trước khi submit bất kỳ spec hoặc code nào, AI (Claude/Codex) PHẢI chạy checklist này
@@ -732,17 +953,20 @@ HR-04  Verify HMAC-SHA512 trước khi xử lý IPN          [ PASS / FAIL / N/A
 HR-05  Transition không hợp lệ → HTTP 409              [ PASS / FAIL ]
 HR-06  Driver blocked confirm khi IN_DISPUTE            [ PASS / FAIL / N/A ]
 HR-07  Chỉ Manager/Admin đóng IN_DISPUTE→COMPLETED      [ PASS / FAIL / N/A ]
-HR-08  Chỉ assign Staff FREE, trong transaction         [ PASS / FAIL / N/A ]
+HR-08  Driver concurrency lock                          [ PASS / FAIL / N/A ]
 HR-09  IPN timeout 15ph → auto-CANCELLED Scheduled Job  [ PASS / FAIL / N/A ]
 HR-10  Trái quyền → HTTP 403                           [ PASS / FAIL ]
 HR-11  Email lỗi không rollback TX (@Async)             [ PASS / FAIL / N/A ]
-HR-12  Staff không tự đăng ký                          [ PASS / FAIL / N/A ]
+HR-12  Driver tự đăng ký qua 4 bước onboarding         [ PASS / FAIL / N/A ]
 HR-13  Audit log mọi state change                      [ PASS / FAIL ]
 HR-14  RefundRecord chỉ khi COMPANY hủy                [ PASS / FAIL / N/A ]
 HR-15  Idempotency IPN (UNIQUE vnp_TxnRef)             [ PASS / FAIL / N/A ]
 HR-16  Rate limit login (5/IP/15ph) + lockout (5 sai) [ PASS / FAIL / N/A ]
 HR-17  Public vs Authenticated endpoints tuong minh    [ PASS / FAIL / N/A ]
 HR-18  Wallet balance KHONG am, audit trail bat buoc   [ PASS / FAIL / N/A ]
+HR-19  Move_home brand identity locked                  [ PASS / FAIL / N/A ]
+HR-20  UI có đầy đủ dấu tiếng Việt                     [ PASS / FAIL / N/A ]
+HR-21  DB tables tránh PostgreSQL reserved words       [ PASS / FAIL / N/A ]
 
 Layer 1 Result: [ ALL PASS → proceed | FAIL → fix first, do not submit ]
 
@@ -760,6 +984,9 @@ AC-10  Cloudinary signed upload; expire URL 1h; RBAC; cleanup   [ PASS / EXCEPTI
 AC-11  CORS whitelist tường minh, không allowedOrigins("*")     [ PASS / EXCEPTION: ... ]
 AC-12  Flyway migration; ddl-auto=validate mọi environment       [ PASS / EXCEPTION: ... ]
 AC-13  Money flow audit trail (wallet_transaction)               [ PASS / EXCEPTION / N/A ]
+AC-14  Status dùng VARCHAR + CHECK, không PostgreSQL ENUM         [ PASS / EXCEPTION: ... / N/A ]
+AC-15  Pagination theo server-side/client-side pattern            [ PASS / EXCEPTION: ... / N/A ]
+AC-16  Empty/Loading/Error states cho data-driven page            [ PASS / EXCEPTION: ... / N/A ]
 
 Layer 2 Result: [ ALL PASS → proceed | EXCEPTION noted → ask human ]
 
@@ -770,13 +997,15 @@ ES-03  Bean Validation @Valid + HTTP 422 danh sách field   [ PASS / OVERRIDE: .
 ES-04  Error format { error_code, message, details }       [ PASS / OVERRIDE: ... ]
 ES-05  Test ≥70% line cov cho CORE + integration test      [ PASS / OVERRIDE: ... ]
 ES-06  Conventional Commits (feat/fix/docs/refactor/test)  [ PASS / OVERRIDE: ... ]
+ES-07  Vietnamese commit với English type prefix          [ PASS / OVERRIDE: ... ]
+ES-08  Multi-AI workflow strategy                         [ PASS / OVERRIDE: ... ]
 
 Layer 3 Result: [ ALL PASS / OVERRIDE(s) noted in PR description ]
 
 === SUMMARY ===
-Layer 1 : [__/18 PASS]
-Layer 2 : [__/13 PASS, __ exception(s) documented]
-Layer 3 : [__/6  PASS, __ override(s) noted]
+Layer 1 : [__/21 PASS]
+Layer 2 : [__/16 PASS, __ exception(s) documented]
+Layer 3 : [__/8  PASS, __ override(s) noted]
 Status  : [ CLEARED TO SUBMIT | BLOCKED — fix Layer 1 first ]
 ================================
 ```
@@ -799,6 +1028,10 @@ Status  : [ CLEARED TO SUBMIT | BLOCKED — fix Layer 1 first ]
 | D7 | **Ảnh upload: Cloudinary signed upload, bảng riêng `damage_report_photo`, signed URL expire 1h, FE compress trước upload.** | Không lưu Base64/BLOB trong DB. Cascade delete sang Cloudinary khi xóa report. Tuân thủ AC-10. |
 | D8 | **Migration qua Flyway, `ddl-auto=validate` mọi environment.** 5 người nhóm sync schema qua migration files trong git. | Không dùng Hibernate auto-update. Schema versioned, có thể rollback. Tuân thủ AC-12. |
 | D9 | **MAJOR PIVOT v2.0 (Marketplace):** Du an chuyen tu cong ty noi bo (5 vai tro, Driver nhan vien, Porter rieng) sang marketplace co dieu phoi (4 vai tro, Driver tu dang ky, Driver kiem Porter, commission 30%, Wallet noi bo, escrow 2h). | Lay tu CONTEXT.md v2.0. Quyet dinh duoc thay duyet 2026-05-29. Khong revert nua. |
+| D10 | Brand migration Stripi → Move_home (forest green + amber). Sau feedback thầy Sprint 1, đổi brand từ Stripi (purple `#533afd`) sang Move_home (forest green `#1B4D3E` + amber `#F5A623`). Font Be Vietnam Pro native Vietnamese diacritics. | DESIGN.md migrated từ Stripi sang Uber-inspired format. Tag `v0.9-brand-migration` (2026-06-03). Tất cả page Sprint 1+ phải dùng forest green brand. |
+| D11 | Scope 65 màn hình chia 6 sprints. Theo SCREEN_INVENTORY.md: Sprint 1 done 12, Sprint 2 +13 (booking), Sprint 3 +13 (driver), Sprint 4 +7 (payment), Sprint 5 +9 (manager + admin details), Sprint 6 +11 (public + error). Yêu cầu thầy: 50-70 màn hình. | Effort estimate ~282 giờ frontend. Chia đều cho 5 members ~13 màn/người mỗi sprint scope. Tag `v1.0-screen-flow-demo` (2026-06-04) với 66 màn stub. |
+| D12 | SDD framework với SpecKit. Project dùng `.specify/` + `specs/` pattern. Constitution = source of truth pháp lý. Mỗi feature có `spec.md` riêng với FR/NFR/Acceptance Criteria. | Folder `specs/001-auth-rbac`, `specs/028-admin-dashboard` đã có. Sprint 2-6 sẽ thêm `specs/002-006` cho remaining features. |
+| D13 | Multi-AI workflow strategy: Claude Code + Codex CLI song song. Phân chia theo size: Claude Code cho phase lớn (sprint deliverables, spec writing), Codex CLI cho phase nhỏ (file fixes, stub generation). | Plus account ChatGPT cho Codex quota cao. Document AI tool trong commit message body. ES-08 đã codify rule này. |
 
 ---
 
@@ -808,7 +1041,7 @@ Constitution này là tài liệu pháp lý của dự án, có quyền ưu tiê
 mặc định của framework hay thói quen cá nhân.
 
 **Thứ tự ưu tiên khi có conflict:**
-`CONTEXT.md v2.0` → `Constitution v1.2.0` → Feature Specs → Code Implementation
+`CONTEXT.md v2.0` → `Constitution v1.3.0` → Feature Specs → Code Implementation
 
 **Amendment procedure:**
 1. Propose thay đổi trong PR description với label `constitution-amendment`.
@@ -827,4 +1060,4 @@ mặc định của framework hay thói quen cá nhân.
 
 ---
 
-**Version**: 1.2.0 | **Ratified**: 2026-05-29 | **Last Amended**: 2026-05-29 (post-marketplace-pivot)
+**Version**: 1.3.0 | **Ratified**: 2026-05-29 | **Last Amended**: 2026-06-04 (post-sprint-1)
