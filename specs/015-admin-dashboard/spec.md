@@ -1,7 +1,7 @@
-# Feature Specification: Admin Dashboard (Demo Spec)
+﻿# Feature Specification: Admin Dashboard (Demo Spec)
 
-**Feature Branch:** `028-admin-dashboard`
-**Feature Number:** #28 of 30 — SHELL (priority cho demo Thu Ba 2026-06-02)
+**Feature Branch:** `015-admin-dashboard`
+**Feature Number:** #15 of 18 — SHELL (priority cho demo Thu Ba 2026-06-02)
 **Created:** 2026-05-30
 **Version:** 1.0.0
 **Status:** Draft (demo scope only)
@@ -790,3 +790,4 @@ Seed chi chay 1 lan do Flyway version control.
 | OQ-1 | Cache KPI 5 phut de giam DB load? | DEFER — khong can cho demo (traffic thap) | No |
 | OQ-2 | Seed data reset moi lan chay app (DEV) hay chi chay 1 lan (Flyway)? | Chay 1 lan qua Flyway V99 — reset bang cach drop + re-run migration | No |
 | OQ-3 | Admin Dashboard va Manager Dashboard cung 1 URL hay khac? | Khac — Admin: `/admin/dashboard`; Manager: `/manager/dashboard` (spec sau demo) | No |
+
