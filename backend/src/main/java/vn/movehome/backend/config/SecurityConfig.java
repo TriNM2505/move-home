@@ -114,7 +114,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/manager/**").hasAnyRole("MANAGER", "ADMIN")
                 .requestMatchers("/api/driver/**").hasAnyRole("DRIVER", "MANAGER", "ADMIN")
-                .requestMatchers("/api/customer/**").hasAnyRole("CUSTOMER", "MANAGER", "ADMIN")
+                .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
 
                 // Mac dinh: moi request con lai phai xac thuc (HR-17 default deny)
                 .anyRequest().authenticated()
@@ -128,7 +128,8 @@ public class SecurityConfig {
                     response.setContentType("application/json;charset=UTF-8");
                     response.getWriter().write(
                         "{\"error_code\":\"AUTHENTICATION_REQUIRED\"," +
-                        "\"message\":\"Vui long dang nhap de tiep tuc.\"}");
+                        "\"message\":\"Vui lòng đăng nhập để tiếp tục.\"," +
+                        "\"details\":[]}");
                 })
                 // 403 cho authenticated nhung khong du quyen (HR-10)
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
@@ -136,7 +137,8 @@ public class SecurityConfig {
                     response.setContentType("application/json;charset=UTF-8");
                     response.getWriter().write(
                         "{\"error_code\":\"FORBIDDEN\"," +
-                        "\"message\":\"Khong co quyen truy cap chuc nang nay.\"}");
+                        "\"message\":\"Bạn không có quyền truy cập chức năng này.\"," +
+                        "\"details\":[]}");
                 })
             )
 

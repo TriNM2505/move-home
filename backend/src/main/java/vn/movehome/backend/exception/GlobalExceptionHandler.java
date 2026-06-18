@@ -1,5 +1,8 @@
 package vn.movehome.backend.exception;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,137 +13,110 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Xu ly tap trung tat ca exception tu Controller layer.
- * Format response theo ES-04: { error_code, message, details } + timestamp, status.
- * KHONG lo thong tin noi bo (stack trace, ten class) ra response (HR-17).
+ * Xử lý tập trung exception từ REST controller.
+ * ES-04: mọi lỗi trả JSON { error_code, message, details }.
  */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
-    // ===== VALIDATION ERRORS (HTTP 400/422) =====
-
-    /**
-     * Xu ly loi validation tu @Valid/@Validated tren request body (ES-03).
-     * Tra HTTP 422 voi danh sach tat ca field loi (khong fail-fast — FR-003).
-     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationError(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         List<Map<String, String>> fieldErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(err -> Map.of(
                     "field", err.getField(),
-                    "message", err.getDefaultMessage() != null ? err.getDefaultMessage() : "Gia tri khong hop le."
+                    "message", err.getDefaultMessage() != null ? err.getDefaultMessage() : "Giá trị không hợp lệ."
                 ))
                 .toList();
 
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(Map.of(
-                    "timestamp", Instant.now().toString(),
-                    "status", 422,
-                    "error_code", "VALIDATION_ERROR",
-                    "message", "Du lieu dau vao khong hop le. Vui long kiem tra lai.",
-                    "details", fieldErrors
-                ));
+        return build(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+                "Dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại.", fieldErrors);
     }
 
-    // ===== BUSINESS LOGIC ERRORS (ResponseStatusException) =====
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        List<Map<String, String>> violations = ex.getConstraintViolations()
+                .stream()
+                .map(violation -> Map.of(
+                    "field", violation.getPropertyPath().toString(),
+                    "message", violation.getMessage() != null ? violation.getMessage() : "Giá trị không hợp lệ."
+                ))
+                .toList();
 
-    /**
-     * Xu ly loi business logic tu Service layer (ResponseStatusException).
-     * Service co the nem:
-     *   ResponseStatusException(HttpStatus.CONFLICT, "EMAIL_ALREADY_EXISTS|Email da duoc su dung.")
-     * Handler phan tach error_code va message qua dau phan cach "|".
-     */
+        return build(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+                "Dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại.", violations);
+    }
+
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Map<String, Object>> handleResponseStatus(ResponseStatusException ex) {
+    public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException ex) {
         int statusCode = ex.getStatusCode().value();
         String reason = ex.getReason() != null ? ex.getReason() : ex.getMessage();
 
         String errorCode;
         String message;
-
-        // Tach error_code va message (format: "ERROR_CODE|message" hoac chi "message")
         if (reason != null && reason.contains("|")) {
             String[] parts = reason.split("\\|", 2);
             errorCode = parts[0];
             message = parts[1];
         } else {
             errorCode = deriveErrorCode(statusCode);
-            message = reason != null ? reason : "Da xay ra loi.";
+            message = reason != null ? reason : "Đã xảy ra lỗi.";
         }
 
-        return ResponseEntity.status(statusCode)
-                .body(Map.of(
-                    "timestamp", Instant.now().toString(),
-                    "status", statusCode,
-                    "error_code", errorCode,
-                    "message", message
-                ));
+        return build(HttpStatus.valueOf(statusCode), errorCode, message, List.of());
     }
 
-    // ===== SECURITY ERRORS =====
-
-    /**
-     * Xu ly loi chua xac thuc (khong co JWT / JWT sai).
-     * Thuong bi SecurityConfig bat truoc, nhung co the den day neu filter bi bypass.
-     */
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Map<String, Object>> handleAuthException(AuthenticationException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of(
-                    "timestamp", Instant.now().toString(),
-                    "status", 401,
-                    "error_code", "AUTHENTICATION_REQUIRED",
-                    "message", "Vui long dang nhap de tiep tuc."
-                ));
+    public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
+        return build(HttpStatus.UNAUTHORIZED, "AUTHENTICATION_REQUIRED",
+                "Vui lòng đăng nhập để tiếp tục.", List.of());
     }
 
-    /**
-     * Xu ly loi khong co quyen (da xac thuc nhung sai role — HR-10).
-     */
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(Map.of(
-                    "timestamp", Instant.now().toString(),
-                    "status", 403,
-                    "error_code", "FORBIDDEN",
-                    "message", "Khong co quyen truy cap chuc nang nay."
-                ));
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        return build(HttpStatus.FORBIDDEN, "FORBIDDEN",
+                "Bạn không có quyền truy cập chức năng này.", List.of());
     }
 
-    // ===== GENERIC FALLBACK (HTTP 500) =====
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, "NOT_FOUND",
+                "Không tìm thấy dữ liệu được yêu cầu.", List.of());
+    }
 
-    /**
-     * Xu ly moi exception khong duoc bat o cac handler tren.
-     * Log full exception de debug nhung chi tra message chung ra ngoai (HR-17).
-     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
+        return build(HttpStatus.CONFLICT, "CONFLICT",
+                ex.getMessage() != null ? ex.getMessage() : "Trạng thái hiện tại không hợp lệ.", List.of());
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
-        log.error("Loi he thong khong xu ly duoc: {}", ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of(
-                    "timestamp", Instant.now().toString(),
-                    "status", 500,
-                    "error_code", "INTERNAL_SERVER_ERROR",
-                    "message", "Da xay ra loi he thong. Vui long thu lai sau."
-                ));
+    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+        log.error("Lỗi hệ thống chưa xử lý: {}", ex.getMessage(), ex);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR",
+                "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.", List.of());
     }
 
-    // ===== PRIVATE HELPER =====
+    private ResponseEntity<ErrorResponse> build(
+            HttpStatus status,
+            String errorCode,
+            String message,
+            Object details
+    ) {
+        return ResponseEntity.status(status)
+                .body(new ErrorResponse(errorCode, message, details));
+    }
 
-    /** Map HTTP status code sang error_code khi reason khong chua "|". */
     private String deriveErrorCode(int status) {
         return switch (status) {
             case 400 -> "BAD_REQUEST";
-            case 401 -> "UNAUTHORIZED";
+            case 401 -> "AUTHENTICATION_REQUIRED";
             case 403 -> "FORBIDDEN";
             case 404 -> "NOT_FOUND";
             case 409 -> "CONFLICT";
@@ -150,5 +126,12 @@ public class GlobalExceptionHandler {
             case 429 -> "RATE_LIMITED";
             default  -> "ERROR";
         };
+    }
+
+    private record ErrorResponse(
+            @JsonProperty("error_code") String errorCode,
+            String message,
+            Object details
+    ) {
     }
 }
