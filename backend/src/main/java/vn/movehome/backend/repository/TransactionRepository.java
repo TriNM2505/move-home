@@ -1,5 +1,6 @@
 package vn.movehome.backend.repository;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,6 +27,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
      * @param pageable Spring Data paging (LIMIT + OFFSET)
      */
     List<Transaction> findByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
+
+    /**
+     * Lịch sử giao dịch theo loại, dùng cho Driver earnings.
+     */
+    Page<Transaction> findByUserIdAndType(UUID userId, TransactionType type, Pageable pageable);
+
+    /**
+     * Idempotency cho earning: một đơn hàng chỉ được ghi DRIVER_EARNING một lần.
+     */
+    boolean existsByTypeAndRelatedOrderId(TransactionType type, UUID relatedOrderId);
 
     /**
      * Tinh tong so tien cua mot user theo loai giao dich.
