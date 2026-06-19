@@ -156,12 +156,11 @@ public class User implements UserDetails {
     }
 
     /**
-     * Chi tai khoan ACTIVE moi duoc dung he thong binh thuong.
-     * Cac status khac (PENDING_*, SUSPENDED, REJECTED) bi Spring Security chặn.
-     * AuthService se xu ly message loi cu the cho tung status (FR-020, FR-049, FR-068).
+     * Authentication chỉ yêu cầu email đã được xác thực. Trạng thái nghiệp vụ như
+     * ACTIVE/PENDING_* được kiểm tra tại service tương ứng, không chặn onboarding ở JWT filter.
      */
     @Override
     public boolean isEnabled() {
-        return status == UserStatus.ACTIVE;
+        return emailVerified;
     }
 }

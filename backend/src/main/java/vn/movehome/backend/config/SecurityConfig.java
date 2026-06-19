@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import vn.movehome.backend.repository.UserRepository;
+import vn.movehome.backend.security.DriverWorkflowAccessService;
 import vn.movehome.backend.security.JwtAuthenticationFilter;
 
 import java.util.List;
@@ -40,6 +42,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserRepository userRepository;
+    private final DriverWorkflowAccessService driverWorkflowAccessService;
 
     /**
      * BCryptPasswordEncoder cost 12 — khoang 300ms moi hash tren CPU trung binh (NFR-07).
@@ -113,7 +116,14 @@ public class SecurityConfig {
                 // RBAC theo role — Constitution HR-10
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/manager/**").hasAnyRole("MANAGER", "ADMIN")
-                .requestMatchers("/api/driver/**").hasAnyRole("DRIVER", "MANAGER", "ADMIN")
+
+                // Onboarding chỉ cần Driver đã xác thực email; workflow orders bắt buộc ACTIVE.
+                .requestMatchers("/api/driver/onboarding", "/api/driver/onboarding/**").hasRole("DRIVER")
+                .requestMatchers("/api/driver/profile", "/api/driver/profile/**").hasRole("DRIVER")
+                .requestMatchers("/api/driver/orders", "/api/driver/orders/**")
+                    .access((authentication, context) -> new AuthorizationDecision(
+                            driverWorkflowAccessService.isActiveDriver(authentication.get())))
+                .requestMatchers("/api/driver/**").hasRole("DRIVER")
                 .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
 
                 // Mac dinh: moi request con lai phai xac thuc (HR-17 default deny)
@@ -133,12 +143,21 @@ public class SecurityConfig {
                 })
                 // 403 cho authenticated nhung khong du quyen (HR-10)
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    boolean profileNotApproved = DriverWorkflowAccessService.PROFILE_NOT_APPROVED_MESSAGE
+                            .equals(accessDeniedException.getMessage());
                     response.setStatus(403);
                     response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write(
-                        "{\"error_code\":\"FORBIDDEN\"," +
-                        "\"message\":\"Bạn không có quyền truy cập chức năng này.\"," +
-                        "\"details\":[]}");
+                    if (profileNotApproved) {
+                        response.getWriter().write(
+                            "{\"error_code\":\"DRIVER_PROFILE_NOT_APPROVED\"," +
+                            "\"message\":\"Hồ sơ tài xế chưa được duyệt\"," +
+                            "\"details\":[]}");
+                    } else {
+                        response.getWriter().write(
+                            "{\"error_code\":\"FORBIDDEN\"," +
+                            "\"message\":\"Bạn không có quyền truy cập chức năng này.\"," +
+                            "\"details\":[]}");
+                    }
                 })
             )
 
