@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
                 ))
                 .toList();
 
-        return build(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+        return build(HttpStatus.UNPROCESSABLE_ENTITY, "VALIDATION_ERROR",
                 "Dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại.", fieldErrors);
     }
 
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
                 ))
                 .toList();
 
-        return build(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+        return build(HttpStatus.UNPROCESSABLE_ENTITY, "VALIDATION_ERROR",
                 "Dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại.", violations);
     }
 

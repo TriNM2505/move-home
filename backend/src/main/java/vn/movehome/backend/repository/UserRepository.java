@@ -31,6 +31,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      */
     Optional<User> findByEmailAndDeletedAtIsNull(String email);
 
+    Optional<User> findFirstByRoleAndStatusAndDeletedAtIsNullOrderByCreatedAtAsc(
+            UserRole role,
+            UserStatus status);
+
     /**
      * Kiem tra email da duoc su dung chua (bao gom ca tai khoan da soft-delete).
      * Can kiem tra ca deleted_at IS NOT NULL de tranh tai su dung email cu — FR-004, FR-043.
