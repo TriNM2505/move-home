@@ -20,6 +20,10 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
     Optional<ServiceOrder> findByIdAndCustomerIdAndDeletedAtIsNull(UUID id, UUID customerId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select o from CustomerServiceOrder o where o.id = :id")
+    Optional<ServiceOrder> findByIdForUpdate(@Param("id") UUID id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
             SELECT o
             FROM CustomerServiceOrder o
@@ -35,6 +39,15 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
 
     Page<ServiceOrder> findByCustomerIdAndStatusAndDeletedAtIsNull(
             UUID customerId,
+            String status,
+            Pageable pageable);
+
+    Page<ServiceOrder> findByStatusAndDeletedAtIsNull(String status, Pageable pageable);
+
+    Page<ServiceOrder> findByDriverIdAndDeletedAtIsNull(UUID driverId, Pageable pageable);
+
+    Page<ServiceOrder> findByDriverIdAndStatusAndDeletedAtIsNull(
+            UUID driverId,
             String status,
             Pageable pageable);
 
