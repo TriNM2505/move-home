@@ -1,0 +1,141 @@
+package vn.movehome.backend.order;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+import vn.movehome.backend.entity.DriverProfile;
+import vn.movehome.backend.repository.DriverProfileRepository;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class CustomerOrderActionService {
+
+    private static final String PENDING_STATUS = "PENDING";
+    private static final String COMPLETED_STATUS = "COMPLETED";
+    private static final String CANCELLED_STATUS = "CANCELLED";
+
+    private final OrderRepository orderRepository;
+    private final OrderRatingRepository orderRatingRepository;
+    private final DriverProfileRepository driverProfileRepository;
+
+    @Transactional
+    public CancelOrderResponse cancelOrder(UUID customerId, UUID orderId, CancelOrderRequest request) {
+        String reason = normalizeReason(request != null ? request.reason() : null);
+        ServiceOrder order = findOwnedOrderForUpdate(customerId, orderId);
+
+        if (!PENDING_STATUS.equals(order.getStatus())) {
+            throw new IllegalStateException("Chỉ có thể hủy đơn ở trạng thái đang chờ xử lý.");
+        }
+
+        OffsetDateTime cancelledAt = OffsetDateTime.now(ZoneOffset.UTC);
+        String previousStatus = order.getStatus();
+        order.setStatus(CANCELLED_STATUS);
+        order.setCancelledAt(cancelledAt);
+        order.setCancellationReason(reason);
+
+        ServiceOrder savedOrder = orderRepository.save(order);
+        log.info("order_state_audit actor_id={} actor_role=CUSTOMER timestamp={} from_state={} to_state={} entity_id={}",
+                customerId, cancelledAt, previousStatus, CANCELLED_STATUS, savedOrder.getId());
+        return new CancelOrderResponse(
+                savedOrder.getId(),
+                savedOrder.getStatus(),
+                savedOrder.getCancelledAt(),
+                "Đơn hàng đã được hủy.");
+    }
+
+    @Transactional
+    public RatingResponse rateOrder(UUID customerId, UUID orderId, RatingRequest request) {
+        int stars = validateStars(request != null ? request.stars() : null);
+        String comment = normalizeComment(request != null ? request.comment() : null);
+        ServiceOrder order = findOwnedOrderForUpdate(customerId, orderId);
+
+        if (!COMPLETED_STATUS.equals(order.getStatus())) {
+            throw new IllegalStateException("Chỉ có thể đánh giá đơn hàng đã hoàn thành.");
+        }
+        if (orderRatingRepository.existsByOrderId(order.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "ORDER_ALREADY_RATED|Đơn hàng này đã được đánh giá.");
+        }
+
+        OrderRating rating = OrderRating.builder()
+                .orderId(order.getId())
+                .customerId(customerId)
+                .driverId(order.getDriverId())
+                .stars(stars)
+                .comment(comment)
+                .build();
+
+        OrderRating savedRating = orderRatingRepository.saveAndFlush(rating);
+        updateDriverAverageRating(order.getDriverId());
+
+        return new RatingResponse(
+                savedRating.getId(),
+                savedRating.getOrderId(),
+                savedRating.getStars(),
+                "Cảm ơn bạn đã đánh giá đơn hàng.");
+    }
+
+    private ServiceOrder findOwnedOrderForUpdate(UUID customerId, UUID orderId) {
+        return orderRepository.findByIdAndCustomerIdForUpdate(orderId, customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "ORDER_NOT_FOUND|Không tìm thấy đơn hàng."));
+    }
+
+    private String normalizeReason(String reason) {
+        if (reason == null || reason.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "VALIDATION_ERROR|Vui lòng nhập lý do hủy đơn.");
+        }
+
+        String normalized = reason.trim();
+        if (normalized.length() > 500) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "VALIDATION_ERROR|Lý do hủy đơn không được vượt quá 500 ký tự.");
+        }
+        return normalized;
+    }
+
+    private int validateStars(Integer stars) {
+        if (stars == null || stars < 1 || stars > 5) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "VALIDATION_ERROR|Số sao đánh giá phải từ 1 đến 5.");
+        }
+        return stars;
+    }
+
+    private String normalizeComment(String comment) {
+        if (comment == null || comment.isBlank()) {
+            return null;
+        }
+
+        String normalized = comment.trim();
+        if (normalized.length() > 500) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "VALIDATION_ERROR|Nhận xét không được vượt quá 500 ký tự.");
+        }
+        return normalized;
+    }
+
+    private void updateDriverAverageRating(UUID driverId) {
+        if (driverId == null) {
+            return;
+        }
+
+        driverProfileRepository.findByUserId(driverId).ifPresent(profile -> {
+            BigDecimal average = orderRatingRepository.calculateAverageStarsByDriverId(driverId)
+                    .setScale(2, RoundingMode.HALF_UP);
+            profile.setAverageRating(average);
+            driverProfileRepository.save(profile);
+        });
+    }
+}
