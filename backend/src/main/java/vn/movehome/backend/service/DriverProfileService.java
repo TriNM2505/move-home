@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import vn.movehome.backend.dto.driver.onboarding.DriverProfileResponse;
 import vn.movehome.backend.dto.driver.onboarding.UpdateDriverProfileRequest;
+import vn.movehome.backend.entity.DriverDocument;
 import vn.movehome.backend.entity.DriverProfile;
+import vn.movehome.backend.repository.DriverDocumentRepository;
 import vn.movehome.backend.repository.DriverProfileRepository;
 
 import java.time.LocalDate;
@@ -17,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -32,8 +35,15 @@ public class DriverProfileService {
     private static final Pattern VEHICLE_PLATE_PATTERN = Pattern.compile("^[0-9]{2}[A-Z]{1,2}-[0-9]{4,5}$");
     private static final Set<String> LICENSE_CLASSES = Set.of("B1", "B2", "C", "D");
     private static final Set<String> VEHICLE_TYPES = Set.of("TRUCK_500KG", "TRUCK_1T", "TRUCK_15T");
+    private static final List<String> REQUIRED_DOCUMENT_TYPES = List.of(
+            "DRIVING_LICENSE",
+            "VEHICLE_REGISTRATION",
+            "VEHICLE_PHOTO"
+    );
+    private static final String VEHICLE_PLATE_UNIQUE_CONSTRAINT = "uq_driver_profile_vehicle_plate";
 
     private final DriverProfileRepository driverProfileRepository;
+    private final DriverDocumentRepository driverDocumentRepository;
 
     @Transactional(readOnly = true)
     public DriverProfileResponse getProfile(UUID driverId) {
@@ -46,20 +56,29 @@ public class DriverProfileService {
 
         DriverProfile profile = loadProfile(driverId);
         guardProfileEditable(profile);
-        profile.setLicenseNumber(normalizeLicenseNumber(request.licenseNumber()));
-        profile.setLicenseClass(normalizeLicenseClass(request.licenseClass()));
-        profile.setLicenseExpiryDate(validateLicenseExpiryDate(request.licenseExpiryDate()));
-        profile.setVehiclePlate(normalizeVehiclePlate(request.vehiclePlate()));
-        profile.setVehicleType(normalizeVehicleType(request.vehicleType()));
-        profile.setVehicleCapacityKg(validateVehicleCapacityKg(request.vehicleCapacityKg()));
+
+        String licenseNumber = normalizeLicenseNumber(request.licenseNumber());
+        String licenseClass = normalizeLicenseClass(request.licenseClass());
+        LocalDate licenseExpiryDate = validateLicenseExpiryDate(request.licenseExpiryDate());
+        String vehiclePlate = normalizeVehiclePlate(request.vehiclePlate());
+        String vehicleType = normalizeVehicleType(request.vehicleType());
+        Integer vehicleCapacityKg = validateVehicleCapacityKg(request.vehicleCapacityKg());
+
+        ensureVehiclePlateAvailable(vehiclePlate, driverId);
+
+        profile.setLicenseNumber(licenseNumber);
+        profile.setLicenseClass(licenseClass);
+        profile.setLicenseExpiryDate(licenseExpiryDate);
+        profile.setVehiclePlate(vehiclePlate);
+        profile.setVehicleType(vehicleType);
+        profile.setVehicleCapacityKg(vehicleCapacityKg);
 
         try {
             return toResponse(driverProfileRepository.saveAndFlush(profile));
         } catch (OptimisticLockingFailureException ex) {
             throw optimisticLockConflict(ex);
         } catch (DataIntegrityViolationException ex) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "LICENSE_NUMBER_ALREADY_USED|Số giấy phép lái xe đã được sử dụng.", ex);
+            throw mapDataIntegrityViolation(ex);
         }
     }
 
@@ -75,6 +94,7 @@ public class DriverProfileService {
         }
 
         validateProfileCompleteForSubmit(profile);
+        validateRequiredDocuments(driverId);
         profile.setOnboardingCompletedAt(OffsetDateTime.now(ZoneOffset.UTC));
 
         try {
@@ -156,6 +176,12 @@ public class DriverProfileService {
         return vehicleCapacityKg;
     }
 
+    private void ensureVehiclePlateAvailable(String vehiclePlate, UUID driverId) {
+        if (driverProfileRepository.existsByVehiclePlateAndUserIdNot(vehiclePlate, driverId)) {
+            throw licensePlateAlreadyUsed(null);
+        }
+    }
+
     private void validateProfileCompleteForSubmit(DriverProfile profile) {
         List<String> missingFields = new ArrayList<>();
         if (isBlank(profile.getLicenseNumber())) {
@@ -190,6 +216,22 @@ public class DriverProfileService {
         validateVehicleCapacityKg(profile.getVehicleCapacityKg());
     }
 
+    private void validateRequiredDocuments(UUID driverId) {
+        Set<String> existingTypes = new HashSet<>();
+        for (DriverDocument document : driverDocumentRepository.findByDriverIdOrderByUploadedAtDesc(driverId)) {
+            existingTypes.add(document.getDocType());
+        }
+
+        List<String> missingTypes = REQUIRED_DOCUMENT_TYPES.stream()
+                .filter(requiredType -> !existingTypes.contains(requiredType))
+                .toList();
+        if (!missingTypes.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "ONBOARDING_DOCUMENTS_INCOMPLETE|Hồ sơ chưa đủ tài liệu bắt buộc: "
+                            + String.join(", ", missingTypes) + ".");
+        }
+    }
+
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
     }
@@ -207,6 +249,29 @@ public class DriverProfileService {
     private ResponseStatusException optimisticLockConflict(OptimisticLockingFailureException ex) {
         return new ResponseStatusException(HttpStatus.CONFLICT,
                 "INVALID_ONBOARDING_STEP|Hồ sơ vừa được cập nhật ở nơi khác, thử lại.", ex);
+    }
+
+    private ResponseStatusException mapDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String message = mostSpecificMessage(ex);
+        if (message.contains(VEHICLE_PLATE_UNIQUE_CONSTRAINT) || message.contains("vehicle_plate")) {
+            return licensePlateAlreadyUsed(ex);
+        }
+        if (message.contains("license_number")) {
+            return new ResponseStatusException(HttpStatus.CONFLICT,
+                    "LICENSE_NUMBER_ALREADY_USED|Số giấy phép lái xe đã được sử dụng.", ex);
+        }
+        throw ex;
+    }
+
+    private ResponseStatusException licensePlateAlreadyUsed(Throwable cause) {
+        return new ResponseStatusException(HttpStatus.CONFLICT,
+                "LICENSE_PLATE_ALREADY_USED|Biển số xe đã được đăng ký.", cause);
+    }
+
+    private String mostSpecificMessage(DataIntegrityViolationException ex) {
+        Throwable mostSpecificCause = ex.getMostSpecificCause();
+        String message = mostSpecificCause != null ? mostSpecificCause.getMessage() : ex.getMessage();
+        return message != null ? message.toLowerCase(Locale.ROOT) : "";
     }
 
     private DriverProfileResponse toResponse(DriverProfile profile) {
