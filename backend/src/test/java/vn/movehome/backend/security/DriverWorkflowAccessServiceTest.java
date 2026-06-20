@@ -27,7 +27,7 @@ class DriverWorkflowAccessServiceTest {
 
         assertThatThrownBy(() -> service.isActiveDriver(authentication(driver)))
                 .isInstanceOf(AccessDeniedException.class)
-                .hasMessage("Hồ sơ tài xế chưa được duyệt");
+                .hasMessage("Hồ sơ đang được Manager xem xét. Vui lòng đợi.");
     }
 
     @Test
