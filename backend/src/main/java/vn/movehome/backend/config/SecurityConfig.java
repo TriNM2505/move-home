@@ -143,14 +143,14 @@ public class SecurityConfig {
                 })
                 // 403 cho authenticated nhung khong du quyen (HR-10)
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    boolean profileNotApproved = DriverWorkflowAccessService.PROFILE_NOT_APPROVED_MESSAGE
+                    boolean onboardingPendingReview = DriverWorkflowAccessService.ONBOARDING_PENDING_REVIEW_MESSAGE
                             .equals(accessDeniedException.getMessage());
                     response.setStatus(403);
                     response.setContentType("application/json;charset=UTF-8");
-                    if (profileNotApproved) {
+                    if (onboardingPendingReview) {
                         response.getWriter().write(
-                            "{\"error_code\":\"DRIVER_PROFILE_NOT_APPROVED\"," +
-                            "\"message\":\"Hồ sơ tài xế chưa được duyệt\"," +
+                            "{\"error_code\":\"ONBOARDING_PENDING_REVIEW\"," +
+                            "\"message\":\"Hồ sơ đang được Manager xem xét. Vui lòng đợi.\"," +
                             "\"details\":[]}");
                     } else {
                         response.getWriter().write(

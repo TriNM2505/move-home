@@ -14,7 +14,8 @@ import vn.movehome.backend.entity.UserStatus;
 @Service
 public class DriverWorkflowAccessService {
 
-    public static final String PROFILE_NOT_APPROVED_MESSAGE = "Hồ sơ tài xế chưa được duyệt";
+    public static final String ONBOARDING_PENDING_REVIEW_MESSAGE =
+            "Hồ sơ đang được Manager xem xét. Vui lòng đợi.";
 
     public boolean isActiveDriver(Authentication authentication) {
         if (authentication == null
@@ -25,7 +26,7 @@ public class DriverWorkflowAccessService {
         }
 
         if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new AccessDeniedException(PROFILE_NOT_APPROVED_MESSAGE);
+            throw new AccessDeniedException(ONBOARDING_PENDING_REVIEW_MESSAGE);
         }
 
         return true;
