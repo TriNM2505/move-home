@@ -19,6 +19,8 @@ public interface DriverProfileRepository extends JpaRepository<DriverProfile, UU
      */
     Optional<DriverProfile> findByUserId(UUID userId);
 
+    boolean existsByVehiclePlateAndUserIdNot(String vehiclePlate, UUID userId);
+
     /**
      * Top 5 Driver co tong thu nhap cao nhat.
      * Dung cho Admin Dashboard leaderboard (tuy chon — Phase 3B).
