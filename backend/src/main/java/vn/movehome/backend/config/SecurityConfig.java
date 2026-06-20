@@ -115,7 +115,7 @@ public class SecurityConfig {
 
                 // RBAC theo role — Constitution HR-10
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/manager/**").hasAnyRole("MANAGER", "ADMIN")
+                .requestMatchers("/api/manager/**").hasRole("MANAGER")
 
                 // Onboarding chỉ cần Driver đã xác thực email; workflow orders bắt buộc ACTIVE.
                 .requestMatchers("/api/driver/onboarding", "/api/driver/onboarding/**").hasRole("DRIVER")
