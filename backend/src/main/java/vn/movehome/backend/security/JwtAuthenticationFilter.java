@@ -63,15 +63,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /**
      * Tim user trong DB va set SecurityContext neu user hop le.
-     * Kiem tra: isEnabled() + isAccountNonLocked() + isAccountNonExpired()
-     * Dam bao user bi SUSPEND sau khi cap token van khong truy cap duoc.
+     * Kiểm tra: email đã xác thực qua isEnabled(), tài khoản không khóa và chưa hết hiệu lực.
+     * Trạng thái nghiệp vụ ACTIVE/PENDING_* được kiểm tra tại service của từng luồng.
      */
     private void setSecurityContext(UUID userId, HttpServletRequest request) {
         userRepository.findById(userId).ifPresent(user -> {
-            // Kiem tra toan bo dieu kien bao mat truoc khi set context
+            // Chỉ xác thực danh tính/tình trạng tài khoản tại đây; không gate trạng thái onboarding.
             if (!user.isEnabled() || !user.isAccountNonLocked() || !user.isAccountNonExpired()) {
-                log.debug("JWT hop le nhung user {} khong the xac thuc: enabled={}, nonLocked={}, nonExpired={}",
-                        userId, user.isEnabled(), user.isAccountNonLocked(), user.isAccountNonExpired());
+                log.debug("JWT hợp lệ nhưng user {} không thể xác thực: emailVerified={}, nonLocked={}, nonExpired={}",
+                        userId, user.isEmailVerified(), user.isAccountNonLocked(), user.isAccountNonExpired());
                 return;
             }
 

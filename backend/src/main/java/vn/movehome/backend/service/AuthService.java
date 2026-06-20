@@ -159,7 +159,7 @@ public class AuthService {
                 "INVALID_CREDENTIALS|Ten dang nhap hoac mat khau khong dung.");
         }
 
-        // Password dung → kiem tra trang thai tai khoan
+        // Password đúng → chỉ yêu cầu email đã xác thực; trạng thái onboarding không chặn login.
         checkUserStatusForLogin(user);
 
         // Reset failed login count (FR-033)
@@ -253,27 +253,11 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    /**
-     * Kiem tra trang thai tai khoan truoc khi cap token (sau khi password dung).
-     * Nem loi 403 voi message tuong ung theo tung trang thai (FR-020, FR-049, FR-068).
-     */
+    /** Chỉ chặn tài khoản chưa xác thực email; trạng thái onboarding được xử lý tại endpoint nghiệp vụ. */
     private void checkUserStatusForLogin(User user) {
-        switch (user.getStatus()) {
-            case ACTIVE -> { /* OK — tiep tuc */ }
-            case PENDING_VERIFY -> throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "EMAIL_NOT_VERIFIED|Vui long xac thuc email truoc khi dang nhap.");
-            case PENDING_DOCUMENTS -> throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "ONBOARDING_INCOMPLETE|Vui long upload giay to de tiep tuc qua trinh dang ky tai xe.");
-            case PENDING_DEPOSIT -> throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "ONBOARDING_INCOMPLETE|Vui long dong coc 3.000.000 VND de hoan tat dang ky tai xe.");
-            case PENDING_APPROVAL -> throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "ONBOARDING_PENDING_REVIEW|Ho so dang duoc Manager xem xet. Vui long doi.");
-            case SUSPENDED -> throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "ACCOUNT_SUSPENDED|Tai khoan bi tam khoa. Vui long lien he ho tro.");
-            case REJECTED -> throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "ACCOUNT_REJECTED|Ho so bi tu choi. Vui long dang nhap de xem ly do va gui lai.");
-            default -> throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "ACCOUNT_INACTIVE|Tai khoan khong the su dung. Vui long lien he ho tro.");
+        if (!user.isEmailVerified()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "EMAIL_NOT_VERIFIED|Vui lòng xác thực email trước khi đăng nhập.");
         }
     }
 

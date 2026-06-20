@@ -47,7 +47,7 @@ public enum UserStatus {
      * Driver da dong coc, dang cho Manager xem xet va duyet ho so.
      * Manager co the APPROVE (→ ACTIVE) hoac REJECT voi ly do (→ REJECTED).
      * CHI AP DUNG CHO DRIVER (Buoc 4 trong 4 buoc onboarding).
-     * Khi dang nhap o trang thai nay: HTTP 403 ONBOARDING_PENDING_REVIEW (FR-049).
+     * Đăng nhập vẫn được cấp token; workflow tài xế trả HTTP 403 ONBOARDING_PENDING_REVIEW.
      */
     PENDING_APPROVAL,
 
