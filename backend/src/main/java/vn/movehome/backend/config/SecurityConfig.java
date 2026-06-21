@@ -120,14 +120,21 @@ public class SecurityConfig {
                 // Onboarding chỉ cần Driver đã xác thực email; workflow orders bắt buộc ACTIVE.
                 .requestMatchers("/api/driver/onboarding", "/api/driver/onboarding/**").hasRole("DRIVER")
                 .requestMatchers("/api/driver/profile", "/api/driver/profile/**").hasRole("DRIVER")
+                .requestMatchers("/api/driver/location")
+                    .access((authentication, context) -> new AuthorizationDecision(
+                            driverWorkflowAccessService.isActiveDriver(authentication.get())))
                 .requestMatchers("/api/driver/orders", "/api/driver/orders/**")
                     .access((authentication, context) -> new AuthorizationDecision(
                             driverWorkflowAccessService.isActiveDriver(authentication.get())))
                 .requestMatchers("/api/driver/**").hasRole("DRIVER")
-                .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
+                    .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
 
-                // Mac dinh: moi request con lai phai xac thuc (HR-17 default deny)
-                .anyRequest().authenticated()
+                    // Notification: dung chung cho moi user da dang nhap (customer/driver/manager/admin).
+                    // Quyen so huu (chi xem noti CUA MINH) do service loc theo userId tu JWT.
+                    .requestMatchers("/api/notifications/**").authenticated()
+
+                    // Mac dinh: moi request con lai phai xac thuc (HR-17 default deny)
+                    .anyRequest().authenticated()
             )
 
             // Xu ly loi xac thuc va phan quyen — tra JSON (khong redirect login page)

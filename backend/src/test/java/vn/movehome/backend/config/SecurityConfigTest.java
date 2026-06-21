@@ -47,6 +47,10 @@ class SecurityConfigTest {
         mockMvc.perform(get("/api/driver/orders")
                         .with(user(verifiedUser(UserRole.DRIVER, UserStatus.ACTIVE))))
                 .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/driver/location")
+                        .with(user(verifiedUser(UserRole.DRIVER, UserStatus.ACTIVE))))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -68,6 +72,14 @@ class SecurityConfigTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.error_code").value("ONBOARDING_PENDING_REVIEW"))
                 .andExpect(jsonPath("$.message").value("Hồ sơ đang được Manager xem xét. Vui lòng đợi."));
+    }
+
+    @Test
+    void onboardingDriverCannotUpdateLocation() throws Exception {
+        mockMvc.perform(post("/api/driver/location")
+                        .with(user(verifiedUser(UserRole.DRIVER, UserStatus.PENDING_APPROVAL))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error_code").value("ONBOARDING_PENDING_REVIEW"));
     }
 
     @Test
@@ -95,6 +107,11 @@ class SecurityConfigTest {
 
         @GetMapping("/api/driver/orders")
         public Map<String, String> driverOrders() {
+            return Map.of("status", "ok");
+        }
+
+        @org.springframework.web.bind.annotation.PostMapping("/api/driver/location")
+        public Map<String, String> updateDriverLocation() {
             return Map.of("status", "ok");
         }
 
