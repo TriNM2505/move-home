@@ -25,7 +25,7 @@ public class DriverOrderController {
             @AuthenticationPrincipal User currentUser,
             @PathVariable UUID id
     ) {
-        driverOrderService.acceptOrder(currentUser.getId(), id);
+        driverOrderService.acceptOrder(currentUser.getId(), currentUser.getRole().name(), id);
         return ResponseEntity.ok().build();
     }
 
@@ -34,7 +34,7 @@ public class DriverOrderController {
             @AuthenticationPrincipal User currentUser,
             @PathVariable UUID id
     ) {
-        driverOrderService.startOrder(currentUser.getId(), id);
+        driverOrderService.startOrder(currentUser.getId(), currentUser.getRole().name(), id);
         return ResponseEntity.ok().build();
     }
 
@@ -43,7 +43,7 @@ public class DriverOrderController {
             @AuthenticationPrincipal User currentUser,
             @PathVariable UUID id
     ) {
-        driverOrderService.completeOrder(currentUser.getId(), id);
+        driverOrderService.completeOrder(currentUser.getId(), currentUser.getRole().name(), id);
         return ResponseEntity.ok().build();
     }
 }

@@ -37,7 +37,8 @@ public class OrderController {
             @AuthenticationPrincipal User customer,
             @PathVariable UUID id,
             @RequestBody CancelOrderRequest request) {
-        return customerOrderActionService.cancelOrder(customer.getId(), id, request);
+        return customerOrderActionService.cancelOrder(
+                customer.getId(), customer.getRole().name(), id, request);
     }
 
     @PostMapping("/api/customer/orders/{id}/rating")

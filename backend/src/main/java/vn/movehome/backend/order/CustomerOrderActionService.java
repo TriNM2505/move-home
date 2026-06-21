@@ -25,11 +25,17 @@ public class CustomerOrderActionService {
     private static final String CANCELLED_STATUS = "CANCELLED";
 
     private final OrderRepository orderRepository;
+    private final OrderStatusTransitionService orderStatusTransitionService;
     private final OrderRatingRepository orderRatingRepository;
     private final DriverProfileRepository driverProfileRepository;
 
     @Transactional
-    public CancelOrderResponse cancelOrder(UUID customerId, UUID orderId, CancelOrderRequest request) {
+    public CancelOrderResponse cancelOrder(
+            UUID customerId,
+            String changedByRole,
+            UUID orderId,
+            CancelOrderRequest request
+    ) {
         String reason = normalizeReason(request != null ? request.reason() : null);
         ServiceOrder order = findOwnedOrderForUpdate(customerId, orderId);
 
@@ -39,11 +45,11 @@ public class CustomerOrderActionService {
 
         OffsetDateTime cancelledAt = OffsetDateTime.now(ZoneOffset.UTC);
         String previousStatus = order.getStatus();
-        order.setStatus(CANCELLED_STATUS);
         order.setCancelledAt(cancelledAt);
         order.setCancellationReason(reason);
 
-        ServiceOrder savedOrder = orderRepository.save(order);
+        ServiceOrder savedOrder = orderStatusTransitionService.transition(
+                order, CANCELLED_STATUS, customerId, changedByRole, cancelledAt);
         log.info("order_state_audit actor_id={} actor_role=CUSTOMER timestamp={} from_state={} to_state={} entity_id={}",
                 customerId, cancelledAt, previousStatus, CANCELLED_STATUS, savedOrder.getId());
         return new CancelOrderResponse(
