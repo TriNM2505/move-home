@@ -41,6 +41,20 @@ export async function register(registerData) {
 }
 
 /**
+ * Yêu cầu gửi email đặt lại mật khẩu. Backend luôn trả phản hồi trung lập.
+ */
+export async function forgotPassword(email) {
+  return await post('/api/auth/forgot-password', { email });
+}
+
+/**
+ * Đặt mật khẩu mới bằng token lấy từ query string của reset-password.html.
+ */
+export async function resetPassword(token, newPassword) {
+  return await post('/api/auth/reset-password', { token, newPassword });
+}
+
+/**
  * Đăng xuất: xóa token trong localStorage và redirect đến trang đăng nhập.
  * @param {string} loginUrl - Đường dẫn tương đối đến trang đăng nhập
  */
