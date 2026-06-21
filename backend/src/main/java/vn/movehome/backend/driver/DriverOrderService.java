@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import vn.movehome.backend.driver.finance.DriverEarningService;
 import vn.movehome.backend.order.OrderRepository;
+import vn.movehome.backend.order.OrderStatusTransitionService;
 import vn.movehome.backend.order.ServiceOrder;
 
 import java.time.OffsetDateTime;
@@ -26,25 +27,26 @@ public class DriverOrderService {
     private static final String COMPLETED = "COMPLETED";
 
     private final OrderRepository orderRepository;
+    private final OrderStatusTransitionService orderStatusTransitionService;
     private final DriverEarningService driverEarningService;
 
     @Transactional
-    public void acceptOrder(UUID driverId, UUID orderId) {
+    public void acceptOrder(UUID driverId, String changedByRole, UUID orderId) {
         ServiceOrder order = findForUpdate(orderId);
 
         if (!PENDING.equals(order.getStatus()) || order.getDriverId() != null) {
             throw new IllegalStateException("Đơn không còn khả dụng");
         }
 
+        OffsetDateTime changedAt = OffsetDateTime.now(ZoneOffset.UTC);
         order.setDriverId(driverId);
-        order.setStatus(ACCEPTED);
-        orderRepository.save(order);
+        orderStatusTransitionService.transition(order, ACCEPTED, driverId, changedByRole, changedAt);
 
-        logStateChange(driverId, orderId, PENDING, ACCEPTED);
+        logStateChange(driverId, orderId, PENDING, ACCEPTED, changedAt);
     }
 
     @Transactional
-    public void startOrder(UUID driverId, UUID orderId) {
+    public void startOrder(UUID driverId, String changedByRole, UUID orderId) {
         ServiceOrder order = findForUpdate(orderId);
         requireOwnership(order, driverId);
 
@@ -52,14 +54,14 @@ public class DriverOrderService {
             throw new IllegalStateException("Chỉ có thể bắt đầu đơn đã được chấp nhận");
         }
 
-        order.setStatus(IN_PROGRESS);
-        orderRepository.save(order);
+        OffsetDateTime changedAt = OffsetDateTime.now(ZoneOffset.UTC);
+        orderStatusTransitionService.transition(order, IN_PROGRESS, driverId, changedByRole, changedAt);
 
-        logStateChange(driverId, orderId, ACCEPTED, IN_PROGRESS);
+        logStateChange(driverId, orderId, ACCEPTED, IN_PROGRESS, changedAt);
     }
 
     @Transactional
-    public void completeOrder(UUID driverId, UUID orderId) {
+    public void completeOrder(UUID driverId, String changedByRole, UUID orderId) {
         ServiceOrder order = findForUpdate(orderId);
         requireOwnership(order, driverId);
 
@@ -68,9 +70,9 @@ public class DriverOrderService {
         }
 
         OffsetDateTime completedAt = OffsetDateTime.now(ZoneOffset.UTC);
-        order.setStatus(COMPLETED);
         order.setCompletedAt(completedAt);
-        ServiceOrder completedOrder = orderRepository.save(order);
+        ServiceOrder completedOrder = orderStatusTransitionService.transition(
+                order, COMPLETED, driverId, changedByRole, completedAt);
 
         driverEarningService.creditEarning(completedOrder);
         logStateChange(driverId, orderId, IN_PROGRESS, COMPLETED, completedAt);
@@ -88,10 +90,6 @@ public class DriverOrderService {
         if (!driverId.equals(order.getDriverId())) {
             throw new AccessDeniedException("Bạn chỉ có thể thao tác đơn hàng của chính mình.");
         }
-    }
-
-    private void logStateChange(UUID driverId, UUID orderId, String fromState, String toState) {
-        logStateChange(driverId, orderId, fromState, toState, OffsetDateTime.now(ZoneOffset.UTC));
     }
 
     private void logStateChange(
