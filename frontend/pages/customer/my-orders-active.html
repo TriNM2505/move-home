@@ -3,38 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đơn đang giao — Move_home</title>
+  <title>Theo dõi đơn — Move_home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}.tabs{display:flex;gap:10px;flex-wrap:wrap}
-    .tracking-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:24px}.map-placeholder{min-height:420px;border-radius:16px;background:var(--color-canvas-soft);display:grid;place-items:center;text-align:center;padding:24px;border:1px solid var(--color-surface-pressed)}.driver-row{display:flex;gap:14px;align-items:center}.timeline{display:grid;gap:16px}.timeline-item{border-left:4px solid var(--color-primary);padding-left:16px}
-    @media (max-width:900px){.tracking-grid{grid-template-columns:1fr}.site-header-actions{display:none}}
+    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap}.tracking-grid{display:grid;grid-template-columns:minmax(0,1.5fr) 380px;gap:24px;align-items:start}.tracking-panel{display:grid;gap:16px}
+    .tracking-map-shell{position:relative;min-height:460px;border:1px solid var(--color-surface-pressed);border-radius:16px;overflow:hidden;background:var(--color-canvas-soft)}#tracking-map{width:100%;height:100%;min-height:460px}.map-state{position:absolute;inset:16px;z-index:500;display:grid;place-items:center;text-align:center;padding:24px;border-radius:12px;background:rgba(255,255,255,.94);box-shadow:var(--shadow-level-1)}.map-state.hidden{display:none!important}
+    .driver-marker{width:34px;height:34px;border-radius:999px;background:var(--color-primary);border:3px solid #fff;box-shadow:0 8px 22px rgba(27,77,62,.35);display:grid;place-items:center}.driver-marker::after{content:"";width:9px;height:13px;background:var(--color-accent);clip-path:polygon(50% 0,100% 100%,50% 72%,0 100%)}
+    .status-stack{display:grid;gap:12px}.status-row{display:flex;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:1px solid var(--color-surface-pressed)}.status-row:last-child{border-bottom:0;padding-bottom:0}.status-row span{color:var(--color-body)}.driver-row{display:flex;gap:14px;align-items:center}
+    .timeline{display:grid;gap:14px}.timeline-item{position:relative;padding-left:18px;color:var(--color-mute)}.timeline-item::before{content:"";position:absolute;left:0;top:5px;width:8px;height:8px;border-radius:999px;background:var(--color-surface-pressed)}.timeline-item.active{color:var(--color-ink);font-weight:600}.timeline-item.active::before{background:var(--color-primary)}
+    .tracking-state-card{background:var(--color-canvas);border:1px solid var(--color-surface-pressed);border-radius:16px;padding:32px;text-align:center;box-shadow:var(--shadow-level-1)}.tracking-form{display:flex;gap:10px;max-width:620px;margin:20px auto 0}.tracking-form .text-input{min-width:0}.inline-alert{padding:14px 16px;border-radius:12px;border:1px solid var(--color-surface-pressed);background:var(--color-canvas-soft);color:var(--color-body)}.inline-alert.error{background:var(--color-danger-bg);border-color:#FCA5A5;color:var(--color-danger-text)}.inline-alert.warning{background:var(--color-warning-bg);border-color:#FCD34D;color:var(--color-warning-text)}
+    @media (max-width:980px){.tracking-grid{grid-template-columns:1fr}.site-header-actions{display:none}.tracking-map-shell,#tracking-map{min-height:380px}}@media (max-width:640px){.tracking-form{flex-direction:column}.status-row{display:block}.tracking-map-shell,#tracking-map{min-height:320px}}
   </style>
 </head>
 <body>
 <div class="site-layout">
-  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html">Đặt đơn</a><a href="my-orders-pending.html" class="active">Đơn hàng</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
-  <main class="site-main"><div class="dashboard-main">
-    <header class="page-header"><h1 class="page-title">Đơn đang giao</h1><p class="page-subtitle">Màn theo dõi thời gian thực dùng dữ liệu mẫu cho buổi demo.</p></header>
-    <div class="tabs mb-8"><a class="btn-subtle" href="my-orders-pending.html">Đang chờ</a><a class="btn-primary" href="my-orders-active.html">Đang giao</a><a class="btn-subtle" href="my-orders-history.html">Lịch sử</a></div>
-    <section class="tracking-grid">
-      <div class="map-placeholder"><div><h2>Bản đồ theo dõi</h2><p class="text-muted">Vị trí tài xế đang tiến về phố Duy Tân, Quận Cầu Giấy.</p><span class="badge badge-in-progress">Đang giao</span></div></div>
-      <aside class="card-elevated">
-        <h2>Thông tin tài xế</h2>
-        <div class="driver-row mt-md"><div class="avatar avatar-initials">LC</div><div><strong>Lê Văn Cường</strong><p class="text-muted">Biển số 30E-56789 · Đánh giá 4.7/5</p></div></div>
-        <div class="mt-md"><a href="tel:0901234567" class="btn-primary">Gọi tài xế</a> <a href="order-detail.html" class="btn-secondary">Chi tiết đơn</a></div>
-        <h2 class="mt-8">Tiến trình</h2>
-        <div class="timeline">
-          <div class="timeline-item"><strong>Đã nhận đơn</strong><p class="text-muted">08:05</p></div>
-          <div class="timeline-item"><strong>Đang lấy đồ</strong><p class="text-muted">08:30</p></div>
-          <div class="timeline-item"><strong>Đang giao</strong><p class="text-muted">09:10</p></div>
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="customer-nav">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html">Đặt đơn</a>
+        <a href="my-orders-pending.html" class="active">Đơn hàng</a>
+        <a href="my-profile.html">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name" id="header-user-name">Khách hàng</span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">KH</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <div class="dashboard-main">
+      <header class="page-header">
+        <h1 class="page-title" id="tracking-title">Theo dõi đơn</h1>
+        <p class="page-subtitle" id="tracking-subtitle">Vị trí tài xế được cập nhật định kỳ khi đơn đang vận chuyển.</p>
+      </header>
+
+      <div class="tabs mb-8">
+        <a class="btn-subtle" href="my-orders-pending.html">Đang chờ</a>
+        <a class="btn-primary" href="my-orders-active.html">Đang giao</a>
+        <a class="btn-subtle" href="my-orders-history.html">Lịch sử</a>
+      </div>
+
+      <section id="tracking-empty" class="tracking-state-card hidden" aria-live="polite">
+        <h2>Chưa chọn đơn để theo dõi</h2>
+        <p class="text-muted mt-sm">Mở màn này với tham số <strong>order_id</strong> hoặc nhập UUID của đơn đang giao.</p>
+        <form class="tracking-form" id="tracking-order-form">
+          <input class="text-input" id="tracking-order-input" name="order_id" type="text" autocomplete="off" placeholder="UUID đơn hàng">
+          <button class="btn-primary" type="submit">Theo dõi</button>
+        </form>
+      </section>
+
+      <section id="tracking-loading" class="page-loading" aria-live="polite">
+        <span class="spinner spinner-md"></span>
+        <span>Đang tải màn theo dõi...</span>
+      </section>
+
+      <section id="tracking-error" class="tracking-state-card hidden" aria-live="assertive">
+        <h2>Không thể tải theo dõi đơn</h2>
+        <p class="text-muted mt-sm" id="tracking-error-message">Vui lòng thử lại sau.</p>
+        <div class="mt-md">
+          <button class="btn-primary" id="tracking-retry-btn" type="button">Thử lại</button>
+          <a class="btn-secondary" href="my-orders-pending.html">Quay lại đơn hàng</a>
         </div>
-      </aside>
-    </section>
-  </div></main>
+      </section>
+
+      <section id="tracking-content" class="tracking-grid hidden" aria-live="polite">
+        <div class="tracking-panel">
+          <div id="tracking-alert" class="inline-alert hidden"></div>
+          <div class="tracking-map-shell">
+            <div id="tracking-map"></div>
+            <div id="map-state" class="map-state">
+              <div>
+                <h2>Đang khởi tạo bản đồ</h2>
+                <p class="text-muted mt-sm">Hệ thống đang chuẩn bị dữ liệu vị trí tài xế.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="tracking-panel">
+          <section class="card-elevated status-stack">
+            <h2>Trạng thái</h2>
+            <div class="status-row"><span>Đơn hàng</span><strong id="order-status-badge" class="badge badge-in-progress">Đang giao</strong></div>
+            <div class="status-row"><span>Thanh toán</span><strong id="payment-status-badge" class="badge badge-in-progress">Đã thanh toán cọc</strong></div>
+            <div class="status-row"><span>Mã đơn</span><strong id="order-code">—</strong></div>
+            <div class="status-row"><span>Cập nhật vị trí</span><strong id="last-updated">—</strong></div>
+            <div class="status-row"><span>Tốc độ</span><strong id="driver-speed">—</strong></div>
+          </section>
+
+          <section class="card-elevated">
+            <h2>Tài xế</h2>
+            <div class="driver-row mt-md">
+              <div class="avatar avatar-initials" id="driver-avatar">TX</div>
+              <div>
+                <strong id="driver-name">Tài xế đang thực hiện đơn</strong>
+                <p class="text-muted" id="driver-vehicle">Thông tin tài xế sẽ hiển thị khi có dữ liệu.</p>
+              </div>
+            </div>
+            <div class="mt-md">
+              <a href="#" class="btn-primary hidden" id="driver-call-link">Gọi tài xế</a>
+              <a href="order-detail.html" class="btn-secondary" id="order-detail-link">Chi tiết đơn</a>
+            </div>
+          </section>
+
+          <section class="card-elevated">
+            <h2>Tiến trình</h2>
+            <div class="timeline mt-md" id="order-timeline"></div>
+          </section>
+        </aside>
+      </section>
+    </div>
+  </main>
 </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+<script type="module" src="../../js/customer-order-tracking.js"></script>
 </body>
 </html>
