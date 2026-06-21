@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -20,7 +21,7 @@ import java.util.UUID;
 @Slf4j
 public class CustomerOrderActionService {
 
-    private static final String PENDING_STATUS = "PENDING";
+    private static final Set<String> CUSTOMER_CANCELLABLE_STATUSES = Set.of("PENDING", "PENDING_PAYMENT", "CONFIRMED");
     private static final String COMPLETED_STATUS = "COMPLETED";
     private static final String CANCELLED_STATUS = "CANCELLED";
 
@@ -39,7 +40,7 @@ public class CustomerOrderActionService {
         String reason = normalizeReason(request != null ? request.reason() : null);
         ServiceOrder order = findOwnedOrderForUpdate(customerId, orderId);
 
-        if (!PENDING_STATUS.equals(order.getStatus())) {
+        if (!CUSTOMER_CANCELLABLE_STATUSES.contains(order.getStatus())) {
             throw new IllegalStateException("Chỉ có thể hủy đơn ở trạng thái đang chờ xử lý.");
         }
 

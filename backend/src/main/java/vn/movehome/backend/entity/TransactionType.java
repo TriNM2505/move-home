@@ -28,6 +28,12 @@ public enum TransactionType {
     ORDER_PAYMENT,
 
     /**
+     * Customer nap tien vao vi noi bo qua VNPay.
+     * Amount: positive, cong vao customer_wallet.balance va total_topped_up.
+     */
+    WALLET_TOP_UP,
+
+    /**
      * Driver nhan phan thu nhap sau khi don COMPLETED va het escrow 2h.
      * Amount: +(total_quote * 70%) — 70% gia tri don hang sau khi tru commission.
      * Constitution AC-13: phai INSERT cung transaction voi UPDATE wallet.
