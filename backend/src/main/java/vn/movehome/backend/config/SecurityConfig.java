@@ -120,6 +120,9 @@ public class SecurityConfig {
                 // Onboarding chỉ cần Driver đã xác thực email; workflow orders bắt buộc ACTIVE.
                 .requestMatchers("/api/driver/onboarding", "/api/driver/onboarding/**").hasRole("DRIVER")
                 .requestMatchers("/api/driver/profile", "/api/driver/profile/**").hasRole("DRIVER")
+                .requestMatchers("/api/driver/location")
+                    .access((authentication, context) -> new AuthorizationDecision(
+                            driverWorkflowAccessService.isActiveDriver(authentication.get())))
                 .requestMatchers("/api/driver/orders", "/api/driver/orders/**")
                     .access((authentication, context) -> new AuthorizationDecision(
                             driverWorkflowAccessService.isActiveDriver(authentication.get())))
