@@ -10,6 +10,7 @@ import vn.movehome.backend.entity.TransactionType;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -55,4 +56,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
      * Dung truoc khi xu ly IPN VNPay de chong double-processing.
      */
     boolean existsByVnpayTxnRef(String vnpayTxnRef);
+
+    /**
+     * Lay ket qua da xu ly de IPN lap lai tra ve dung ban ghi cu, khong tao audit log moi.
+     */
+    Optional<Transaction> findByVnpayTxnRef(String vnpayTxnRef);
 }
