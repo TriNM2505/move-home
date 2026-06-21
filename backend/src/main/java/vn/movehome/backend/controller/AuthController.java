@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import vn.movehome.backend.dto.auth.*;
 import vn.movehome.backend.service.AuthService;
+import vn.movehome.backend.service.PasswordResetService;
 
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final PasswordResetService passwordResetService;
 
     /**
      * Dang ky tai khoan Customer moi (FR-001).
@@ -61,5 +63,16 @@ public class AuthController {
     @PostMapping("/refresh")
     public AuthResponse refresh(@Valid @RequestBody RefreshRequest req) {
         return authService.refresh(req);
+    }
+
+    @PostMapping("/forgot-password")
+    public Map<String, String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest req) {
+        return Map.of("message", passwordResetService.requestReset(req));
+    }
+
+    @PostMapping("/reset-password")
+    public Map<String, String> resetPassword(@Valid @RequestBody ResetPasswordRequest req) {
+        passwordResetService.resetPassword(req);
+        return Map.of("message", "Mật khẩu đã được đặt lại thành công. Bạn có thể đăng nhập.");
     }
 }
