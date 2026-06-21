@@ -51,5 +51,11 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
             String status,
             Pageable pageable);
 
+    Optional<ServiceOrder> findFirstByDriverIdAndStatusAndDeletedAtIsNullOrderByUpdatedAtDesc(
+            UUID driverId,
+            String status);
+
+    Optional<ServiceOrder> findByIdAndDeletedAtIsNull(UUID id);
+
     boolean existsByOrderCode(String orderCode);
 }
