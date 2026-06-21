@@ -7,7 +7,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import vn.movehome.backend.order.event.OrderStatusChangedEvent;
 
-import java.util.Objects;
+import java.util.LinkedHashSet;
 import java.util.UUID;
 
 @Component
@@ -19,6 +19,11 @@ public class OrderNotificationListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderStatusChanged(OrderStatusChangedEvent event) {
+        if (event.newStatus() == null) {
+            log.warn("Bỏ qua event thiếu newStatus, orderId={}", event.orderId());
+            return;
+        }
+
         String orderCode = event.orderCode();
         switch (event.newStatus()) {
             case "ACCEPTED" -> notifyOne(
@@ -50,13 +55,18 @@ public class OrderNotificationListener {
         String title = "Đơn đã bị hủy";
         String message = "Đơn " + orderCode + " đã bị hủy.";
 
-        notifyCancelledCandidate(event.customerId(), event.changedByUserId(), title, message);
-        notifyCancelledCandidate(event.driverId(), event.changedByUserId(), title, message);
-    }
+        LinkedHashSet<UUID> candidateUserIds = new LinkedHashSet<>();
+        if (event.customerId() != null) {
+            candidateUserIds.add(event.customerId());
+        }
+        if (event.driverId() != null) {
+            candidateUserIds.add(event.driverId());
+        }
 
-    private void notifyCancelledCandidate(UUID userId, UUID changedByUserId, String title, String message) {
-        if (!Objects.equals(userId, changedByUserId)) {
-            notifyOne(userId, NotificationType.ORDER_CANCELLED, title, message);
+        for (UUID userId : candidateUserIds) {
+            if (!userId.equals(event.changedByUserId())) {
+                notifyOne(userId, NotificationType.ORDER_CANCELLED, title, message);
+            }
         }
     }
 

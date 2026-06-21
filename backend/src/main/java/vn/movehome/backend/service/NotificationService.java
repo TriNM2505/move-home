@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import vn.movehome.backend.entity.Notification;
@@ -21,7 +22,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Notification create(UUID userId, String type, String title, String message) {
         Objects.requireNonNull(userId, "Mã người dùng không được null.");
         Objects.requireNonNull(type, "Loại thông báo không được null.");

@@ -32,6 +32,16 @@ public class NotificationController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
+        if (page < 0) {
+            page = 0;
+        }
+        if (size < 1) {
+            size = 10;
+        }
+        if (size > 100) {
+            size = 100;
+        }
+
         Pageable pageable = PageRequest.of(page, size);
         return notificationService.list(currentUserId(currentUser), pageable)
                 .map(NotificationResponse::from);
