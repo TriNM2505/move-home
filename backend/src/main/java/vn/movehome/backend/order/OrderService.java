@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private static final String PENDING_STATUS = "PENDING";
+    private static final String PENDING_STATUS = "PENDING_PAYMENT";
     private static final BigDecimal COMMISSION_RATE = new BigDecimal("0.3000");
 
     private final OrderRepository orderRepository;

@@ -110,6 +110,7 @@ public class SecurityConfig {
                 // PUBLIC: Guest + toan bo luong auth (khong can JWT)
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/vnpay/**").permitAll()
                 // OPTIONS request (preflight CORS) — luon cho phep
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 

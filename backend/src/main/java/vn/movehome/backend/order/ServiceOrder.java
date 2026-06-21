@@ -58,7 +58,7 @@ public class ServiceOrder {
 
     @Builder.Default
     @Column(name = "status", nullable = false, length = 20)
-    private String status = "PENDING";
+    private String status = "PENDING_PAYMENT";
 
     @Column(name = "total_quote", nullable = false, precision = 15, scale = 0)
     private BigDecimal totalQuote;
