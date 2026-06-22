@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nhật ký hệ thống — Move_home Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+<div class="site-layout">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Admin</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">AD</div>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+
+    <!-- SIDEBAR — Nhật ký active -->
+    <aside class="sidebar" aria-label="Menu quản trị">
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span>Tổng quan</span></a>
+        <a href="orders.html" class="sidebar-item"><span class="sidebar-icon">📦</span><span>Đơn hàng</span></a>
+        <a href="drivers.html" class="sidebar-item"><span class="sidebar-icon">🚛</span><span>Tài xế</span></a>
+        <a href="customers.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span>Khách hàng</span></a>
+        <a href="withdrawals.html" class="sidebar-item"><span class="sidebar-icon">💰</span><span>Rút tiền</span></a>
+        <a href="transactions.html" class="sidebar-item"><span class="sidebar-icon">💳</span><span>Giao dịch</span></a>
+        <a href="reports.html" class="sidebar-item"><span class="sidebar-icon">📈</span><span>Báo cáo</span></a>
+        <a href="audit-log.html" class="sidebar-item sidebar-item--active"><span class="sidebar-icon">📝</span><span>Nhật ký</span></a>
+        <div class="sidebar-divider"></div>
+        <a href="settings.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span>Cấu hình</span></a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+
+        <h1 class="page-title">Nhật ký hệ thống</h1>
+        <p class="text-muted mb-6">Ghi lại các hành động quan trọng: đăng nhập, thao tác đơn, tài chính, khóa tài khoản…</p>
+
+        <div id="error-banner" class="alert alert-danger mb-6" style="display:none;" role="alert"></div>
+
+        <!-- Filter theo hành động -->
+        <div class="filter-bar" id="filterContainer">
+          <button class="filter-pill active" data-action="">Tất cả</button>
+          <button class="filter-pill" data-action="LOGIN_SUCCESS">Đăng nhập</button>
+          <button class="filter-pill" data-action="LOGIN_FAILED">Đăng nhập thất bại</button>
+          <button class="filter-pill" data-action="ACCOUNT_LOCKED">Khóa tài khoản</button>
+          <button class="filter-pill" data-action="PASSWORD_RESET">Đặt lại mật khẩu</button>
+        </div>
+
+        <div class="table-filter">
+          <div class="table-filter-left" style="flex-wrap:wrap;">
+            <label>
+              <span class="text-muted">Loại đối tượng</span>
+              <input id="entityTypeFilter" class="form-input" style="width:180px;padding:8px 12px;" placeholder="Ví dụ: ORDER">
+            </label>
+            <label>
+              <span class="text-muted">Từ thời gian</span>
+              <input id="fromFilter" type="datetime-local" class="form-input" style="width:210px;padding:8px 12px;">
+            </label>
+            <label>
+              <span class="text-muted">Đến thời gian</span>
+              <input id="toFilter" type="datetime-local" class="form-input" style="width:210px;padding:8px 12px;">
+            </label>
+            <button id="applyAuditFilters" class="btn-primary">Lọc</button>
+            <button id="clearAuditFilters" class="btn-subtle">Xóa lọc</button>
+          </div>
+          <div class="table-filter-right" id="audit-count"></div>
+        </div>
+
+        <div class="card">
+          <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none; overflow-x:auto;">
+            <table class="table table-hover" style="min-width:840px;">
+              <thead>
+                <tr>
+                  <th style="width:180px;">Thời gian</th>
+                  <th>Người dùng</th>
+                  <th>Hành động</th>
+                  <th>Đối tượng</th>
+                  <th>Chi tiết</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+                <tr><td colspan="5" class="table-empty-row"><span class="spinner spinner-sm"></span> Đang tải...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="audit-pagination" class="mt-lg"></div>
+
+        <footer class="text-center text-muted" style="padding-top:var(--spacing-2xl); border-top:1px solid var(--color-surface-pressed); font-size:var(--font-size-caption); margin-top:var(--spacing-3xl);">
+          Move_home Admin — Nhật ký hệ thống
+        </footer>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script type="module" src="../../js/admin-audit.js"></script>
+</body>
+</html>

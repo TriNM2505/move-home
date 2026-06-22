@@ -115,6 +115,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                 // RBAC theo role — Constitution HR-10
+                // Audit log là màn vận hành dùng chung cho Admin và Manager (HR-10).
+                .requestMatchers(HttpMethod.GET, "/api/admin/audit-logs").hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/manager/**").hasRole("MANAGER")
 
