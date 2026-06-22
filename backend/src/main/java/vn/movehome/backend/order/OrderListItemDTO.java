@@ -21,7 +21,11 @@ public class OrderListItemDTO {
     private String orderCode;
     private String status;
     private BigDecimal totalQuote;
+    private String pickupAddress;
     private String pickupDistrict;
+    private String dropoffAddress;
     private String dropoffDistrict;
+    private String vehicleType;
+    private OffsetDateTime scheduledAt;
     private OffsetDateTime createdAt;
 }
