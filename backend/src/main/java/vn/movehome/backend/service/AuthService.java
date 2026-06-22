@@ -145,7 +145,13 @@ public class AuthService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "INVALID_CREDENTIALS|Ten dang nhap hoac mat khau khong dung."));
 
-        // Kiem tra khoa tai khoan truoc khi verify password (FR-021, FR-032)
+        // Khoa thu cong boi Admin la vo thoi han va khong duoc cap bat ky token nao.
+        if (user.getStatus() == UserStatus.LOCKED) {
+            throw new ResponseStatusException(HttpStatus.LOCKED,
+                "ACCOUNT_LOCKED|Tai khoan da bi khoa. Vui long lien he quan tri vien.");
+        }
+
+        // Kiem tra khoa tam thoi do dang nhap sai truoc khi verify password (FR-021, FR-032)
         if (!user.isAccountNonLocked()) {
             long minutesLeft = ChronoUnit.MINUTES.between(Instant.now(), user.getLockedUntil()) + 1;
             throw new ResponseStatusException(HttpStatus.LOCKED,
@@ -205,6 +211,11 @@ public class AuthService {
         User user = userRepository.findById(stored.getUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "INVALID_REFRESH_TOKEN|Tai khoan khong ton tai."));
+
+        if (user.getStatus() == UserStatus.LOCKED) {
+            throw new ResponseStatusException(HttpStatus.LOCKED,
+                    "ACCOUNT_LOCKED|Tai khoan da bi khoa. Vui long lien he quan tri vien.");
+        }
 
         // Tao token moi
         String newRawRefreshToken = jwtTokenProvider.generateRefreshToken();

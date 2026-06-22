@@ -21,6 +21,12 @@ public enum UserStatus {
     ACTIVE,
 
     /**
+     * Tai khoan bi Admin khoa vo thoi han. Khac voi khoa tam thoi bang locked_until
+     * va khong thay doi trang thai phe duyet Driver trong driver_profile.approved_at.
+     */
+    LOCKED,
+
+    /**
      * Dang cho xac thuc email. Ap dung cho ca Customer va Driver vua dang ky.
      * Chua the dang nhap thanh cong — he thong tra HTTP 403 EMAIL_NOT_VERIFIED (FR-020, FR-048).
      * Chuyen sang ACTIVE (Customer) hoac PENDING_DOCUMENTS (Driver) sau khi click link verify.
