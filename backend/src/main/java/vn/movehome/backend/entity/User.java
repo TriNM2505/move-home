@@ -67,7 +67,7 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 20)
     private UserRole role;
 
-    // 7 trang thai — xem UserStatus.java de hieu cac chuyen tiep
+    // Trang thai tai khoan/onboarding — xem UserStatus.java de hieu cac chuyen tiep
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     @Builder.Default
@@ -146,7 +146,8 @@ public class User implements UserDetails {
      */
     @Override
     public boolean isAccountNonLocked() {
-        return lockedUntil == null || lockedUntil.isBefore(Instant.now());
+        return status != UserStatus.LOCKED
+                && (lockedUntil == null || lockedUntil.isBefore(Instant.now()));
     }
 
     /** Credentials khong het han — JWT co chu ky rieng kiem soat vong doi (AC-03). */
