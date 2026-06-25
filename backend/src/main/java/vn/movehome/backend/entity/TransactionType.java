@@ -55,6 +55,12 @@ public enum TransactionType {
     DAMAGE_DEDUCTION,
 
     /**
+     * Tien da chuyen thanh cong tu vi Driver ve tai khoan ngan hang.
+     * Amount: negative am, lien ket voi withdrawal_request de doi soat.
+     */
+    WITHDRAWAL,
+
+    /**
      * Hoan tien cho Customer khi cong ty huy don (cancelled_by = COMPANY).
      * CONTEXT.md: hoan tien thu cong qua chuyen khoan, ghi RefundRecord.
      * Amount: negative am (tru khoi tai khoan trung gian cong ty).

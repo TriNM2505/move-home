@@ -22,7 +22,8 @@ import java.util.UUID;
     indexes = {
         @Index(name = "idx_transaction_user",   columnList = "user_id,created_at"),
         @Index(name = "idx_transaction_order",  columnList = "related_order_id"),
-        @Index(name = "idx_transaction_vnpay",  columnList = "vnpay_txn_ref")
+        @Index(name = "idx_transaction_vnpay",  columnList = "vnpay_txn_ref"),
+        @Index(name = "idx_transaction_withdrawal", columnList = "related_withdrawal_id")
     }
 )
 @Getter
@@ -54,6 +55,15 @@ public class Transaction {
     // (vd: DEPOSIT_TOP_UP cua Driver khi dang ky khong co don hang cu the)
     @Column(name = "related_order_id")
     private UUID relatedOrderId;
+
+    @Column(name = "related_withdrawal_id")
+    private UUID relatedWithdrawalId;
+
+    @Column(name = "related_dispute_id")
+    private UUID relatedDisputeId;
+
+    @Column(name = "balance_after", precision = 15, scale = 0)
+    private BigDecimal balanceAfter;
 
     // Mo ta ngan gon hien thi trong lich su giao dich
     @Column(length = 255)

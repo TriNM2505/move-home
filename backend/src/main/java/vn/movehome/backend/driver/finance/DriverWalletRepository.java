@@ -8,11 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.List;
+import java.util.Collection;
 import java.util.UUID;
 
 public interface DriverWalletRepository extends JpaRepository<DriverWallet, UUID> {
 
     Optional<DriverWallet> findByDriverId(UUID driverId);
+
+    List<DriverWallet> findByDriverIdIn(Collection<UUID> driverIds);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select w from DriverWallet w where w.driverId = :driverId")
