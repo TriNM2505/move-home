@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import vn.movehome.backend.email.notification.EmailService;
 import vn.movehome.backend.order.event.OrderStatusChangedEvent;
+import vn.movehome.backend.repository.UserRepository;
 
 import java.util.LinkedHashSet;
 import java.util.UUID;
@@ -16,6 +18,8 @@ import java.util.UUID;
 public class OrderNotificationListener {
 
     private final NotificationService notificationService;
+    private final EmailService emailService;
+    private final UserRepository userRepository;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderStatusChanged(OrderStatusChangedEvent event) {
@@ -78,7 +82,30 @@ public class OrderNotificationListener {
         try {
             notificationService.create(userId, type, title, message);
         } catch (Exception ex) {
-            log.error("Không thể tạo thông báo cho người dùng {}.", userId, ex);
+            log.error("Khong the tao thong bao cho nguoi dung {}.", userId, ex);
+            return;
         }
+
+        if (!shouldSendEmail(type)) {
+            return;
+        }
+
+        try {
+            userRepository.findById(userId).ifPresent(user -> {
+                String email = user.getEmail();
+                if (email == null || email.isBlank()) {
+                    return;
+                }
+                emailService.send(email, title, message);
+            });
+        } catch (Exception ex) {
+            log.error("Khong the gui email cho nguoi dung {}.", userId, ex);
+        }
+    }
+
+    private boolean shouldSendEmail(String type) {
+        return NotificationType.ORDER_ACCEPTED.equals(type)
+                || NotificationType.ORDER_COMPLETED.equals(type)
+                || NotificationType.ORDER_CANCELLED.equals(type);
     }
 }
