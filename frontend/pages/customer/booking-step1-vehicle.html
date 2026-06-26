@@ -9,81 +9,568 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-    .customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}
-    .customer-nav a.active{color:var(--color-primary)}
-    .booking-shell{display:grid;grid-template-columns:280px 1fr;gap:24px}
-    .booking-steps{display:grid;gap:10px}
-    .booking-step{padding:12px 14px;border-radius:999px;background:var(--color-canvas-soft);font-weight:500;color:var(--color-body)}
-    .booking-step.active{background:var(--color-primary);color:var(--color-on-primary)}
-    .vehicle-card{display:flex;flex-direction:column;gap:12px;border:2px solid var(--color-surface-pressed);border-radius:16px;padding:24px;background:var(--color-canvas)}
-    .vehicle-card.selected{border-color:var(--color-primary);box-shadow:var(--shadow-level-1)}
-    .vehicle-icon{width:56px;height:56px;border-radius:999px;background:#D1FAE5;display:grid;place-items:center;font-size:28px}
-    .summary-line{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--color-surface-pressed)}
-    @media (max-width: 800px){.booking-shell{grid-template-columns:1fr}.site-header-actions{display:none}}
+    .customer-nav {
+      display: flex;
+      gap: var(--spacing-lg);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .customer-nav a {
+      color: var(--color-ink);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      padding: var(--spacing-xs) 0;
+      transition: color var(--transition-fast);
+    }
+    .customer-nav a:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+    .customer-nav a.active {
+      color: var(--color-primary);
+      border-bottom: 3px solid var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .booking-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--spacing-2xl);
+    }
+    
+    /* Progress Timeline style */
+    .progress-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      padding: var(--spacing-md) 0;
+      position: relative;
+    }
+    .progress-timeline::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: var(--spacing-xl);
+      bottom: var(--spacing-xl);
+      width: 2px;
+      background: var(--color-surface-pressed);
+      z-index: 1;
+    }
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      position: relative;
+      z-index: 2;
+    }
+    .timeline-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--rounded-full);
+      background: var(--color-canvas);
+      border: 2px solid var(--color-surface-pressed);
+      color: var(--color-body);
+      display: grid;
+      place-items: center;
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-body-sm);
+      transition: all var(--transition-fast);
+    }
+    .timeline-item.active .timeline-badge {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-on-primary);
+      box-shadow: 0 0 0 4px rgba(27, 77, 62, 0.12);
+    }
+    .timeline-text {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-body);
+      font-size: var(--font-size-body-md);
+      transition: color var(--transition-fast);
+    }
+    .timeline-item.active .timeline-text {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+
+    /* Vehicle Grid and Cards */
+    .vehicle-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--spacing-xl);
+    }
+    .vehicle-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+      border: 1px solid var(--color-surface-pressed);
+      border-radius: var(--rounded-xl);
+      padding: var(--spacing-xl);
+      background: var(--color-canvas);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      position: relative;
+    }
+    .vehicle-card:hover {
+      border-color: var(--color-mute);
+      transform: translateY(-2px);
+    }
+    .vehicle-card.selected {
+      border-color: var(--color-primary);
+      border-width: 2px;
+      background-color: #F0F6F3; /* Soft green brand background tint */
+    }
+    .vehicle-card.selected::after {
+      content: "✓";
+      position: absolute;
+      top: var(--spacing-md);
+      right: var(--spacing-md);
+      width: 24px;
+      height: 24px;
+      border-radius: var(--rounded-full);
+      background-color: var(--color-primary);
+      color: var(--color-on-primary);
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    /* Vehicle Tag (Popularity, recommendation badges) */
+    .vehicle-tag {
+      position: absolute;
+      top: -10px;
+      left: var(--spacing-lg);
+      font-size: 11px;
+      font-weight: var(--font-weight-bold);
+      padding: var(--spacing-xxs) var(--spacing-sm);
+      border-radius: var(--rounded-pill);
+      background-color: var(--color-canvas-soft);
+      color: var(--color-body);
+      border: 1px solid var(--color-surface-pressed);
+    }
+    .vehicle-tag.accent {
+      background-color: var(--color-accent);
+      color: var(--color-on-accent);
+      border-color: var(--color-accent-strong);
+    }
+
+    .vehicle-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--rounded-full);
+      background: var(--color-canvas-soft);
+      display: grid;
+      place-items: center;
+      transition: background-color var(--transition-fast);
+      margin-bottom: var(--spacing-xs);
+    }
+    .vehicle-card.selected .vehicle-icon {
+      background: var(--color-success-bg);
+    }
+    .vehicle-title {
+      font-size: var(--font-size-body-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-ink);
+      margin: 0;
+    }
+    .vehicle-desc {
+      font-size: var(--font-size-body-sm);
+      color: var(--color-body);
+      line-height: var(--line-height-body-sm);
+      margin: 0;
+    }
+    
+    /* Capacity detail checklists */
+    .vehicle-features {
+      font-size: 13px;
+      color: var(--color-body);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xxs);
+      margin: var(--spacing-xs) 0 var(--spacing-sm) 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px dashed var(--color-surface-pressed);
+      padding-top: var(--spacing-sm);
+    }
+    .vehicle-features li {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    .vehicle-features li::before {
+      content: "✓";
+      color: var(--color-success);
+      font-weight: bold;
+    }
+    .vehicle-card.selected .vehicle-features {
+      color: var(--color-primary-strong);
+      border-top-color: rgba(27, 77, 62, 0.15);
+    }
+
+    .vehicle-price {
+      font-size: var(--font-size-body-md);
+      color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+      margin-top: auto;
+      display: block;
+    }
+
+    /* Refined Summary Layout */
+    .summary-container {
+      background: var(--color-canvas);
+      border: 1px solid var(--color-surface-pressed);
+      border-radius: var(--rounded-xl);
+      padding: var(--spacing-xl);
+      margin-top: var(--spacing-3xl);
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr auto;
+      align-items: center;
+      gap: var(--spacing-xl);
+    }
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xxs);
+    }
+    .summary-label {
+      font-size: var(--font-size-caption);
+      color: var(--color-body);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: var(--font-weight-bold);
+    }
+    .summary-value {
+      font-size: var(--font-size-body-lg);
+      color: var(--color-ink);
+      font-weight: var(--font-weight-bold);
+    }
+    .summary-action {
+      min-width: 200px;
+    }
+    
+    .eyebrow {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent-strong);
+      margin-bottom: var(--spacing-xxs);
+    }
+    
+    @media (max-width: 800px) {
+      .booking-shell {
+        grid-template-columns: 1fr;
+      }
+      .site-header-actions {
+        display: none;
+      }
+      .summary-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+      }
+      .summary-action {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="spinner-page" style="display: none;">
+    <div class="spinner spinner-md"></div>
+    <p>Đang tải thông tin...</p>
+  </div>
+
+  <!-- HEADER -->
   <header class="site-header">
     <div class="container site-header-inner">
-      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+      </a>
       <nav class="customer-nav" aria-label="Điều hướng khách hàng">
         <a href="home.html">Trang chủ</a>
         <a href="booking-step1-vehicle.html" class="active">Đặt đơn</a>
         <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-wallet.html">Ví của tôi</a>
         <a href="my-profile.html">Tài khoản</a>
       </nav>
-      <div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div>
+      <div class="site-header-actions">
+        <span class="user-menu-name" id="header-user-name">Xin chào, Nguyễn Văn An</span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">AN</div>
+        <button id="logout-btn" class="btn-subtle btn-sm">Đăng xuất</button>
+      </div>
     </div>
   </header>
+
+  <!-- MAIN -->
   <main class="site-main">
     <div class="dashboard-main">
+      <!-- ERROR BANNER -->
+      <div class="alert alert-danger" id="error-banner" style="display:none; margin-bottom: 24px;" role="alert"></div>
+
       <header class="page-header">
+        <div class="eyebrow">BƯỚC 1 / 6</div>
         <h1 class="page-title">Chọn loại xe</h1>
-        <p class="page-subtitle">Bước 1/6 — Chọn xe phù hợp với khối lượng đồ cần chuyển.</p>
+        <p class="page-subtitle">Chọn phương tiện di chuyển phù hợp để tối ưu chi phí và khối lượng đồ đạc của bạn.</p>
       </header>
+
       <div class="booking-shell">
-        <aside class="card-content">
-          <div class="booking-steps">
-            <div class="booking-step active">1. Chọn xe</div>
-            <div class="booking-step">2. Điểm đón</div>
-            <div class="booking-step">3. Điểm trả</div>
-            <div class="booking-step">4. Chi tiết</div>
-            <div class="booking-step">5. Báo giá</div>
-            <div class="booking-step">6. Thanh toán</div>
+        <!-- SIDEBAR progress -->
+        <aside>
+          <div class="card-content">
+            <div class="progress-timeline">
+              <div class="timeline-item active">
+                <div class="timeline-badge">1</div>
+                <div class="timeline-text">Chọn xe</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">2</div>
+                <div class="timeline-text">Điểm đón</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">3</div>
+                <div class="timeline-text">Điểm trả</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">4</div>
+                <div class="timeline-text">Chi tiết</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">5</div>
+                <div class="timeline-text">Báo giá</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">6</div>
+                <div class="timeline-text">Thanh toán</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editorial Trust Card -->
+          <div class="card-soft-tinted mt-8 text-center" style="background-color: #E6EDE9; border: 1px solid rgba(27, 77, 62, 0.15);">
+            <!-- SVG Illustration -->
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; display: block;">
+              <circle cx="60" cy="68" r="45" fill="#1B4D3E" fill-opacity="0.08"/>
+              <rect x="35" y="45" width="50" height="40" rx="3" fill="#D29B52" stroke="#1B4D3E" stroke-width="3"/>
+              <line x1="60" y1="45" x2="60" y2="85" stroke="#1B4D3E" stroke-width="2" stroke-dasharray="3 3"/>
+              <path d="M35 45L20 35L45 35L35 45Z" fill="#C58A3E" stroke="#1B4D3E" stroke-width="2"/>
+              <path d="M85 45L100 35L75 35L85 45Z" fill="#C58A3E" stroke="#1B4D3E" stroke-width="2"/>
+              <rect x="56" y="42" width="8" height="15" rx="1" fill="#F5A623" stroke="#1B4D3E" stroke-width="2"/>
+              <path d="M60 42C55 30 65 20 60 10C70 18 65 30 60 42Z" fill="#1B4D3E"/>
+              <path d="M60 38C65 32 75 28 80 25C73 32 65 36 60 38Z" fill="#1B4D3E"/>
+              <path d="M60 35C52 29 42 27 35 25C43 31 52 34 60 35Z" fill="#1B4D3E"/>
+            </svg>
+            <h4 style="color: var(--color-primary); font-size: var(--font-size-body-md); font-weight: var(--font-weight-bold); margin-top: var(--spacing-sm); margin-bottom: 0;">An tâm vận chuyển</h4>
+            <p style="font-size: var(--font-size-caption); color: var(--color-body); margin-top: var(--spacing-xs); line-height: 1.4; margin-bottom: 0;">
+              Đồ đạc được bảo hiểm 100% trong suốt quá trình đóng gói và vận chuyển.
+            </p>
           </div>
         </aside>
+
+        <!-- SELECTION CONTAINER -->
         <section>
-          <div class="grid-3">
-            <article class="vehicle-card selected">
-              <div class="vehicle-icon">🚚</div>
-              <h2>Xe tải 500kg</h2>
-              <p class="text-muted">Phù hợp đồ ít, phòng trọ hoặc căn hộ nhỏ cho 1-2 người.</p>
-              <strong>Giá khởi điểm: 350.000 VND</strong>
+          <div class="vehicle-grid">
+            <!-- Xe tải 500kg -->
+            <article class="vehicle-card" data-type="TRUCK_500KG" data-name="Xe tải 500kg" data-suitability="Đồ ít, phòng trọ, 1-2 người">
+              <span class="vehicle-tag accent">Phổ biến nhất</span>
+              <div class="vehicle-icon">
+                <svg width="72" height="72" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="4" y1="52" x2="60" y2="52" stroke="#1B4D3E" stroke-width="2" stroke-linecap="round"/>
+                  <rect x="8" y="20" width="30" height="24" rx="3" fill="#1B4D3E" stroke="#1B4D3E" stroke-width="2"/>
+                  <path d="M38 26H48L56 34V44H38V26Z" fill="#F5A623" stroke="#1B4D3E" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M40 29H47L51 34H40V29Z" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="2"/>
+                  <rect x="52" y="42" width="6" height="3" rx="1" fill="#1A1A1A"/>
+                  <circle cx="18" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
+                  <circle cx="18" cy="48" r="2.5" fill="#FFFFFF"/>
+                  <circle cx="44" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
+                  <circle cx="44" cy="48" r="2.5" fill="#FFFFFF"/>
+                </svg>
+              </div>
+              <h2 class="vehicle-title">Xe tải 500kg</h2>
+              <p class="vehicle-desc">Phù hợp chuyển đồ phòng trọ, chung cư nhỏ, đồ đạc của 1-2 người.</p>
+              <ul class="vehicle-features">
+                <li>1 giường đơn + 1 tủ nhỏ</li>
+                <li>5 - 10 thùng carton đồ</li>
+                <li>Dễ dàng di chuyển ngõ nhỏ</li>
+              </ul>
+              <strong class="vehicle-price">Giá khởi điểm: 350.000 VND</strong>
             </article>
-            <article class="vehicle-card">
-              <div class="vehicle-icon">🚛</div>
-              <h2>Xe tải 1 tấn</h2>
-              <p class="text-muted">Phù hợp gia đình nhỏ, nhiều thùng đồ và một số đồ nội thất.</p>
-              <strong>Giá khởi điểm: 550.000 VND</strong>
+
+            <!-- Xe tải 1 tấn -->
+            <article class="vehicle-card" data-type="TRUCK_1T" data-name="Xe tải 1 tấn" data-suitability="Gia đình nhỏ, nhiều thùng đồ & đồ nội thất">
+              <span class="vehicle-tag">Khuyên dùng</span>
+              <div class="vehicle-icon">
+                <svg width="72" height="72" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="4" y1="52" x2="60" y2="52" stroke="#1B4D3E" stroke-width="2" stroke-linecap="round"/>
+                  <rect x="6" y="16" width="34" height="30" rx="3" fill="#1B4D3E" stroke="#1B4D3E" stroke-width="2"/>
+                  <path d="M40 22H50L58 30V44H40V22Z" fill="#F5A623" stroke="#1B4D3E" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M42 25H49L53 30H42V25Z" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="2"/>
+                  <rect x="10" y="24" width="26" height="4" rx="1" fill="#F5A623" fill-opacity="0.8"/>
+                  <circle cx="16" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
+                  <circle cx="16" cy="48" r="2.5" fill="#FFFFFF"/>
+                  <circle cx="46" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
+                  <circle cx="46" cy="48" r="2.5" fill="#FFFFFF"/>
+                </svg>
+              </div>
+              <h2 class="vehicle-title">Xe tải 1 tấn</h2>
+              <p class="vehicle-desc">Phù hợp chuyển nhà gia đình nhỏ, có các thiết bị gia dụng cơ bản.</p>
+              <ul class="vehicle-features">
+                <li>1 giường đôi + 1 tủ lớn</li>
+                <li>Tủ lạnh + Máy giặt + Bàn ghế</li>
+                <li>10 - 15 thùng carton đồ</li>
+              </ul>
+              <strong class="vehicle-price">Giá khởi điểm: 550.000 VND</strong>
             </article>
-            <article class="vehicle-card">
-              <div class="vehicle-icon">📦</div>
-              <h2>Xe tải 1.5 tấn</h2>
-              <p class="text-muted">Phù hợp gia đình lớn, tủ, giường và nhiều thiết bị cồng kềnh.</p>
-              <strong>Giá khởi điểm: 750.000 VND</strong>
+
+            <!-- Xe tải 1.5 tấn -->
+            <article class="vehicle-card" data-type="TRUCK_15T" data-name="Xe tải 1.5 tấn" data-suitability="Gia đình lớn, nhiều đồ cồng kềnh">
+              <span class="vehicle-tag">Sức chứa lớn</span>
+              <div class="vehicle-icon">
+                <svg width="72" height="72" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="4" y1="52" x2="60" y2="52" stroke="#1B4D3E" stroke-width="2" stroke-linecap="round"/>
+                  <rect x="4" y="12" width="38" height="32" rx="3" fill="#1B4D3E" stroke="#1B4D3E" stroke-width="2"/>
+                  <path d="M42 18H51L59 26V44H42V18Z" fill="#F5A623" stroke="#1B4D3E" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M44 21H50L54 26H44V21Z" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="2"/>
+                  <rect x="8" y="20" width="30" height="6" rx="1" fill="#FFFFFF" fill-opacity="0.25"/>
+                  <circle cx="14" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
+                  <circle cx="14" cy="48" r="2.5" fill="#FFFFFF"/>
+                  <circle cx="26" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
+                  <circle cx="26" cy="48" r="2.5" fill="#FFFFFF"/>
+                  <circle cx="48" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
+                  <circle cx="48" cy="48" r="2.5" fill="#FFFFFF"/>
+                </svg>
+              </div>
+              <h2 class="vehicle-title">Xe tải 1.5 tấn</h2>
+              <p class="vehicle-desc">Thích hợp chuyển nhà nguyên căn, đồ đạc căn hộ 2-3 phòng ngủ.</p>
+              <ul class="vehicle-features">
+                <li>Phù hợp căn hộ 2-3 PN</li>
+                <li>Sofa + Tủ kệ tivi + Nệm lớn</li>
+                <li>15 - 25 thùng carton đồ</li>
+              </ul>
+              <strong class="vehicle-price">Giá khởi điểm: 750.000 VND</strong>
             </article>
           </div>
-          <div class="card-soft-tinted mt-8">
-            <div class="summary-line"><span>Xe đang chọn</span><strong>Xe tải 500kg</strong></div>
-            <div class="summary-line"><span>Phù hợp</span><strong>Đồ ít, 1-2 người</strong></div>
-            <div class="mt-md"><a href="booking-step2-pickup.html" class="btn-primary">Tiếp tục</a></div>
+
+          <!-- SUMMARY & ACTION -->
+          <div class="summary-container">
+            <div class="summary-grid">
+              <div class="summary-item">
+                <div class="summary-label">Xe đang chọn</div>
+                <div class="summary-value" id="summary-vehicle">—</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Phù hợp</div>
+                <div class="summary-value" id="summary-suitability">—</div>
+              </div>
+              <div class="summary-action">
+                <a href="booking-step2-pickup.html" class="btn-primary btn-lg btn-full">Tiếp tục</a>
+              </div>
+            </div>
           </div>
         </section>
       </div>
     </div>
   </main>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Guard check: redirect to login if not logged in or role is not CUSTOMER
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') {
+      logout('../login.html');
+      return;
+    }
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const errorBanner = document.getElementById('error-banner');
+
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    if (errorBanner) errorBanner.style.display = 'none';
+
+    try {
+      // 2. Fetch real user profile to verify session & get details
+      const profile = await getAuthenticated('/api/customer/profile');
+      
+      // Update header details dynamically
+      const nameEl = document.getElementById('header-user-name');
+      const avatarEl = document.getElementById('header-user-avatar');
+      if (nameEl) nameEl.textContent = `Xin chào, ${profile.fullName}`;
+      if (avatarEl) {
+        avatarEl.textContent = profile.fullName
+          .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+      }
+    } catch (err) {
+      console.error('Lỗi khi tải thông tin khách hàng:', err);
+      if (errorBanner) {
+        errorBanner.textContent = '⚠️ Phiên đăng nhập hết hạn hoặc lỗi kết nối. Đang chuyển hướng đăng nhập...';
+        errorBanner.style.display = 'flex';
+      }
+      setTimeout(() => {
+        logout('../login.html');
+      }, 2500);
+      return;
+    } finally {
+      if (loadingOverlay) loadingOverlay.style.display = 'none';
+    }
+
+    // Bind logout button click
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        logout('../login.html');
+      });
+    }
+
+    // 3. Selection and Persistence Logic
+    const vehicleCards = document.querySelectorAll('.vehicle-card');
+    const summaryVehicle = document.getElementById('summary-vehicle');
+    const summarySuitability = document.getElementById('summary-suitability');
+
+    // Retrieve previous choice or default to TRUCK_500KG
+    let selectedType = localStorage.getItem('booking_vehicleType') || 'TRUCK_500KG';
+
+    function selectVehicle(type) {
+      vehicleCards.forEach(card => {
+        if (card.dataset.type === type) {
+          card.classList.add('selected');
+          if (summaryVehicle) summaryVehicle.textContent = card.dataset.name;
+          if (summarySuitability) summarySuitability.textContent = card.dataset.suitability;
+          
+          // Persist to localStorage
+          localStorage.setItem('booking_vehicleType', type);
+          localStorage.setItem('booking_vehicleName', card.dataset.name);
+          localStorage.setItem('booking_vehicleSuitability', card.dataset.suitability);
+        } else {
+          card.classList.remove('selected');
+        }
+      });
+    }
+
+    // Apply selection
+    selectVehicle(selectedType);
+
+    // Add click listeners to cards
+    vehicleCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const type = card.dataset.type;
+        selectVehicle(type);
+      });
+    });
+  });
+</script>
 </body>
 </html>

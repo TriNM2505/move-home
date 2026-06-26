@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông báo — Move_home Quản lý</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="site-layout">
+  
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản lý</span>
+      </a>
+
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, <span id="userName">Quản lý</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="userAvatar">QL</div>
+        <button id="logoutBtn" class="btn-subtle">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="Menu quản lý">
+      <nav class="sidebar-nav">
+        <a href="driver-approvals.html" class="sidebar-item">
+          <span class="sidebar-icon">✓</span>
+          <span>Duyệt tài xế</span>
+        </a>
+        <a href="withdrawal-pending.html" class="sidebar-item">
+          <span class="sidebar-icon">₫</span>
+          <span>Rút tiền</span>
+        </a>
+        <a href="disputes.html" class="sidebar-item">
+          <span class="sidebar-icon">!</span>
+          <span>Khiếu nại</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+        
+        <div class="notif-page-container">
+          
+          <!-- TIÊU ĐỀ TRANG -->
+          <div class="notif-page-header">
+            <div>
+              <h1 class="page-title">Thông báo công việc</h1>
+              <p class="page-subtitle">Xem và cập nhật các thông báo mới nhất cần xử lý.</p>
+            </div>
+            <div>
+              <button id="markAllReadBtn" class="btn-secondary">Đánh dấu tất cả đã đọc</button>
+            </div>
+          </div>
+
+          <!-- MÀN HÌNH LOADING (Ẩn mặc định) -->
+          <div id="notifLoading" class="notif-state-card">
+            <div class="btn-spinner notif-state-icon" style="border-top-color: var(--color-primary); width: 36px; height: 36px;"></div>
+            <h2 class="notif-state-title">Đang tải thông báo...</h2>
+            <p class="notif-state-desc">Vui lòng chờ trong giây lát trong khi hệ thống lấy dữ liệu mới nhất.</p>
+          </div>
+
+          <!-- MÀN HÌNH ERROR (Ẩn mặc định) -->
+          <div id="notifError" class="notif-state-card style-error" style="display: none;">
+            <div class="notif-state-icon">⚠️</div>
+            <h2 class="notif-state-title">Không thể tải dữ liệu</h2>
+            <p class="notif-state-desc">Đã xảy ra lỗi kết nối mạng. Vui lòng kiểm tra lại đường truyền và thử lại.</p>
+            <div class="notif-state-action">
+              <button id="retryBtn" class="btn-primary">Thử lại</button>
+            </div>
+          </div>
+
+          <!-- MÀN HÌNH EMPTY (Ẩn mặc định) -->
+          <div id="notifEmpty" class="notif-state-card" style="display: none;">
+            <div class="notif-state-icon">🔔</div>
+            <h2 class="notif-state-title">Chưa có thông báo</h2>
+            <p class="notif-state-desc">Hiện tại không có thông báo mới nào dành cho tài khoản Quản lý của bạn.</p>
+          </div>
+
+          <!-- DANH SÁCH THÔNG BÁO -->
+          <div class="notif-list" id="notifList" style="display: none;">
+            <!-- Render items dynamic -->
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/notifications-bell.js"></script>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+
+  const initialMockNotifications = [
+    { id: "1", type: "INFO", title: "Yêu cầu rút tiền mới", message: "Tài xế Nguyễn Văn Hùng đã gửi yêu cầu rút 4.500.000 đ.", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
+    { id: "2", type: "WARNING", title: "Hồ sơ tài xế chờ duyệt", message: "Hồ sơ tài xế Trần Minh Đức đang chờ được phê duyệt.", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
+    { id: "3", type: "DANGER", title: "Khiếu nại từ khách hàng", message: "Khách hàng Phạm Minh Tuấn gửi khiếu nại về đơn hàng MH12345.", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 360).toISOString() },
+    { id: "4", type: "SUCCESS", title: "Rút tiền thành công", message: "Yêu cầu rút tiền của tài xế Lê Hoàng Nam đã được xử lý xong.", isRead: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() },
+    { id: "5", type: "INFO", title: "Đăng ký tài xế mới", message: "Tài xế Vũ Quốc Đạt đã hoàn thành bước gửi hồ sơ đăng ký.", isRead: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString() }
+  ];
+
+  /* MOCK - thay bằng API sau */
+  function getNotifications() {
+    const stored = localStorage.getItem('mockNotifications');
+    if (!stored) {
+      localStorage.setItem('mockNotifications', JSON.stringify(initialMockNotifications));
+      return initialMockNotifications;
+    }
+    return JSON.parse(stored);
+  }
+
+  function saveNotifications(notifs) {
+    localStorage.setItem('mockNotifications', JSON.stringify(notifs));
+    if (window.updateBellNotificationState) {
+      window.updateBellNotificationState();
+    }
+  }
+
+  function formatTimeVN(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    
+    if (diffMins < 1) {
+      return 'Vừa xong';
+    } else if (diffMins < 60) {
+      return `${diffMins} phút trước`;
+    } else if (diffHours < 24) {
+      return `${diffHours} giờ trước`;
+    } else {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const mins = String(date.getMinutes()).padStart(2, '0');
+      return `${day}/${month} ${hours}:${mins}`;
+    }
+  }
+
+  function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, 
+      tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[tag] || tag)
+    );
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Auth Check
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role === 'ADMIN') {
+      window.location.href = '../admin/dashboard.html';
+      return;
+    }
+    if (user?.role !== 'MANAGER') {
+      logout('../login.html');
+      return;
+    }
+
+    // Render User Info
+    const nameEl = document.getElementById('userName');
+    if (nameEl) nameEl.textContent = user.fullName || 'Quản lý';
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl && user.fullName) {
+      avatarEl.textContent = user.fullName
+        .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+    document.getElementById('logoutBtn')?.addEventListener('click', () => logout('../login.html'));
+
+    const listEl = document.getElementById('notifList');
+    const loadingEl = document.getElementById('notifLoading');
+    const errorEl = document.getElementById('notifError');
+    const emptyEl = document.getElementById('notifEmpty');
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    const retryBtn = document.getElementById('retryBtn');
+
+    function setViewState(state) {
+      listEl.style.display = state === 'content' ? 'flex' : 'none';
+      loadingEl.style.display = state === 'loading' ? 'flex' : 'none';
+      errorEl.style.display = state === 'error' ? 'flex' : 'none';
+      emptyEl.style.display = state === 'empty' ? 'flex' : 'none';
+    }
+
+    function renderPageList() {
+      const notifs = getNotifications();
+      if (notifs.length === 0) {
+        setViewState('empty');
+        return;
+      }
+
+      setViewState('content');
+      listEl.innerHTML = notifs.map(item => {
+        const iconClass = getIconClass(item.type);
+        const iconSvg = getIconSvg(item.type);
+        const unreadClass = item.isRead ? '' : 'unread';
+        const dotMarkup = item.isRead ? '' : '<span class="notif-dot-amber"></span>';
+        const timeFormatted = formatTimeVN(item.createdAt);
+
+        return `
+          <div class="notif-item ${unreadClass}" data-id="${item.id}" data-type="${item.type}">
+            <div class="notif-dot-col">
+              ${dotMarkup}
+            </div>
+            <div class="notif-icon-col">
+              <div class="notif-icon-wrapper ${iconClass}">
+                ${iconSvg}
+              </div>
+            </div>
+            <div class="notif-body-col">
+              <h4 class="notif-item-title">${escapeHTML(item.title)}</h4>
+              <p class="notif-item-message">${escapeHTML(item.message)}</p>
+              <span class="notif-item-time">${timeFormatted}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getIconClass(type) {
+      switch (type) {
+        case 'INFO': return 'info';
+        case 'WARNING': return 'warning';
+        case 'SUCCESS': return 'success';
+        case 'DANGER': return 'danger';
+        default: return 'info';
+      }
+    }
+
+    function getIconSvg(type) {
+      switch (type) {
+        case 'INFO':
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          `;
+        case 'WARNING':
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          `;
+        case 'SUCCESS':
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          `;
+        case 'DANGER':
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          `;
+        default:
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          `;
+      }
+    }
+
+    async function loadNotifications() {
+      setViewState('loading');
+      setTimeout(() => {
+        try {
+          renderPageList();
+        } catch (err) {
+          setViewState('error');
+        }
+      }, 500);
+    }
+
+    // Đánh dấu tất cả đã đọc
+    markAllReadBtn.addEventListener('click', () => {
+      const notifs = getNotifications();
+      const updated = notifs.map(n => ({ ...n, isRead: true }));
+      saveNotifications(updated);
+      renderPageList();
+    });
+
+    // Đánh dấu đã đọc khi nhấp vào thông báo cụ thể
+    listEl.addEventListener('click', (e) => {
+      const itemEl = e.target.closest('.notif-item');
+      if (!itemEl) return;
+      const id = itemEl.dataset.id;
+      const notifs = getNotifications();
+      const matched = notifs.find(n => n.id === id);
+      if (matched && !matched.isRead) {
+        matched.isRead = true;
+        saveNotifications(notifs);
+        renderPageList();
+      }
+    });
+
+    retryBtn.addEventListener('click', loadNotifications);
+
+    // Lắng nghe sự kiện storage để cập nhật đồng bộ các tab
+    window.addEventListener('storage', () => {
+      renderPageList();
+    });
+
+    loadNotifications();
+  });
+</script>
+
+</body>
+</html>

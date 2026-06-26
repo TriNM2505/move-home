@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-09T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram name="UC Public" id="uc-public">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1000" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="system" value="Move_home - Public Marketing" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;verticalAlign=top;fontSize=14;fontStyle=1;spacingTop=8;" vertex="1" parent="1"><mxGeometry x="230" y="40" width="700" height="620" as="geometry"/></mxCell>
+        <mxCell id="actor_guest" value="Guest" style="shape=umlActor;html=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="70" y="300" width="50" height="100" as="geometry"/></mxCell>
+        <mxCell id="uc001" value="UC-001: Xem trang chủ marketing" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="300" y="120" width="260" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc002" value="UC-002: Xem trang Giới thiệu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="620" y="120" width="260" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc003" value="UC-003: Xem Cách thức hoạt động" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="300" y="300" width="260" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc004" value="UC-004: Xem Bảng giá và calculator" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="620" y="300" width="260" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc005" value="UC-005: Gửi liên hệ và xem FAQ" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="300" y="480" width="260" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc006" value="UC-006: Đọc Điều khoản và Privacy" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="620" y="480" width="260" height="65" as="geometry"/></mxCell>
+        <mxCell id="g001" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_guest" target="uc001"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="g002" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_guest" target="uc002"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="g003" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_guest" target="uc003"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="g004" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_guest" target="uc004"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="g005" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_guest" target="uc005"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="g006" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_guest" target="uc006"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

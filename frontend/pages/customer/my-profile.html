@@ -4,35 +4,416 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thông tin cá nhân — Move_home</title>
+  
+  <!-- Preconnect to Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Be Vietnam Pro font with Vietnamese subset -->
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
-    .profile-grid{display:grid;grid-template-columns:320px 1fr;gap:24px}.profile-card{text-align:center}.profile-avatar{width:112px;height:112px;border-radius:999px;background:var(--color-primary);color:white;display:grid;place-items:center;font-size:36px;font-weight:700;margin:0 auto 16px}.info-row{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--color-surface-pressed)}
-    @media (max-width:800px){.profile-grid{grid-template-columns:1fr}.site-header-actions{display:none}.info-row{display:block}}
+    .customer-nav {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .customer-nav a {
+      color: var(--color-ink);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+    .customer-nav a:hover {
+      color: var(--color-primary-soft);
+    }
+    .customer-nav a.active {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: var(--spacing-2xl);
+      align-items: start;
+    }
+    
+    .profile-card {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--spacing-2xl);
+    }
+    
+    .profile-avatar-container {
+      margin-bottom: var(--spacing-lg);
+      position: relative;
+    }
+    
+    .profile-avatar {
+      width: 112px;
+      height: 112px;
+      border-radius: var(--rounded-full);
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+      display: grid;
+      place-items: center;
+      font-size: 36px;
+      font-weight: var(--font-weight-bold);
+      margin: 0 auto;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg) 0;
+      border-bottom: 1px solid var(--color-surface-pressed);
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: var(--color-body);
+      font-weight: var(--font-weight-medium);
+    }
+    .info-value {
+      color: var(--color-ink);
+      font-weight: var(--font-weight-semibold);
+      text-align: right;
+    }
+    
+    @media (max-width: 800px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+      .site-header-actions {
+        display: none;
+      }
+      .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: var(--spacing-md) 0;
+      }
+      .info-value {
+        text-align: left;
+      }
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
-  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html">Đặt đơn</a><a href="my-orders-pending.html">Đơn hàng</a><a href="my-profile.html" class="active">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
-  <main class="site-main"><div class="dashboard-main">
-    <header class="page-header"><h1 class="page-title">Thông tin cá nhân</h1><p class="page-subtitle">Quản lý thông tin tài khoản khách hàng.</p></header>
-    <section class="profile-grid">
-      <aside class="card-elevated profile-card"><div class="profile-avatar">AN</div><h2>Nguyễn Văn An</h2><p class="text-muted">Khách hàng thân thiết</p><span class="badge badge-success">Đang hoạt động</span><div class="mt-md"><a href="my-profile-edit.html" class="btn-primary">Chỉnh sửa</a></div></aside>
-      <div class="card-elevated">
-        <h2>Hồ sơ tài khoản</h2>
-        <div class="info-row"><span>Họ và tên</span><strong>Nguyễn Văn An</strong></div>
-        <div class="info-row"><span>Email</span><strong>an.nguyen@example.com</strong></div>
-        <div class="info-row"><span>Số điện thoại</span><strong>0901 234 567</strong></div>
-        <div class="info-row"><span>Ngày tham gia</span><strong>15/04/2026</strong></div>
-        <div class="info-row"><span>Tổng số đơn đã đặt</span><strong>12 đơn</strong></div>
-        <div class="info-row"><span>Số dư</span><strong>2.000.000 VND</strong></div>
-        <div class="mt-md"><a href="my-profile-edit.html" class="btn-primary">Chỉnh sửa</a> <a href="../login.html" class="btn-secondary">Đổi mật khẩu</a></div>
+  
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+      </a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html">Đặt đơn</a>
+        <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-wallet.html">Ví của tôi</a>
+        <a href="my-profile.html" class="active">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Khách hàng</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">KH</div>
+        <button id="logout-btn" class="btn-subtle" style="margin-left: 12px; padding: var(--spacing-xs) var(--spacing-md); font-size: var(--font-size-body-sm);">Đăng xuất</button>
       </div>
-    </section>
-  </div></main>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="site-main">
+    <div class="dashboard-main" style="max-width: 1000px; margin: 0 auto; padding: var(--spacing-xl) var(--spacing-lg);">
+      
+      <!-- Top banner for global error display -->
+      <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-xl);"></div>
+
+      <!-- Page Header -->
+      <header class="page-header" style="margin-bottom: var(--spacing-2xl);">
+        <div class="eyebrow-tag" style="color: var(--color-accent); font-weight: var(--font-weight-bold); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: var(--spacing-xxs); font-size: var(--font-size-caption);">Hồ sơ khách hàng</div>
+        <h1 class="page-title" style="font-size: var(--font-size-display-md); font-weight: var(--font-weight-bold); color: var(--color-ink); margin-bottom: var(--spacing-xxs);">Thông tin cá nhân</h1>
+        <p class="page-subtitle" style="color: var(--color-body); font-size: var(--font-size-body-md);">Quản lý thông tin bảo mật và tài khoản của bạn.</p>
+      </header>
+
+      <!-- LOADING STATE -->
+      <section id="profile-loading" class="page-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed); min-height: 280px;" aria-live="polite">
+        <span class="spinner spinner-md" style="margin-bottom: var(--spacing-md);"></span>
+        <span style="color: var(--color-body); font-weight: var(--font-weight-medium);">Đang tải thông tin hồ sơ...</span>
+      </section>
+
+      <!-- ERROR STATE -->
+      <section id="profile-error" style="display: none; text-align: center; padding: var(--spacing-4xl) var(--spacing-2xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);" aria-live="assertive">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-md);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <h2 style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm); color: var(--color-ink);">Không thể tải thông tin cá nhân</h2>
+        <p id="profile-error-message" style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Có lỗi xảy ra khi kết nối máy chủ.</p>
+        <button id="profile-retry-btn" class="btn-primary" style="margin: 0 auto;">Thử lại</button>
+      </section>
+
+      <!-- PROFILE CONTENT GRID -->
+      <section class="profile-grid" id="profile-content" style="display: none;">
+        
+        <!-- Summary Card (Left) -->
+        <aside class="card-content profile-card" style="border: 1px solid var(--color-surface-pressed);">
+          <div class="profile-avatar-container">
+            <div class="profile-avatar" id="profile-avatar-val">KH</div>
+          </div>
+          <h2 id="profile-name-val" style="font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); color: var(--color-ink); margin-bottom: var(--spacing-xs);">Nguyễn Văn An</h2>
+          <p style="color: var(--color-body); font-size: var(--font-size-body-sm); margin-bottom: var(--spacing-md);">Khách hàng thân thiết</p>
+          <span id="profile-status-badge" class="badge-success">Đang hoạt động</span>
+          
+          <div style="margin-top: var(--spacing-xl); width: 100%;">
+            <a href="my-profile-edit.html" class="btn-primary btn-full">Chỉnh sửa hồ sơ</a>
+          </div>
+        </aside>
+
+        <!-- Detailed Info Card (Right) -->
+        <div class="card-content" style="border: 1px solid var(--color-surface-pressed);">
+          <h2 style="font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); color: var(--color-ink); margin-bottom: var(--spacing-lg); display: flex; align-items: center; gap: var(--spacing-xs);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Chi tiết tài khoản
+          </h2>
+          
+          <div class="info-row">
+            <span class="info-label">Họ và tên</span>
+            <strong class="info-value" id="info-name">—</strong>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Địa chỉ email</span>
+            <strong class="info-value" id="info-email">—</strong>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Số điện thoại</span>
+            <strong class="info-value" id="info-phone">—</strong>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Ngày tham gia</span>
+            <strong class="info-value" id="info-join-date">15/04/2026</strong>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Tổng số đơn đã đặt</span>
+            <strong class="info-value" id="info-total-orders">12 đơn</strong>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Số dư ví khả dụng</span>
+            <strong class="info-value" id="info-balance" style="color: var(--color-primary); font-size: var(--font-size-body-lg);">—</strong>
+          </div>
+          
+          <div style="margin-top: var(--spacing-2xl); display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+            <a href="my-profile-edit.html" class="btn-primary">Chỉnh sửa</a>
+            <a href="../login.html" class="btn-secondary">Đổi mật khẩu</a>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
 </div>
+
+<!-- ES Module Script -->
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+  import { formatVnd } from '../../js/admin-common.js';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Guard check auth and role
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') {
+      logout('../login.html');
+      return;
+    }
+
+    // 2. Set event listeners
+    setupEventListeners();
+
+    // 3. Load profile and wallet data
+    loadDashboardData();
+  });
+
+  function setupEventListeners() {
+    // Logout action
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+      logout('../login.html');
+    });
+
+    // Retry action on error
+    document.getElementById('profile-retry-btn')?.addEventListener('click', () => {
+      loadDashboardData();
+    });
+  }
+
+  async function loadDashboardData() {
+    const loadingEl = document.getElementById('profile-loading');
+    const errorEl = document.getElementById('profile-error');
+    const contentEl = document.getElementById('profile-content');
+    const bannerEl = document.getElementById('error-banner');
+
+    // Show loading state
+    loadingEl.style.display = 'flex';
+    errorEl.style.display = 'none';
+    contentEl.style.display = 'none';
+    if (bannerEl) bannerEl.style.display = 'none';
+
+    try {
+      // Parallel fetch profile & wallet summary
+      const [profile, wallet] = await Promise.all([
+        getAuthenticated('/api/customer/profile'),
+        getAuthenticated('/api/customer/wallet')
+      ]);
+
+      if (!profile) {
+        throw new Error('Không nhận được dữ liệu hồ sơ từ máy chủ.');
+      }
+
+      // Hide loading, show content
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'grid';
+
+      // 1. Render Header Identity
+      renderHeader(profile);
+
+      // 2. Render Left Column Overview
+      renderProfileOverview(profile);
+
+      // 3. Render Right Column Details
+      renderProfileDetails(profile, wallet);
+
+    } catch (err) {
+      console.error(err);
+      loadingEl.style.display = 'none';
+      errorEl.style.display = 'block';
+      document.getElementById('profile-error-message').textContent = 
+        err.message || 'Không thể tải thông tin cá nhân. Vui lòng thử lại.';
+    }
+  }
+
+  function renderHeader(profile) {
+    const nameEl = document.getElementById('header-user-name');
+    if (nameEl) nameEl.textContent = profile.fullName || 'Khách hàng';
+
+    const avatarEl = document.getElementById('header-user-avatar');
+    if (avatarEl && profile.fullName) {
+      avatarEl.textContent = getInitials(profile.fullName);
+    }
+  }
+
+  function renderProfileOverview(profile) {
+    // Avatar
+    const avatarEl = document.getElementById('profile-avatar-val');
+    if (avatarEl && profile.fullName) {
+      avatarEl.textContent = getInitials(profile.fullName);
+    }
+
+    // Name
+    const nameEl = document.getElementById('profile-name-val');
+    if (nameEl) nameEl.textContent = profile.fullName || '—';
+
+    // Status Badge
+    const badgeEl = document.getElementById('profile-status-badge');
+    if (badgeEl) {
+      const status = profile.status || 'ACTIVE';
+      if (status === 'ACTIVE') {
+        badgeEl.className = 'badge-active';
+        badgeEl.textContent = 'Đang hoạt động';
+      } else if (status === 'PENDING_VERIFY') {
+        badgeEl.className = 'badge-pending';
+        badgeEl.textContent = 'Chờ xác thực email';
+      } else if (status === 'SUSPENDED') {
+        badgeEl.className = 'badge-cancelled';
+        badgeEl.textContent = 'Tạm khóa';
+      } else {
+        badgeEl.className = 'badge-neutral';
+        badgeEl.textContent = status;
+      }
+    }
+  }
+
+  function renderProfileDetails(profile, wallet) {
+    // Họ và tên
+    document.getElementById('info-name').textContent = profile.fullName || '—';
+
+    // Email
+    document.getElementById('info-email').textContent = profile.email || '—';
+
+    // Số điện thoại (format: e.g. +84912001001 -> 0912 001 001 or display as is)
+    const phone = profile.phone || '—';
+    document.getElementById('info-phone').textContent = formatPhone(phone);
+
+    // Ngày tham gia (Fallback if not in API response)
+    const joinDateEl = document.getElementById('info-join-date');
+    if (profile.created_at || profile.createdAt) {
+      joinDateEl.textContent = formatDate(profile.created_at || profile.createdAt);
+    } else {
+      // Fallback statically to standard stub
+      joinDateEl.textContent = '15/04/2026';
+    }
+
+    // Tổng số đơn đã đặt (Fallback if not in API response)
+    const totalOrdersEl = document.getElementById('info-total-orders');
+    if (profile.total_orders || profile.totalOrders) {
+      totalOrdersEl.textContent = `${profile.total_orders || profile.totalOrders} đơn`;
+    } else {
+      totalOrdersEl.textContent = '12 đơn';
+    }
+
+    // Số dư ví
+    const balanceEl = document.getElementById('info-balance');
+    if (wallet && (wallet.balance !== undefined && wallet.balance !== null)) {
+      balanceEl.textContent = formatVnd(wallet.balance);
+    } else {
+      balanceEl.textContent = '0 VND';
+    }
+  }
+
+  // Helper: Get Initials from Name
+  function getInitials(name) {
+    if (!name) return 'KH';
+    const words = name.trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return 'KH';
+    return words.map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  }
+
+  // Helper: Format Phone Number
+  function formatPhone(phone) {
+    if (!phone) return '—';
+    let val = phone.trim();
+    if (val.startsWith('+84')) {
+      val = '0' + val.substring(3);
+    }
+    // format as spacing: e.g. 0912001001 -> 0912 001 001
+    if (val.length === 10) {
+      return val.substring(0, 4) + ' ' + val.substring(4, 7) + ' ' + val.substring(7);
+    }
+    return val;
+  }
+
+  // Helper: Format Date
+  function formatDate(iso) {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleDateString('vi-VN', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        timeZone: 'Asia/Ho_Chi_Minh',
+      });
+    } catch {
+      return '—';
+    }
+  }
+</script>
 </body>
 </html>

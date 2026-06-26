@@ -67,3 +67,5 @@ export const get              = (path)         => apiRequest('GET',  path, null,
 export const post             = (path, body)   => apiRequest('POST', path, body,  false);
 export const getAuthenticated = (path)         => apiRequest('GET',  path, null,  true);
 export const postAuthenticated = (path, body)  => apiRequest('POST', path, body,  true);
+export const putAuthenticated  = (path, body)  => apiRequest('PUT',  path, body,  true);
+

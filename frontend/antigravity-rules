@@ -1,0 +1,45 @@
+# .antigravity-rules — QUY TẮC REDESIGN FRONTEND Move_home
+# Antigravity ĐỌC FILE NÀY TRƯỚC MỖI PHIÊN. Mọi agent PHẢI tuân thủ.
+# Đặt file này ở gốc thư mục frontend/.
+
+## 0. PHẠM VI
+- CHỈ làm trong frontend/. KHÔNG đụng backend Java, KHÔNG đụng .env, KHÔNG chạy git commit/push.
+- Đây là REDESIGN GIAO DIỆN: chỉ đổi LỚP TRÌNH BÀY, GIỮ NGUYÊN LỚP CHỨC NĂNG.
+
+## 1. ĐÍCH THIẾT KẾ (chi tiết đọc DESIGN.md — bản viết HOA, design system Uber)
+- Phong cách Uber theo DESIGN.md.
+- Pill bo 999px cho mọi nút / chip / badge.
+- Card phẳng mặc định, bo 16px (shadow CHỈ cho floating pill / form báo giá / KPI).
+- Nhịp thị giác = BAND xen kẽ trắng <-> xanh (polarity-flip). TUYỆT ĐỐI KHÔNG gradient, không nền atmospheric.
+- Icon = SVG. KHÔNG dùng emoji làm icon.
+- Minh hoạ biên tập (thùng đồ, xe tải, gia đình) — KHÔNG stock photo bừa. Được phép tạo ảnh minh hoạ.
+- Eyebrow IN HOA letter-spacing 0.08em; display 700 sentence-case.
+- Brand: xanh rừng #1B4D3E + hổ phách #F5A623. Font Be Vietnam Pro.
+- Tiếng Việt ĐỦ DẤU mọi nơi.
+- Class input thật là .text-input (KHÔNG phải .form-input).
+
+## 2. TUYỆT ĐỐI GIỮ NGUYÊN (đổi = VỠ chức năng)
+### a) Routing
+- Giữ nguyên TÊN FILE mọi trang + mọi href link giữa trang.
+- Role redirect trong auth.js: ADMIN->admin/dashboard.html, MANAGER->manager/home.html,
+  DRIVER->driver/home.html, CUSTOMER->customer/home.html.
+### b) id/class mà JS bám — KHÔNG đổi tên, KHÔNG xoá:
+  customers-count, customersTableBody, drivers-count, driversTableBody,
+  orders-count, ordersTableBody, recent-orders-body, top-drivers-body,
+  revenue-chart, status-chart, kpi-section, filterContainer,
+  header-user-name, header-user-avatar, logout-btn, error-banner
+  + data-attr: data-status, data-page, data-size-select
+  + id field booking: district, floor, address, date, time, note
+### c) Mọi thẻ <script> + import JS hiện có (api.js, auth.js, admin-common.js, dashboard.js, ...).
+### d) localStorage keys: accessToken, refreshToken, userInfo.
+### e) Mọi lời gọi API trong JS: BASE_URL='http://localhost:8080', đường dẫn /api/...
+
+## 3. CSS
+- App: sửa frontend/css/styles.css — GIỮ token brand sẵn có, BỔ SUNG component thiếu
+  (band-light/band-dark, promo-card, request-form-card, category-chip, faq-row, status-badge--* dạng pill).
+- Public/marketing: tách riêng frontend/css/public.css (KHÔNG nhồi vào styles.css).
+
+## 4. SAU MỖI TRANG (BẮT BUỘC)
+- Tự mở trình duyệt test: (1) click routing qua lại OK; (2) login -> redirect đúng role;
+  (3) trang admin/dashboard JS còn chạy (KPI/bảng/biểu đồ hiện); (4) không lỗi console.
+- Trả screenshot + diff. KHÔNG tự git commit/push — để người dùng review rồi commit thủ công.

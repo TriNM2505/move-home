@@ -5,22 +5,161 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chi tiết đơn — Move_home</title>
 
+  <!-- Google Fonts: Be Vietnam Pro -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
+  <!-- Core App Stylesheet -->
   <link rel="stylesheet" href="../../css/styles.css">
+  
+  <!-- Leaflet Map Integration -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
   <style>
+    /* Layout & Navigation Rules */
     .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
-    .detail-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--spacing-2xl); }
-    .map-preview { min-height: 240px; border-radius: var(--rounded-xl); background: linear-gradient(135deg, #D1FAE5, #F4F5F4); border: 1px solid var(--color-surface-pressed); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-weight: var(--font-weight-semibold); }
-    .price-row { display: flex; justify-content: space-between; padding: var(--spacing-md) 0; border-bottom: 1px solid var(--color-surface-pressed); }
-    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
-    @media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+    .detail-grid { display: grid; grid-template-columns: 1.40fr 1fr; gap: var(--spacing-2xl); margin-top: var(--spacing-xl); }
+    
+    /* Eyebrow Styling */
+    .eyebrow {
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-accent-strong);
+      margin-bottom: var(--spacing-xxs);
+      display: inline-block;
+    }
+
+    /* Page Header Info */
+    .page-header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    /* Section Title */
+    .section-title {
+      font-size: var(--font-size-display-sm);
+      font-weight: 700;
+      margin-bottom: var(--spacing-md);
+      color: var(--color-ink);
+      display: flex;
+      align-items: center;
+    }
+
+    /* Info Lists */
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--color-surface-pressed);
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-row span {
+      color: var(--color-body);
+      font-size: var(--font-size-body-sm);
+    }
+    .info-row strong {
+      color: var(--color-ink);
+      font-weight: 600;
+    }
+
+    /* Route details wrapper */
+    .route-details {
+      font-size: var(--font-size-body-sm);
+      line-height: var(--line-height-body-sm);
+      margin-bottom: var(--spacing-md);
+    }
+    .route-details p {
+      margin-bottom: var(--spacing-xs);
+    }
+
+    /* Map container */
+    .map-container {
+      width: 100%;
+      height: 300px;
+      border-radius: var(--rounded-xl);
+      border: 1px solid var(--color-surface-pressed);
+      box-shadow: var(--shadow-level-1);
+      overflow: hidden;
+    }
+
+    /* Pricing Card Styles */
+    .price-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--color-surface-pressed);
+      font-variant-numeric: tabular-nums;
+    }
+    .price-row:last-child {
+      border-bottom: none;
+    }
+    .price-row span {
+      color: var(--color-body);
+      font-size: var(--font-size-body-sm);
+    }
+    .price-row strong {
+      color: var(--color-ink);
+      font-weight: 500;
+    }
+    .price-row.highlight-row {
+      border-bottom: none;
+    }
+    .price-row.price-total {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    /* Skeleton Loading Shimmer styles */
+    .skeleton-card {
+      padding: var(--spacing-2xl);
+      background: var(--color-canvas);
+      border: 1px solid var(--color-surface-pressed);
+      border-radius: var(--rounded-xl);
+    }
+    .skeleton-line {
+      height: 16px;
+      margin-bottom: var(--spacing-md);
+      background: linear-gradient(90deg, var(--color-surface-pressed) 25%, var(--color-canvas-soft) 50%, var(--color-surface-pressed) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--rounded-md);
+    }
+    @keyframes shimmer {
+      from { background-position: -200% 0; }
+      to { background-position: 200% 0; }
+    }
+
+    @media (max-width: 900px) {
+      .driver-nav { order: 3; width: 100%; justify-content: center; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .page-header-container { flex-direction: column; align-items: flex-start; gap: var(--spacing-sm); }
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
+  <!-- SITE HEADER -->
   <header class="site-header">
     <div class="container site-header-inner">
       <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
@@ -34,63 +173,531 @@
         <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
       </nav>
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
-        <div class="avatar avatar-sm avatar-initials">LC</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Tài xế</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">TX</div>
+        <button id="logout-btn" class="btn-subtle" style="margin-left: 12px; border:none; cursor:pointer;">Đăng xuất</button>
       </div>
     </div>
   </header>
 
+  <!-- MAIN CONTENT -->
   <main class="site-main">
     <div class="dashboard-main">
-      <header class="page-header flex-between">
+      
+      <!-- Error Banner (Global Toast Alert) -->
+      <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-xl);"></div>
+
+      <!-- Page Header -->
+      <header class="page-header-container">
         <div>
-          <h1 class="page-title">Chi tiết đơn MH2026060001</h1>
-          <p class="page-subtitle">Kiểm tra thông tin trước khi nhận đơn.</p>
+          <span class="eyebrow">Tài xế • Chi tiết đơn hàng</span>
+          <h1 class="page-title" id="page-title" style="margin-bottom: 2px;">Chi tiết đơn —</h1>
+          <p class="page-subtitle" id="page-subtitle">Kiểm tra thông tin chi tiết của đơn trước khi nhận đơn.</p>
         </div>
-        <span class="badge-pending">Đang chờ</span>
+        <span class="badge-pending" id="order-status-badge">Đang chờ</span>
       </header>
 
-      <div class="detail-grid">
+      <!-- LOADING STATE (Skeleton) -->
+      <div id="loading-state" class="detail-grid" style="display: none;">
         <div class="flex-col gap-lg">
-          <section class="card-elevated">
-            <h2 class="section-title">Khách hàng</h2>
-            <div class="welcome-info">
-              <div class="info-row"><span>Họ tên</span><strong>Nguyễn Văn An</strong></div>
-              <div class="info-row"><span>Số điện thoại</span><strong>0901 222 333</strong></div>
-              <div class="info-row"><span>Đánh giá</span><strong>4,8/5</strong></div>
+          <div class="skeleton-card" style="height: 180px;">
+            <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 24px;"></div>
+            <div class="skeleton-line" style="width: 80%; height: 16px; margin-bottom: 12px;"></div>
+            <div class="skeleton-line" style="width: 60%; height: 16px; margin-bottom: 12px;"></div>
+          </div>
+          <div class="skeleton-card" style="height: 320px;">
+            <div class="skeleton-line" style="width: 40%; height: 24px; margin-bottom: 24px;"></div>
+            <div class="skeleton-line" style="width: 90%; height: 16px; margin-bottom: 12px;"></div>
+            <div class="skeleton-line" style="width: 90%; height: 16px; margin-bottom: 24px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 180px; border-radius: 12px;"></div>
+          </div>
+        </div>
+        <div class="skeleton-card" style="height: 380px;">
+          <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 24px;"></div>
+          <div class="skeleton-line" style="width: 80%; height: 16px; margin-bottom: 12px;"></div>
+          <div class="skeleton-line" style="width: 80%; height: 16px; margin-bottom: 12px;"></div>
+          <div class="skeleton-line" style="width: 80%; height: 16px; margin-bottom: 12px;"></div>
+          <div class="skeleton-line" style="width: 100%; height: 44px; border-radius: 999px; margin-top: 32px;"></div>
+          <div class="skeleton-line" style="width: 100%; height: 44px; border-radius: 999px; margin-top: 12px;"></div>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <section id="empty-state" style="display: none; text-align: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--color-mute)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-lg); color: var(--color-mute);">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <h2 class="empty-state-headline" style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm); color: var(--color-ink);">Không tìm thấy đơn hàng</h2>
+        <p class="empty-state-body" style="color: var(--color-body); margin-top: var(--spacing-sm); margin-bottom: var(--spacing-lg);">Đơn hàng này không tồn tại hoặc bạn không có quyền xem chi tiết.</p>
+        <a href="available-orders.html" class="btn-primary" style="margin: 0 auto; display: inline-flex;">Quay lại danh sách</a>
+      </section>
+
+      <!-- ERROR STATE -->
+      <section id="error-state" style="display: none; text-align: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-md);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <h2 style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm); color: var(--color-ink);">Đã xảy ra lỗi</h2>
+        <p id="error-state-message" style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Có lỗi xảy ra trong quá trình kết nối đến máy chủ.</p>
+        <button id="retry-btn" class="btn-primary" style="margin: 0 auto; border: none; cursor: pointer;">Thử lại</button>
+      </section>
+
+      <!-- CONTENT STATE -->
+      <div id="content-state" class="detail-grid" style="display: none;">
+        <div class="flex-col gap-lg">
+          <!-- Customer Card -->
+          <section class="card">
+            <h2 class="section-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              Khách hàng
+            </h2>
+            <div class="info-list">
+              <div class="info-row">
+                <span>Họ tên</span>
+                <strong id="cust-name">—</strong>
+              </div>
+              <div class="info-row">
+                <span>Số điện thoại</span>
+                <strong id="cust-phone">—</strong>
+              </div>
+              <div class="info-row">
+                <span>Đánh giá</span>
+                <strong id="cust-rating">4,8/5</strong>
+              </div>
             </div>
           </section>
 
-          <section class="card-elevated">
-            <h2 class="section-title">Điểm đón và điểm trả</h2>
-            <p><strong>Điểm đón:</strong> 12 Phan Đình Phùng, Quận Ba Đình, Hà Nội</p>
-            <p class="mt-sm"><strong>Điểm trả:</strong> 88 Trần Thái Tông, Quận Cầu Giấy, Hà Nội</p>
-            <div class="map-preview mt-lg">Bản đồ tuyến đường 8,4 km</div>
+          <!-- Address Route Card -->
+          <section class="card">
+            <h2 class="section-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              Điểm đón và điểm trả
+            </h2>
+            <div class="route-details">
+              <p><strong>Điểm đón:</strong> <span id="pickup-address">—</span></p>
+              <p style="margin-bottom: 0;"><strong>Điểm trả:</strong> <span id="dropoff-address">—</span></p>
+            </div>
+            <div id="map" class="map-container"></div>
           </section>
 
-          <section class="card-elevated">
-            <h2 class="section-title">Ghi chú của khách hàng</h2>
-            <p>Cần hỗ trợ bốc xếp tủ lạnh, có thang máy ở cả hai điểm. Vui lòng gọi trước khi đến 15 phút.</p>
+          <!-- Notes Card -->
+          <section class="card">
+            <h2 class="section-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              Ghi chú của khách hàng
+            </h2>
+            <p id="notes-text" style="color: var(--color-body); line-height: var(--line-height-body-md);">—</p>
           </section>
         </div>
 
+        <!-- Pricing Card / Aside -->
         <aside class="card-elevated">
-          <h2 class="section-title">Báo giá</h2>
-          <div class="price-row"><span>Giá cơ bản</span><strong>900.000 VND</strong></div>
-          <div class="price-row"><span>Phí bốc xếp</span><strong>300.000 VND</strong></div>
-          <div class="price-row"><span>Phụ phí giờ cao điểm</span><strong>150.000 VND</strong></div>
-          <div class="price-row"><span>Phí hoa hồng</span><strong>150.000 VND</strong></div>
-          <div class="price-row"><span>Tổng cộng</span><strong class="num-money">1.500.000 VND</strong></div>
+          <h2 class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            Báo giá
+          </h2>
+          
+          <div class="price-list">
+            <div class="price-row">
+              <span>Giá cơ bản</span>
+              <strong id="base-fare">—</strong>
+            </div>
+            <div class="price-row" id="row-porter" style="display: none;">
+              <span>Phí bốc xếp</span>
+              <strong id="porter-fee">—</strong>
+            </div>
+            <div class="price-row" id="row-peak" style="display: none;">
+              <span>Phụ phí giờ cao điểm</span>
+              <strong id="peak-surcharge">—</strong>
+            </div>
+            <div class="price-row" id="row-alley" style="display: none;">
+              <span>Phụ phí ngõ hẻm</span>
+              <strong id="alley-surcharge">—</strong>
+            </div>
+            <div class="price-row" id="row-floor" style="display: none;">
+              <span>Phụ phí tầng cao</span>
+              <strong id="floor-surcharge">—</strong>
+            </div>
+            <div class="price-row">
+              <span>Phí hoa hồng hệ thống (30%)</span>
+              <strong id="commission-fee" style="color: var(--color-danger);">—</strong>
+            </div>
+            
+            <div class="price-row highlight-row" style="background: var(--color-canvas-soft); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--rounded-md); margin-top: var(--spacing-sm);">
+              <span style="font-weight: 500; color: var(--color-primary);">Thu nhập thực lĩnh (70%)</span>
+              <strong id="driver-earning" style="color: var(--color-primary); font-size: var(--font-size-body-lg); font-weight: 700;">—</strong>
+            </div>
+            
+            <div class="price-row price-total" style="margin-top: var(--spacing-md); border-top: 2px solid var(--color-ink); padding-top: var(--spacing-md);">
+              <span style="font-weight: 700; font-size: var(--font-size-body-lg);">Tổng cộng (Khách trả)</span>
+              <strong id="total-quote" class="num-money" style="font-size: var(--font-size-display-sm); color: var(--color-ink); font-weight: 700;">—</strong>
+            </div>
+          </div>
 
-          <div class="flex-col gap-md mt-8">
-            <a href="in-progress.html" class="btn-primary btn-full">Nhận đơn</a>
-            <a href="available-orders.html" class="btn-secondary btn-full">Bỏ qua</a>
+          <div class="flex-col gap-md mt-lg" style="margin-top: var(--spacing-xl);">
+            <button id="btn-accept" class="btn-primary btn-full" style="justify-content: center;">Nhận đơn</button>
+            <button id="btn-back" class="btn-secondary btn-full" style="justify-content: center;">Bỏ qua</button>
           </div>
         </aside>
       </div>
+
     </div>
   </main>
 </div>
+
+<!-- ES MODULE CONTROLLER -->
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, postAuthenticated } from '../../js/api.js';
+
+  let currentOrder = null;
+  let map = null;
+
+  const STATUS_MAP = {
+    'PENDING': { text: 'Đang chờ', class: 'badge-pending' },
+    'ACCEPTED': { text: 'Đã nhận', class: 'badge-in-progress' },
+    'IN_PROGRESS': { text: 'Đang giao', class: 'badge-in-progress' },
+    'COMPLETED': { text: 'Hoàn thành', class: 'badge-completed' },
+    'CANCELLED': { text: 'Đã hủy', class: 'badge-cancelled' }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Check Auth & role DRIVER
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'DRIVER') {
+      logout('../login.html');
+      return;
+    }
+
+    // 2. Set dynamic header info
+    setupUserIdentityHeader(user);
+
+    // 3. Bind UI action listeners
+    setupEventListeners();
+
+    // 4. Load Order
+    loadOrderDetails();
+  });
+
+  function setupUserIdentityHeader(user) {
+    const nameEl = document.getElementById('header-user-name');
+    if (nameEl) nameEl.textContent = user.fullName || 'Tài xế';
+
+    const avatarEl = document.getElementById('header-user-avatar');
+    if (avatarEl && user.fullName) {
+      const words = user.fullName.trim().split(/\s+/).filter(Boolean);
+      avatarEl.textContent = words.map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+  }
+
+  function setupEventListeners() {
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => logout('../login.html'));
+    }
+
+    document.getElementById('retry-btn')?.addEventListener('click', () => loadOrderDetails());
+    document.getElementById('btn-back')?.addEventListener('click', () => {
+      window.location.href = 'available-orders.html';
+    });
+
+    document.getElementById('btn-accept')?.addEventListener('click', () => handleAcceptOrder());
+  }
+
+  async function loadOrderDetails() {
+    showSection('loading-state');
+    hideErrorBanner();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('id');
+
+    if (!orderId) {
+      showSection('empty-state');
+      return;
+    }
+
+    try {
+      const order = await getAuthenticated(`/api/driver/orders/${orderId}`);
+      if (!order) {
+        showSection('empty-state');
+        return;
+      }
+
+      currentOrder = order;
+      renderOrderDetails(order);
+      showSection('content-state');
+      initMap(order);
+    } catch (err) {
+      console.error('Error fetching order details:', err);
+      const errMsg = document.getElementById('error-state-message');
+      if (errMsg) {
+        errMsg.textContent = err.message || 'Không thể tải chi tiết đơn hàng. Vui lòng kiểm tra lại kết nối.';
+      }
+      showSection('error-state');
+    }
+  }
+
+  function showSection(sectionId) {
+    const sections = ['loading-state', 'empty-state', 'error-state', 'content-state'];
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.display = id === sectionId ? (id === 'content-state' || id === 'loading-state' ? 'grid' : 'block') : 'none';
+      }
+    });
+  }
+
+  function showErrorBanner(message) {
+    const banner = document.getElementById('error-banner');
+    if (banner) {
+      banner.textContent = message;
+      banner.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function hideErrorBanner() {
+    const banner = document.getElementById('error-banner');
+    if (banner) {
+      banner.style.display = 'none';
+      banner.textContent = '';
+    }
+  }
+
+  function renderOrderDetails(order) {
+    // Page Title
+    const titleEl = document.getElementById('page-title');
+    if (titleEl) titleEl.textContent = `Chi tiết đơn ${order.orderCode || ''}`;
+
+    // Subtitle
+    const subtitleEl = document.getElementById('page-subtitle');
+    if (subtitleEl) {
+      if (order.status === 'PENDING' && order.available) {
+        subtitleEl.textContent = 'Kiểm tra thông tin trước khi nhận đơn.';
+      } else {
+        subtitleEl.textContent = `Cập nhật tiến trình cho đơn ${order.orderCode || ''}.`;
+      }
+    }
+
+    // Status Badge
+    const badgeEl = document.getElementById('order-status-badge');
+    if (badgeEl) {
+      const info = STATUS_MAP[order.status] || { text: order.status || 'Chờ', class: 'badge-pending' };
+      badgeEl.textContent = info.text;
+      badgeEl.className = info.class;
+    }
+
+    // Simulated Customer details (for consistency across pages)
+    const custInfo = getCustomerSimulatedInfo(order.customerId, order.orderCode);
+    const nameEl = document.getElementById('cust-name');
+    if (nameEl) nameEl.textContent = custInfo.name;
+
+    const phoneEl = document.getElementById('cust-phone');
+    if (phoneEl) phoneEl.textContent = custInfo.phone;
+
+    // Addresses
+    const pickupAddress = document.getElementById('pickup-address');
+    if (pickupAddress) pickupAddress.textContent = order.pickupAddress || '—';
+
+    const dropoffAddress = document.getElementById('dropoff-address');
+    if (dropoffAddress) dropoffAddress.textContent = order.dropoffAddress || '—';
+
+    // Notes
+    const notesText = document.getElementById('notes-text');
+    if (notesText) notesText.textContent = order.notes || 'Không có ghi chú thêm.';
+
+    // Pricing details
+    const total = order.totalQuote ? Number(order.totalQuote) : 0;
+    const base = order.baseFare ? Number(order.baseFare) : 0;
+    const porter = order.porterFee ? Number(order.porterFee) : 0;
+    const peak = order.peakSurcharge ? Number(order.peakSurcharge) : 0;
+    const alley = order.alleySurcharge ? Number(order.alleySurcharge) : 0;
+    const floor = order.floorSurcharge ? Number(order.floorSurcharge) : 0;
+
+    document.getElementById('base-fare').textContent = formatVnd(base);
+    
+    togglePriceRow('row-porter', 'porter-fee', porter);
+    togglePriceRow('row-peak', 'peak-surcharge', peak);
+    togglePriceRow('row-alley', 'alley-surcharge', alley);
+    togglePriceRow('row-floor', 'floor-surcharge', floor);
+
+    // Calculate Platform Commission (30% of totalQuote)
+    const commission = total * 0.3;
+    document.getElementById('commission-fee').textContent = formatVnd(commission);
+
+    // Driver's actual earnings (70% of totalQuote)
+    const earning = total * 0.7;
+    document.getElementById('driver-earning').textContent = formatVnd(earning);
+
+    // Total Quote
+    document.getElementById('total-quote').textContent = formatVnd(total);
+
+    // Set accept / redirect / disabled buttons state
+    const acceptBtn = document.getElementById('btn-accept');
+    if (acceptBtn) {
+      if (order.status === 'PENDING' && order.available) {
+        acceptBtn.style.display = 'inline-flex';
+        acceptBtn.disabled = false;
+        acceptBtn.innerHTML = 'Nhận đơn';
+        
+        // standard click behavior
+        acceptBtn.onclick = () => handleAcceptOrder();
+      } else if (order.assignedToCurrentDriver) {
+        acceptBtn.style.display = 'inline-flex';
+        acceptBtn.disabled = false;
+        acceptBtn.innerHTML = 'Đi tới tiến trình';
+        
+        acceptBtn.onclick = () => {
+          window.location.href = 'in-progress.html';
+        };
+      } else {
+        acceptBtn.style.display = 'inline-flex';
+        acceptBtn.disabled = true;
+        acceptBtn.innerHTML = 'Đơn không khả dụng';
+      }
+    }
+  }
+
+  function togglePriceRow(rowId, valId, value) {
+    const row = document.getElementById(rowId);
+    const valSpan = document.getElementById(valId);
+    if (row && valSpan) {
+      if (value > 0) {
+        row.style.display = 'flex';
+        valSpan.textContent = formatVnd(value);
+      } else {
+        row.style.display = 'none';
+      }
+    }
+  }
+
+  function formatVnd(val) {
+    if (val === null || val === undefined) return '0 VND';
+    return Number(val).toLocaleString('vi-VN') + ' VND';
+  }
+
+  function getCustomerSimulatedInfo(customerId, orderCode) {
+    const names = [
+      "Nguyễn Văn An", "Đỗ Thị Mai", "Bùi Văn Long", "Nguyễn Thị Hoa",
+      "Phạm Văn Tuấn", "Lê Thị Thu", "Trần Văn Khánh", "Vũ Thị Huệ", "Đinh Văn Hải"
+    ];
+    const phones = [
+      "0901 222 333", "0912 001 001", "0912 001 002", "0912 001 003",
+      "0912 001 004", "0912 001 005", "0912 001 006", "0912 001 007", "0912 001 008"
+    ];
+    
+    let hash = 0;
+    const seed = customerId || orderCode || "default_seed";
+    for (let i = 0; i < seed.length; i++) {
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const idx = Math.abs(hash) % names.length;
+    return {
+      name: names[idx],
+      phone: phones[idx]
+    };
+  }
+
+  async function handleAcceptOrder() {
+    if (!currentOrder) return;
+    
+    const acceptBtn = document.getElementById('btn-accept');
+    if (acceptBtn) {
+      acceptBtn.classList.add('btn-loading');
+      acceptBtn.disabled = true;
+      acceptBtn.innerHTML = '<span class="btn-spinner"></span> Đang nhận đơn...';
+    }
+    hideErrorBanner();
+
+    try {
+      await postAuthenticated(`/api/driver/orders/${currentOrder.id}/accept`, null);
+      
+      // Successfully accepted. Redirect to active order view
+      window.location.href = 'in-progress.html';
+    } catch (err) {
+      console.error('Error accepting order:', err);
+      showErrorBanner(err.message || 'Nhận đơn thất bại. Có thể đơn hàng đã được nhận bởi tài xế khác.');
+    } finally {
+      if (acceptBtn) {
+        acceptBtn.classList.remove('btn-loading');
+        acceptBtn.disabled = false;
+        acceptBtn.innerHTML = 'Nhận đơn';
+      }
+    }
+  }
+
+  function initMap(order) {
+    const pickupLat = Number(order.pickupLat);
+    const pickupLng = Number(order.pickupLng);
+    const dropoffLat = Number(order.dropoffLat);
+    const dropoffLng = Number(order.dropoffLng);
+
+    const pickupAddress = order.pickupAddress || 'Điểm đón';
+    const dropoffAddress = order.dropoffAddress || 'Điểm trả';
+
+    if (window.L && !isNaN(pickupLat) && !isNaN(pickupLng) && !isNaN(dropoffLat) && !isNaN(dropoffLng)) {
+      const pickup = [pickupLat, pickupLng];
+      const dropoff = [dropoffLat, dropoffLng];
+
+      if (map) {
+        map.remove();
+        map = null;
+      }
+
+      // Create beautiful custom marker icons using Uber-styled divs
+      const pickupIcon = window.L.divIcon({
+        className: '',
+        html: `<div style="background: var(--color-primary); width: 16px; height: 16px; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 10;"></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+
+      const dropoffIcon = window.L.divIcon({
+        className: '',
+        html: `<div style="background: var(--color-accent); width: 16px; height: 16px; border: 3px solid white; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 10;"></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+
+      map = window.L.map('map', {
+        zoomControl: false
+      }).setView(pickup, 13);
+
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      window.L.control.zoom({ position: 'topright' }).addTo(map);
+
+      const pMarker = window.L.marker(pickup, { icon: pickupIcon }).addTo(map);
+      pMarker.bindPopup(`<b>Điểm đón:</b><br>${pickupAddress}`);
+
+      const dMarker = window.L.marker(dropoff, { icon: dropoffIcon }).addTo(map);
+      dMarker.bindPopup(`<b>Điểm trả:</b><br>${dropoffAddress}`);
+
+      window.L.polyline([pickup, dropoff], {
+        color: 'var(--color-primary)',
+        weight: 4,
+        dashArray: '8, 12',
+        opacity: 0.85
+      }).addTo(map);
+
+      const group = new window.L.featureGroup([pMarker, dMarker]);
+      map.fitBounds(group.getBounds(), { padding: [40, 40] });
+    } else {
+      document.getElementById('map').innerHTML = `
+        <div class="flex-center" style="height: 100%; flex-direction: column; color: var(--color-mute); padding: var(--spacing-2xl); text-align: center; justify-content: center; display: flex;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-sm);"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+          <p style="font-size: var(--font-size-body-sm); font-weight: var(--font-weight-medium); margin-top: 8px;">Bản đồ không khả dụng hoặc chưa cập nhật tọa độ tuyến đường.</p>
+        </div>
+      `;
+    }
+  }
+</script>
 </body>
 </html>

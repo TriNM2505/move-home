@@ -12,84 +12,148 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .back-home-btn {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background-color: var(--color-canvas, #FFFFFF);
+      color: var(--color-ink, #1A1A1A);
+      border: 1px solid var(--color-surface-pressed, #E5E7EB);
+      border-radius: var(--rounded-pill, 999px);
+      font-size: var(--font-size-caption, 12px);
+      font-weight: var(--font-weight-medium, 500);
+      text-decoration: none;
+      box-shadow: var(--shadow-level-1, 0px 2px 8px 0px rgba(0,0,0,0.08));
+      transition: all var(--transition-fast, 150ms ease);
+    }
+    .back-home-btn:hover {
+      color: var(--color-primary, #1B4D3E);
+      border-color: var(--color-primary-soft, #2A6B57);
+      box-shadow: var(--shadow-level-3, 0px 2px 8px 0px rgba(0,0,0,0.16));
+      transform: translateX(-2px);
+      text-decoration: none;
+    }
+    .back-home-btn svg {
+      transition: transform var(--transition-fast, 150ms ease);
+    }
+    .back-home-btn:hover svg {
+      transform: translateX(-2px);
+    }
+    
+    /* Tăng độ sinh động và tương phản cho form đăng nhập */
+    .auth-form-container {
+      background-color: #F0F5F2 !important; /* Xanh sage dịu mát cao cấp */
+    }
+    .auth-card {
+      border-top: 4px solid var(--color-primary) !important; /* Điểm nhấn xanh rừng ở đỉnh thẻ */
+      box-shadow: var(--shadow-level-2) !important;
+    }
+  </style>
 </head>
 <body>
 
-<main class="auth-page">
-  <div class="card-elevated auth-card">
+<a href="public/index.html" class="back-home-btn">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="fill: none;">
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+  Quay lại trang chủ
+</a>
 
-    <!-- Logo -->
-    <a href="../index.html" class="auth-logo">Move_home</a>
-    <p class="auth-tagline">Chuyển nhà dễ dàng, an toàn</p>
+<main class="auth-page auth-page--split">
+  <!-- Cột Banner Trái (Thương hiệu & Minh họa) -->
+  <div class="auth-banner">
+    <div class="auth-banner-content">
+      
+      <h1 class="auth-banner-title">Giải pháp chuyển nhà chuyên nghiệp và tin cậy</h1>
+      <p class="auth-banner-text">Đội ngũ vận chuyển tận tâm, quy trình nhanh gọn, bảo hiểm an tâm. MoveHome đồng hành cùng bạn tới tổ ấm mới.</p>
+      <img src="../assets/moving_illustration.png" alt="Minh họa chuyển nhà" class="auth-banner-illustration" />
+    </div>
+  </div>
 
-    <!-- Thông báo lỗi chính -->
-    <div id="errorMessage" class="error-alert" style="display:none" role="alert"></div>
+  <!-- Cột Form Phải (Đăng nhập) -->
+  <div class="auth-form-container">
+    <div class="card-elevated auth-card">
 
-    <!-- Form đăng nhập -->
-    <form id="loginForm" novalidate>
+      <!-- Logo -->
+      <a href="public/index.html" class="auth-logo">Move_home</a>
+      <p class="auth-tagline">Chuyển nhà dễ dàng, an toàn</p>
 
-      <!-- Email -->
-      <div class="form-group">
-        <label class="form-label" for="email">
-          Email <span class="form-required" aria-hidden="true">*</span>
-        </label>
-        <input
-          class="text-input"
-          type="email"
-          id="email"
-          name="email"
-          placeholder="Nhập email của bạn"
-          autocomplete="email"
-          required
-          autofocus
-        />
-        <span class="form-error" id="email-error" role="alert" style="display:none"></span>
-      </div>
+      <!-- Thông báo lỗi chính -->
+      <div id="errorMessage" class="error-alert" style="display:none" role="alert"></div>
 
-      <!-- Mật khẩu -->
-      <div class="form-group">
-        <div class="form-label-row">
-          <label class="form-label" for="password">
-            Mật khẩu <span class="form-required" aria-hidden="true">*</span>
+      <!-- Form đăng nhập -->
+      <form id="loginForm" novalidate>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="email">
+            Email <span class="form-required" aria-hidden="true">*</span>
           </label>
-          <a href="forgot-password.html" class="link-primary forgot-link">Quên mật khẩu?</a>
-        </div>
-        <div class="input-wrapper">
           <input
             class="text-input"
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Nhập mật khẩu"
-            autocomplete="current-password"
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Nhập email của bạn"
+            autocomplete="email"
             required
+            autofocus
           />
-          <button
-            type="button"
-            class="input-toggle-btn"
-            id="pwd-toggle"
-            aria-label="Hiện hoặc ẩn mật khẩu"
-          >👁</button>
+          <span class="form-error" id="email-error" role="alert" style="display:none"></span>
         </div>
-        <span class="form-error" id="password-error" role="alert" style="display:none"></span>
-      </div>
 
-      <!-- Nút đăng nhập -->
-      <div class="form-group">
-        <button type="submit" class="btn-primary btn-full" id="loginBtn">
-          Đăng nhập
-        </button>
-      </div>
+        <!-- Mật khẩu -->
+        <div class="form-group">
+          <div class="form-label-row">
+            <label class="form-label" for="password">
+              Mật khẩu <span class="form-required" aria-hidden="true">*</span>
+            </label>
+            <a href="forgot-password.html" class="link-primary forgot-link">Quên mật khẩu?</a>
+          </div>
+          <div class="input-wrapper">
+            <input
+              class="text-input"
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Nhập mật khẩu"
+              autocomplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              class="input-toggle-btn"
+              id="pwd-toggle"
+              aria-label="Hiện hoặc ẩn mật khẩu"
+            >👁</button>
+          </div>
+          <span class="form-error" id="password-error" role="alert" style="display:none"></span>
+        </div>
 
-    </form>
+        <!-- Nút đăng nhập -->
+        <div class="form-group">
+          <button type="submit" class="btn-primary btn-full" id="loginBtn">
+            Đăng nhập
+          </button>
+        </div>
 
-    <div class="auth-divider">hoặc</div>
+      </form>
 
-    <p class="auth-footer-text">
-      Chưa có tài khoản?
-      <a href="register.html" class="link-primary">Đăng ký ngay</a>
-    </p>
+      <div class="auth-divider">hoặc</div>
 
+      <p class="auth-footer-text">
+        Chưa có tài khoản?
+        <a href="register.html" class="link-primary">Đăng ký ngay</a>
+      </p>
+
+    </div>
   </div>
 </main>
 

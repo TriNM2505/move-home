@@ -9,31 +9,489 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
-    .booking-shell{display:grid;grid-template-columns:280px 1fr;gap:24px}.booking-steps{display:grid;gap:10px}.booking-step{padding:12px 14px;border-radius:999px;background:var(--color-canvas-soft);font-weight:500;color:var(--color-body)}.booking-step.active{background:var(--color-primary);color:var(--color-on-primary)}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.field-span{grid-column:1/-1}.choice-row{display:flex;gap:12px;flex-wrap:wrap}.choice-pill{padding:10px 16px;border-radius:999px;background:var(--color-canvas-soft);font-weight:500}
-    @media (max-width:800px){.booking-shell,.form-grid{grid-template-columns:1fr}.site-header-actions{display:none}}
+    .customer-nav {
+      display: flex;
+      gap: var(--spacing-lg);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .customer-nav a {
+      color: var(--color-ink);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      padding: var(--spacing-xs) 0;
+      transition: color var(--transition-fast);
+    }
+    .customer-nav a:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+    .customer-nav a.active {
+      color: var(--color-primary);
+      border-bottom: 3px solid var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .booking-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--spacing-2xl);
+    }
+    
+    /* Progress Timeline style */
+    .progress-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      padding: var(--spacing-md) 0;
+      position: relative;
+    }
+    .progress-timeline::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: var(--spacing-xl);
+      bottom: var(--spacing-xl);
+      width: 2px;
+      background: var(--color-surface-pressed);
+      z-index: 1;
+    }
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      position: relative;
+      z-index: 2;
+    }
+    .timeline-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--rounded-full);
+      background: var(--color-canvas);
+      border: 2px solid var(--color-surface-pressed);
+      color: var(--color-body);
+      display: grid;
+      place-items: center;
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-body-sm);
+      transition: all var(--transition-fast);
+    }
+    .timeline-item.active .timeline-badge {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-on-primary);
+      box-shadow: 0 0 0 4px rgba(27, 77, 62, 0.12);
+    }
+    .timeline-item.completed .timeline-badge {
+      background: var(--color-success-bg);
+      border-color: var(--color-success);
+      color: var(--color-success-text);
+    }
+    .timeline-text {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-body);
+      font-size: var(--font-size-body-md);
+      transition: color var(--transition-fast);
+    }
+    .timeline-item.active .timeline-text {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .timeline-item.completed .timeline-text {
+      color: var(--color-success-text);
+    }
+
+    /* Form Grid layout */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
+    }
+    .field-span {
+      grid-column: 1 / -1;
+    }
+    .choice-row {
+      display: flex;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+    .choice-pill {
+      padding: var(--spacing-md) var(--spacing-xl);
+      border-radius: var(--rounded-pill);
+      background: var(--color-canvas-soft);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-body);
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: all var(--transition-fast);
+      user-select: none;
+    }
+    .choice-pill:hover {
+      background: var(--color-surface-pressed);
+      color: var(--color-ink);
+    }
+    .choice-pill.active {
+      background: var(--color-success-bg);
+      color: var(--color-success-text);
+      border-color: rgba(6, 95, 70, 0.2);
+    }
+    
+    .eyebrow {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent-strong);
+      margin-bottom: var(--spacing-xxs);
+    }
+    
+    @media (max-width: 800px) {
+      .booking-shell, .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .site-header-actions {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
-  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html" class="active">Đặt đơn</a><a href="my-orders-pending.html">Đơn hàng</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
-  <main class="site-main"><div class="dashboard-main">
-    <header class="page-header"><h1 class="page-title">Nhập điểm đón</h1><p class="page-subtitle">Bước 2/6 — Cho tài xế biết nơi cần lấy đồ.</p></header>
-    <div class="booking-shell">
-      <aside class="card-content"><div class="booking-steps"><div class="booking-step">1. Chọn xe</div><div class="booking-step active">2. Điểm đón</div><div class="booking-step">3. Điểm trả</div><div class="booking-step">4. Chi tiết</div><div class="booking-step">5. Báo giá</div><div class="booking-step">6. Thanh toán</div></div></aside>
-      <section class="card-elevated">
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label" for="district">Quận điểm đón</label><select class="text-input" id="district"><option>Quận Ba Đình</option><option>Quận Hoàn Kiếm</option><option>Quận Hai Bà Trưng</option><option>Quận Đống Đa</option><option>Quận Tây Hồ</option><option>Quận Cầu Giấy</option><option>Quận Thanh Xuân</option><option>Quận Long Biên</option><option>Quận Hà Đông</option><option>Quận Hoàng Mai</option><option>Quận Bắc Từ Liêm</option><option>Quận Nam Từ Liêm</option></select></div>
-          <div class="form-group"><label class="form-label" for="floor">Số tầng</label><input class="text-input" id="floor" value="3"></div>
-          <div class="form-group field-span"><label class="form-label" for="address">Địa chỉ chi tiết</label><input class="text-input" id="address" value="Số 25 ngõ 68 phố Đội Cấn, phường Đội Cấn"></div>
-          <div class="form-group"><label class="form-label">Thang máy</label><div class="choice-row"><span class="choice-pill">Có thang máy</span><span class="choice-pill">Không có thang máy</span></div></div>
-          <div class="form-group"><label class="form-label">Lối vào</label><div class="choice-row"><span class="choice-pill">Có ngõ nhỏ</span><span class="choice-pill">Xe vào tận cửa</span></div></div>
-        </div>
-        <div class="mt-md"><a href="booking-step1-vehicle.html" class="btn-secondary">Quay lại</a> <a href="booking-step3-dropoff.html" class="btn-primary">Tiếp tục</a></div>
-      </section>
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="spinner-page" style="display: none;">
+    <div class="spinner spinner-md"></div>
+    <p>Đang tải thông tin...</p>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+      </a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html" class="active">Đặt đơn</a>
+        <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-wallet.html">Ví của tôi</a>
+        <a href="my-profile.html">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name" id="header-user-name">Xin chào, Nguyễn Văn An</span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">AN</div>
+        <button id="logout-btn" class="btn-subtle btn-sm">Đăng xuất</button>
+      </div>
     </div>
-  </div></main>
+  </header>
+
+  <!-- MAIN -->
+  <main class="site-main">
+    <div class="dashboard-main">
+      <!-- ERROR BANNER -->
+      <div class="alert alert-danger" id="error-banner" style="display:none; margin-bottom: 24px;" role="alert"></div>
+
+      <header class="page-header">
+        <div class="eyebrow">BƯỚC 2 / 6</div>
+        <h1 class="page-title">Nhập điểm đón</h1>
+        <p class="page-subtitle">Cung cấp địa chỉ chi tiết và các thông tin phụ trợ tại nơi lấy đồ đạc.</p>
+      </header>
+
+      <div class="booking-shell">
+        <!-- SIDEBAR progress -->
+        <aside>
+          <div class="card-content">
+            <div class="progress-timeline">
+              <div class="timeline-item completed">
+                <div class="timeline-badge">✓</div>
+                <div class="timeline-text">Chọn xe</div>
+              </div>
+              <div class="timeline-item active">
+                <div class="timeline-badge">2</div>
+                <div class="timeline-text">Điểm đón</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">3</div>
+                <div class="timeline-text">Điểm trả</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">4</div>
+                <div class="timeline-text">Chi tiết</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">5</div>
+                <div class="timeline-text">Báo giá</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">6</div>
+                <div class="timeline-text">Thanh toán</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editorial Trust Card -->
+          <div class="card-soft-tinted mt-8 text-center" style="background-color: #E6EDE9; border: 1px solid rgba(27, 77, 62, 0.15);">
+            <!-- SVG Illustration -->
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; display: block;">
+              <circle cx="60" cy="68" r="45" fill="#1B4D3E" fill-opacity="0.08"/>
+              <rect x="35" y="45" width="50" height="40" rx="3" fill="#D29B52" stroke="#1B4D3E" stroke-width="3"/>
+              <line x1="60" y1="45" x2="60" y2="85" stroke="#1B4D3E" stroke-width="2" stroke-dasharray="3 3"/>
+              <path d="M35 45L20 35L45 35L35 45Z" fill="#C58A3E" stroke="#1B4D3E" stroke-width="2"/>
+              <path d="M85 45L100 35L75 35L85 45Z" fill="#C58A3E" stroke="#1B4D3E" stroke-width="2"/>
+              <rect x="56" y="42" width="8" height="15" rx="1" fill="#F5A623" stroke="#1B4D3E" stroke-width="2"/>
+              <path d="M60 42C55 30 65 20 60 10C70 18 65 30 60 42Z" fill="#1B4D3E"/>
+              <path d="M60 38C65 32 75 28 80 25C73 32 65 36 60 38Z" fill="#1B4D3E"/>
+              <path d="M60 35C52 29 42 27 35 25C43 31 52 34 60 35Z" fill="#1B4D3E"/>
+            </svg>
+            <h4 style="color: var(--color-primary); font-size: var(--font-size-body-md); font-weight: var(--font-weight-bold); margin-top: var(--spacing-sm); margin-bottom: 0;">Khảo sát ngõ rộng</h4>
+            <p style="font-size: var(--font-size-caption); color: var(--color-body); margin-top: var(--spacing-xs); line-height: 1.4; margin-bottom: 0;">
+              Lựa chọn đúng tình trạng ngõ giúp tài xế chuẩn bị phương án bốc xếp và đỗ xe hợp lý nhất.
+            </p>
+          </div>
+        </aside>
+
+        <!-- INPUT FORM CONTAINER -->
+        <section class="card-elevated">
+          <div class="form-grid">
+            <!-- District -->
+            <div class="form-group">
+              <label class="form-label" for="district">Quận điểm đón</label>
+              <select class="text-input" id="district">
+                <option>Quận Ba Đình</option>
+                <option>Quận Hoàn Kiếm</option>
+                <option>Quận Hai Bà Trưng</option>
+                <option>Quận Đống Đa</option>
+                <option>Quận Tây Hồ</option>
+                <option>Quận Cầu Giấy</option>
+                <option>Quận Thanh Xuân</option>
+                <option>Quận Long Biên</option>
+                <option>Quận Hà Đông</option>
+                <option>Quận Hoàng Mai</option>
+                <option>Quận Bắc Từ Liêm</option>
+                <option>Quận Nam Từ Liêm</option>
+              </select>
+            </div>
+
+            <!-- Floor -->
+            <div class="form-group">
+              <label class="form-label" for="floor">Số tầng</label>
+              <input type="number" class="text-input" id="floor" min="0" value="3">
+            </div>
+
+            <!-- Address detail -->
+            <div class="form-group field-span">
+              <label class="form-label" for="address">Địa chỉ chi tiết</label>
+              <input type="text" class="text-input" id="address" value="Số 25 ngõ 68 phố Đội Cấn, phường Đội Cấn" placeholder="Số nhà, tên ngõ, tên đường...">
+            </div>
+
+            <!-- Elevator availability -->
+            <div class="form-group">
+              <label class="form-label">Thang máy</label>
+              <div class="choice-row" id="elevator-choices">
+                <span class="choice-pill" data-value="true">Có thang máy</span>
+                <span class="choice-pill active" data-value="false">Không có thang máy</span>
+              </div>
+            </div>
+
+            <!-- Alley access -->
+            <div class="form-group">
+              <label class="form-label">Lối vào</label>
+              <div class="choice-row" id="alley-choices">
+                <span class="choice-pill active" data-value="true">Có ngõ nhỏ</span>
+                <span class="choice-pill" data-value="false">Xe vào tận cửa</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="mt-md" style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-2xl);">
+            <a href="booking-step1-vehicle.html" class="btn-secondary" id="back-btn">Quay lại</a>
+            <button class="btn-primary" id="continue-btn" style="min-width: 140px;">Tiếp tục</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  // central coordinate mapping for Hanoi districts to feed route API
+  const districtCoords = {
+    "Quận Ba Đình": { lat: 21.0362, lng: 105.8277 },
+    "Quận Hoàn Kiếm": { lat: 21.0285, lng: 105.8542 },
+    "Quận Hai Bà Trưng": { lat: 21.0125, lng: 105.8501 },
+    "Quận Đống Đa": { lat: 21.0185, lng: 105.8293 },
+    "Quận Tây Hồ": { lat: 21.0592, lng: 105.8252 },
+    "Quận Cầu Giấy": { lat: 21.0357, lng: 105.7958 },
+    "Quận Thanh Xuân": { lat: 20.9984, lng: 105.8115 },
+    "Quận Long Biên": { lat: 21.0381, lng: 105.8895 },
+    "Quận Hà Đông": { lat: 20.9702, lng: 105.7744 },
+    "Quận Hoàng Mai": { lat: 20.9806, lng: 105.8431 },
+    "Quận Bắc Từ Liêm": { lat: 21.0664, lng: 105.7628 },
+    "Quận Nam Từ Liêm": { lat: 21.0135, lng: 105.7667 }
+  };
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Guard check
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') {
+      logout('../login.html');
+      return;
+    }
+
+    // 1.1 Check local storage keys
+    const vehicleType = localStorage.getItem('booking_vehicleType');
+    if (!vehicleType) {
+      window.location.href = 'booking-step1-vehicle.html';
+      return;
+    }
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const errorBanner = document.getElementById('error-banner');
+
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    if (errorBanner) errorBanner.style.display = 'none';
+
+    try {
+      // 2. Fetch real user profile to verify session & get details
+      const profile = await getAuthenticated('/api/customer/profile');
+      
+      // Update header details dynamically
+      const nameEl = document.getElementById('header-user-name');
+      const avatarEl = document.getElementById('header-user-avatar');
+      if (nameEl) nameEl.textContent = `Xin chào, ${profile.fullName}`;
+      if (avatarEl) {
+        avatarEl.textContent = profile.fullName
+          .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+      }
+    } catch (err) {
+      console.error('Lỗi khi tải thông tin khách hàng:', err);
+      if (errorBanner) {
+        errorBanner.textContent = '⚠️ Phiên đăng nhập hết hạn hoặc lỗi kết nối. Đang chuyển hướng đăng nhập...';
+        errorBanner.style.display = 'flex';
+      }
+      setTimeout(() => {
+        logout('../login.html');
+      }, 2500);
+      return;
+    } finally {
+      if (loadingOverlay) loadingOverlay.style.display = 'none';
+    }
+
+    // Bind logout button click
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        logout('../login.html');
+      });
+    }
+
+    // 3. Interactive choice pill toggling
+    function setupChoices(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const pills = container.querySelectorAll('.choice-pill');
+      pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          pills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+        });
+      });
+    }
+    setupChoices('elevator-choices');
+    setupChoices('alley-choices');
+
+    // 4. Restore state from localStorage if it exists
+    const districtSelect = document.getElementById('district');
+    const floorInput = document.getElementById('floor');
+    const addressInput = document.getElementById('address');
+    const elevatorContainer = document.getElementById('elevator-choices');
+    const alleyContainer = document.getElementById('alley-choices');
+
+    const savedDistrict = localStorage.getItem('booking_pickupDistrict');
+    const savedFloor = localStorage.getItem('booking_pickupFloor');
+    const savedAddress = localStorage.getItem('booking_pickupAddress');
+    const savedHasElevator = localStorage.getItem('booking_pickupHasElevator');
+    const savedHasAlley = localStorage.getItem('booking_pickupHasAlley');
+
+    if (savedDistrict && districtSelect) districtSelect.value = savedDistrict;
+    if (savedFloor && floorInput) floorInput.value = savedFloor;
+    if (savedAddress && addressInput) addressInput.value = savedAddress;
+    
+    if (savedHasElevator !== null && elevatorContainer) {
+      elevatorContainer.querySelectorAll('.choice-pill').forEach(p => {
+        if (p.dataset.value === savedHasElevator) p.classList.add('active');
+        else p.classList.remove('active');
+      });
+    }
+
+    if (savedHasAlley !== null && alleyContainer) {
+      alleyContainer.querySelectorAll('.choice-pill').forEach(p => {
+        if (p.dataset.value === savedHasAlley) p.classList.add('active');
+        else p.classList.remove('active');
+      });
+    }
+
+    // 5. Submit validation & navigation logic
+    const continueBtn = document.getElementById('continue-btn');
+    if (continueBtn) {
+      continueBtn.addEventListener('click', () => {
+        if (errorBanner) errorBanner.style.display = 'none';
+
+        const district = districtSelect.value;
+        const floorText = floorInput.value.trim();
+        const address = addressInput.value.trim();
+
+        const activeElevatorPill = elevatorContainer ? elevatorContainer.querySelector('.choice-pill.active') : null;
+        const hasElevator = activeElevatorPill ? activeElevatorPill.dataset.value === 'true' : false;
+
+        const activeAlleyPill = alleyContainer ? alleyContainer.querySelector('.choice-pill.active') : null;
+        const hasAlley = activeAlleyPill ? activeAlleyPill.dataset.value === 'true' : false;
+
+        // Validation
+        if (!address) {
+          if (errorBanner) {
+            errorBanner.textContent = '⚠️ Vui lòng nhập địa chỉ chi tiết để tài xế có thể tìm thấy bạn.';
+            errorBanner.style.display = 'flex';
+          }
+          addressInput.focus();
+          return;
+        }
+
+        const floor = parseInt(floorText, 10);
+        if (isNaN(floor) || floor < 0) {
+          if (errorBanner) {
+            errorBanner.textContent = '⚠️ Số tầng không hợp lệ. Vui lòng nhập số lớn hơn hoặc bằng 0.';
+            errorBanner.style.display = 'flex';
+          }
+          floorInput.focus();
+          return;
+        }
+
+        // Get coordinates
+        const coords = districtCoords[district] || { lat: 21.0285, lng: 105.8542 }; // Fallback to Hoan Kiem center
+
+        // Save to localStorage
+        localStorage.setItem('booking_pickupDistrict', district);
+        localStorage.setItem('booking_pickupFloor', floor);
+        localStorage.setItem('booking_pickupAddress', address);
+        localStorage.setItem('booking_pickupHasElevator', hasElevator);
+        localStorage.setItem('booking_pickupHasAlley', hasAlley);
+        localStorage.setItem('booking_pickupLat', coords.lat);
+        localStorage.setItem('booking_pickupLng', coords.lng);
+
+        // Navigate to Step 3
+        window.location.href = 'booking-step3-dropoff.html';
+      });
+    }
+  });
+</script>
 </body>
 </html>

@@ -283,8 +283,10 @@ export function renderEmpty(containerId, message = 'Không có dữ liệu để
   if (!el) return;
   el.innerHTML = `
     <div class="empty-state">
-      <div class="empty-state-icon">📋</div>
-      <p class="empty-state-title">${message}</p>
+      <div class="empty-state-icon" style="display: inline-flex; align-items: center; justify-content: center; color: var(--color-mute);">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      </div>
+      <p class="empty-state-title" style="margin-top: 12px;">${message}</p>
     </div>`;
 }
 
@@ -298,7 +300,8 @@ export function renderError(containerId, message = 'Không thể tải dữ li�
   if (!el) return;
   el.innerHTML = `
     <div class="alert alert-danger" style="display:flex; align-items:center; gap:12px;">
-      ⚠️ ${message}
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>${message}</span>
       <button onclick="location.reload()" class="btn btn-sm btn-danger" style="margin-left:auto; flex-shrink:0;">
         Tải lại
       </button>
@@ -327,8 +330,9 @@ export function renderLoading(containerId, message = 'Đang tải...') {
 export function showError(msg) {
   const el = document.getElementById('error-banner');
   if (!el) return;
-  el.textContent = '⚠️ ' + msg;
+  el.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-right:8px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg><span>${esc(msg)}</span>`;
   el.style.display = 'flex';
+  el.style.alignItems = 'center';
 }
 
 export function hideError() {

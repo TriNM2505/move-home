@@ -3,26 +3,270 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Xác thực email thành công — Move_home</title>
+  <title>Xác thực email — Move_home</title>
+  
+  <!-- Preconnect Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Be Vietnam Pro — Vietnamese-native font với đầy đủ dấu -->
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  
   <link rel="stylesheet" href="../css/styles.css">
-  <style>.success-mark{width:88px;height:88px;border-radius:999px;background:var(--color-success);color:#fff;display:flex;align-items:center;justify-content:center;font-size:44px;margin:0 auto 20px}</style>
+  <style>
+    /* Custom CSS for handling page loading/success/error/empty states */
+    .state-container {
+      display: none;
+      animation: fadeIn var(--transition-base);
+    }
+    .state-container.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .status-icon-wrapper {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      margin: 0 auto var(--spacing-2xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .status-icon-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--rounded-full);
+      opacity: 0.1;
+    }
+    
+    .status-icon-fg {
+      width: 48px;
+      height: 48px;
+      z-index: 1;
+    }
+    
+    /* Loading Spinner */
+    .spinner-ring {
+      border: 4px solid var(--color-canvas-soft);
+      border-top: 4px solid var(--color-primary);
+      border-radius: var(--rounded-full);
+      width: 64px;
+      height: 64px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* State-specific Color Schemes */
+    .success-theme .status-icon-bg { background-color: var(--color-success); }
+    .success-theme .status-icon-fg { color: var(--color-success); }
+    
+    .error-theme .status-icon-bg { background-color: var(--color-danger); }
+    .error-theme .status-icon-fg { color: var(--color-danger); }
+    
+    .empty-theme .status-icon-bg { background-color: var(--color-accent); }
+    .empty-theme .status-icon-fg { color: var(--color-accent-strong); }
+    
+    .text-center { text-align: center; }
+    
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-3xl);
+    }
+    
+    .card-footer-info {
+      font-size: var(--font-size-caption);
+      color: var(--color-mute);
+      margin-top: var(--spacing-2xl);
+    }
+    
+    /* Adjust page titles inside the auth card */
+    .auth-card .page-title {
+      font-size: var(--font-size-display-sm);
+      font-weight: var(--font-weight-bold);
+      margin-top: 0;
+      margin-bottom: var(--spacing-md);
+      color: var(--color-ink);
+    }
+    
+    .auth-card .text-body {
+      color: var(--color-body);
+      font-size: var(--font-size-body-md);
+      line-height: var(--line-height-body-md);
+      margin: 0;
+    }
+  </style>
 </head>
 <body>
 <main class="auth-page">
   <div class="card-elevated auth-card text-center">
+    
+    <!-- Logo -->
     <a href="../index.html" class="auth-logo">Move_home</a>
-    <div class="success-mark">✓</div>
-    <h1 class="page-title">Xác thực email thành công</h1>
-    <p class="text-muted mt-md mb-xl">Tài khoản của bạn đã được kích hoạt. Bạn có thể đăng nhập và bắt đầu đặt dịch vụ chuyển nhà.</p>
-    <div class="flex flex-wrap flex-center gap-sm">
-      <a href="login.html" class="btn-primary">Đăng nhập ngay</a>
-      <a href="customer/home.html" class="btn-secondary">Đến trang chủ</a>
+    <p class="auth-tagline" id="tagline-text">Chuyển nhà dễ dàng, an toàn</p>
+
+    <!-- LOADING STATE -->
+    <div id="loading-state" class="state-container active">
+      <div class="status-icon-wrapper">
+        <div class="spinner-ring"></div>
+      </div>
+      <h1 class="page-title">Đang xác thực tài khoản</h1>
+      <p class="text-body">
+        Hệ thống đang kiểm tra thông tin kích hoạt của bạn. Vui lòng giữ kết nối...
+      </p>
     </div>
-    <p class="text-muted mt-xl">Tự động chuyển sau 5 giây trong bản triển khai thật.</p>
+
+    <!-- SUCCESS STATE -->
+    <div id="success-state" class="state-container success-theme">
+      <div class="status-icon-wrapper">
+        <div class="status-icon-bg"></div>
+        <svg class="status-icon-fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h1 class="page-title">Xác thực email thành công</h1>
+      <p class="text-body">
+        Tài khoản của bạn đã được kích hoạt thành công. Bây giờ bạn có thể đăng nhập và trải nghiệm dịch vụ.
+      </p>
+      
+      <div class="btn-group">
+        <a href="login.html" class="btn-primary btn-full">Đăng nhập ngay</a>
+        <a href="customer/home.html" class="btn-secondary btn-full">Đến trang chủ</a>
+      </div>
+      
+      <p class="card-footer-info">
+        Hệ thống sẽ tự động chuyển hướng đến trang đăng nhập sau <span id="countdown-sec" style="font-weight: bold; color: var(--color-primary);">5</span> giây.
+      </p>
+    </div>
+
+    <!-- ERROR STATE -->
+    <div id="error-state" class="state-container error-theme">
+      <div class="status-icon-wrapper">
+        <div class="status-icon-bg"></div>
+        <svg class="status-icon-fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <h1 class="page-title" style="color: var(--color-danger);">Xác thực thất bại</h1>
+      <p class="text-body" id="error-message-text">
+        Mã kích hoạt không hợp lệ hoặc đã hết hạn. Vui lòng thử lại hoặc yêu cầu gửi lại email mới.
+      </p>
+      
+      <div class="btn-group">
+        <button id="retry-btn" class="btn-primary btn-full">Thử lại</button>
+        <a href="login.html" class="btn-secondary btn-full">Quay lại đăng nhập</a>
+      </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="empty-state" class="state-container empty-theme">
+      <div class="status-icon-wrapper">
+        <div class="status-icon-bg"></div>
+        <svg class="status-icon-fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+          <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+      </div>
+      <h1 class="page-title">Yêu cầu xác thực tài khoản</h1>
+      <p class="text-body">
+        Vui lòng kiểm tra hộp thư đến của bạn và nhấn vào liên kết được cung cấp trong email để kích hoạt tài khoản.
+      </p>
+      
+      <div class="btn-group">
+        <a href="../index.html" class="btn-primary btn-full">Về trang chủ</a>
+        <a href="login.html" class="btn-secondary btn-full">Đăng nhập</a>
+      </div>
+    </div>
+
   </div>
 </main>
+
+<script type="module">
+  import { post } from '../js/api.js';
+
+  // State elements
+  const loadingState = document.getElementById('loading-state');
+  const successState = document.getElementById('success-state');
+  const errorState = document.getElementById('error-state');
+  const emptyState = document.getElementById('empty-state');
+  
+  // Content elements
+  const taglineText = document.getElementById('tagline-text');
+  const errorMessageText = document.getElementById('error-message-text');
+  const countdownSec = document.getElementById('countdown-sec');
+  const retryBtn = document.getElementById('retry-btn');
+
+  // Parse token from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  function showState(stateEl) {
+    [loadingState, successState, errorState, emptyState].forEach(el => {
+      el.classList.remove('active');
+    });
+    stateEl.classList.add('active');
+  }
+
+  async function performVerification() {
+    if (!token) {
+      taglineText.textContent = 'Thiếu thông tin xác thực';
+      showState(emptyState);
+      return;
+    }
+
+    taglineText.textContent = 'Đang xác thực...';
+    showState(loadingState);
+
+    try {
+      // Call public verify endpoint
+      await post('/api/auth/verify-email', { token });
+      
+      // Success state
+      taglineText.textContent = 'Kích hoạt thành công';
+      showState(successState);
+      
+      // 5-second redirect countdown
+      let timeLeft = 5;
+      countdownSec.textContent = timeLeft;
+      const countdownInterval = setInterval(() => {
+        timeLeft--;
+        countdownSec.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          window.location.href = 'login.html';
+        }
+      }, 1000);
+
+    } catch (err) {
+      // Error state
+      taglineText.textContent = 'Lỗi xác thực';
+      errorMessageText.textContent = err.message || 'Mã xác thực không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.';
+      showState(errorState);
+    }
+  }
+
+  retryBtn.addEventListener('click', performVerification);
+
+  // Initialize
+  performVerification();
+</script>
 </body>
 </html>

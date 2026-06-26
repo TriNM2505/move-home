@@ -11,14 +11,143 @@
 
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
-    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2xl); }
-    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
-    @media (max-width: 800px) { .profile-grid { grid-template-columns: 1fr; } }
+    :root {
+      --color-primary: #1B4D3E;
+      --color-primary-soft: #2A6B57;
+      --color-accent: #F5A623;
+      --color-accent-soft: #FBC470;
+      --color-canvas-soft: #F4F5F4;
+    }
+
+    .driver-nav { 
+      display: flex; 
+      align-items: center; 
+      gap: var(--spacing-lg); 
+      flex-wrap: wrap; 
+    }
+    
+    .profile-grid { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: var(--spacing-2xl); 
+      margin-bottom: var(--spacing-3xl);
+    }
+
+    .info-group-title {
+      font-size: var(--font-size-body-sm);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .info-group-title svg {
+      color: var(--color-accent);
+    }
+
+    /* Form edit styles */
+    .edit-mode {
+      display: none;
+    }
+    .is-editing .edit-mode {
+      display: block;
+    }
+    .is-editing .view-mode {
+      display: none;
+    }
+
+    /* Page state loading overlay */
+    .page-loading-overlay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-5xl);
+      background: var(--color-canvas);
+      border-radius: var(--rounded-xl);
+      border: 1px solid var(--color-surface-pressed);
+      min-height: 350px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(27, 77, 62, 0.2);
+      border-top-color: var(--color-primary);
+      border-radius: var(--rounded-full);
+      animation: spin 0.8s linear infinite;
+      margin-bottom: var(--spacing-md);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toast Notification styles */
+    .toast-notification {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--color-canvas);
+      box-shadow: var(--shadow-level-2);
+      border-left: 4px solid var(--color-success);
+      border-radius: var(--rounded-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+      z-index: var(--z-toast);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Helper styles */
+    .banner-status-info {
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--rounded-lg);
+      margin-bottom: var(--spacing-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-body-sm);
+      line-height: var(--line-height-body-sm);
+    }
+
+    .banner-status-info.info-pending {
+      background: var(--color-warning-bg);
+      color: var(--color-warning-text);
+      border: 1px solid #FDE68A;
+    }
+
+    .banner-status-info.info-approved {
+      background: var(--color-success-bg);
+      color: var(--color-success-text);
+      border: 1px solid #A7F3D0;
+    }
+
+    @media (max-width: 900px) { 
+      .driver-nav { order: 3; width: 100%; justify-content: center; } 
+    }
+    @media (max-width: 800px) { 
+      .profile-grid { grid-template-columns: 1fr; } 
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
+  
+  <!-- SITE HEADER -->
   <header class="site-header">
     <div class="container site-header-inner">
       <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
@@ -32,72 +161,693 @@
         <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
       </nav>
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
-        <div class="avatar avatar-sm avatar-initials">LC</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Tài xế</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">TX</div>
+        <button id="logout-btn" class="btn-subtle" style="margin-left: 12px; border:none; cursor:pointer;">Đăng xuất</button>
       </div>
     </div>
   </header>
 
+  <!-- MAIN CONTAINER -->
   <main class="site-main">
-    <div class="dashboard-main">
-      <header class="page-header flex-between">
+    <div class="dashboard-main" style="max-width: 1100px; margin: 0 auto; padding: var(--spacing-xl) var(--spacing-lg);">
+      
+      <!-- Top banner for global error display -->
+      <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-xl);"></div>
+
+      <!-- Page Header -->
+      <header class="page-header flex-between" style="margin-bottom: var(--spacing-2xl);">
         <div>
-          <h1 class="page-title">Thông tin Tài xế</h1>
-          <p class="page-subtitle">Hồ sơ cá nhân, giấy phép và phương tiện.</p>
+          <div class="info-group-title" style="margin-bottom: 2px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Tài khoản tài xế
+          </div>
+          <h1 class="page-title" style="font-size: var(--font-size-display-md);">Thông tin Hồ sơ</h1>
+          <p class="page-subtitle">Hồ sơ cá nhân, thông tin giấy phép lái xe và phương tiện.</p>
         </div>
-        <a href="earnings.html" class="btn-primary">Xem thu nhập</a>
+        <div class="flex gap-md" id="page-actions-container">
+          <a href="earnings.html" class="btn-secondary">Xem thu nhập</a>
+          <button id="btn-edit-toggle" class="btn-primary" style="display: none;">Chỉnh sửa hồ sơ</button>
+          <button id="btn-submit-onboarding" class="btn-primary-amber" style="display: none;">Nộp hồ sơ xét duyệt</button>
+        </div>
       </header>
 
-      <section class="grid-4 mb-8">
-        <div class="kpi kpi-primary"><div class="kpi-body"><span class="kpi-label">Tổng đơn</span><span class="kpi-value">23</span></div></div>
-        <div class="kpi kpi-success"><div class="kpi-body"><span class="kpi-label">Doanh thu</span><span class="kpi-value">28,4tr</span></div></div>
-        <div class="kpi kpi-warning"><div class="kpi-body"><span class="kpi-label">Đánh giá</span><span class="kpi-value">4,7</span></div></div>
-        <div class="kpi kpi-info"><div class="kpi-body"><span class="kpi-label">Trạng thái</span><span class="badge-active">Đang hoạt động</span></div></div>
+      <!-- Status Notice Banner -->
+      <div id="status-notice-banner" style="display: none;"></div>
+
+      <!-- LOADING STATE -->
+      <section id="profile-loading" class="page-loading-overlay">
+        <span class="spinner"></span>
+        <span style="color: var(--color-body); font-weight: var(--font-weight-medium);">Đang tải dữ liệu hồ sơ tài xế...</span>
       </section>
 
-      <div class="profile-grid">
-        <section class="card-elevated">
-          <h2 class="section-title">Cá nhân</h2>
-          <div class="welcome-info">
-            <div class="info-row"><span>Họ tên</span><strong>Lê Văn Cường</strong></div>
-            <div class="info-row"><span>Email</span><strong>cuong.taixe@example.com</strong></div>
-            <div class="info-row"><span>Số điện thoại</span><strong>0912 345 678</strong></div>
-            <div class="info-row"><span>Ngày sinh</span><strong>16/08/1992</strong></div>
+      <!-- ERROR STATE -->
+      <section id="profile-error" style="display: none; text-align: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-md);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <h2 style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm); color: var(--color-ink);">Không thể tải thông tin hồ sơ</h2>
+        <p id="profile-error-message" style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Có lỗi xảy ra trong quá trình kết nối đến máy chủ.</p>
+        <button id="profile-retry-btn" class="btn-primary" style="margin: 0 auto;">Thử lại</button>
+      </section>
+
+      <!-- EMPTY STATE (Profile Not Found) -->
+      <section id="profile-empty" style="display: none; text-align: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-mute)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-md);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+        <h2 style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm); color: var(--color-ink);">Hồ sơ tài xế trống</h2>
+        <p style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Không tìm thấy thông tin đăng ký hồ sơ tài xế của bạn trên hệ thống.</p>
+        <p style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Vui lòng liên hệ bộ phận hỗ trợ khách hàng Move_home.</p>
+      </section>
+
+      <!-- PROFILE MAIN CONTENT -->
+      <div id="profile-content" style="display: none;">
+        
+        <!-- KPI SECTION -->
+        <section class="grid-4 mb-8">
+          <div class="kpi kpi-primary">
+            <div class="kpi-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Tổng đơn hoàn thành</span>
+              <span class="kpi-value" id="kpi-orders-count">0</span>
+            </div>
           </div>
-          <a href="profile.html" class="btn-secondary">Chỉnh sửa</a>
+          <div class="kpi kpi-success">
+            <div class="kpi-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Doanh thu thu nhập</span>
+              <span class="kpi-value" id="kpi-revenue-count">0 VND</span>
+            </div>
+          </div>
+          <div class="kpi kpi-warning">
+            <div class="kpi-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Điểm đánh giá sao</span>
+              <span class="kpi-value" id="kpi-rating-count">0.0</span>
+            </div>
+          </div>
+          <div class="kpi kpi-info">
+            <div class="kpi-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-info)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Trạng thái xét duyệt</span>
+              <div id="kpi-status-container" style="margin-top: 2px;">
+                <span class="badge-neutral">Chưa rõ</span>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section class="card-elevated">
-          <h2 class="section-title">Giấy phép</h2>
-          <div class="welcome-info">
-            <div class="info-row"><span>Số bằng lái</span><strong>790123456789</strong></div>
-            <div class="info-row"><span>Hạng bằng</span><strong>B2</strong></div>
-            <div class="info-row"><span>Ngày duyệt</span><strong>04/06/2026</strong></div>
-          </div>
-          <p class="text-muted">Thay đổi giấy phép cần quản lý xét duyệt lại.</p>
-        </section>
+        <!-- FORM AND VIEW WRAPPER -->
+        <div id="profile-container">
+          <form id="driver-profile-form">
+            <div class="profile-grid">
+              
+              <!-- Personal Details Card -->
+              <section class="card-elevated">
+                <div class="info-group-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  Cá nhân
+                </div>
+                <div class="welcome-info" style="margin-bottom: 0;">
+                  <div class="info-row">
+                    <span>Họ tên</span>
+                    <strong id="val-fullName">—</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>Email liên hệ</span>
+                    <strong id="val-email">—</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>Số điện thoại</span>
+                    <strong id="val-phone">—</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>Ngày sinh</span>
+                    <strong id="val-birthDate">—</strong>
+                  </div>
+                </div>
+              </section>
 
-        <section class="card-elevated">
-          <h2 class="section-title">Xe</h2>
-          <div class="welcome-info">
-            <div class="info-row"><span>Biển số</span><strong>30E-56789</strong></div>
-            <div class="info-row"><span>Loại xe</span><strong>Xe tải 1 tấn</strong></div>
-            <div class="info-row"><span>Năm sản xuất</span><strong>2021</strong></div>
-          </div>
-        </section>
+              <!-- Driving License Card -->
+              <section class="card-elevated">
+                <div class="info-group-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="4"></line><line x1="8" y1="2" x2="8" y2="4"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  Giấy phép lái xe
+                </div>
+                
+                <!-- VIEW DRIVING LICENSE -->
+                <div class="view-mode">
+                  <div class="welcome-info">
+                    <div class="info-row">
+                      <span>Số bằng lái</span>
+                      <strong id="val-licenseNumber">—</strong>
+                    </div>
+                    <div class="info-row">
+                      <span>Hạng bằng</span>
+                      <strong id="val-licenseClass">—</strong>
+                    </div>
+                    <div class="info-row">
+                      <span>Ngày hết hạn</span>
+                      <strong id="val-licenseExpiryDate">—</strong>
+                    </div>
+                    <div class="info-row">
+                      <span>Ngày phê duyệt</span>
+                      <strong id="val-licenseApprovedAt">—</strong>
+                    </div>
+                  </div>
+                  <p class="text-muted" style="font-size: var(--font-size-caption);">Thay đổi giấy phép cần quản lý xét duyệt lại.</p>
+                </div>
 
-        <section class="card-elevated">
-          <h2 class="section-title">Tài khoản</h2>
-          <div class="welcome-info">
-            <div class="info-row"><span>Vai trò</span><strong>Tài xế</strong></div>
-            <div class="info-row"><span>Ngày tham gia</span><strong>04/06/2026</strong></div>
-            <div class="info-row"><span>Cọc</span><strong>3.000.000 VND</strong></div>
-          </div>
-        </section>
+                <!-- EDIT DRIVING LICENSE -->
+                <div class="edit-mode">
+                  <div class="form-group">
+                    <label class="form-label" for="edit-licenseNumber">Số bằng lái <span class="form-required">*</span></label>
+                    <input type="text" id="edit-licenseNumber" class="text-input" placeholder="Nhập số bằng lái xe" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="edit-licenseClass">Hạng bằng <span class="form-required">*</span></label>
+                    <select id="edit-licenseClass" class="text-input" required>
+                      <option value="B1">Hạng B1</option>
+                      <option value="B2">Hạng B2</option>
+                      <option value="C">Hạng C</option>
+                      <option value="D">Hạng D</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="edit-licenseExpiryDate">Ngày hết hạn <span class="form-required">*</span></label>
+                    <input type="date" id="edit-licenseExpiryDate" class="text-input" required>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Vehicle Card -->
+              <section class="card-elevated">
+                <div class="info-group-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                  Thông tin xe
+                </div>
+
+                <!-- VIEW VEHICLE -->
+                <div class="view-mode">
+                  <div class="welcome-info" style="margin-bottom: 0;">
+                    <div class="info-row">
+                      <span>Biển số xe</span>
+                      <strong id="val-vehiclePlate">—</strong>
+                    </div>
+                    <div class="info-row">
+                      <span>Loại xe tải</span>
+                      <strong id="val-vehicleType">—</strong>
+                    </div>
+                    <div class="info-row">
+                      <span>Tải trọng xe</span>
+                      <strong id="val-vehicleCapacityKg">—</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- EDIT VEHICLE -->
+                <div class="edit-mode">
+                  <div class="form-group">
+                    <label class="form-label" for="edit-vehiclePlate">Biển số xe <span class="form-required">*</span></label>
+                    <input type="text" id="edit-vehiclePlate" class="text-input" placeholder="Ví dụ: 30E-56789" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="edit-vehicleType">Loại xe tải <span class="form-required">*</span></label>
+                    <select id="edit-vehicleType" class="text-input" required>
+                      <option value="TRUCK_500KG">Xe tải 500kg</option>
+                      <option value="TRUCK_1T">Xe tải 1 tấn</option>
+                      <option value="TRUCK_15T">Xe tải 1.5 tấn</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="edit-vehicleCapacityKg">Tải trọng xe (kg) <span class="form-required">*</span></label>
+                    <input type="number" id="edit-vehicleCapacityKg" class="text-input" readonly>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Account Details Card -->
+              <section class="card-elevated">
+                <div class="info-group-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  Tài khoản hệ thống
+                </div>
+                <div class="welcome-info" style="margin-bottom: 0;">
+                  <div class="info-row">
+                    <span>Vai trò hệ thống</span>
+                    <strong id="val-role">Tài xế</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>Ngày tham gia</span>
+                    <strong id="val-joinDate">—</strong>
+                  </div>
+                  <div class="info-row">
+                    <span>Tiền đặt cọc</span>
+                    <strong id="val-depositAmount">3.000.000 VND</strong>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <!-- Edit Form Action Buttons -->
+            <div class="edit-mode" style="text-align: right; margin-top: var(--spacing-xl);">
+              <button type="button" id="btn-edit-cancel" class="btn-secondary" style="margin-right: 12px;">Hủy bỏ</button>
+              <button type="submit" id="btn-edit-save" class="btn-primary">Lưu thay đổi</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </main>
 </div>
+
+<!-- Success Toast Notification -->
+<div id="success-toast" class="toast-notification">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  <span id="toast-message" style="font-weight: var(--font-weight-medium); color: var(--color-ink);">Cập nhật thành công!</span>
+</div>
+
+<!-- SCRIPT LOGIC (ES Module) -->
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, putAuthenticated, postAuthenticated } from '../../js/api.js';
+
+  // Global variables to store profiles and wallet states
+  let profileData = null;
+  let walletData = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Guard Authentication and Role Redirect
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'DRIVER') {
+      logout('../login.html');
+      return;
+    }
+
+    // 2. Set static details from LocalStorage user
+    setupUserIdentityHeader(user);
+
+    // 3. Register Event Listeners
+    setupEventListeners();
+
+    // 4. Fetch details from APIs
+    loadProfileDetails();
+  });
+
+  // Display user information in top bar
+  function setupUserIdentityHeader(user) {
+    const nameEl = document.getElementById('header-user-name');
+    if (nameEl) nameEl.textContent = user.fullName || 'Tài xế';
+
+    const avatarEl = document.getElementById('header-user-avatar');
+    if (avatarEl && user.fullName) {
+      const words = user.fullName.trim().split(/\s+/).filter(Boolean);
+      avatarEl.textContent = words.map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+  }
+
+  function setupEventListeners() {
+    // Logout btn
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+      logout('../login.html');
+    });
+
+    // Retry fetching profile
+    document.getElementById('profile-retry-btn')?.addEventListener('click', () => {
+      loadProfileDetails();
+    });
+
+    // Toggle Editing Mode (ON)
+    document.getElementById('btn-edit-toggle')?.addEventListener('click', () => {
+      enterEditMode();
+    });
+
+    // Toggle Editing Mode (CANCEL)
+    document.getElementById('btn-edit-cancel')?.addEventListener('click', () => {
+      exitEditMode();
+    });
+
+    // Vehicle Type auto-fill Capacity
+    document.getElementById('edit-vehicleType')?.addEventListener('change', (e) => {
+      updateCapacityInput(e.target.value);
+    });
+
+    // Save profile via Form Submit
+    document.getElementById('driver-profile-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      saveProfile();
+    });
+
+    // Onboarding Submission
+    document.getElementById('btn-submit-onboarding')?.addEventListener('click', () => {
+      submitOnboarding();
+    });
+  }
+
+  // Load from multiple endpoints
+  async function loadProfileDetails() {
+    const loadingEl = document.getElementById('profile-loading');
+    const errorEl = document.getElementById('profile-error');
+    const emptyEl = document.getElementById('profile-empty');
+    const contentEl = document.getElementById('profile-content');
+    const bannerEl = document.getElementById('error-banner');
+
+    loadingEl.style.display = 'flex';
+    errorEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+    contentEl.style.display = 'none';
+    if (bannerEl) bannerEl.style.display = 'none';
+
+    try {
+      // API call: GET profile & GET wallet in parallel
+      const [profile, wallet] = await Promise.all([
+        getAuthenticated('/api/driver/profile'),
+        getAuthenticated('/api/driver/wallet').catch(err => {
+          console.warn('Cannot fetch wallet data, falling back. Error:', err);
+          return { balance: 0, totalEarned: 0, totalWithdrawn: 0 };
+        })
+      ]);
+
+      if (!profile) {
+        loadingEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+        return;
+      }
+
+      profileData = profile;
+      walletData = wallet;
+
+      // Bind data to elements
+      renderKPIs(profile, wallet);
+      renderDetailsCard(profile);
+
+      // Hide loading & show content
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'block';
+
+    } catch (err) {
+      console.error('Error fetching driver profile data:', err);
+      loadingEl.style.display = 'none';
+      errorEl.style.display = 'block';
+      document.getElementById('profile-error-message').textContent = 
+        err.message || 'Không thể tải thông tin hồ sơ tài xế. Vui lòng kiểm tra kết nối mạng.';
+    }
+  }
+
+  // Render KPI header widgets
+  function renderKPIs(profile, wallet) {
+    // 1. Total Orders
+    document.getElementById('kpi-orders-count').textContent = profile.totalOrdersCompleted ?? 0;
+
+    // 2. Total Revenue
+    const earnedVal = wallet.totalEarned ?? profile.totalRevenue ?? 0;
+    document.getElementById('kpi-revenue-count').textContent = formatVnd(earnedVal);
+
+    // 3. Average Rating
+    const ratingVal = profile.averageRating ?? 0;
+    document.getElementById('kpi-rating-count').textContent = Number(ratingVal).toFixed(1);
+
+    // 4. Onboarding Status Badge
+    const statusContainer = document.getElementById('kpi-status-container');
+    const statusNotice = document.getElementById('status-notice-banner');
+    const editToggleBtn = document.getElementById('btn-edit-toggle');
+    const submitBtn = document.getElementById('btn-submit-onboarding');
+
+    statusContainer.innerHTML = '';
+    statusNotice.innerHTML = '';
+    statusNotice.style.display = 'none';
+    editToggleBtn.style.display = 'none';
+    submitBtn.style.display = 'none';
+
+    const status = profile.onboardingStatus || 'CHUA_NOP';
+
+    if (status === 'DA_DUYET') {
+      statusContainer.innerHTML = `<span class="badge-active">Hoạt động</span>`;
+      statusNotice.innerHTML = `
+        <div class="banner-status-info info-approved">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <strong>Hồ sơ tài xế đã được duyệt thành công!</strong> Tài khoản của bạn đang ở trạng thái hoạt động. Nếu cần điều chỉnh thông tin kỹ thuật, vui lòng gửi yêu cầu hỗ trợ đến quản lý Move_home.
+        </div>
+      `;
+      statusNotice.style.display = 'block';
+    } 
+    else if (status === 'CHO_DUYET') {
+      statusContainer.innerHTML = `<span class="badge-pending">Chờ duyệt</span>`;
+      statusNotice.innerHTML = `
+        <div class="banner-status-info info-pending">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <strong>Hồ sơ đang chờ Quản lý xét duyệt!</strong> Bạn không thể thay đổi thông tin hồ sơ lái xe trong thời gian này. Vui lòng kiểm tra lại sau.
+        </div>
+      `;
+      statusNotice.style.display = 'block';
+    } 
+    else {
+      // CHUA_NOP - profile can be modified and submitted
+      statusContainer.innerHTML = `<span class="badge-neutral" style="background:#E5E7EB; color:#4B5563;">Chưa nộp</span>`;
+      editToggleBtn.style.display = 'inline-flex';
+      submitBtn.style.display = 'inline-flex';
+    }
+  }
+
+  // Render text values inside cards
+  function renderDetailsCard(profile) {
+    const user = getCurrentUser();
+
+    // Personal details (Local & Fallback)
+    document.getElementById('val-fullName').textContent = user.fullName || '—';
+    document.getElementById('val-email').textContent = user.email || '—';
+    document.getElementById('val-phone').textContent = derivePhone(user.email);
+    document.getElementById('val-birthDate').textContent = '16/08/1992'; // Mock placeholder
+
+    // Driving license details
+    document.getElementById('val-licenseNumber').textContent = profile.licenseNumber || '—';
+    document.getElementById('val-licenseClass').textContent = profile.licenseClass || '—';
+    document.getElementById('val-licenseExpiryDate').textContent = formatDate(profile.licenseExpiryDate);
+    document.getElementById('val-licenseApprovedAt').textContent = formatDate(profile.approvedAt);
+
+    // Vehicle details
+    document.getElementById('val-vehiclePlate').textContent = profile.vehiclePlate || '—';
+    document.getElementById('val-vehicleType').textContent = translateVehicleType(profile.vehicleType);
+    document.getElementById('val-vehicleCapacityKg').textContent = profile.vehicleCapacityKg ? `${Number(profile.vehicleCapacityKg).toLocaleString('vi-VN')} kg` : '—';
+
+    // Account metadata
+    document.getElementById('val-joinDate').textContent = formatDate(profile.createdAt);
+  }
+
+  // Toggle Edit mode ON
+  function enterEditMode() {
+    if (!profileData) return;
+    
+    // Check if allowed to edit
+    if (profileData.onboardingStatus !== 'CHUA_NOP') {
+      showErrorBanner('Hồ sơ đã được nộp hoặc phê duyệt, không thể chỉnh sửa.');
+      return;
+    }
+
+    const container = document.getElementById('profile-container');
+    container.classList.add('is-editing');
+
+    // Pre-populate input values
+    document.getElementById('edit-licenseNumber').value = profileData.licenseNumber || '';
+    document.getElementById('edit-licenseClass').value = profileData.licenseClass || 'B2';
+    document.getElementById('edit-licenseExpiryDate').value = profileData.licenseExpiryDate || '';
+    document.getElementById('edit-vehiclePlate').value = profileData.vehiclePlate || '';
+    
+    const vType = profileData.vehicleType || 'TRUCK_1T';
+    document.getElementById('edit-vehicleType').value = vType;
+    updateCapacityInput(vType);
+
+    // Hide edit toggle and submit buttons during edits
+    document.getElementById('btn-edit-toggle').style.display = 'none';
+    document.getElementById('btn-submit-onboarding').style.display = 'none';
+
+    // Hide error banner if any
+    document.getElementById('error-banner').style.display = 'none';
+  }
+
+  // Toggle Edit mode OFF
+  function exitEditMode() {
+    const container = document.getElementById('profile-container');
+    container.classList.remove('is-editing');
+
+    // Restore buttons
+    if (profileData && profileData.onboardingStatus === 'CHUA_NOP') {
+      document.getElementById('btn-edit-toggle').style.display = 'inline-flex';
+      document.getElementById('btn-submit-onboarding').style.display = 'inline-flex';
+    }
+  }
+
+  // Auto set weight capacity input based on type selection
+  function updateCapacityInput(type) {
+    const capacityInput = document.getElementById('edit-vehicleCapacityKg');
+    const map = {
+      'TRUCK_500KG': 500,
+      'TRUCK_1T': 1000,
+      'TRUCK_15T': 1500
+    };
+    capacityInput.value = map[type] || 1000;
+  }
+
+  // Save via API call
+  async function saveProfile() {
+    const licenseNumber = document.getElementById('edit-licenseNumber').value.trim();
+    const licenseClass = document.getElementById('edit-licenseClass').value;
+    const licenseExpiryDate = document.getElementById('edit-licenseExpiryDate').value;
+    const vehiclePlate = document.getElementById('edit-vehiclePlate').value.trim();
+    const vehicleType = document.getElementById('edit-vehicleType').value;
+    const vehicleCapacityKg = parseInt(document.getElementById('edit-vehicleCapacityKg').value);
+
+    // Simple validation client side
+    if (!licenseNumber || !licenseExpiryDate || !vehiclePlate) {
+      showErrorBanner('Vui lòng điền đầy đủ các trường thông tin bắt buộc (*).');
+      return;
+    }
+
+    // Toggle button spinner
+    const saveBtn = document.getElementById('btn-edit-save');
+    const originalText = saveBtn.textContent;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `<span class="btn-spinner"></span> Đang lưu...`;
+
+    try {
+      // Call PUT /api/driver/profile
+      const updatedProfile = await putAuthenticated('/api/driver/profile', {
+        licenseNumber,
+        licenseClass,
+        licenseExpiryDate,
+        vehiclePlate,
+        vehicleType,
+        vehicleCapacityKg
+      });
+
+      profileData = updatedProfile;
+      
+      // Re-render view cards
+      renderKPIs(profileData, walletData);
+      renderDetailsCard(profileData);
+
+      // Success effects
+      exitEditMode();
+      showToast('Cập nhật hồ sơ tài xế thành công!');
+    } catch (err) {
+      console.error('Failed to update driver profile:', err);
+      showErrorBanner(err.message || 'Lỗi lưu thông tin hồ sơ tài xế. Biển số xe hoặc số bằng lái có thể đã trùng.');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalText;
+    }
+  }
+
+  // Submit onboarding details via API call
+  async function submitOnboarding() {
+    if (!confirm('Bạn có chắc chắn muốn nộp hồ sơ xét duyệt? Sau khi nộp, bạn sẽ không thể tự chỉnh sửa thông tin.')) {
+      return;
+    }
+
+    const submitBtn = document.getElementById('btn-submit-onboarding');
+    const editBtn = document.getElementById('btn-edit-toggle');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang nộp...';
+
+    try {
+      // Call POST /api/driver/profile/submit
+      const updatedProfile = await postAuthenticated('/api/driver/profile/submit');
+      profileData = updatedProfile;
+
+      // Re-render
+      renderKPIs(profileData, walletData);
+      renderDetailsCard(profileData);
+      
+      showToast('Nộp hồ sơ xét duyệt thành công!');
+    } catch (err) {
+      console.error('Failed to submit onboarding profile:', err);
+      showErrorBanner(err.message || 'Hồ sơ chưa đủ thông tin bắt buộc hoặc tài liệu để nộp xét duyệt.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Nộp hồ sơ xét duyệt';
+    }
+  }
+
+  // Show error banner at top of page
+  function showErrorBanner(message) {
+    const banner = document.getElementById('error-banner');
+    banner.textContent = message;
+    banner.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Show success toast banner at bottom of page
+  function showToast(message) {
+    const toast = document.getElementById('success-toast');
+    const toastMsg = document.getElementById('toast-message');
+    toastMsg.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 4000);
+  }
+
+  // HELPERS FOR FORMATTING
+
+  // Translate vehicle type key to Vietnamese display text
+  function translateVehicleType(type) {
+    const map = {
+      'TRUCK_500KG': 'Xe tải 500kg',
+      'TRUCK_1T': 'Xe tải 1 tấn',
+      'TRUCK_15T': 'Xe tải 1.5 tấn',
+      'Xe tải 500kg': 'Xe tải 500kg',
+      'Xe tải 1 tấn': 'Xe tải 1 tấn',
+      'Xe tải 1.5 tấn': 'Xe tải 1.5 tấn'
+    };
+    return map[type] || type || '—';
+  }
+
+  // Formats currency string: e.g. 1000000 -> 1.000.000 VND
+  function formatVnd(val) {
+    if (!val) return '0 VND';
+    return Number(val).toLocaleString('vi-VN') + ' VND';
+  }
+
+  // Format date: e.g. 2026-06-02 -> 02/06/2026
+  function formatDate(isoStr) {
+    if (!isoStr) return '—';
+    try {
+      const date = new Date(isoStr);
+      if (isNaN(date)) return isoStr;
+      return date.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        timeZone: 'Asia/Ho_Chi_Minh'
+      });
+    } catch {
+      return isoStr;
+    }
+  }
+
+  // Fallback map matching phone numbers from db migration seeds
+  function derivePhone(email) {
+    if (!email) return '—';
+    const emailToPhone = {
+      'driver1@movehome.vn': '+84 901 001 001',
+      'driver2@movehome.vn': '+84 901 001 002',
+      'driver3@movehome.vn': '+84 901 001 003',
+      'driver4@movehome.vn': '+84 901 001 004',
+      'driver5@movehome.vn': '+84 901 001 005',
+      'driver_pending@movehome.vn': '+84 901 001 006'
+    };
+    return emailToPhone[email] || '+84 901 001 001';
+  }
+</script>
 </body>
 </html>

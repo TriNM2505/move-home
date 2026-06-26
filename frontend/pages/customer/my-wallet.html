@@ -9,57 +9,621 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .customer-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.wallet-hero{background:var(--color-primary);color:#fff;border-radius:16px;padding:32px;display:flex;justify-content:space-between;gap:20px;align-items:center}.wallet-hero h1,.wallet-hero p{color:#fff}.balance{font-size:42px;font-weight:700;line-height:1.1}.amount-plus{color:var(--color-success);font-weight:700}.amount-minus{color:var(--color-danger);font-weight:700}.wallet-actions{display:flex;gap:10px;flex-wrap:wrap}@media(max-width:800px){.wallet-hero{flex-direction:column;align-items:flex-start}.site-header-actions{flex-direction:column;align-items:flex-end}}
+    .customer-nav {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .customer-nav a {
+      color: var(--color-ink);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+    .customer-nav a:hover {
+      color: var(--color-primary-soft);
+    }
+    .customer-nav a.active {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .eyebrow-tag {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    /* Preset buttons for modal */
+    .preset-btn {
+      background-color: var(--color-canvas-soft);
+      color: var(--color-ink);
+      border: 1px solid transparent;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--rounded-pill);
+      font-size: var(--font-size-body-sm);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .preset-btn:hover {
+      background-color: var(--color-surface-pressed);
+    }
+    .preset-btn.active {
+      background-color: var(--color-primary);
+      color: var(--color-on-primary);
+      border-color: var(--color-primary);
+    }
+
+    /* Modal layout styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: var(--z-modal);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      display: flex;
+    }
+    .modal-content {
+      width: 100%;
+      max-width: 440px;
+      background: var(--color-canvas);
+      border-radius: var(--rounded-xl);
+      padding: var(--spacing-2xl);
+      box-shadow: var(--shadow-level-3);
+      transform: scale(0.9);
+      transition: transform var(--transition-base);
+    }
+    .modal-overlay.open .modal-content {
+      transform: scale(1);
+    }
+
+    /* Shimmer skeleton rows */
+    .skeleton-row td {
+      padding: var(--spacing-md) var(--spacing-lg);
+    }
+    .skeleton-block {
+      height: 16px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading-shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+    @keyframes loading-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Text amount values styling */
+    .amount-plus {
+      color: var(--color-success);
+      font-weight: var(--font-weight-bold);
+    }
+    .amount-minus {
+      color: var(--color-danger);
+      font-weight: var(--font-weight-bold);
+    }
+
+    @media (max-width: 800px) {
+      .site-header-actions {
+        display: none;
+      }
+      .wallet-hero-card {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: var(--spacing-lg) !important;
+      }
+      .wallet-actions {
+        width: 100%;
+      }
+      .wallet-actions button, .wallet-actions a {
+        width: 100%;
+        text-align: center;
+      }
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
+  
+  <!-- HEADER -->
   <header class="site-header">
     <div class="container site-header-inner">
-      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
-      <div class="site-header-actions customer-nav">
-        <a href="home.html" class="btn-subtle">Trang chủ</a>
-        <a href="order-rate.html" class="btn-subtle">Đánh giá</a>
-        <a href="my-wallet.html" class="btn-primary">Ví của tôi</a>
-        <a href="../login.html" class="btn-secondary">Đăng xuất</a>
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+      </a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html">Đặt đơn</a>
+        <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-wallet.html" class="active">Ví của tôi</a>
+        <a href="my-profile.html">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Khách hàng</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">KH</div>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
     </div>
   </header>
+
+  <!-- MAIN -->
   <main class="site-main">
     <div class="dashboard-main">
-      <section class="wallet-hero mb-8">
-        <div>
-          <p>Số dư hiện tại</p>
-          <div class="balance">3.250.000 đ</div>
-          <p class="mt-sm">Cập nhật lúc 09:15, 05/06/2026</p>
+      
+      <!-- Top banner for global error display -->
+      <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-xl);"></div>
+
+      <!-- Hero Wallet Balance Card -->
+      <section class="wallet-hero-card card-content mb-8" style="background: var(--color-primary); color: var(--color-on-primary); border-radius: var(--rounded-xl); padding: var(--spacing-2xl); position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; gap: 20px; box-shadow: var(--shadow-level-2);">
+        <!-- Background shapes -->
+        <div style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; border-radius: var(--rounded-full); background: rgba(255, 255, 255, 0.03); pointer-events: none;"></div>
+        <div style="position: absolute; right: 50px; bottom: -80px; width: 180px; height: 180px; border-radius: var(--rounded-full); background: rgba(245, 166, 35, 0.05); pointer-events: none;"></div>
+        
+        <div style="position: relative; z-index: 1;">
+          <div class="eyebrow-tag" style="color: rgba(255,255,255,0.8);">TÀI KHOẢN VÍ</div>
+          <div class="balance" id="wallet-balance-val" style="font-size: var(--font-size-display-xl); font-weight: var(--font-weight-bold); line-height: 1.1; color: var(--color-on-primary);">0 đ</div>
+          <p class="mt-sm" id="wallet-updated-at" style="font-size: var(--font-size-caption); color: rgba(255,255,255,0.7); margin-top: var(--spacing-sm); margin-bottom: 0;">Đang cập nhật...</p>
         </div>
-        <div class="wallet-actions">
-          <a href="my-wallet.html" class="btn-primary-amber">Nạp tiền</a>
-          <a href="home.html" class="btn-secondary">Đặt đơn mới</a>
+        <div class="wallet-actions" style="position: relative; z-index: 1; display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+          <button id="open-topup-btn" class="btn-primary-amber">Nạp tiền</button>
+          <a href="home.html" class="btn-secondary" style="color: var(--color-on-primary); border-color: rgba(255, 255, 255, 0.6); background: transparent;">Đặt đơn mới</a>
         </div>
       </section>
-      <section class="grid-3 mb-8">
-        <div class="kpi kpi-success"><div class="kpi-body"><div class="kpi-value">8,5tr</div><div class="kpi-label">Đã nạp tháng này</div></div></div>
-        <div class="kpi kpi-primary"><div class="kpi-body"><div class="kpi-value">5,1tr</div><div class="kpi-label">Đã thanh toán</div></div></div>
-        <div class="kpi kpi-warning"><div class="kpi-body"><div class="kpi-value">200k</div><div class="kpi-label">Đã hoàn tiền</div></div></div>
+
+      <!-- KPI stats row -->
+      <section class="grid-3 mb-8" id="kpi-section">
+        <div class="kpi kpi-success">
+          <div class="kpi-icon" style="color: var(--color-success); display: flex; align-items: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="kpi-topped-up">0 đ</div>
+            <div class="kpi-label">Tổng tiền đã nạp</div>
+            <div class="kpi-sub">Qua cổng thanh toán VNPay</div>
+          </div>
+        </div>
+        <div class="kpi kpi-primary">
+          <div class="kpi-icon" style="color: var(--color-primary); display: flex; align-items: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="kpi-spent">0 đ</div>
+            <div class="kpi-label">Tổng tiền đã thanh toán</div>
+            <div class="kpi-sub">Giao dịch thanh toán đơn chuyển nhà</div>
+          </div>
+        </div>
+        <div class="kpi kpi-warning">
+          <div class="kpi-icon" style="color: var(--color-accent); display: flex; align-items: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="kpi-balance">0 đ</div>
+            <div class="kpi-label">Số dư khả dụng</div>
+            <div class="kpi-sub">Có thể dùng để chi trả đơn hàng</div>
+          </div>
+        </div>
       </section>
-      <section class="card">
-        <div class="card-header"><h2 class="card-title">Lịch sử giao dịch ví</h2><span class="card-meta">Dữ liệu mô phỏng</span></div>
-        <div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none;overflow-x:auto;">
-          <table class="table" style="min-width:860px;">
-            <thead><tr><th>Mã giao dịch</th><th>Loại</th><th>Mã đơn</th><th>Ngày</th><th>Trạng thái</th><th class="text-right">Số tiền</th></tr></thead>
-            <tbody>
-              <tr><td>VD202606001</td><td>Nạp ví</td><td>Không có</td><td>05/06/2026</td><td><span class="badge-completed">Hoàn thành</span></td><td class="text-right amount-plus">+3.000.000 đ</td></tr>
-              <tr><td>VD202606002</td><td>Thanh toán đơn</td><td>MH2026060001</td><td>06/06/2026</td><td><span class="badge-in-progress">Đang giao</span></td><td class="text-right amount-minus">-1.500.000 đ</td></tr>
-              <tr><td>VD202605021</td><td>Hoàn tiền</td><td>MH2026050021</td><td>22/05/2026</td><td><span class="badge-completed">Hoàn thành</span></td><td class="text-right amount-plus">+200.000 đ</td></tr>
-              <tr><td>VD202605020</td><td>Thanh toán đơn</td><td>MH2026050021</td><td>20/05/2026</td><td><span class="badge-completed">Hoàn thành</span></td><td class="text-right amount-minus">-2.300.000 đ</td></tr>
+
+      <!-- Transaction history section -->
+      <section class="card mb-8" style="border: none; border-radius: var(--rounded-xl); box-shadow: var(--shadow-level-1); overflow: hidden;">
+        <div class="card-header" style="background: var(--color-canvas); padding: var(--spacing-lg) var(--spacing-2xl); border-bottom: 1px solid var(--color-surface-pressed); display: flex; align-items: center; justify-content: space-between;">
+          <h2 class="card-title" style="font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); display: flex; align-items: center; gap: 8px; color: var(--color-ink);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Lịch sử giao dịch ví
+          </h2>
+          <span class="card-meta" style="color: var(--color-mute); font-size: var(--font-size-caption);">Dữ liệu thời gian thực</span>
+        </div>
+        
+        <div id="filterContainer" style="background: var(--color-canvas); padding: var(--spacing-md) var(--spacing-2xl) 0; border-bottom: 1px solid transparent; display: none;">
+          <!-- Filter placeholder if needed for JS bindings -->
+        </div>
+
+        <div class="table-wrapper" style="border: none; box-shadow: none; overflow-x: auto;">
+          <table class="table" style="min-width: 860px; width: 100%; border-collapse: collapse; margin-bottom: 0;">
+            <thead>
+              <tr style="background: var(--color-canvas-soft); text-align: left;">
+                <th style="padding: var(--spacing-md) var(--spacing-lg); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-semibold); color: var(--color-ink);">Mã giao dịch</th>
+                <th style="padding: var(--spacing-md) var(--spacing-lg); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-semibold); color: var(--color-ink);">Ngày</th>
+                <th style="padding: var(--spacing-md) var(--spacing-lg); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-semibold); color: var(--color-ink);">Loại</th>
+                <th style="padding: var(--spacing-md) var(--spacing-lg); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-semibold); color: var(--color-ink);">Mô tả</th>
+                <th style="padding: var(--spacing-md) var(--spacing-lg); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-semibold); color: var(--color-ink);">Mã đơn</th>
+                <th style="padding: var(--spacing-md) var(--spacing-lg); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-semibold); color: var(--color-ink);">Trạng thái</th>
+                <th style="padding: var(--spacing-md) var(--spacing-lg); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-semibold); color: var(--color-ink); text-align: right;">Số tiền</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsTableBody">
+              <!-- Dynamically populated rows -->
             </tbody>
           </table>
         </div>
+        
+        <div class="card-footer" style="background: var(--color-canvas); border-top: 1px solid var(--color-surface-pressed); padding: var(--spacing-md) var(--spacing-2xl);">
+          <div id="pagination-container" style="width: 100%;"></div>
+        </div>
       </section>
-      <div class="pagination-bar"><span class="pagination-info">Hiển thị 1-4 trong 24 giao dịch</span><div class="pagination-controls"><button class="pagination-btn-prev" disabled>Trước</button><button class="pagination-btn-page active">1</button><button class="pagination-btn-page">2</button><button class="pagination-btn-next">Sau</button></div></div>
+
     </div>
   </main>
+
 </div>
+
+<!-- TOP-UP MODAL -->
+<div id="topup-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xl);">
+      <h3 style="font-size: var(--font-size-display-sm); font-weight: var(--font-weight-bold); color: var(--color-ink); margin: 0;">Nạp tiền vào ví</h3>
+      <button id="close-modal-btn" style="background: none; border: none; cursor: pointer; color: var(--color-mute); font-size: 24px; padding: 4px; display: flex; align-items: center; line-height: 1;">&times;</button>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label" for="topup-amount-input">Số tiền cần nạp (VND)</label>
+      <input type="number" id="topup-amount-input" class="text-input" placeholder="Nhập số tiền..." min="10000" step="10000" style="margin-bottom: var(--spacing-md);" />
+      <p id="topup-error" style="color: var(--color-danger); font-size: var(--font-size-body-sm); display: none; margin: 0 0 var(--spacing-sm) 0;"></p>
+    </div>
+    
+    <!-- Preset amounts -->
+    <div style="margin-bottom: var(--spacing-xl);">
+      <label class="form-label" style="margin-bottom: var(--spacing-sm);">Chọn nhanh số tiền</label>
+      <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+        <button class="preset-btn" data-value="100000">100.000 đ</button>
+        <button class="preset-btn" data-value="200000">200.000 đ</button>
+        <button class="preset-btn" data-value="500000">500.000 đ</button>
+        <button class="preset-btn" data-value="1000000">1.000.000 đ</button>
+        <button class="preset-btn" data-value="2000000">2.000.000 đ</button>
+      </div>
+    </div>
+    
+    <div style="display: flex; gap: var(--spacing-md); justify-content: flex-end;">
+      <button id="cancel-topup-btn" class="btn-secondary">Hủy</button>
+      <button id="confirm-topup-btn" class="btn-primary">Xác nhận nạp</button>
+    </div>
+  </div>
+</div>
+
+<!-- ES Module JS Script -->
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, postAuthenticated } from '../../js/api.js';
+  import { formatVnd, formatDateTime, renderPagination } from '../../js/admin-common.js';
+
+  let currentTxPage = 0;
+  let currentTxSize = 10;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Guard check auth and role
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') {
+      logout('../login.html');
+      return;
+    }
+
+    // 2. Render user identity details
+    renderUserHeader(user);
+
+    // 3. Attach standard actions (logout, top-up modal toggle)
+    setupEventListeners();
+
+    // 4. Initial fetch from API
+    await loadWalletSummary();
+    await fetchTransactions(0, currentTxSize);
+  });
+
+  function renderUserHeader(user) {
+    const nameEl = document.getElementById('header-user-name');
+    if (nameEl) nameEl.textContent = user.fullName || 'Khách hàng';
+
+    const avatarEl = document.getElementById('header-user-avatar');
+    if (avatarEl && user.fullName) {
+      avatarEl.textContent = user.fullName
+        .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+  }
+
+  function setupEventListeners() {
+    // Logout action
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+      logout('../login.html');
+    });
+
+    // Modal elements
+    const modalEl = document.getElementById('topup-modal');
+    const openModalBtn = document.getElementById('open-topup-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const cancelModalBtn = document.getElementById('cancel-topup-btn');
+    const confirmModalBtn = document.getElementById('confirm-topup-btn');
+    const amountInput = document.getElementById('topup-amount-input');
+    const errorEl = document.getElementById('topup-error');
+    const presetBtns = document.querySelectorAll('.preset-btn');
+
+    const showModal = () => {
+      modalEl.style.display = 'flex';
+      setTimeout(() => modalEl.classList.add('open'), 10);
+    };
+
+    const hideModal = () => {
+      modalEl.classList.remove('open');
+      setTimeout(() => {
+        modalEl.style.display = 'none';
+        amountInput.value = '';
+        errorEl.style.display = 'none';
+        presetBtns.forEach(btn => btn.classList.remove('active'));
+      }, 250);
+    };
+
+    openModalBtn?.addEventListener('click', showModal);
+    closeModalBtn?.addEventListener('click', hideModal);
+    cancelModalBtn?.addEventListener('click', hideModal);
+
+    // Close modal on outer clicks
+    modalEl?.addEventListener('click', (e) => {
+      if (e.target === modalEl) hideModal();
+    });
+
+    // Quick-select preset amount buttons
+    presetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        presetBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        amountInput.value = btn.dataset.value;
+        errorEl.style.display = 'none';
+      });
+    });
+
+    // Reset preset focus when entering manual input
+    amountInput?.addEventListener('input', () => {
+      presetBtns.forEach(b => b.classList.remove('active'));
+      errorEl.style.display = 'none';
+    });
+
+    // Confirm Topup integration
+    confirmModalBtn?.addEventListener('click', async () => {
+      const amountVal = amountInput.value.trim();
+      if (!amountVal || isNaN(amountVal) || parseInt(amountVal, 10) <= 0) {
+        errorEl.textContent = 'Vui lòng nhập số tiền nạp hợp lệ.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      const amount = parseInt(amountVal, 10);
+      if (amount < 10000) {
+        errorEl.textContent = 'Số tiền nạp tối thiểu là 10.000 đ.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      try {
+        confirmModalBtn.disabled = true;
+        confirmModalBtn.textContent = 'Đang kết nối...';
+        
+        // POST to VNPay top-up endpoint
+        const res = await postAuthenticated('/api/customer/wallet/top-up/vnpay', { amount });
+        if (res && res.payment_url) {
+          window.location.href = res.payment_url;
+        } else {
+          throw new Error('Không nhận được liên kết cổng thanh toán VNPay.');
+        }
+      } catch (err) {
+        console.error(err);
+        errorEl.textContent = err.message || 'Không thể tạo yêu cầu nạp tiền. Vui lòng thử lại.';
+        errorEl.style.display = 'block';
+        confirmModalBtn.disabled = false;
+        confirmModalBtn.textContent = 'Xác nhận nạp';
+      }
+    });
+  }
+
+  async function loadWalletSummary() {
+    try {
+      const wallet = await getAuthenticated('/api/customer/wallet');
+      
+      // Update balance hero card
+      document.getElementById('wallet-balance-val').textContent = formatVnd(wallet.balance);
+      
+      // Update timestamp text
+      const now = new Date();
+      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+      document.getElementById('wallet-updated-at').textContent = `Cập nhật lúc ${timeStr}, ${dateStr}`;
+
+      // Update KPI stats cards
+      document.getElementById('kpi-topped-up').textContent = formatVnd(wallet.totalToppedUp);
+      document.getElementById('kpi-spent').textContent = formatVnd(wallet.totalSpent);
+      document.getElementById('kpi-balance').textContent = formatVnd(wallet.balance);
+    } catch (err) {
+      console.error(err);
+      const banner = document.getElementById('error-banner');
+      if (banner) {
+        banner.textContent = '⚠️ Không thể tải thông tin số dư tài khoản ví.';
+        banner.style.display = 'block';
+      }
+    }
+  }
+
+  async function fetchTransactions(page, size) {
+    currentTxPage = page;
+    currentTxSize = size;
+    const tableBody = document.getElementById('transactionsTableBody');
+
+    // Show loading rows
+    renderSkeletonRows(tableBody, size);
+
+    try {
+      const data = await getAuthenticated(`/api/customer/wallet/transactions?page=${page}&size=${size}`);
+      
+      if (!data || !data.content || data.content.length === 0) {
+        renderEmptyState(tableBody);
+        document.getElementById('pagination-container').innerHTML = '';
+        return;
+      }
+
+      tableBody.innerHTML = '';
+      data.content.forEach(tx => {
+        const row = document.createElement('tr');
+        row.style.borderBottom = '1px solid var(--color-surface-pressed)';
+
+        // ID
+        const idCell = document.createElement('td');
+        idCell.style.padding = 'var(--spacing-md) var(--spacing-lg)';
+        idCell.style.fontFamily = 'monospace';
+        idCell.textContent = tx.id ? `TX-${tx.id.substring(0, 8).toUpperCase()}` : '—';
+
+        // Date
+        const dateCell = document.createElement('td');
+        dateCell.style.padding = 'var(--spacing-md) var(--spacing-lg)';
+        dateCell.textContent = formatDateTime(tx.createdAt);
+
+        // Type
+        const typeCell = document.createElement('td');
+        typeCell.style.padding = 'var(--spacing-md) var(--spacing-lg)';
+        typeCell.textContent = mapType(tx.type);
+
+        // Description
+        const descCell = document.createElement('td');
+        descCell.style.padding = 'var(--spacing-md) var(--spacing-lg)';
+        descCell.textContent = tx.description || '—';
+
+        // Order code
+        const orderCell = document.createElement('td');
+        orderCell.style.padding = 'var(--spacing-md) var(--spacing-lg)';
+        if (tx.relatedOrderId) {
+          const link = document.createElement('a');
+          link.href = `order-detail.html?id=${tx.relatedOrderId}`;
+          link.className = 'link-primary';
+          link.style.fontWeight = 'var(--font-weight-medium)';
+          link.textContent = `DH-${tx.relatedOrderId.substring(0, 8).toUpperCase()}`;
+          orderCell.appendChild(link);
+        } else {
+          orderCell.textContent = 'Không có';
+        }
+
+        // Status (Always Hoàn thành for logged transactions)
+        const statusCell = document.createElement('td');
+        statusCell.style.padding = 'var(--spacing-md) var(--spacing-lg)';
+        statusCell.innerHTML = `<span class="badge-completed">Hoàn thành</span>`;
+
+        // Amount
+        const amountCell = document.createElement('td');
+        amountCell.style.padding = 'var(--spacing-md) var(--spacing-lg)';
+        amountCell.style.textAlign = 'right';
+        amountCell.style.fontWeight = 'var(--font-weight-bold)';
+        
+        const amount = Number(tx.amount);
+        if (amount > 0) {
+          amountCell.className = 'amount-plus';
+          amountCell.textContent = `+${formatVnd(amount)}`;
+        } else {
+          amountCell.className = 'amount-minus';
+          amountCell.textContent = `${formatVnd(amount)}`;
+        }
+
+        row.appendChild(idCell);
+        row.appendChild(dateCell);
+        row.appendChild(typeCell);
+        row.appendChild(descCell);
+        row.appendChild(orderCell);
+        row.appendChild(statusCell);
+        row.appendChild(amountCell);
+
+        tableBody.appendChild(row);
+      });
+
+      // Render standard pagination
+      renderPagination(
+        'pagination-container',
+        data,
+        (newPage) => fetchTransactions(newPage, currentTxSize),
+        (newSize) => fetchTransactions(0, newSize),
+        'giao dịch'
+      );
+
+    } catch (err) {
+      console.error(err);
+      renderErrorState(tableBody, 'Không thể tải lịch sử giao dịch. Vui lòng thử lại.');
+    }
+  }
+
+  function renderSkeletonRows(tableBody, count) {
+    tableBody.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const row = document.createElement('tr');
+      row.className = 'skeleton-row';
+      row.style.borderBottom = '1px solid var(--color-surface-pressed)';
+      for (let j = 0; j < 7; j++) {
+        const cell = document.createElement('td');
+        cell.style.padding = 'var(--spacing-md) var(--spacing-lg)';
+        const shimmer = document.createElement('div');
+        shimmer.className = 'skeleton-block';
+        if (j === 6) {
+          shimmer.style.width = '80px';
+          shimmer.style.marginLeft = 'auto';
+        } else {
+          shimmer.style.width = '100px';
+        }
+        cell.appendChild(shimmer);
+        row.appendChild(cell);
+      }
+      tableBody.appendChild(row);
+    }
+  }
+
+  function renderEmptyState(tableBody) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: var(--spacing-4xl) var(--spacing-2xl); color: var(--color-body);">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-mute)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-md);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg>
+          <p style="font-weight: var(--font-weight-medium); margin: 0 0 var(--spacing-xs) 0;">Chưa có giao dịch thanh toán nào</p>
+          <p style="font-size: var(--font-size-body-sm); color: var(--color-mute); margin: 0;">Mọi lịch sử nạp tiền hoặc thanh toán đơn hàng sẽ xuất hiện tại đây.</p>
+        </td>
+      </tr>
+    `;
+  }
+
+  function renderErrorState(tableBody, msg) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: var(--spacing-4xl) var(--spacing-2xl); color: var(--color-danger);">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-md);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <p style="font-weight: var(--font-weight-medium); margin: 0 0 var(--spacing-sm) 0;">${msg}</p>
+          <button id="retry-table-btn" class="btn-primary" style="margin: 0 auto;">Tải lại</button>
+        </td>
+      </tr>
+    `;
+    document.getElementById('retry-table-btn')?.addEventListener('click', () => {
+      fetchTransactions(currentTxPage, currentTxSize);
+    });
+  }
+
+  function mapType(type) {
+    const types = {
+      WALLET_TOP_UP: 'Nạp tiền',
+      ORDER_PAYMENT: 'Thanh toán đơn',
+      REFUND: 'Hoàn tiền',
+      DEPOSIT_TOP_UP: 'Nạp đặt cọc',
+      DEPOSIT_REFUND: 'Hoàn đặt cọc',
+      DRIVER_EARNING: 'Thu nhập tài xế',
+      PLATFORM_FEE: 'Phí nền tảng',
+      DAMAGE_DEDUCTION: 'Khấu trừ đền bù'
+    };
+    return types[type] || type;
+  }
+</script>
+
 </body>
 </html>

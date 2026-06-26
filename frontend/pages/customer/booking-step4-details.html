@@ -3,38 +3,506 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chi tiết đặt đơn — Move_home</title>
+  <title>Chi tiết đặt đơn — MoveHome</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
-    .booking-shell{display:grid;grid-template-columns:280px 1fr;gap:24px}.booking-steps{display:grid;gap:10px}.booking-step{padding:12px 14px;border-radius:999px;background:var(--color-canvas-soft);font-weight:500;color:var(--color-body)}.booking-step.active{background:var(--color-primary);color:var(--color-on-primary)}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.field-span{grid-column:1/-1}.choice-row{display:flex;gap:12px;flex-wrap:wrap}.choice-pill{padding:10px 16px;border-radius:999px;background:var(--color-canvas-soft);font-weight:500}.choice-pill.active{background:#D1FAE5;color:#065F46}
-    textarea.text-input{min-height:120px;resize:vertical}
-    @media (max-width:800px){.booking-shell,.form-grid{grid-template-columns:1fr}.site-header-actions{display:none}}
+    .customer-nav {
+      display: flex;
+      gap: var(--spacing-lg);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .customer-nav a {
+      color: var(--color-ink);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      padding: var(--spacing-xs) 0;
+      transition: color var(--transition-fast);
+    }
+    .customer-nav a:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+    .customer-nav a.active {
+      color: var(--color-primary);
+      border-bottom: 3px solid var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .booking-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--spacing-2xl);
+    }
+    
+    /* Progress Timeline style */
+    .progress-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      padding: var(--spacing-md) 0;
+      position: relative;
+    }
+    .progress-timeline::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: var(--spacing-xl);
+      bottom: var(--spacing-xl);
+      width: 2px;
+      background: var(--color-surface-pressed);
+      z-index: 1;
+    }
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      position: relative;
+      z-index: 2;
+    }
+    .timeline-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--rounded-full);
+      background: var(--color-canvas);
+      border: 2px solid var(--color-surface-pressed);
+      color: var(--color-body);
+      display: grid;
+      place-items: center;
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-body-sm);
+      transition: all var(--transition-fast);
+    }
+    .timeline-item.active .timeline-badge {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-on-primary);
+      box-shadow: 0 0 0 4px rgba(27, 77, 62, 0.12);
+    }
+    .timeline-item.completed .timeline-badge {
+      background: var(--color-success-bg);
+      border-color: var(--color-success);
+      color: var(--color-success-text);
+    }
+    .timeline-text {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-body);
+      font-size: var(--font-size-body-md);
+      transition: color var(--transition-fast);
+    }
+    .timeline-item.active .timeline-text {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .timeline-item.completed .timeline-text {
+      color: var(--color-success-text);
+    }
+
+    /* Form Grid layout */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
+    }
+    .field-span {
+      grid-column: 1 / -1;
+    }
+    .choice-row {
+      display: flex;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+    .choice-pill {
+      padding: var(--spacing-md) var(--spacing-xl);
+      border-radius: var(--rounded-pill);
+      background: var(--color-canvas-soft);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-body);
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: all var(--transition-fast);
+      user-select: none;
+    }
+    .choice-pill:hover {
+      background: var(--color-surface-pressed);
+      color: var(--color-ink);
+    }
+    .choice-pill.active {
+      background: var(--color-success-bg);
+      color: var(--color-success-text);
+      border-color: rgba(6, 95, 70, 0.2);
+    }
+    
+    .eyebrow {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent-strong);
+      margin-bottom: var(--spacing-xxs);
+    }
+    
+    textarea.text-input {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    @media (max-width: 800px) {
+      .booking-shell, .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .site-header-actions {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
-  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html" class="active">Đặt đơn</a><a href="my-orders-pending.html">Đơn hàng</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
-  <main class="site-main"><div class="dashboard-main">
-    <header class="page-header"><h1 class="page-title">Chi tiết vận chuyển</h1><p class="page-subtitle">Bước 4/6 — Chọn thời gian, bốc xếp và ghi chú thêm.</p></header>
-    <div class="booking-shell">
-      <aside class="card-content"><div class="booking-steps"><div class="booking-step">1. Chọn xe</div><div class="booking-step">2. Điểm đón</div><div class="booking-step">3. Điểm trả</div><div class="booking-step active">4. Chi tiết</div><div class="booking-step">5. Báo giá</div><div class="booking-step">6. Thanh toán</div></div></aside>
-      <section class="card-elevated">
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label" for="date">Ngày hẹn</label><input class="text-input" id="date" value="06/06/2026"></div>
-          <div class="form-group"><label class="form-label" for="time">Giờ hẹn</label><input class="text-input" id="time" value="08:30"></div>
-          <div class="form-group field-span"><label class="form-label">Số bốc xếp</label><div class="choice-row"><span class="choice-pill">Không cần</span><span class="choice-pill">1 người</span><span class="choice-pill active">2 người</span><span class="choice-pill">3 người</span></div></div>
-          <div class="form-group field-span"><label class="form-label">Dịch vụ thêm</label><div class="choice-row"><span class="choice-pill active">Cần đóng gói thêm</span><span class="choice-pill">Tháo lắp giường tủ</span><span class="choice-pill">Bọc đồ dễ vỡ</span></div></div>
-          <div class="form-group field-span"><label class="form-label" for="note">Ghi chú thêm</label><textarea class="text-input" id="note">Có tủ lạnh nhỏ, một bàn làm việc và khoảng 12 thùng đồ. Vui lòng gọi trước 15 phút khi đến.</textarea></div>
-        </div>
-        <div class="mt-md"><a href="booking-step3-dropoff.html" class="btn-secondary">Quay lại</a> <a href="booking-step5-quote.html" class="btn-primary">Tiếp tục</a></div>
-      </section>
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="spinner-page" style="display: none;">
+    <div class="spinner spinner-md"></div>
+    <p>Đang tải thông tin...</p>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">MoveHome</span>
+      </a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html" class="active">Đặt đơn</a>
+        <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-wallet.html">Ví của tôi</a>
+        <a href="my-profile.html">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name" id="header-user-name">Xin chào, Nguyễn Văn An</span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">AN</div>
+        <button id="logout-btn" class="btn-subtle btn-sm">Đăng xuất</button>
+      </div>
     </div>
-  </div></main>
+  </header>
+
+  <!-- MAIN -->
+  <main class="site-main">
+    <div class="dashboard-main">
+      <!-- ERROR BANNER -->
+      <div class="alert alert-danger" id="error-banner" style="display:none; margin-bottom: 24px;" role="alert"></div>
+
+      <header class="page-header">
+        <div class="eyebrow">BƯỚC 4 / 6</div>
+        <h1 class="page-title">Chi tiết vận chuyển</h1>
+        <p class="page-subtitle">Chọn thời gian chuyển nhà, số lượng người bốc xếp và ghi chú thêm.</p>
+      </header>
+
+      <div class="booking-shell">
+        <!-- SIDEBAR progress -->
+        <aside>
+          <div class="card-content">
+            <div class="progress-timeline">
+              <div class="timeline-item completed">
+                <div class="timeline-badge">✓</div>
+                <div class="timeline-text">Chọn xe</div>
+              </div>
+              <div class="timeline-item completed">
+                <div class="timeline-badge">✓</div>
+                <div class="timeline-text">Điểm đón</div>
+              </div>
+              <div class="timeline-item completed">
+                <div class="timeline-badge">✓</div>
+                <div class="timeline-text">Điểm trả</div>
+              </div>
+              <div class="timeline-item active">
+                <div class="timeline-badge">4</div>
+                <div class="timeline-text">Chi tiết</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">5</div>
+                <div class="timeline-text">Báo giá</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">6</div>
+                <div class="timeline-text">Thanh toán</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editorial Trust Card -->
+          <div class="card-soft-tinted mt-8 text-center" style="background-color: #E6EDE9; border: 1px solid rgba(27, 77, 62, 0.15); margin-top: var(--spacing-2xl);">
+            <!-- SVG Illustration -->
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; display: block;">
+              <circle cx="60" cy="60" r="45" fill="#1B4D3E" fill-opacity="0.08"/>
+              <!-- Box Outline -->
+              <rect x="40" y="45" width="40" height="35" rx="3" fill="#D29B52" stroke="#1B4D3E" stroke-width="2.5"/>
+              <path d="M40 55H80" stroke="#1B4D3E" stroke-width="2"/>
+              <path d="M60 45V80" stroke="#1B4D3E" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <!-- Tape / Fragile Label -->
+              <rect x="52" y="52" width="16" height="12" rx="1" fill="#F5A623" stroke="#1B4D3E" stroke-width="1.5"/>
+              <path d="M56 58H64" stroke="#1B4D3E" stroke-width="1.5"/>
+              <path d="M60 55V61" stroke="#1B4D3E" stroke-width="1.5"/>
+              <!-- Clock / Date indicator -->
+              <circle cx="85" cy="40" r="16" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="2"/>
+              <path d="M85 30V40H92" stroke="#1B4D3E" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h4 style="color: var(--color-primary); font-size: var(--font-size-body-md); font-weight: var(--font-weight-bold); margin-top: var(--spacing-sm); margin-bottom: 0;">Lên lịch vận chuyển</h4>
+            <p style="font-size: var(--font-size-caption); color: var(--color-body); margin-top: var(--spacing-xs); line-height: 1.4; margin-bottom: 0;">
+              Chỉ định ngày giờ cụ thể và nhân lực bốc xếp hỗ trợ giúp đảm bảo quy trình dọn nhà diễn ra nhanh gọn và suôn sẻ.
+            </p>
+          </div>
+        </aside>
+
+        <!-- INPUT FORM CONTAINER -->
+        <section class="card-elevated">
+          <div class="form-grid">
+            <!-- Date -->
+            <div class="form-group">
+              <label class="form-label" for="date">Ngày hẹn</label>
+              <input type="date" class="text-input" id="date">
+            </div>
+
+            <!-- Time -->
+            <div class="form-group">
+              <label class="form-label" for="time">Giờ hẹn</label>
+              <input type="time" class="text-input" id="time" value="08:30">
+            </div>
+
+            <!-- Porters count -->
+            <div class="form-group field-span">
+              <label class="form-label">Số bốc xếp</label>
+              <div class="choice-row" id="porter-choices">
+                <span class="choice-pill" data-value="0">Không cần</span>
+                <span class="choice-pill" data-value="1">1 người</span>
+                <span class="choice-pill active" data-value="2">2 người</span>
+                <span class="choice-pill" data-value="3">3 người</span>
+              </div>
+            </div>
+
+            <!-- Additional services -->
+            <div class="form-group field-span">
+              <label class="form-label">Dịch vụ thêm</label>
+              <div class="choice-row" id="service-choices">
+                <span class="choice-pill active" data-value="pack">Cần đóng gói thêm</span>
+                <span class="choice-pill" data-value="disassemble">Tháo lắp giường tủ</span>
+                <span class="choice-pill" data-value="fragile">Bọc đồ dễ vỡ</span>
+              </div>
+            </div>
+
+            <!-- Note detail -->
+            <div class="form-group field-span">
+              <label class="form-label" for="note">Ghi chú thêm</label>
+              <textarea class="text-input" id="note" placeholder="Ví dụ: Có tủ lạnh nhỏ, một bàn làm việc và khoảng 12 thùng đồ. Vui lòng gọi trước 15 phút khi đến."></textarea>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="mt-md" style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-2xl);">
+            <a href="booking-step3-dropoff.html" class="btn-secondary" id="back-btn">Quay lại</a>
+            <button class="btn-primary" id="continue-btn" style="min-width: 140px;">Tiếp tục</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Guard check
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') {
+      logout('../login.html');
+      return;
+    }
+
+    // 1.1 Check local storage keys
+    const vehicleType = localStorage.getItem('booking_vehicleType');
+    const pickupAddress = localStorage.getItem('booking_pickupAddress');
+    const dropoffAddress = localStorage.getItem('booking_dropoffAddress');
+    if (!vehicleType || !pickupAddress || !dropoffAddress) {
+      window.location.href = 'booking-step1-vehicle.html';
+      return;
+    }
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const errorBanner = document.getElementById('error-banner');
+
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    if (errorBanner) errorBanner.style.display = 'none';
+
+    try {
+      // 2. Fetch real user profile to verify session & get details
+      const profile = await getAuthenticated('/api/customer/profile');
+      
+      // Update header details dynamically
+      const nameEl = document.getElementById('header-user-name');
+      const avatarEl = document.getElementById('header-user-avatar');
+      if (nameEl) nameEl.textContent = `Xin chào, ${profile.fullName}`;
+      if (avatarEl) {
+        avatarEl.textContent = profile.fullName
+          .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+      }
+    } catch (err) {
+      console.error('Lỗi khi tải thông tin khách hàng:', err);
+      if (errorBanner) {
+        errorBanner.textContent = '⚠️ Phiên đăng nhập hết hạn hoặc lỗi kết nối. Đang chuyển hướng đăng nhập...';
+        errorBanner.style.display = 'flex';
+      }
+      setTimeout(() => {
+        logout('../login.html');
+      }, 2500);
+      return;
+    } finally {
+      if (loadingOverlay) loadingOverlay.style.display = 'none';
+    }
+
+    // Bind logout button click
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        logout('../login.html');
+      });
+    }
+
+    // Default Date Initialization to tomorrow (must be in the future for backend validation)
+    const dateInput = document.getElementById('date');
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const defaultDateStr = tomorrow.toISOString().split('T')[0];
+    if (dateInput) {
+      dateInput.value = defaultDateStr;
+      dateInput.min = defaultDateStr; // Prevents choosing past dates in browser calendar picker
+    }
+
+    // 3. Interactive choice pill toggling (single-select for porters)
+    const porterContainer = document.getElementById('porter-choices');
+    if (porterContainer) {
+      const pills = porterContainer.querySelectorAll('.choice-pill');
+      pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          pills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+        });
+      });
+    }
+
+    // Multi-select for additional services
+    const serviceContainer = document.getElementById('service-choices');
+    if (serviceContainer) {
+      const pills = serviceContainer.querySelectorAll('.choice-pill');
+      pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          pill.classList.toggle('active');
+        });
+      });
+    }
+
+    // 4. Restore state from localStorage if it exists
+    const timeInput = document.getElementById('time');
+    const noteInput = document.getElementById('note');
+
+    const savedDate = localStorage.getItem('booking_date');
+    const savedTime = localStorage.getItem('booking_time');
+    const savedPorterCount = localStorage.getItem('booking_porterCount');
+    const savedServices = localStorage.getItem('booking_services');
+    const savedNote = localStorage.getItem('booking_note');
+
+    if (savedDate && dateInput) dateInput.value = savedDate;
+    if (savedTime && timeInput) timeInput.value = savedTime;
+    if (savedNote !== null && noteInput) noteInput.value = savedNote;
+
+    if (savedPorterCount !== null && porterContainer) {
+      porterContainer.querySelectorAll('.choice-pill').forEach(p => {
+        if (p.dataset.value === savedPorterCount) p.classList.add('active');
+        else p.classList.remove('active');
+      });
+    }
+
+    if (savedServices && serviceContainer) {
+      try {
+        const activeServices = JSON.parse(savedServices);
+        serviceContainer.querySelectorAll('.choice-pill').forEach(p => {
+          if (activeServices.includes(p.dataset.value)) p.classList.add('active');
+          else p.classList.remove('active');
+        });
+      } catch (e) {
+        console.error('Error parsing saved services:', e);
+      }
+    }
+
+    // 5. Submit validation & navigation logic
+    const continueBtn = document.getElementById('continue-btn');
+    if (continueBtn) {
+      continueBtn.addEventListener('click', () => {
+        if (errorBanner) errorBanner.style.display = 'none';
+
+        const selectedDate = dateInput.value;
+        const selectedTime = timeInput.value;
+        const note = noteInput.value.trim();
+
+        // Get porters count
+        const activePorterPill = porterContainer ? porterContainer.querySelector('.choice-pill.active') : null;
+        const porterCount = activePorterPill ? parseInt(activePorterPill.dataset.value, 10) : 2;
+
+        // Get additional services
+        const activeServicePills = serviceContainer ? serviceContainer.querySelectorAll('.choice-pill.active') : [];
+        const services = Array.from(activeServicePills).map(p => p.dataset.value);
+
+        // Validation
+        if (!selectedDate) {
+          if (errorBanner) {
+            errorBanner.textContent = '⚠️ Vui lòng chọn ngày hẹn vận chuyển.';
+            errorBanner.style.display = 'flex';
+          }
+          dateInput.focus();
+          return;
+        }
+
+        if (!selectedTime) {
+          if (errorBanner) {
+            errorBanner.textContent = '⚠️ Vui lòng chọn giờ hẹn vận chuyển.';
+            errorBanner.style.display = 'flex';
+          }
+          timeInput.focus();
+          return;
+        }
+
+        // Validate date must be in the future
+        const chosenDateTime = new Date(`${selectedDate}T${selectedTime}`);
+        if (chosenDateTime <= new Date()) {
+          if (errorBanner) {
+            errorBanner.textContent = '⚠️ Thời gian hẹn dọn nhà phải ở trong tương lai.';
+            errorBanner.style.display = 'flex';
+          }
+          dateInput.focus();
+          return;
+        }
+
+        // Save to localStorage
+        localStorage.setItem('booking_date', selectedDate);
+        localStorage.setItem('booking_time', selectedTime);
+        localStorage.setItem('booking_porterCount', porterCount);
+        localStorage.setItem('booking_services', JSON.stringify(services));
+        localStorage.setItem('booking_note', note);
+
+        // Navigate to Step 5 (Pricing Quote)
+        window.location.href = 'booking-step5-quote.html';
+      });
+    }
+  });
+</script>
 </body>
 </html>

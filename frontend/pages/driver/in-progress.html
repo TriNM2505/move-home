@@ -10,18 +10,141 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../../css/styles.css">
+  
+  <!-- Leaflet Map CSS/JS integration -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
   <style>
     .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
-    .work-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--spacing-2xl); }
-    .map-view { min-height: 420px; border-radius: var(--rounded-xl); background: linear-gradient(135deg, #D1FAE5, #DBEAFE); border: 1px solid var(--color-surface-pressed); display: flex; align-items: center; justify-content: center; color: var(--color-primary); font-weight: var(--font-weight-bold); font-size: var(--font-size-display-sm); text-align: center; padding: var(--spacing-2xl); }
-    .timeline-item { border-left: 4px solid var(--color-surface-pressed); padding: 0 0 var(--spacing-xl) var(--spacing-lg); }
-    .timeline-item.active { border-left-color: var(--color-primary); }
-    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
-    @media (max-width: 900px) { .work-grid { grid-template-columns: 1fr; } }
+    .work-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--spacing-2xl); margin-top: var(--spacing-xl); }
+    .map-view-container { width: 100%; }
+    .map-container {
+      width: 100%;
+      height: 480px;
+      border-radius: var(--rounded-xl);
+      border: 1px solid var(--color-surface-pressed);
+      box-shadow: var(--shadow-level-1);
+    }
+    
+    /* Eyebrow styling */
+    .eyebrow {
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-accent-strong);
+      margin-bottom: var(--spacing-xxs);
+      display: inline-block;
+    }
+    
+    /* Section title spacing */
+    .section-title {
+      font-size: var(--font-size-display-sm);
+      font-weight: 700;
+      margin-bottom: var(--spacing-md);
+      color: var(--color-ink);
+    }
+
+    /* Timeline styling */
+    .timeline {
+      position: relative;
+      padding-left: var(--spacing-2xl);
+      margin-top: var(--spacing-lg);
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: var(--color-surface-pressed);
+    }
+    .timeline-node {
+      position: relative;
+      padding-bottom: var(--spacing-xl);
+    }
+    .timeline-node:last-child {
+      padding-bottom: 0;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -29px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: var(--rounded-full);
+      background: var(--color-canvas);
+      border: 2px solid var(--color-mute);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: all var(--transition-fast);
+    }
+    .timeline-node.active .timeline-dot {
+      border-color: var(--color-primary);
+      background: var(--color-primary);
+    }
+    /* Timeline path colored based on state */
+    .timeline-node.active::before {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 20px;
+      bottom: -8px;
+      width: 2px;
+      background: var(--color-primary);
+      z-index: 1;
+    }
+    .timeline-node:last-child.active::before {
+      display: none;
+    }
+    .timeline-content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xxs);
+    }
+    .timeline-title {
+      font-size: var(--font-size-body-md);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-ink);
+    }
+    .timeline-time {
+      font-size: var(--font-size-body-sm);
+      color: var(--color-body);
+    }
+
+    /* Skeleton Loading Shimmer styles */
+    .skeleton-card {
+      padding: var(--spacing-2xl);
+      background: var(--color-canvas);
+      border: 1px solid var(--color-surface-pressed);
+      border-radius: var(--rounded-xl);
+    }
+    .skeleton-line {
+      height: 16px;
+      margin-bottom: var(--spacing-md);
+      background: linear-gradient(90deg, var(--color-surface-pressed) 25%, var(--color-canvas-soft) 50%, var(--color-surface-pressed) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--rounded-md);
+    }
+    @keyframes shimmer {
+      from { background-position: -200% 0; }
+      to { background-position: 200% 0; }
+    }
+
+    @media (max-width: 900px) {
+      .driver-nav { order: 3; width: 100%; justify-content: center; }
+      .work-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
+  <!-- SITE HEADER -->
   <header class="site-header">
     <div class="container site-header-inner">
       <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
@@ -35,49 +158,545 @@
         <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
       </nav>
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
-        <div class="avatar avatar-sm avatar-initials">LC</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Tài xế</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">TX</div>
+        <button id="logout-btn" class="btn-subtle" style="margin-left: 12px; border:none; cursor:pointer;">Đăng xuất</button>
       </div>
     </div>
   </header>
 
+  <!-- MAIN CONTENT -->
   <main class="site-main">
     <div class="dashboard-main">
+      
+      <!-- Error Banner -->
+      <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-xl);"></div>
+
+      <!-- Page Header -->
       <header class="page-header">
-        <h1 class="page-title">Đơn đang giao</h1>
-        <p class="page-subtitle">Cập nhật tiến độ đơn MH2026060001.</p>
+        <span class="eyebrow">Tài xế • Tiến trình</span>
+        <h1 class="page-title" style="margin-bottom: 2px;">Đơn đang giao</h1>
+        <p class="page-subtitle">Cập nhật tiến độ đơn hàng hiện tại của bạn.</p>
       </header>
 
-      <div class="work-grid">
-        <section class="map-view">Bản đồ điều hướng đến điểm đón và điểm trả</section>
+      <!-- LOADING STATE (Skeleton) -->
+      <div id="loading-state" class="work-grid" style="display: none;">
+        <div class="skeleton-card" style="height: 480px;">
+          <div class="skeleton-line" style="height: 100%;"></div>
+        </div>
+        <div class="flex-col gap-lg">
+          <div class="skeleton-card" style="height: 240px;">
+            <div class="skeleton-line" style="width: 40%; height: 24px; margin-bottom: 24px;"></div>
+            <div class="skeleton-line" style="width: 80%; height: 16px; margin-bottom: 12px;"></div>
+            <div class="skeleton-line" style="width: 60%; height: 16px; margin-bottom: 12px;"></div>
+            <div class="skeleton-line" style="width: 70%; height: 16px; margin-bottom: 24px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 40px; border-radius: 999px;"></div>
+          </div>
+          <div class="skeleton-card" style="height: 240px;">
+            <div class="skeleton-line" style="width: 30%; height: 24px; margin-bottom: 24px;"></div>
+            <div class="skeleton-line" style="width: 90%; height: 16px; margin-bottom: 12px;"></div>
+            <div class="skeleton-line" style="width: 90%; height: 16px; margin-bottom: 12px;"></div>
+            <div class="skeleton-line" style="width: 90%; height: 16px; margin-bottom: 24px;"></div>
+            <div class="skeleton-line" style="width: 100%; height: 40px; border-radius: 999px;"></div>
+          </div>
+        </div>
+      </div>
 
+      <!-- EMPTY STATE -->
+      <section id="empty-state" style="display: none; text-align: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--color-mute)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-lg); color: var(--color-mute);">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+          <line x1="12" y1="22.08" x2="12" y2="12"></line>
+        </svg>
+        <h2 class="empty-state-headline">Không có đơn hàng đang giao</h2>
+        <p class="empty-state-body" style="color: var(--color-body); margin-top: var(--spacing-sm); margin-bottom: var(--spacing-lg);">Hiện tại bạn không có đơn hàng nào đang thực hiện. Hãy vào danh sách đơn có sẵn để nhận đơn mới.</p>
+        <a href="available-orders.html" class="btn-primary" style="margin: 0 auto; display: inline-flex;">Xem đơn có sẵn</a>
+      </section>
+
+      <!-- ERROR STATE -->
+      <section id="error-state" style="display: none; text-align: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-md);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <h2 style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm); color: var(--color-ink);">Đã xảy ra lỗi</h2>
+        <p id="error-state-message" style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Có lỗi xảy ra trong quá trình kết nối đến máy chủ.</p>
+        <button id="retry-btn" class="btn-primary" style="margin: 0 auto; border: none; cursor: pointer;">Thử lại</button>
+      </section>
+
+      <!-- CONTENT STATE -->
+      <div id="content-state" class="work-grid" style="display: none;">
+        <section class="map-view-container">
+          <div id="map" class="map-container"></div>
+        </section>
+        
         <aside class="flex-col gap-lg">
+          <!-- Customer Info Card -->
           <section class="card-elevated">
-            <h2 class="section-title">Thông tin khách hàng</h2>
-            <div class="welcome-info">
-              <div class="info-row"><span>Khách hàng</span><strong>Nguyễn Văn An</strong></div>
-              <div class="info-row"><span>Số điện thoại</span><strong>0901 222 333</strong></div>
-              <div class="info-row"><span>Tuyến đường</span><strong>8,4 km</strong></div>
+            <span class="eyebrow">Khách hàng</span>
+            <h2 class="section-title" id="cust-name">Khách hàng</h2>
+            
+            <div class="welcome-info" style="margin-top: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+              <div class="info-row" style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-surface-pressed);">
+                <span style="color: var(--color-body);">Số điện thoại</span>
+                <strong id="cust-phone">0901 222 333</strong>
+              </div>
+              <div class="info-row" style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-surface-pressed);">
+                <span style="color: var(--color-body);">Tuyến đường</span>
+                <strong id="route-distance">8,4 km</strong>
+              </div>
+              <div class="info-row" style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-surface-pressed);">
+                <span style="color: var(--color-body);">Điểm đón</span>
+                <strong id="pickup-addr-text" style="font-size: var(--font-size-body-sm); text-align: right; max-width: 60%; word-break: break-word;">—</strong>
+              </div>
+              <div class="info-row" style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-surface-pressed);">
+                <span style="color: var(--color-body);">Điểm trả</span>
+                <strong id="dropoff-addr-text" style="font-size: var(--font-size-body-sm); text-align: right; max-width: 60%; word-break: break-word;">—</strong>
+              </div>
+              <div class="info-row" style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-surface-pressed);">
+                <span style="color: var(--color-body);">Ghi chú</span>
+                <strong id="notes-text" style="font-size: var(--font-size-body-sm); font-weight: normal; text-align: right; max-width: 60%; word-break: break-word;">—</strong>
+              </div>
             </div>
-            <a href="tel:0901222333" class="btn-primary btn-full">Gọi khách</a>
+            
+            <a href="tel:0901222333" id="call-btn" class="btn-primary btn-full" style="justify-content: center; gap: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              Gọi khách
+            </a>
           </section>
-
+          
+          <!-- Timeline progress Card -->
           <section class="card-elevated">
-            <h2 class="section-title">Tiến độ</h2>
-            <div class="timeline-item active"><strong>Đã nhận đơn</strong><br><span class="text-muted">09:05</span></div>
-            <div class="timeline-item active"><strong>Đã đến điểm đón</strong><br><span class="text-muted">09:28</span></div>
-            <div class="timeline-item"><strong>Đang giao</strong><br><span class="text-muted">Chờ cập nhật</span></div>
-            <div class="timeline-item"><strong>Hoàn thành</strong><br><span class="text-muted">Chờ cập nhật</span></div>
-            <div class="flex-col gap-md mt-lg">
-              <a href="in-progress.html" class="btn-primary btn-full">Đã đến điểm đón</a>
-              <a href="history.html" class="btn-primary-amber btn-full">Đã hoàn thành</a>
+            <span class="eyebrow">Tiến độ đơn hàng</span>
+            <h2 class="section-title">Tiến trình vận chuyển</h2>
+            
+            <div class="timeline">
+              <div class="timeline-node" id="node-accepted">
+                <span class="timeline-dot"></span>
+                <div class="timeline-content">
+                  <span class="timeline-title">Đã nhận đơn</span>
+                  <span class="timeline-time" id="time-accepted">Chờ cập nhật</span>
+                </div>
+              </div>
+              
+              <div class="timeline-node" id="node-pickup">
+                <span class="timeline-dot"></span>
+                <div class="timeline-content">
+                  <span class="timeline-title">Đã đến điểm đón</span>
+                  <span class="timeline-time" id="time-pickup">Chờ cập nhật</span>
+                </div>
+              </div>
+              
+              <div class="timeline-node" id="node-delivering">
+                <span class="timeline-dot"></span>
+                <div class="timeline-content">
+                  <span class="timeline-title">Đang giao</span>
+                  <span class="timeline-time" id="time-delivering">Chờ cập nhật</span>
+                </div>
+              </div>
+              
+              <div class="timeline-node" id="node-completed">
+                <span class="timeline-dot"></span>
+                <div class="timeline-content">
+                  <span class="timeline-title">Hoàn thành</span>
+                  <span class="timeline-time" id="time-completed">Chờ cập nhật</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex-col gap-md mt-lg" style="margin-top: var(--spacing-xl);">
+              <button id="btn-start" class="btn-primary btn-full" style="display: none; justify-content: center;">Đã đến điểm đón</button>
+              <button id="btn-complete" class="btn-primary-amber btn-full" style="display: none; justify-content: center;">Đã hoàn thành</button>
             </div>
           </section>
         </aside>
       </div>
+
     </div>
   </main>
 </div>
+
+<!-- SCRIPT LOGIC (ES Module) -->
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, postAuthenticated } from '../../js/api.js';
+
+  let currentOrder = null;
+  let map = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Authenticate and authorize role
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'DRIVER') {
+      logout('../login.html');
+      return;
+    }
+
+    // 2. Set dynamic user details in top bar
+    setupUserIdentityHeader(user);
+
+    // 3. Register Event Listeners
+    setupEventListeners();
+
+    // 4. Fetch active order
+    loadOrderDetails();
+  });
+
+  function setupUserIdentityHeader(user) {
+    const nameEl = document.getElementById('header-user-name');
+    if (nameEl) nameEl.textContent = user.fullName || 'Tài xế';
+
+    const avatarEl = document.getElementById('header-user-avatar');
+    if (avatarEl && user.fullName) {
+      const words = user.fullName.trim().split(/\s+/).filter(Boolean);
+      avatarEl.textContent = words.map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+  }
+
+  function setupEventListeners() {
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => logout('../login.html'));
+    }
+
+    document.getElementById('retry-btn')?.addEventListener('click', () => loadOrderDetails());
+    
+    // Actions on order
+    document.getElementById('btn-start')?.addEventListener('click', () => handleOrderAction('start'));
+    document.getElementById('btn-complete')?.addEventListener('click', () => handleOrderAction('complete'));
+  }
+
+  async function loadOrderDetails() {
+    showSection('loading-state');
+    hideErrorBanner();
+
+    // Read ID from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    let orderId = urlParams.get('id');
+
+    try {
+      if (!orderId) {
+        // Retrieve driver's active orders
+        // Try IN_PROGRESS first
+        let response = await getAuthenticated('/api/driver/orders?status=IN_PROGRESS&page=0&size=1');
+        if (response && response.content && response.content.length > 0) {
+          orderId = response.content[0].id;
+        } else {
+          // Try ACCEPTED next
+          response = await getAuthenticated('/api/driver/orders?status=ACCEPTED&page=0&size=1');
+          if (response && response.content && response.content.length > 0) {
+            orderId = response.content[0].id;
+          }
+        }
+      }
+
+      if (!orderId) {
+        // No active order found
+        showSection('empty-state');
+        return;
+      }
+
+      // Fetch order details by ID
+      const order = await getAuthenticated(`/api/driver/orders/${orderId}`);
+      if (!order) {
+        showSection('empty-state');
+        return;
+      }
+
+      currentOrder = order;
+      renderOrderDetails(order);
+      showSection('content-state');
+      initMap(order);
+
+    } catch (err) {
+      console.error('Error loading order details:', err);
+      const errMsg = document.getElementById('error-state-message');
+      if (errMsg) {
+        errMsg.textContent = err.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại.';
+      }
+      showSection('error-state');
+    }
+  }
+
+  function showSection(sectionId) {
+    const sections = ['loading-state', 'empty-state', 'error-state', 'content-state'];
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.display = id === sectionId ? (id.includes('state') && id !== 'empty-state' && id !== 'error-state' ? 'grid' : 'block') : 'none';
+      }
+    });
+  }
+
+  function hideErrorBanner() {
+    const banner = document.getElementById('error-banner');
+    if (banner) {
+      banner.style.display = 'none';
+    }
+  }
+
+  function renderOrderDetails(order) {
+    // 1. Update Subtitle
+    const subtitle = document.querySelector('.page-subtitle');
+    if (subtitle) {
+      subtitle.textContent = `Cập nhật tiến độ đơn ${order.orderCode || ''}.`;
+    }
+
+    // 2. Consistent simulated customer details (Consistent Generator)
+    const custInfo = getCustomerSimulatedInfo(order.customerId, order.orderCode);
+    const nameEl = document.getElementById('cust-name');
+    if (nameEl) nameEl.textContent = custInfo.name;
+
+    const phoneEl = document.getElementById('cust-phone');
+    if (phoneEl) phoneEl.textContent = custInfo.phone;
+
+    const callBtn = document.getElementById('call-btn');
+    if (callBtn) callBtn.href = `tel:${custInfo.phone.replace(/\s+/g, '')}`;
+
+    // 3. Route Details
+    const distanceEl = document.getElementById('route-distance');
+    if (distanceEl) {
+      distanceEl.textContent = order.distanceKm ? `${Number(order.distanceKm).toLocaleString('vi-VN')} km` : '—';
+    }
+
+    const pickupText = document.getElementById('pickup-addr-text');
+    if (pickupText) pickupText.textContent = order.pickupAddress || '—';
+
+    const dropoffText = document.getElementById('dropoff-addr-text');
+    if (dropoffText) dropoffText.textContent = order.dropoffAddress || '—';
+
+    const notesText = document.getElementById('notes-text');
+    if (notesText) notesText.textContent = order.notes || 'Không có ghi chú thêm.';
+
+    // 4. Render Timeline & Buttons
+    renderTimelineAndActions(order);
+  }
+
+  function renderTimelineAndActions(order) {
+    const status = order.status || 'ACCEPTED';
+    
+    // Reset all active classes on timeline
+    const nodes = {
+      accepted: document.getElementById('node-accepted'),
+      pickup: document.getElementById('node-pickup'),
+      delivering: document.getElementById('node-delivering'),
+      completed: document.getElementById('node-completed')
+    };
+    
+    const times = {
+      accepted: document.getElementById('time-accepted'),
+      pickup: document.getElementById('time-pickup'),
+      delivering: document.getElementById('time-delivering'),
+      completed: document.getElementById('time-completed')
+    };
+
+    // Helper to format ISO time to HH:MM
+    const formatTimeOnly = (isoStr) => {
+      if (!isoStr) return 'Chờ cập nhật';
+      try {
+        const date = new Date(isoStr);
+        if (isNaN(date)) return isoStr;
+        return date.toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: 'Asia/Ho_Chi_Minh'
+        });
+      } catch {
+        return 'Chờ cập nhật';
+      }
+    };
+
+    // Reset status times
+    Object.values(times).forEach(el => {
+      if (el) el.textContent = 'Chờ cập nhật';
+    });
+
+    Object.values(nodes).forEach(el => {
+      if (el) el.classList.remove('active');
+    });
+
+    const btnStart = document.getElementById('btn-start');
+    const btnComplete = document.getElementById('btn-complete');
+
+    btnStart.style.display = 'none';
+    btnComplete.style.display = 'none';
+
+    // Populate timeline times based on statuses
+    // For timeline:
+    // - ACCEPTED: step 1 active. Show accepted time.
+    // - IN_PROGRESS: step 1, 2, 3 active. Show pickup time and delivering time (can be same as start of delivery).
+    // - COMPLETED: step 1, 2, 3, 4 active. Show completed time.
+    
+    // We can infer timestamps from order fields:
+    // createdAt / updatedAt / completedAt
+    const createdTime = formatTimeOnly(order.createdAt);
+    const updatedTime = formatTimeOnly(order.updatedAt);
+    const completedTime = formatTimeOnly(order.completedAt);
+
+    if (status === 'ACCEPTED') {
+      nodes.accepted.classList.add('active');
+      times.accepted.textContent = createdTime;
+      
+      btnStart.style.display = 'inline-flex';
+    } 
+    else if (status === 'IN_PROGRESS') {
+      nodes.accepted.classList.add('active');
+      nodes.pickup.classList.add('active');
+      nodes.delivering.classList.add('active');
+
+      times.accepted.textContent = createdTime;
+      times.pickup.textContent = updatedTime;
+      times.delivering.textContent = updatedTime;
+
+      btnComplete.style.display = 'inline-flex';
+    } 
+    else if (status === 'COMPLETED') {
+      nodes.accepted.classList.add('active');
+      nodes.pickup.classList.add('active');
+      nodes.delivering.classList.add('active');
+      nodes.completed.classList.add('active');
+
+      times.accepted.textContent = createdTime;
+      times.pickup.textContent = updatedTime; // fallback or estimation
+      times.delivering.textContent = updatedTime; // fallback or estimation
+      times.completed.textContent = completedTime;
+    }
+  }
+
+  function getCustomerSimulatedInfo(customerId, orderCode) {
+    const names = [
+      "Nguyễn Văn An", "Đỗ Thị Mai", "Bùi Văn Long", "Nguyễn Thị Hoa",
+      "Phạm Văn Tuấn", "Lê Thị Thu", "Trần Văn Khánh", "Vũ Thị Huệ", "Đinh Văn Hải"
+    ];
+    const phones = [
+      "0901 222 333", "0912 001 001", "0912 001 002", "0912 001 003",
+      "0912 001 004", "0912 001 005", "0912 001 006", "0912 001 007", "0912 001 008"
+    ];
+    
+    let hash = 0;
+    const seed = customerId || orderCode || "default_seed";
+    for (let i = 0; i < seed.length; i++) {
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const idx = Math.abs(hash) % names.length;
+    return {
+      name: names[idx],
+      phone: phones[idx]
+    };
+  }
+
+  function initMap(order) {
+    const pickupLat = Number(order.pickupLat);
+    const pickupLng = Number(order.pickupLng);
+    const dropoffLat = Number(order.dropoffLat);
+    const dropoffLng = Number(order.dropoffLng);
+
+    const pickupAddress = order.pickupAddress || 'Điểm đón';
+    const dropoffAddress = order.dropoffAddress || 'Điểm trả';
+
+    if (window.L && !isNaN(pickupLat) && !isNaN(pickupLng) && !isNaN(dropoffLat) && !isNaN(dropoffLng)) {
+      const pickup = [pickupLat, pickupLng];
+      const dropoff = [dropoffLat, dropoffLng];
+
+      if (map) {
+        map.remove();
+        map = null;
+      }
+
+      // Create beautiful custom marker icons using Uber-styled divs (Pills and dots)
+      const pickupIcon = window.L.divIcon({
+        className: '',
+        html: `<div style="background: var(--color-primary); width: 16px; height: 16px; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 10;"></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+
+      const dropoffIcon = window.L.divIcon({
+        className: '',
+        html: `<div style="background: var(--color-accent); width: 16px; height: 16px; border: 3px solid white; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 10;"></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+
+      map = window.L.map('map', {
+        zoomControl: false
+      }).setView(pickup, 13);
+
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Add custom zoom control in top-right
+      window.L.control.zoom({ position: 'topright' }).addTo(map);
+
+      const pMarker = window.L.marker(pickup, { icon: pickupIcon }).addTo(map);
+      pMarker.bindPopup(`<b>Điểm đón:</b><br>${pickupAddress}`);
+
+      const dMarker = window.L.marker(dropoff, { icon: dropoffIcon }).addTo(map);
+      dMarker.bindPopup(`<b>Điểm trả:</b><br>${dropoffAddress}`);
+
+      // Draw dashed line representing the route path
+      const routePath = window.L.polyline([pickup, dropoff], {
+        color: 'var(--color-primary)',
+        weight: 4,
+        dashArray: '8, 12',
+        opacity: 0.85
+      }).addTo(map);
+
+      // Fit map bounds to fit markers nicely
+      const group = new window.L.featureGroup([pMarker, dMarker]);
+      map.fitBounds(group.getBounds(), { padding: [50, 50] });
+    } else {
+      document.getElementById('map').innerHTML = `
+        <div class="flex-center" style="height: 100%; flex-direction: column; color: var(--color-mute); padding: var(--spacing-2xl);">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: var(--spacing-sm);"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+          <p style="font-size: var(--font-size-body-sm); font-weight: var(--font-weight-medium);">Bản đồ không khả dụng hoặc chưa cập nhật tọa độ tuyến đường.</p>
+        </div>
+      `;
+    }
+  }
+
+  async function handleOrderAction(action) {
+    if (!currentOrder) return;
+    
+    const actionBtn = document.getElementById(action === 'start' ? 'btn-start' : 'btn-complete');
+    if (actionBtn) {
+      actionBtn.classList.add('btn-loading');
+      actionBtn.disabled = true;
+    }
+
+    try {
+      const endpoint = `/api/driver/orders/${currentOrder.id}/${action}`;
+      await postAuthenticated(endpoint, null);
+      
+      if (action === 'complete') {
+        // Redirect to history page upon completion
+        window.location.href = 'history.html';
+      } else {
+        // Reload details for transition state (IN_PROGRESS)
+        loadOrderDetails();
+      }
+    } catch (err) {
+      console.error(`Error performing order action ${action}:`, err);
+      
+      // Display error banner
+      const banner = document.getElementById('error-banner');
+      if (banner) {
+        banner.textContent = err.message || 'Thực hiện thao tác thất bại. Vui lòng thử lại.';
+        banner.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } finally {
+      if (actionBtn) {
+        actionBtn.classList.remove('btn-loading');
+        actionBtn.disabled = false;
+      }
+    }
+  }
+</script>
 </body>
 </html>

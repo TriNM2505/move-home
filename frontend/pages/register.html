@@ -10,107 +10,149 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Scoped styles for register page success alert */
+    .success-alert {
+      background-color: var(--color-success-bg);
+      color: var(--color-success-text);
+      border: 1px solid #A7F3D0;
+      border-radius: var(--rounded-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+      font-size: var(--font-size-body-sm);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    /* Scoped overrides to balance split columns and reduce whitespace */
+    .auth-page--split .auth-banner {
+      flex: 0.9;
+      padding: var(--spacing-4xl) var(--spacing-3xl);
+    }
+    .auth-page--split .auth-form-container {
+      flex: 1.1;
+      padding: var(--spacing-3xl) var(--spacing-lg);
+    }
+    .auth-banner-illustration {
+      max-width: 360px;
+    }
+  </style>
 </head>
 <body>
 
-<main class="auth-page">
-  <div class="auth-card card-elevated">
+<main class="auth-page auth-page--split">
+  <!-- Cột Banner Trái (Thương hiệu & Minh họa) -->
+  <div class="auth-banner">
+    <div class="auth-banner-content">
+      <div class="auth-banner-eyebrow">ĐĂNG KÝ THÀNH VIÊN</div>
+      <h1 class="auth-banner-title">Giải pháp chuyển nhà chuyên nghiệp và tin cậy</h1>
+      <p class="auth-banner-text">Đăng ký tài khoản ngay hôm nay để trải nghiệm dịch vụ đặt lịch chuyển dọn nhà nhanh chóng, minh bạch giá cả và đội ngũ tài xế tận tâm.</p>
+      <img src="../assets/register_moving_illustration.png" alt="Minh họa chuyển nhà" class="auth-banner-illustration" />
+    </div>
+  </div>
 
-    <!-- Logo -->
-    <a href="../index.html" class="auth-logo">Move_home</a>
+  <!-- Cột Form Phải (Đăng ký) -->
+  <div class="auth-form-container">
+    <div class="card-elevated auth-card">
 
-    <!-- Tiêu đề -->
-    <h2 style="text-align:center; margin:0 0 4px; font-size:20px; font-weight:700; color:var(--color-ink);">
-      Tạo tài khoản mới
-    </h2>
-    <p class="auth-tagline">Đặt dịch vụ chuyển nhà chỉ trong vài bước</p>
+      <!-- Logo -->
+      <a href="../index.html" class="auth-logo">Move_home</a>
 
-    <!-- Thông báo lỗi -->
-    <div id="errorMessage" class="error-alert" hidden role="alert"></div>
+      <!-- Tiêu đề -->
+      <h2 style="text-align:center; margin:0 0 4px; font-size:20px; font-weight:700; color:var(--color-ink);">
+        Tạo tài khoản mới
+      </h2>
+      <p class="auth-tagline">Đặt dịch vụ chuyển nhà chỉ trong vài bước</p>
 
-    <!-- Thông báo thành công -->
-    <div id="successMessage" class="alert alert-success" hidden role="status"></div>
+      <!-- Thông báo lỗi -->
+      <div id="errorMessage" class="error-alert" hidden role="alert"></div>
 
-    <!-- Form đăng ký -->
-    <form id="registerForm" novalidate>
+      <!-- Thông báo thành công -->
+      <div id="successMessage" class="success-alert" hidden role="status"></div>
 
-      <!-- Họ và tên -->
-      <div class="form-group">
-        <label for="fullName" class="form-label">Họ và tên <span class="form-required" aria-hidden="true">*</span></label>
-        <input id="fullName" name="fullName" type="text" class="text-input"
-               placeholder="Nhập họ và tên" required autofocus>
-        <span class="form-error" id="fullName-error" role="alert" hidden></span>
-      </div>
+      <!-- Form đăng ký -->
+      <form id="registerForm" novalidate>
 
-      <!-- Email -->
-      <div class="form-group">
-        <label for="email" class="form-label">Email <span class="form-required" aria-hidden="true">*</span></label>
-        <input id="email" name="email" type="email" class="text-input"
-               placeholder="Nhập email của bạn" required autocomplete="email">
-        <span class="form-error" id="email-error" role="alert" hidden></span>
-      </div>
-
-      <!-- Số điện thoại -->
-      <div class="form-group">
-        <label for="phone" class="form-label">Số điện thoại</label>
-        <input id="phone" name="phone" type="tel" class="text-input"
-               placeholder="+84xxxxxxxxx" autocomplete="tel">
-        <span class="form-error" id="phone-error" role="alert" hidden></span>
-      </div>
-
-      <!-- Mật khẩu -->
-      <div class="form-group">
-        <label for="password" class="form-label">Mật khẩu <span class="form-required" aria-hidden="true">*</span></label>
-        <div class="input-wrapper">
-          <input id="password" name="password" type="password" class="text-input"
-                 placeholder="Tối thiểu 8 ký tự" required minlength="8" autocomplete="new-password">
-          <button type="button" class="input-toggle-btn" id="pwd-toggle" aria-label="Hiện hoặc ẩn mật khẩu">👁</button>
+        <!-- Họ và tên -->
+        <div class="form-group">
+          <label for="fullName" class="form-label">Họ và tên <span class="form-required" aria-hidden="true">*</span></label>
+          <input id="fullName" name="fullName" type="text" class="text-input"
+                 placeholder="Nhập họ và tên" required autofocus>
+          <span class="form-error" id="fullName-error" role="alert" hidden></span>
         </div>
-        <span class="form-error" id="password-error" role="alert" hidden></span>
-      </div>
 
-      <!-- Xác nhận mật khẩu -->
-      <div class="form-group">
-        <label for="passwordConfirm" class="form-label">Xác nhận mật khẩu <span class="form-required" aria-hidden="true">*</span></label>
-        <div class="input-wrapper">
-          <input id="passwordConfirm" name="passwordConfirm" type="password" class="text-input"
-                 placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
-          <button type="button" class="input-toggle-btn" id="pwd-confirm-toggle" aria-label="Hiện hoặc ẩn mật khẩu xác nhận">👁</button>
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email" class="form-label">Email <span class="form-required" aria-hidden="true">*</span></label>
+          <input id="email" name="email" type="email" class="text-input"
+                 placeholder="Nhập email của bạn" required autocomplete="email">
+          <span class="form-error" id="email-error" role="alert" hidden></span>
         </div>
-        <span class="form-error" id="passwordConfirm-error" role="alert" hidden></span>
-      </div>
 
-      <!-- Điều khoản -->
-      <div class="form-group">
-        <label class="form-check">
-          <input type="checkbox" class="form-check-input" id="termsAccepted" name="termsAccepted" required>
-          <span class="form-check-box" aria-hidden="true"></span>
-          <span class="form-check-label">
-            Tôi đồng ý với
-            <a href="#" class="link-primary">điều khoản sử dụng</a>
-            và
-            <a href="#" class="link-primary">chính sách bảo mật</a>
-          </span>
-        </label>
-        <span class="form-error" id="terms-error" role="alert" hidden></span>
-      </div>
+        <!-- Số điện thoại -->
+        <div class="form-group">
+          <label for="phone" class="form-label">Số điện thoại</label>
+          <input id="phone" name="phone" type="tel" class="text-input"
+                 placeholder="+84xxxxxxxxx" autocomplete="tel">
+          <span class="form-error" id="phone-error" role="alert" hidden></span>
+        </div>
 
-      <!-- Nút đăng ký -->
-      <div class="form-group">
-        <button id="registerBtn" type="submit" class="btn-primary btn-full">
-          Đăng ký
-        </button>
-      </div>
+        <!-- Mật khẩu -->
+        <div class="form-group">
+          <label for="password" class="form-label">Mật khẩu <span class="form-required" aria-hidden="true">*</span></label>
+          <div class="input-wrapper">
+            <input id="password" name="password" type="password" class="text-input"
+                   placeholder="Tối thiểu 8 ký tự" required minlength="8" autocomplete="new-password">
+            <button type="button" class="input-toggle-btn" id="pwd-toggle" aria-label="Hiện hoặc ẩn mật khẩu">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+          <span class="form-error" id="password-error" role="alert" hidden></span>
+        </div>
 
-    </form>
+        <!-- Xác nhận mật khẩu -->
+        <div class="form-group">
+          <label for="passwordConfirm" class="form-label">Xác nhận mật khẩu <span class="form-required" aria-hidden="true">*</span></label>
+          <div class="input-wrapper">
+            <input id="passwordConfirm" name="passwordConfirm" type="password" class="text-input"
+                   placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
+            <button type="button" class="input-toggle-btn" id="pwd-confirm-toggle" aria-label="Hiện hoặc ẩn mật khẩu xác nhận">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+          <span class="form-error" id="passwordConfirm-error" role="alert" hidden></span>
+        </div>
 
-    <div class="auth-divider">hoặc</div>
+        <!-- Điều khoản -->
+        <div class="form-group">
+          <label class="form-check">
+            <input type="checkbox" class="form-check-input" id="termsAccepted" name="termsAccepted" required>
+            <span class="form-check-box" aria-hidden="true"></span>
+            <span class="form-check-label">
+              Tôi đồng ý với
+              <a href="#" class="link-primary">điều khoản sử dụng</a>
+              và
+              <a href="#" class="link-primary">chính sách bảo mật</a>
+            </span>
+          </label>
+          <span class="form-error" id="terms-error" role="alert" hidden></span>
+        </div>
 
-    <p class="auth-footer-text">
-      Đã có tài khoản?
-      <a href="login.html" class="link-primary">Đăng nhập</a>
-    </p>
+        <!-- Nút đăng ký -->
+        <div class="form-group">
+          <button id="registerBtn" type="submit" class="btn-primary btn-full">
+            Đăng ký
+          </button>
+        </div>
 
+      </form>
+
+      <div class="auth-divider">hoặc</div>
+
+      <p class="auth-footer-text">
+        Đã có tài khoản?
+        <a href="login.html" class="link-primary">Đăng nhập</a>
+      </p>
+
+    </div>
   </div>
 </main>
 
@@ -118,13 +160,20 @@
 <script type="module">
   import { register } from '../js/auth.js';
 
-  // Hiện/ẩn mật khẩu
+  // Hiện/ẩn mật khẩu bằng SVG
   function setupToggle(btnId, inputId) {
-    document.getElementById(btnId)?.addEventListener('click', function () {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+
+    const eyeSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+    const eyeOffSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+    btn.addEventListener('click', function () {
       const el = document.getElementById(inputId);
+      if (!el) return;
       const hidden = el.type === 'password';
       el.type = hidden ? 'text' : 'password';
-      this.textContent = hidden ? '🙈' : '👁';
+      this.innerHTML = hidden ? eyeOffSvg : eyeSvg;
       this.setAttribute('aria-label', hidden ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
     });
   }
@@ -182,6 +231,10 @@
     }
 
     const btn = document.getElementById('registerBtn');
+    const inputs = ['fullName', 'email', 'phone', 'password', 'passwordConfirm', 'termsAccepted'].map(id => document.getElementById(id));
+
+    // Lock inputs during submission (AC-16)
+    inputs.forEach(input => { if (input) input.disabled = true; });
     setLoading(btn, true);
 
     try {
@@ -192,6 +245,8 @@
       setTimeout(() => { window.location.href = 'login.html'; }, 3000);
     } catch (err) {
       handleError(err);
+      // Unlock inputs on error
+      inputs.forEach(input => { if (input) input.disabled = false; });
     } finally {
       setLoading(btn, false);
     }
@@ -203,10 +258,14 @@
       return;
     }
     if (err.status === 409) {
-      const field = err.data?.field;
-      if (field === 'email')      showFieldError('email-error', 'Email này đã được sử dụng. Vui lòng dùng email khác.');
-      else if (field === 'phone') showFieldError('phone-error', 'Số điện thoại này đã được sử dụng.');
-      else                        showError('Thông tin đã tồn tại. Vui lòng kiểm tra lại.');
+      const msg = err.message || '';
+      if (msg.toLowerCase().includes('email')) {
+        showFieldError('email-error', 'Email này đã được sử dụng. Vui lòng dùng email khác.');
+      } else if (msg.toLowerCase().includes('số điện thoại') || msg.toLowerCase().includes('phone')) {
+        showFieldError('phone-error', 'Số điện thoại này đã được sử dụng.');
+      } else {
+        showError(msg || 'Thông tin đã tồn tại. Vui lòng kiểm tra lại.');
+      }
       return;
     }
     if (err.status === 422 && err.data?.details) {
@@ -228,7 +287,6 @@
     const el = document.getElementById('successMessage');
     el.textContent = msg;
     el.removeAttribute('hidden');
-    el.style.display = 'flex';
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
