@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.movehome.backend.client.OsrmClient;
 import vn.movehome.backend.dto.RouteEstimateResponse;
 import vn.movehome.backend.dto.customer.PricingBreakdown;
+import vn.movehome.backend.service.CommissionSettingsService;
 import vn.movehome.backend.service.PricingService;
 import vn.movehome.backend.util.OrderCodeGenerator;
 
@@ -18,11 +19,11 @@ import java.util.UUID;
 public class OrderService {
 
     private static final String PENDING_STATUS = "PENDING_PAYMENT";
-    private static final BigDecimal COMMISSION_RATE = new BigDecimal("0.3000");
 
     private final OrderRepository orderRepository;
     private final OsrmClient osrmClient;
     private final PricingService pricingService;
+    private final CommissionSettingsService commissionSettingsService;
 
     @Transactional
     public CreateOrderResponse createOrder(UUID customerId, CreateOrderRequest request) {
@@ -54,7 +55,7 @@ public class OrderService {
                 .scheduledAt(request.scheduledAt())
                 .status(PENDING_STATUS)
                 .totalQuote(money(pricing.totalQuote()))
-                .commissionRateSnapshot(COMMISSION_RATE)
+                .commissionRateSnapshot(commissionSettingsService.currentCommissionRate())
                 .distanceKm(route.distanceKm())
                 .estimatedDurationMinutes(route.durationMinutes())
                 .notes(normalizeNotes(request.notes()))

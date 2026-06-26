@@ -3,6 +3,7 @@ package vn.movehome.backend.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import vn.movehome.backend.entity.Transaction;
@@ -18,7 +19,7 @@ import java.util.UUID;
  * Khong co soft delete — transaction la append-only log (Constitution AC-13).
  * KHONG bao gio delete hay update ban ghi — neu can revert: them ADJUSTMENT transaction moi.
  */
-public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
+public interface TransactionRepository extends JpaRepository<Transaction, UUID>, JpaSpecificationExecutor<Transaction> {
 
     /**
      * Lich su giao dich cua mot user, moi nhat truoc (co phan trang).
@@ -38,6 +39,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
      * Idempotency cho earning: một đơn hàng chỉ được ghi DRIVER_EARNING một lần.
      */
     boolean existsByTypeAndRelatedOrderId(TransactionType type, UUID relatedOrderId);
+
+    boolean existsByTypeAndRelatedWithdrawalId(TransactionType type, UUID relatedWithdrawalId);
+
+    Optional<Transaction> findByTypeAndRelatedWithdrawalId(TransactionType type, UUID relatedWithdrawalId);
 
     /**
      * Tinh tong so tien cua mot user theo loai giao dich.
