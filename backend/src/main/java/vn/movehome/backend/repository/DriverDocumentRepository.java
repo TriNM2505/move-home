@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface DriverDocumentRepository extends JpaRepository<DriverDocument, UUID> {
 
     List<DriverDocument> findByDriverIdOrderByUploadedAtDesc(UUID driverId);
+
+    long countByDriverId(UUID driverId);
 }

@@ -62,6 +62,9 @@ public class User implements UserDetails {
     @Column(length = 20)
     private String phone;
 
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
+
     // 4 vai tro — luu enum name truc tiep vao DB (HR-10)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

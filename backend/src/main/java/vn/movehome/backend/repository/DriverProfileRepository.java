@@ -1,6 +1,9 @@
 package vn.movehome.backend.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import vn.movehome.backend.entity.DriverProfile;
 
 import java.util.List;
@@ -32,4 +35,18 @@ public interface DriverProfileRepository extends JpaRepository<DriverProfile, UU
      * Dung cho KPI "tong so Driver da tung ACTIVE" trong bao cao (Phase 3B).
      */
     long countByApprovedAtIsNotNull();
+
+    @Query("select dp from DriverProfile dp " +
+            "join User u on u.id = dp.userId " +
+            "where u.role = vn.movehome.backend.entity.UserRole.DRIVER " +
+            "  and u.status = vn.movehome.backend.entity.UserStatus.PENDING_APPROVAL " +
+            "  and u.deletedAt is null")
+    Page<DriverProfile> findPendingApproval(Pageable pageable);
+
+    @Query("select dp from DriverProfile dp " +
+            "join User u on u.id = dp.userId " +
+            "where u.role = vn.movehome.backend.entity.UserRole.DRIVER " +
+            "  and u.status = vn.movehome.backend.entity.UserStatus.REJECTED " +
+            "  and u.deletedAt is null")
+    Page<DriverProfile> findRejected(Pageable pageable);
 }
