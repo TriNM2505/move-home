@@ -85,6 +85,29 @@ class JwtAuthenticationFilterTest {
         verify(filterChain).doFilter(request, response);
     }
 
+    @Test
+    void doesNotAuthenticateAdminLockedUserWithExistingAccessToken() throws Exception {
+        UUID userId = UUID.randomUUID();
+        User user = User.builder()
+                .id(userId)
+                .email("locked@movehome.vn")
+                .role(UserRole.CUSTOMER)
+                .status(UserStatus.LOCKED)
+                .emailVerified(true)
+                .build();
+        when(jwtTokenProvider.validateAccessToken("valid-token")).thenReturn(Optional.of(userId));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        MockHttpServletRequest request = bearerRequest("/api/customer/profile");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        new JwtAuthenticationFilter(jwtTokenProvider, userRepository)
+                .doFilter(request, response, filterChain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        verify(filterChain).doFilter(request, response);
+    }
+
     private MockHttpServletRequest bearerRequest(String uri) {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization", "Bearer valid-token");

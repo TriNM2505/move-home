@@ -109,6 +109,24 @@ class AuthServiceTest {
         verify(jwtTokenProvider, never()).generateAccessToken(any());
     }
 
+    @Test
+    void adminLockedUserCannotLoginAndReceivesAccountLocked() {
+        String email = "locked-customer@movehome.vn";
+        User user = verifiedUser(email, UserRole.CUSTOMER, UserStatus.LOCKED);
+        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> authService.login(new LoginRequest(email, PASSWORD)))
+                .isInstanceOfSatisfying(ResponseStatusException.class, ex -> {
+                    assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.LOCKED);
+                    assertThat(ex.getReason()).isEqualTo(
+                            "ACCOUNT_LOCKED|Tai khoan da bi khoa. Vui long lien he quan tri vien.");
+                });
+
+        verify(passwordEncoder, never()).matches(any(), any());
+        verify(jwtTokenProvider, never()).generateAccessToken(any());
+        verify(refreshTokenRepository, never()).save(any());
+    }
+
     private void stubSuccessfulLogin(User user) {
         when(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(PASSWORD, PASSWORD_HASH)).thenReturn(true);
