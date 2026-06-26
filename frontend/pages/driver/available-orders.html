@@ -12,18 +12,166 @@
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
     .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
-    .order-card { display: grid; grid-template-columns: 1fr auto; gap: var(--spacing-lg); align-items: center; }
-    .route { font-weight: var(--font-weight-semibold); color: var(--color-ink); }
-    .order-meta { display: flex; flex-wrap: wrap; gap: var(--spacing-md); color: var(--color-body); font-size: var(--font-size-body-sm); margin-top: var(--spacing-sm); }
     @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
-    @media (max-width: 700px) { .order-card { grid-template-columns: 1fr; } }
+
+    /* Custom styles for available-orders page */
+    .page-eyebrow {
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-accent);
+      margin-bottom: var(--spacing-xxs);
+      display: block;
+    }
+    
+    .order-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--spacing-xl);
+      align-items: center;
+      padding: var(--spacing-2xl);
+      background: var(--color-canvas);
+      border: 1px solid var(--color-surface-pressed);
+      border-radius: var(--rounded-xl);
+      transition: transform var(--transition-fast), border-color var(--transition-fast);
+    }
+    .order-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--color-primary);
+    }
+
+    .route-visual {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding-left: 24px;
+      margin: var(--spacing-md) 0;
+    }
+    .route-visual::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 14px;
+      bottom: 14px;
+      width: 2px;
+      border-left: 2px dashed var(--color-mute);
+    }
+    .route-point {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-body-md);
+      color: var(--color-ink);
+      margin-bottom: var(--spacing-sm);
+      position: relative;
+    }
+    .route-point:last-child {
+      margin-bottom: 0;
+    }
+    .route-dot {
+      position: absolute;
+      left: -24px;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-canvas);
+    }
+    .route-dot-pickup {
+      color: var(--color-primary);
+    }
+    .route-dot-dropoff {
+      color: var(--color-accent);
+    }
+
+    .order-meta-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+      color: var(--color-body);
+      font-size: var(--font-size-body-sm);
+      margin-top: var(--spacing-sm);
+      align-items: center;
+    }
+    .order-meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    .order-meta-divider {
+      color: var(--color-surface-pressed);
+    }
+
+    .price-action-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: var(--spacing-md);
+    }
+
+    .order-price {
+      font-size: var(--font-size-display-sm);
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 768px) {
+      .order-card {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+      }
+      .price-action-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        border-top: 1px solid var(--color-surface-pressed);
+        padding-top: var(--spacing-md);
+      }
+    }
+
+    /* Skeleton Shimmer Loading styles */
+    .skeleton-card {
+      padding: var(--spacing-2xl);
+      background: var(--color-canvas);
+      border: 1px solid var(--color-surface-pressed);
+      border-radius: var(--rounded-xl);
+    }
+    .skeleton-line {
+      height: 16px;
+      margin-bottom: var(--spacing-md);
+      background: linear-gradient(90deg, var(--color-surface-pressed) 25%, var(--color-canvas-soft) 50%, var(--color-surface-pressed) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--rounded-md);
+    }
+    .skeleton-line:last-child {
+      margin-bottom: 0;
+    }
+    .skeleton-title { width: 40%; height: 24px; }
+    .skeleton-route { width: 85%; height: 64px; }
+    .skeleton-meta { width: 60%; height: 16px; }
+    .skeleton-btn { width: 120px; height: 40px; border-radius: var(--rounded-pill); }
+    .skeleton-price { width: 100px; height: 28px; }
+
+    @keyframes shimmer {
+      from { background-position: -200% 0; }
+      to { background-position: 200% 0; }
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
+  <!-- SITE HEADER -->
   <header class="site-header">
     <div class="container site-header-inner">
-      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+      </a>
       <nav class="driver-nav" aria-label="Điều hướng tài xế">
         <a href="home.html" class="nav-link">Trang chủ</a>
         <a href="available-orders.html" class="nav-link active">Đơn có sẵn</a>
@@ -34,78 +182,500 @@
         <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
       </nav>
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
-        <div class="avatar avatar-sm avatar-initials">LC</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Tài xế</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">TX</div>
+        <button id="logout-btn" class="btn-subtle" style="margin-left: 12px; border:none; cursor:pointer;">Đăng xuất</button>
       </div>
     </div>
   </header>
 
+  <!-- MAIN CONTENT -->
   <main class="site-main">
     <div class="dashboard-main">
+      
+      <!-- Error Banner -->
+      <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-xl);"></div>
+
+      <!-- Page Header -->
       <header class="page-header flex-between">
         <div>
-          <h1 class="page-title">Đơn có sẵn</h1>
+          <span class="page-eyebrow">Tài xế</span>
+          <h1 class="page-title" style="margin-bottom: 2px;">Đơn có sẵn</h1>
           <p class="page-subtitle">Danh sách đơn đang chờ tài xế phù hợp nhận.</p>
         </div>
-        <a href="available-orders.html" class="btn-subtle">Làm mới</a>
+        <button id="refresh-btn" class="btn-subtle flex-center" style="border: none; cursor: pointer;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Làm mới
+        </button>
       </header>
 
+      <!-- Filter Bar -->
       <nav class="filter-bar" aria-label="Bộ lọc đơn">
-        <button class="filter-pill active">Gần đây</button>
-        <button class="filter-pill">Phù hợp xe</button>
-        <button class="filter-pill">Giá cao</button>
+        <button class="filter-pill active" data-filter="recent">Gần đây</button>
+        <button class="filter-pill" data-filter="matching">Phù hợp xe</button>
+        <button class="filter-pill" data-filter="high-value">Giá cao</button>
       </nav>
 
-      <section class="flex-col gap-lg">
-        <article class="card-elevated order-card">
-          <div>
-            <p class="route">Quận Ba Đình → Quận Cầu Giấy</p>
-            <div class="order-meta">
-              <span>Mã đơn MH2026060001</span>
-              <span>Khách hàng: Nguyễn Văn An</span>
-              <span>8,4 km</span>
-              <span>Hẹn 09:30, 05/06/2026</span>
-            </div>
-          </div>
-          <div class="text-right">
-            <strong class="num-money">1.500.000 VND</strong>
-            <div class="mt-sm"><a href="order-detail.html" class="btn-primary">Xem chi tiết</a></div>
-          </div>
-        </article>
-        <article class="card-elevated order-card">
-          <div>
-            <p class="route">Quận Thanh Xuân → Quận Hà Đông</p>
-            <div class="order-meta">
-              <span>Mã đơn MH2026060003</span>
-              <span>Khách hàng: Phạm Thu Hà</span>
-              <span>11,2 km</span>
-              <span>Hẹn 14:00, 05/06/2026</span>
-            </div>
-          </div>
-          <div class="text-right">
-            <strong class="num-money">1.850.000 VND</strong>
-            <div class="mt-sm"><a href="order-detail.html" class="btn-primary">Xem chi tiết</a></div>
-          </div>
-        </article>
-        <article class="card-elevated order-card">
-          <div>
-            <p class="route">Quận Đống Đa → Quận Hoàn Kiếm</p>
-            <div class="order-meta">
-              <span>Mã đơn MH2026060004</span>
-              <span>Khách hàng: Trần Thị Bình</span>
-              <span>5,7 km</span>
-              <span>Hẹn 16:30, 05/06/2026</span>
-            </div>
-          </div>
-          <div class="text-right">
-            <strong class="num-money">980.000 VND</strong>
-            <div class="mt-sm"><a href="order-detail.html" class="btn-primary">Xem chi tiết</a></div>
-          </div>
-        </article>
+      <!-- LOADING STATE -->
+      <section id="orders-loading" class="flex-col gap-lg" style="display: none;">
+        <div class="skeleton-card">
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-route"></div>
+          <div class="skeleton-line skeleton-meta"></div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-route"></div>
+          <div class="skeleton-line skeleton-meta"></div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-route"></div>
+          <div class="skeleton-line skeleton-meta"></div>
+        </div>
       </section>
+
+      <!-- ERROR STATE -->
+      <section id="orders-error" style="display: none; text-align: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-md);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <h2 style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm); color: var(--color-ink);">Không thể tải danh sách đơn hàng</h2>
+        <p id="orders-error-message" style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Có lỗi xảy ra trong quá trình kết nối đến máy chủ.</p>
+        <button id="orders-retry-btn" class="btn-primary" style="margin: 0 auto; border: none; cursor: pointer;">Thử lại</button>
+      </section>
+
+      <!-- EMPTY STATE -->
+      <section id="orders-empty" style="display: none; text-align: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--color-mute)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-lg); color: var(--color-mute);">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+          <line x1="12" y1="22.08" x2="12" y2="12"></line>
+        </svg>
+        <h2 class="empty-state-headline">Không có đơn hàng nào</h2>
+        <p class="empty-state-body">Hiện tại không có đơn hàng nào đang chờ nhận trên hệ thống. Hãy làm mới hoặc quay lại sau.</p>
+        <button id="orders-empty-refresh-btn" class="btn-primary" style="margin: 0 auto; border: none; cursor: pointer;">Làm mới trang</button>
+      </section>
+
+      <!-- CONTENT STATE -->
+      <section id="orders-content" style="display: none;">
+        <!-- Orders list -->
+        <div class="flex-col gap-lg" id="orders-list">
+          <!-- Dynamic cards go here -->
+        </div>
+
+        <!-- Pagination Bar -->
+        <div class="pagination-bar" id="orders-pagination" style="margin-top: var(--spacing-3xl);">
+          <!-- Dynamic pagination controls -->
+        </div>
+      </section>
+
     </div>
   </main>
 </div>
+
+<!-- SCRIPT LOGIC (ES Module) -->
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  let currentFilter = 'recent';
+  let currentPage = 0;
+  let currentSize = 10;
+  let ordersList = [];
+  let driverProfile = null;
+  let latestPageResponse = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Authenticate and authorize role
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'DRIVER') {
+      logout('../login.html');
+      return;
+    }
+
+    // 2. Set dynamic user details in top bar
+    setupUserIdentityHeader(user);
+
+    // 3. Register Event Listeners
+    setupEventListeners();
+
+    // 4. Fetch available orders
+    loadData(0);
+  });
+
+  function setupUserIdentityHeader(user) {
+    const nameEl = document.getElementById('header-user-name');
+    if (nameEl) nameEl.textContent = user.fullName || 'Tài xế';
+
+    const avatarEl = document.getElementById('header-user-avatar');
+    if (avatarEl && user.fullName) {
+      const words = user.fullName.trim().split(/\s+/).filter(Boolean);
+      avatarEl.textContent = words.map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+  }
+
+  function setupEventListeners() {
+    // Logout button handler
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => logout('../login.html'));
+    }
+
+    // Refresh and retry actions
+    document.getElementById('refresh-btn')?.addEventListener('click', () => loadData(currentPage));
+    document.getElementById('orders-retry-btn')?.addEventListener('click', () => loadData(currentPage));
+    document.getElementById('orders-empty-refresh-btn')?.addEventListener('click', () => loadData(0));
+
+    // Filter bar pills
+    const pills = document.querySelectorAll('.filter-pill');
+    pills.forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        pills.forEach(p => p.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        currentFilter = e.currentTarget.getAttribute('data-filter') || 'recent';
+        
+        // Re-render current list with selected sorting/filtering rules
+        if (latestPageResponse) {
+          renderOrdersAndPagination(latestPageResponse);
+        }
+      });
+    });
+  }
+
+  async function loadData(page = 0) {
+    currentPage = page;
+    showSection('orders-loading');
+    hideErrorBanner();
+
+    try {
+      // Fetch driver profile first if not already cached (needed for vehicle matching)
+      if (!driverProfile) {
+        try {
+          driverProfile = await getAuthenticated('/api/driver/profile');
+        } catch (profileErr) {
+          console.warn('Could not fetch driver profile for vehicle matching. Error:', profileErr);
+        }
+      }
+
+      // Fetch available orders (GET /api/driver/orders/available)
+      const response = await getAuthenticated(`/api/driver/orders/available?page=${page}&size=${currentSize}`);
+      
+      if (!response || !response.content || response.content.length === 0) {
+        showSection('orders-empty');
+        return;
+      }
+
+      ordersList = response.content;
+      latestPageResponse = response;
+      
+      // Render orders list and pagination controls
+      renderOrdersAndPagination(response);
+      showSection('orders-content');
+
+    } catch (err) {
+      console.error('Error loading available orders:', err);
+      const errorMsg = document.getElementById('orders-error-message');
+      if (errorMsg) {
+        errorMsg.textContent = err.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại.';
+      }
+      showSection('orders-error');
+    }
+  }
+
+  function showSection(sectionId) {
+    const sections = ['orders-loading', 'orders-error', 'orders-empty', 'orders-content'];
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (id === 'orders-loading' && id === sectionId) {
+          el.style.display = 'flex';
+        } else {
+          el.style.display = id === sectionId ? 'block' : 'none';
+        }
+      }
+    });
+  }
+
+  function renderOrdersAndPagination(pageResponse) {
+    const listEl = document.getElementById('orders-list');
+    listEl.innerHTML = '';
+
+    // Apply client-side filters & sorting
+    let processedOrders = [...ordersList];
+
+    if (currentFilter === 'matching') {
+      if (driverProfile && driverProfile.vehicleType) {
+        const driverVehicleNormalized = normalizeVehicleTypeKey(driverProfile.vehicleType);
+        processedOrders = processedOrders.filter(order => {
+          const orderVehicleNormalized = normalizeVehicleTypeKey(order.vehicleType);
+          return driverVehicleNormalized === orderVehicleNormalized;
+        });
+      }
+    } else if (currentFilter === 'high-value') {
+      processedOrders.sort((a, b) => {
+        const valA = a.totalQuote ? parseFloat(a.totalQuote) : 0;
+        const valB = b.totalQuote ? parseFloat(b.totalQuote) : 0;
+        return valB - valA;
+      });
+    }
+
+    if (processedOrders.length === 0) {
+      listEl.innerHTML = `
+        <div style="text-align: center; padding: var(--spacing-4xl); color: var(--color-body); background: var(--color-canvas); border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-xl);">
+          <p style="font-size: var(--font-size-body-md); font-weight: var(--font-weight-medium);">Không có đơn hàng nào khớp với bộ lọc "${translateFilterName(currentFilter)}".</p>
+        </div>
+      `;
+    } else {
+      processedOrders.forEach(order => {
+        const cardHtml = renderOrderCard(order);
+        listEl.insertAdjacentHTML('beforeend', cardHtml);
+      });
+    }
+
+    renderPaginationBar(pageResponse);
+  }
+
+  function renderOrderCard(order) {
+    const pickupDist = order.pickupDistrict || '—';
+    const dropoffDist = order.dropoffDistrict || '—';
+    const code = order.orderCode || '—';
+    const vehicleLabel = translateVehicleType(order.vehicleType);
+    const distance = order.distanceKm ? `${Number(order.distanceKm).toLocaleString('vi-VN')} km` : '—';
+    const dateFormatted = formatDate(order.scheduledAt);
+    const timeFormatted = formatTime(order.scheduledAt);
+    const priceFormatted = formatVnd(order.totalQuote);
+
+    return `
+      <article class="order-card">
+        <div>
+          <!-- Vehicle Type Badge -->
+          <span class="badge badge-sm badge-success" style="margin-bottom: var(--spacing-sm); display: inline-flex;">${vehicleLabel}</span>
+          
+          <!-- Route Visual Display -->
+          <div class="route-visual">
+            <div class="route-point">
+              <span class="route-dot route-dot-pickup">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
+              </span>
+              <span><strong>Điểm đón:</strong> Quận ${pickupDist}</span>
+            </div>
+            <div class="route-point">
+              <span class="route-dot route-dot-dropoff">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>
+              </span>
+              <span><strong>Điểm trả:</strong> Quận ${dropoffDist}</span>
+            </div>
+          </div>
+
+          <!-- Metadata Info Row -->
+          <div class="order-meta-info">
+            <div class="order-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="4"></line><line x1="8" y1="2" x2="8" y2="4"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <span>Mã: ${code}</span>
+            </div>
+            <span class="order-meta-divider">|</span>
+            <div class="order-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>Hẹn: ${timeFormatted}, ${dateFormatted}</span>
+            </div>
+            <span class="order-meta-divider">|</span>
+            <div class="order-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 22 22 22"></polygon></svg>
+              <span>Quãng đường: ${distance}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="price-action-container">
+          <strong class="order-price">${priceFormatted}</strong>
+          <div>
+            <a href="order-detail.html?id=${order.id}" class="btn-primary">Xem chi tiết</a>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderPaginationBar(pageResponse) {
+    const container = document.getElementById('orders-pagination');
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    const totalElements = pageResponse.totalElements ?? 0;
+    const totalPages = pageResponse.totalPages ?? 0;
+    const number = pageResponse.number ?? 0;
+    const size = pageResponse.size ?? currentSize;
+
+    if (totalElements === 0) {
+      container.style.display = 'none';
+      return;
+    }
+    container.style.display = 'flex';
+
+    // 1. Info templates
+    const start = totalElements === 0 ? 0 : number * size + 1;
+    const end = Math.min((number + 1) * size, totalElements);
+    const infoText = `Hiển thị ${start}-${end} trong ${totalElements} đơn`;
+    const infoHtml = `<span class="pagination-info">${infoText}</span>`;
+
+    // 2. Navigation buttons controls
+    let controlsHtml = `<div class="pagination-controls">`;
+
+    // Prev Button
+    const prevDisabled = number === 0 ? 'disabled' : '';
+    controlsHtml += `<button class="pagination-btn-prev" ${prevDisabled} data-page="${number - 1}">« Trước</button>`;
+
+    // Page Numbers using compression (ellipsis)
+    const maxVisiblePages = 5;
+    let startPage = Math.max(0, number - 2);
+    let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(0, endPage - maxVisiblePages + 1);
+    }
+
+    if (startPage > 0) {
+      controlsHtml += `<button class="pagination-btn-page" data-page="0">1</button>`;
+      if (startPage > 1) {
+        controlsHtml += `<span class="pagination-ellipsis">...</span>`;
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      const activeClass = i === number ? 'active' : '';
+      controlsHtml += `<button class="pagination-btn-page ${activeClass}" data-page="${i}">${i + 1}</button>`;
+    }
+
+    if (endPage < totalPages - 1) {
+      if (endPage < totalPages - 2) {
+        controlsHtml += `<span class="pagination-ellipsis">...</span>`;
+      }
+      controlsHtml += `<button class="pagination-btn-page" data-page="${totalPages - 1}">${totalPages}</button>`;
+    }
+
+    // Next Button
+    const nextDisabled = number >= totalPages - 1 ? 'disabled' : '';
+    controlsHtml += `<button class="pagination-btn-next" ${nextDisabled} data-page="${number + 1}">Tiếp »</button>`;
+
+    controlsHtml += `</div>`;
+
+    // 3. Dropdown page size select
+    const sizeSelectHtml = `
+      <div class="pagination-size-wrapper">
+        <span class="pagination-size-label">Số đơn/trang:</span>
+        <select class="pagination-size-select" id="pagination-size-select-el">
+          <option value="5" ${size === 5 ? 'selected' : ''}>5</option>
+          <option value="10" ${size === 10 ? 'selected' : ''}>10</option>
+          <option value="20" ${size === 20 ? 'selected' : ''}>20</option>
+          <option value="50" ${size === 50 ? 'selected' : ''}>50</option>
+        </select>
+      </div>
+    `;
+
+    container.innerHTML = infoHtml + controlsHtml + sizeSelectHtml;
+
+    // Attach Click Handlers
+    container.querySelectorAll('.pagination-btn-prev, .pagination-btn-next, .pagination-btn-page').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const pageTarget = parseInt(e.currentTarget.getAttribute('data-page'));
+        if (!isNaN(pageTarget) && pageTarget >= 0 && pageTarget < totalPages) {
+          loadData(pageTarget);
+        }
+      });
+    });
+
+    const selectEl = document.getElementById('pagination-size-select-el');
+    if (selectEl) {
+      selectEl.addEventListener('change', (e) => {
+        currentSize = parseInt(e.target.value);
+        loadData(0);
+      });
+    }
+  }
+
+  function translateFilterName(filter) {
+    const map = {
+      'recent': 'Gần đây',
+      'matching': 'Phù hợp xe',
+      'high-value': 'Giá cao'
+    };
+    return map[filter] || filter;
+  }
+
+  function translateVehicleType(type) {
+    const map = {
+      'TRUCK_500KG': 'Xe tải 500kg',
+      'TRUCK_1T': 'Xe tải 1 tấn',
+      'TRUCK_15T': 'Xe tải 1.5 tấn',
+      'Xe tải 500kg': 'Xe tải 500kg',
+      'Xe tải 1 tấn': 'Xe tải 1 tấn',
+      'Xe tải 1.5 tấn': 'Xe tải 1.5 tấn',
+      'Xe tai 500kg': 'Xe tải 500kg',
+      'Xe tai 1 tan': 'Xe tải 1 tấn',
+      'Xe tai 1.5 tan': 'Xe tải 1.5 tấn'
+    };
+    return map[type] || type || '—';
+  }
+
+  function normalizeVehicleTypeKey(type) {
+    if (!type) return '';
+    const clean = type.toString().trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove Vietnamese diacritics
+      .replace(/[^a-z0-9]/g, '');
+    
+    if (clean.includes('500kg') || clean.includes('500')) return 'TRUCK_500KG';
+    if (clean.includes('15t') || clean.includes('15tan') || clean.includes('15')) return 'TRUCK_15T';
+    if (clean.includes('1t') || clean.includes('1tan') || clean.includes('10')) return 'TRUCK_1T';
+    return type.toUpperCase();
+  }
+
+  function formatVnd(val) {
+    if (val === null || val === undefined) return '0 đ';
+    return Number(val).toLocaleString('vi-VN') + ' đ';
+  }
+
+  function formatDate(isoStr) {
+    if (!isoStr) return '—';
+    try {
+      const date = new Date(isoStr);
+      if (isNaN(date)) return isoStr;
+      return date.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        timeZone: 'Asia/Ho_Chi_Minh'
+      });
+    } catch {
+      return isoStr;
+    }
+  }
+
+  function formatTime(isoStr) {
+    if (!isoStr) return '—';
+    try {
+      const date = new Date(isoStr);
+      if (isNaN(date)) return isoStr;
+      return date.toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Ho_Chi_Minh'
+      });
+    } catch {
+      return isoStr;
+    }
+  }
+
+  function hideErrorBanner() {
+    const banner = document.getElementById('error-banner');
+    if (banner) {
+      banner.style.display = 'none';
+    }
+  }
+</script>
 </body>
 </html>

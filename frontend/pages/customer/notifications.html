@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông báo — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  
+  <style>
+    .customer-nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .customer-nav a {
+      color: var(--color-ink);
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .customer-nav a.active {
+      color: var(--color-primary);
+    }
+
+    @media (max-width: 800px) {
+      .site-header-actions {
+        display: none;
+      }
+    }
+
+    /* ============================================================
+       CSS CHO CHUÔNG THÔNG BÁO VÀ DROPDOWN (notif-*)
+       ============================================================ */
+    .notif-bell-container {
+      position: relative;
+      display: inline-block;
+      margin-right: var(--spacing-sm);
+    }
+
+    .notif-bell-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: var(--spacing-xs);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-ink);
+      border-radius: var(--rounded-pill);
+      transition: background-color var(--transition-fast);
+      width: 38px;
+      height: 38px;
+    }
+
+    .notif-bell-btn:hover {
+      background-color: var(--color-canvas-soft);
+    }
+
+    .notif-bell-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .notif-badge {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      background-color: var(--color-danger);
+      color: white;
+      font-size: 10px;
+      font-weight: var(--font-weight-bold);
+      height: 16px;
+      min-width: 16px;
+      border-radius: var(--rounded-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      box-shadow: 0 0 0 2px var(--color-canvas);
+    }
+
+    .notif-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: var(--spacing-sm);
+      width: 340px;
+      background-color: var(--color-canvas);
+      border-radius: var(--rounded-xl);
+      box-shadow: var(--shadow-level-2);
+      display: none;
+      flex-direction: column;
+      z-index: var(--z-dropdown);
+      border: 1px solid var(--color-surface-pressed);
+      overflow: hidden;
+      animation: notif-slide-up 200ms ease;
+    }
+
+    .notif-dropdown.show {
+      display: flex;
+    }
+
+    @keyframes notif-slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .notif-dropdown-header {
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-bottom: 1px solid var(--color-surface-pressed);
+      background-color: var(--color-canvas-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notif-dropdown-header h3 {
+      font-size: var(--font-size-body-sm);
+      font-weight: var(--font-weight-bold);
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .notif-dropdown-list {
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .notif-dropdown-item {
+      display: flex;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-bottom: 1px solid var(--color-surface-pressed);
+      color: var(--color-ink);
+      text-decoration: none;
+      transition: background-color var(--transition-fast);
+    }
+
+    .notif-dropdown-item:hover {
+      background-color: var(--color-canvas-soft);
+      text-decoration: none;
+    }
+
+    .notif-dropdown-item.unread {
+      background-color: var(--color-canvas-softer);
+    }
+
+    .notif-dropdown-dot-col {
+      width: 6px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .notif-dropdown-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: var(--rounded-full);
+      background-color: var(--color-accent);
+    }
+
+    .notif-dropdown-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .notif-dropdown-title {
+      font-size: var(--font-size-body-sm);
+      color: var(--color-ink);
+      margin: 0;
+    }
+
+    .notif-dropdown-item.unread .notif-dropdown-title {
+      font-weight: var(--font-weight-bold);
+    }
+
+    .notif-dropdown-time {
+      font-size: var(--font-size-caption);
+      color: var(--color-body);
+    }
+
+    .notif-dropdown-footer {
+      padding: var(--spacing-md);
+      text-align: center;
+      background-color: var(--color-canvas-soft);
+      border-top: 1px solid var(--color-surface-pressed);
+    }
+
+    .notif-see-all {
+      font-size: var(--font-size-body-sm);
+      color: var(--color-primary);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+    }
+
+    .notif-see-all:hover {
+      text-decoration: underline;
+    }
+
+    /* ============================================================
+       CSS CHO TRANG DANH SÁCH THÔNG BÁO (notifications.html)
+       ============================================================ */
+    .notif-page-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: var(--spacing-xl) 0;
+    }
+
+    .notif-page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-2xl);
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+    }
+
+    .notif-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .notif-item {
+      display: flex;
+      gap: var(--spacing-lg);
+      padding: var(--spacing-lg) var(--spacing-xl);
+      border-radius: var(--rounded-xl);
+      border: 1px solid var(--color-surface-pressed);
+      background-color: var(--color-canvas);
+      position: relative;
+      transition: background-color var(--transition-fast), border-color var(--transition-fast);
+      cursor: pointer;
+    }
+
+    .notif-item.unread {
+      background-color: var(--color-canvas-soft);
+      border-color: var(--color-surface-pressed);
+    }
+
+    .notif-item:hover {
+      border-color: var(--color-primary-soft);
+    }
+
+    .notif-dot-col {
+      width: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .notif-dot-amber {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--rounded-full);
+      background-color: var(--color-accent);
+      display: inline-block;
+    }
+
+    .notif-icon-col {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .notif-icon-wrapper {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--rounded-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notif-icon-wrapper svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* Các màu sắc trạng thái thông báo */
+    .notif-icon-wrapper.accepted {
+      background-color: var(--color-info-bg);
+      color: var(--color-info-text);
+    }
+
+    .notif-icon-wrapper.progress {
+      background-color: var(--color-info-bg);
+      color: var(--color-info-text);
+    }
+
+    .notif-icon-wrapper.completed {
+      background-color: var(--color-success-bg);
+      color: var(--color-success-text);
+    }
+
+    .notif-icon-wrapper.cancelled {
+      background-color: var(--color-danger-bg);
+      color: var(--color-danger-text);
+    }
+
+    .notif-body-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xxs);
+    }
+
+    .notif-item-title {
+      font-size: var(--font-size-body-md);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-ink);
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .notif-item-message {
+      font-size: var(--font-size-body-md);
+      color: var(--color-body);
+      margin: 0;
+      line-height: var(--line-height-body-md);
+    }
+
+    .notif-item-time {
+      font-size: var(--font-size-caption);
+      color: var(--color-mute);
+      margin-top: var(--spacing-xxs);
+    }
+
+    /* CSS cho các trạng thái: empty, loading, error */
+    .notif-state-card {
+      text-align: center;
+      padding: var(--spacing-5xl) var(--spacing-3xl);
+      background-color: var(--color-canvas-soft);
+      border-radius: var(--rounded-xl);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-md);
+    }
+
+    .notif-state-icon {
+      font-size: 48px;
+      color: var(--color-mute);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .notif-state-title {
+      font-size: var(--font-size-display-sm);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-ink);
+      margin: 0;
+    }
+
+    .notif-state-desc {
+      font-size: var(--font-size-body-md);
+      color: var(--color-body);
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .notif-state-action {
+      margin-top: var(--spacing-md);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .mb-md {
+      margin-bottom: var(--spacing-md);
+    }
+  </style>
+</head>
+<body>
+
+<div class="site-layout">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+      </a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html">Đặt đơn</a>
+        <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-profile.html">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions">
+        
+        <!-- CHUÔNG THÔNG BÁO -->
+        <div class="notif-bell-container">
+          <button class="notif-bell-btn" id="notifBellBtn" aria-label="Thông báo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notif-badge" id="notifCountBadge">3</span>
+          </button>
+          <div class="notif-dropdown" id="notifDropdown">
+            <div class="notif-dropdown-header">
+              <h3>Thông báo mới</h3>
+            </div>
+            <div class="notif-dropdown-list" id="notifDropdownList">
+              <!-- Render dropdown items dynamic or mock -->
+            </div>
+            <div class="notif-dropdown-footer">
+              <a href="notifications.html" class="notif-see-all">Xem tất cả thông báo</a>
+            </div>
+          </div>
+        </div>
+
+        <span class="user-menu-name">Xin chào, <span id="userName">Nguyễn Văn An</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="userAvatar">AN</div>
+        <button id="logoutBtn" class="btn-subtle">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="site-main">
+    <div class="container">
+      <div class="notif-page-container">
+        
+        <!-- TIÊU ĐỀ TRANG -->
+        <div class="notif-page-header">
+          <div>
+            <h1 class="page-title">Thông báo</h1>
+            <p class="text-muted">Xem và cập nhật các thông tin mới nhất về đơn hàng của bạn.</p>
+          </div>
+          <div>
+            <button id="markAllReadBtn" class="btn-secondary">Đánh dấu tất cả đã đọc</button>
+          </div>
+        </div>
+
+        <!-- MÀN HÌNH LOADING (Ẩn mặc định) -->
+        <div id="notifLoading" class="notif-state-card hidden">
+          <div class="btn-spinner notif-state-icon" style="border-top-color: var(--color-primary); width: 36px; height: 36px;"></div>
+          <h2 class="notif-state-title">Đang tải thông báo...</h2>
+          <p class="notif-state-desc">Vui lòng chờ trong giây lát trong khi hệ thống lấy dữ liệu mới nhất.</p>
+        </div>
+
+        <!-- MÀN HÌNH ERROR (Ẩn mặc định) -->
+        <div id="notifError" class="notif-state-card hidden">
+          <div class="notif-state-icon">⚠️</div>
+          <h2 class="notif-state-title">Không thể tải dữ liệu</h2>
+          <p class="notif-state-desc">Đã xảy ra lỗi kết nối mạng. Vui lòng kiểm tra lại đường truyền và thử lại.</p>
+          <div class="notif-state-action">
+            <button id="retryBtn" class="btn-primary">Thử lại</button>
+          </div>
+        </div>
+
+        <!-- MÀN HÌNH EMPTY (Ẩn mặc định) -->
+        <div id="notifEmpty" class="notif-state-card hidden">
+          <div class="notif-state-icon">🔔</div>
+          <h2 class="notif-state-title">Chưa có thông báo</h2>
+          <p class="notif-state-desc">Khi có cập nhật mới về hành trình đơn hàng hoặc ưu đãi, chúng sẽ xuất hiện ở đây.</p>
+          <div class="notif-state-action">
+            <a href="booking-step1-vehicle.html" class="btn-primary">Đặt đơn ngay</a>
+          </div>
+        </div>
+
+        <!-- DANH SÁCH THÔNG BÁO -->
+        <div class="notif-list" id="notifList">
+          
+          /* MOCK - thay bằng API sau */
+          <!-- Item 1: Unread (ORDER_ACCEPTED) -->
+          <div class="notif-item unread" data-id="1" data-type="ORDER_ACCEPTED">
+            <div class="notif-dot-col">
+              <span class="notif-dot-amber"></span>
+            </div>
+            <div class="notif-icon-col">
+              <div class="notif-icon-wrapper accepted">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body-col">
+              <h4 class="notif-item-title">Đơn hàng đã được nhận</h4>
+              <p class="notif-item-message">Tài xế Nguyễn Văn Hùng đã đồng ý thực hiện đơn hàng MH2026060001 của bạn. Tài xế sẽ đến đúng giờ hẹn.</p>
+              <span class="notif-item-time">45 phút trước</span>
+            </div>
+          </div>
+
+          <!-- Item 2: Unread (ORDER_IN_PROGRESS) -->
+          <div class="notif-item unread" data-id="2" data-type="ORDER_IN_PROGRESS">
+            <div class="notif-dot-col">
+              <span class="notif-dot-amber"></span>
+            </div>
+            <div class="notif-icon-col">
+              <div class="notif-icon-wrapper progress">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="3" width="15" height="13"></rect>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body-col">
+              <h4 class="notif-item-title">Đơn hàng đang được vận chuyển</h4>
+              <p class="notif-item-message">Đơn hàng MH2026060004 đang trên đường đến điểm trả hàng. Bạn có thể mở bản đồ để xem vị trí tài xế thời gian thực.</p>
+              <span class="notif-item-time">2 giờ trước</span>
+            </div>
+          </div>
+
+          <!-- Item 3: Unread (ORDER_CANCELLED) -->
+          <div class="notif-item unread" data-id="3" data-type="ORDER_CANCELLED">
+            <div class="notif-dot-col">
+              <span class="notif-dot-amber"></span>
+            </div>
+            <div class="notif-icon-col">
+              <div class="notif-icon-wrapper cancelled">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body-col">
+              <h4 class="notif-item-title">Đơn hàng bị hủy</h4>
+              <p class="notif-item-message">Rất tiếc, đơn hàng MH2026060002 đã bị hủy bởi tài xế do sự cố kỹ thuật. Hệ thống đang tìm tài xế thay thế phù hợp nhất.</p>
+              <span class="notif-item-time">5 giờ trước</span>
+            </div>
+          </div>
+
+          <!-- Item 4: Read (ORDER_COMPLETED) -->
+          <div class="notif-item" data-id="4" data-type="ORDER_COMPLETED">
+            <div class="notif-dot-col">
+              <!-- Đã đọc, không có chấm hổ phách -->
+            </div>
+            <div class="notif-icon-col">
+              <div class="notif-icon-wrapper completed">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body-col">
+              <h4 class="notif-item-title">Đơn hàng hoàn thành thành công</h4>
+              <p class="notif-item-message">Đơn hàng MH2026050089 đã hoàn tất tốt đẹp. Hãy dành 1 phút đánh giá chất lượng phục vụ của tài xế nhé.</p>
+              <span class="notif-item-time">1 ngày trước</span>
+            </div>
+          </div>
+
+          <!-- Item 5: Read (ORDER_COMPLETED) -->
+          <div class="notif-item" data-id="5" data-type="ORDER_COMPLETED">
+            <div class="notif-dot-col">
+              <!-- Đã đọc -->
+            </div>
+            <div class="notif-icon-col">
+              <div class="notif-icon-wrapper completed">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body-col">
+              <h4 class="notif-item-title">Đơn hàng hoàn thành thành công</h4>
+              <p class="notif-item-message">Đơn hàng MH2026050080 đã được thanh toán 100% qua VNPay. Cảm ơn quý khách.</p>
+              <span class="notif-item-time">3 ngày trước</span>
+            </div>
+          </div>
+          /* MOCK - thay bằng API sau */
+          
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- INTERACTIVE MOCK SCRIPT -->
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  const BASE_URL = 'http://localhost:8080';
+
+  function formatTimeVN(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    
+    if (diffMins < 1) {
+      return 'Vừa xong';
+    } else if (diffMins < 60) {
+      return `${diffMins} phút trước`;
+    } else if (diffHours < 24) {
+      return `${diffHours} giờ trước`;
+    } else {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const mins = String(date.getMinutes()).padStart(2, '0');
+      return `${day}/${month} ${hours}:${mins}`;
+    }
+  }
+
+  function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, 
+      tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[tag] || tag)
+    );
+  }
+
+  let notificationsList = [];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // ------------------------------------------------------------
+    // KIỂM TRA ĐĂNG NHẬP / XÁC THỰC ROLE
+    // ------------------------------------------------------------
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') {
+      logout('../login.html');
+      return;
+    }
+
+    // Render User Info
+    const nameEl = document.getElementById('userName');
+    if (nameEl) nameEl.textContent = user.fullName || 'Khách hàng';
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl && user.fullName) {
+      avatarEl.textContent = user.fullName
+        .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+    document.getElementById('logoutBtn')?.addEventListener('click', () => logout('../login.html'));
+
+    // ------------------------------------------------------------
+    // KHỔI TẠO EVENT LISTENER CHO DROPDOWN CHUÔNG
+    // ------------------------------------------------------------
+    const bellBtn = document.getElementById('notifBellBtn');
+    const dropdown = document.getElementById('notifDropdown');
+
+    bellBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+      renderDropdownList();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target) && e.target !== bellBtn) {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    // ------------------------------------------------------------
+    // CHỨC NĂNG TRANG DANH SÁCH THÔNG BÁO CHÍNH
+    // ------------------------------------------------------------
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    const notifListContainer = document.getElementById('notifList');
+
+    // Click "Đánh dấu tất cả đã đọc"
+    markAllReadBtn.addEventListener('click', async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return;
+
+      const unreadItems = notificationsList.filter(item => !item.isRead);
+      if (unreadItems.length === 0) return;
+
+      // Optimistically update UI state to loading
+      setViewState('loading');
+
+      try {
+        // loop PATCH từng item isRead=false
+        await Promise.all(unreadItems.map(item => {
+          return fetch(`${BASE_URL}/api/notifications/${item.id}/read`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+        }));
+      } catch (err) {
+        console.error(err);
+      }
+
+      // Re-fetch notifications from backend
+      fetchNotifications();
+    });
+
+    // Event listener cho từng thông báo trên trang chính để đánh dấu đã đọc khi click
+    notifListContainer.addEventListener('click', async (e) => {
+      const notifItem = e.target.closest('.notif-item');
+      if (!notifItem) return;
+
+      const id = notifItem.getAttribute('data-id');
+      const matchedItem = notificationsList.find(item => item.id === id);
+      
+      if (matchedItem && !matchedItem.isRead) {
+        // Optimistic UI update
+        matchedItem.isRead = true;
+        renderPageList();
+        renderDropdownList();
+        updateBadge();
+
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+          try {
+            await fetch(`${BASE_URL}/api/notifications/${id}/read`, {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+          } catch (err) {
+            console.error(err);
+          }
+        }
+      }
+    });
+
+    document.getElementById('retryBtn').addEventListener('click', () => {
+      fetchNotifications();
+    });
+
+    // Hỗ trợ kiểm thử trạng thái Empty, Loading, Error bằng cách đổi Mock dữ liệu
+    window.setNotificationState = function(state) {
+      setViewState(state);
+    };
+
+    // ------------------------------------------------------------
+    // CALL API LOAD DATA
+    // ------------------------------------------------------------
+    async function fetchNotifications() {
+      setViewState('loading');
+      try {
+        const data = await getAuthenticated('/api/notifications?page=0&size=20');
+        notificationsList = data.content || [];
+        
+        if (notificationsList.length === 0) {
+          setViewState('empty');
+        } else {
+          setViewState('content');
+          renderPageList();
+        }
+        updateBadge();
+        renderDropdownList();
+      } catch (err) {
+        console.error('Error fetching notifications:', err);
+        setViewState('error');
+      }
+    }
+
+    function setViewState(state) {
+      const listEl = document.getElementById('notifList');
+      const loadingEl = document.getElementById('notifLoading');
+      const errorEl = document.getElementById('notifError');
+      const emptyEl = document.getElementById('notifEmpty');
+
+      listEl.classList.add('hidden');
+      loadingEl.classList.add('hidden');
+      errorEl.classList.add('hidden');
+      emptyEl.classList.add('hidden');
+
+      if (state === 'content') {
+        listEl.classList.remove('hidden');
+      } else if (state === 'loading') {
+        loadingEl.classList.remove('hidden');
+      } else if (state === 'error') {
+        errorEl.classList.remove('hidden');
+      } else if (state === 'empty') {
+        emptyEl.classList.remove('hidden');
+      }
+    }
+
+    function updateBadge() {
+      const unreadCount = notificationsList.filter(item => !item.isRead).length;
+      const badge = document.getElementById('notifCountBadge');
+      if (badge) {
+        badge.textContent = unreadCount;
+        badge.classList.toggle('hidden', unreadCount === 0);
+      }
+    }
+
+    function renderPageList() {
+      notifListContainer.innerHTML = notificationsList.map(item => {
+        const iconClass = getIconClass(item.type);
+        const iconSvg = getIconSvg(item.type);
+        const unreadClass = item.isRead ? '' : 'unread';
+        const dotMarkup = item.isRead ? '' : '<span class="notif-dot-amber"></span>';
+        const timeFormatted = formatTimeVN(item.createdAt);
+
+        return `
+          <div class="notif-item ${unreadClass}" data-id="${item.id}" data-type="${item.type}">
+            <div class="notif-dot-col">
+              ${dotMarkup}
+            </div>
+            <div class="notif-icon-col">
+              <div class="notif-icon-wrapper ${iconClass}">
+                ${iconSvg}
+              </div>
+            </div>
+            <div class="notif-body-col">
+              <h4 class="notif-item-title">${escapeHTML(item.title)}</h4>
+              <p class="notif-item-message">${escapeHTML(item.message)}</p>
+              <span class="notif-item-time">${timeFormatted}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDropdownList() {
+      const dropdownList = document.getElementById('notifDropdownList');
+      if (!dropdownList) return;
+
+      const recentNotifs = notificationsList.slice(0, 5);
+      
+      if (recentNotifs.length === 0) {
+        dropdownList.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--color-body); font-size: var(--font-size-body-sm);">Không có thông báo mới</div>`;
+        return;
+      }
+
+      dropdownList.innerHTML = recentNotifs.map(item => {
+        const unreadClass = item.isRead ? '' : 'unread';
+        const dotMarkup = item.isRead ? '<span class="notif-dropdown-dot" style="visibility:hidden"></span>' : '<span class="notif-dropdown-dot"></span>';
+        const timeFormatted = formatTimeVN(item.createdAt);
+        
+        return `
+          <a href="notifications.html" class="notif-dropdown-item ${unreadClass}" data-id="${item.id}">
+            <div class="notif-dropdown-dot-col">
+              ${dotMarkup}
+            </div>
+            <div class="notif-dropdown-body">
+              <h4 class="notif-dropdown-title">${escapeHTML(item.title)}</h4>
+              <span class="notif-dropdown-time">${timeFormatted}</span>
+            </div>
+          </a>
+        `;
+      }).join('');
+
+      // Add click handlers inside dropdown
+      dropdownList.querySelectorAll('.notif-dropdown-item').forEach(el => {
+        el.addEventListener('click', async (e) => {
+          const id = el.getAttribute('data-id');
+          const matchedItem = notificationsList.find(item => item.id === id);
+          if (matchedItem && !matchedItem.isRead) {
+            matchedItem.isRead = true;
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+              try {
+                await fetch(`${BASE_URL}/api/notifications/${id}/read`, {
+                  method: 'PATCH',
+                  headers: {
+                    'Authorization': `Bearer ${token}`
+                  }
+                });
+              } catch (err) {
+                console.error(err);
+              }
+            }
+          }
+        });
+      });
+    }
+
+    function getIconClass(type) {
+      switch (type) {
+        case 'ORDER_ACCEPTED': return 'accepted';
+        case 'ORDER_IN_PROGRESS': return 'progress';
+        case 'ORDER_COMPLETED': return 'completed';
+        case 'ORDER_CANCELLED': return 'cancelled';
+        default: return 'accepted';
+      }
+    }
+
+    function getIconSvg(type) {
+      switch (type) {
+        case 'ORDER_ACCEPTED':
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          `;
+        case 'ORDER_IN_PROGRESS':
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+          `;
+        case 'ORDER_COMPLETED':
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          `;
+        case 'ORDER_CANCELLED':
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          `;
+        default:
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          `;
+      }
+    }
+
+    // Khởi chạy load dữ liệu
+    fetchNotifications();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cẩm nang chuyển nhà — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <link rel="stylesheet" href="../../css/public.css">
+  <style>
+    .article-container {
+      max-width: 800px;
+      margin: 40px auto var(--spacing-5xl);
+    }
+    .article-header {
+      margin-bottom: var(--spacing-xl);
+      text-align: left;
+    }
+    .article-title {
+      font-size: var(--font-size-display-xl);
+      line-height: var(--line-height-display-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-ink);
+      margin: var(--spacing-sm) 0 var(--spacing-md);
+    }
+    .article-meta {
+      font-size: var(--font-size-body-sm);
+      color: var(--color-body);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+    .article-hero-img {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: var(--rounded-xl);
+      margin-bottom: var(--spacing-2xl);
+    }
+    .article-content {
+      font-size: var(--font-size-body-md);
+      line-height: 1.8;
+      color: var(--color-ink);
+    }
+    .article-content p {
+      margin-bottom: var(--spacing-lg);
+    }
+    .article-content h2 {
+      font-size: var(--font-size-display-sm);
+      color: var(--color-primary);
+      margin: var(--spacing-2xl) 0 var(--spacing-sm);
+    }
+    .article-content ul {
+      margin-bottom: var(--spacing-lg);
+      padding-left: var(--spacing-xl);
+      list-style-type: disc;
+    }
+    .article-content li {
+      margin-bottom: var(--spacing-xs);
+    }
+    .back-btn-wrapper {
+      margin-bottom: var(--spacing-2xl);
+    }
+    .btn-back-to-blog {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--color-body);
+      font-weight: 500;
+      text-decoration: none;
+      font-size: var(--font-size-body-sm);
+      transition: color var(--transition-fast);
+    }
+    .btn-back-to-blog:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+    .btn-back-to-blog svg {
+      transition: transform var(--transition-fast);
+    }
+    .btn-back-to-blog:hover svg {
+      transform: translateX(-4px);
+    }
+  </style>
+</head>
+<body>
+  <!-- ĐẦU TRANG -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+      </a>
+      <nav class="public-nav" aria-label="Điều hướng">
+        <a href="index.html#features" class="nav-link">Tính năng</a>
+        <a href="index.html#how-it-works" class="nav-link">Cách hoạt động</a>
+        <a href="index.html#pricing" class="nav-link">Bảng giá</a>
+        <a href="index.html#blog" class="nav-link">Cẩm nang</a>
+        <a href="index.html#contact" class="nav-link">Liên hệ</a>
+      </nav>
+      <div class="site-header-actions">
+        <a href="../login.html" class="btn-subtle">Đăng nhập</a>
+        <a href="../register.html" class="btn-primary">Đăng ký</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- NỘI DUNG BÀI VIẾT -->
+  <main class="container">
+    <article class="article-container">
+      <div class="back-btn-wrapper">
+        <a href="index.html#blog" class="btn-back-to-blog">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="fill: none;">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Quay lại Cẩm nang
+        </a>
+      </div>
+      
+      <header class="article-header">
+        <span class="eyebrow" id="postCategory">CẨM NANG</span>
+        <h1 class="article-title" id="postTitle">Tiêu đề bài viết</h1>
+        <div class="article-meta">
+          <span id="postTime">Thời gian đọc</span>
+          <span>• Tác giả: Ban Biên Tập Move_home</span>
+        </div>
+      </header>
+
+      <img src="" alt="Hình ảnh cẩm nang" class="article-hero-img" id="postHeroImg">
+
+      <div class="article-content" id="postContent">
+        <!-- Nội dung tải động từ JS -->
+      </div>
+    </article>
+  </main>
+
+  <!-- CHÂN TRANG -->
+  <footer id="contact" class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-column">
+        <h4>Move_home</h4>
+        <p>Dịch vụ chuyển nhà uy tín, an toàn và chuyên nghiệp hàng đầu tại Hà Nội.</p>
+      </div>
+      <div class="footer-column">
+        <h4>Liên hệ</h4>
+        <p>Đường dây nóng: 1900 9999</p>
+        <p>Thư điện tử: hotro@movehome.vn</p>
+      </div>
+      <div class="footer-column">
+        <h4>Pháp lý</h4>
+        <a href="#">Điều khoản sử dụng</a>
+        <a href="#">Chính sách bảo mật</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Move_home. Mọi quyền được bảo lưu.</p>
+    </div>
+  </footer>
+
+  <!-- DỮ LIỆU VÀ LOGIC TẢI BÀI VIẾT -->
+  <script>
+    const BLOG_POSTS = {
+      packing: {
+        category: "Mẹo vặt",
+        title: "5 mẹo sắp xếp đồ đạc thông minh khi chuyển nhà",
+        time: "5 phút đọc • 23/06/2026",
+        image: "../../assets/blog_packing.png",
+        content: `
+          <p>Chuyển nhà luôn là một công việc tiêu tốn nhiều thời gian và công sức. Tuy nhiên, nếu biết áp dụng những mẹo sắp xếp thông minh dưới đây, bạn có thể biến quá trình này trở nên nhẹ nhàng và ngăn nắp hơn bao giờ hết.</p>
+          
+          <h2>1. Phân loại đồ đạc trước khi đóng gói</h2>
+          <p>Quy tắc đầu tiên là "thanh lọc". Hãy phân loại đồ đạc thành 3 nhóm: Giữ lại để dùng, quyên góp hoặc bán thanh lý đồ cũ, và vứt bỏ những thứ không còn giá trị. Việc này giúp giảm đáng kể khối lượng đồ cần vận chuyển, từ đó tiết kiệm chi phí thuê xe tải và công sức đóng gói.</p>
+
+          <h2>2. Dán nhãn màu sắc cho từng phòng</h2>
+          <p>Sử dụng băng keo màu hoặc bút lông màu khác nhau cho từng không gian (ví dụ: màu đỏ cho đồ phòng khách, màu xanh cho phòng bếp, màu vàng cho phòng ngủ). Khi tài xế vận chuyển đồ đến nhà mới, họ sẽ biết ngay phải đặt thùng đồ nào vào phòng nào mà không cần bạn phải đứng hướng dẫn liên tục.</p>
+
+          <h2>3. Chụp ảnh kết nối dây thiết bị điện tử</h2>
+          <p>Trước khi rút toàn bộ dây cắm phức tạp của tivi, máy tính, hay hệ thống loa, hãy dùng điện thoại chụp lại sơ đồ cắm dây. Điều này giúp bạn dễ dàng lắp đặt lại hệ thống điện tử tại nhà mới chỉ trong vài phút mà không cần suy nghĩ xem dây nào cắm vào cổng nào.</p>
+
+          <h2>4. Chuẩn bị một "hộp đồ thiết yếu" cho ngày đầu tiên</h2>
+          <p>Hãy đóng riêng một thùng đồ nhỏ chứa những vật dụng cá nhân cần dùng ngay trong đêm đầu tiên tại nhà mới (bàn chải, sữa tắm, khăn mặt, một bộ quần áo sạch, sạc điện thoại, thuốc men). Bạn sẽ không phải lục tung hàng chục thùng đồ lớn chỉ để tìm bàn chải đánh răng khi vừa chuyển đến mệt mỏi.</p>
+
+          <h2>5. Tận dụng quần áo, khăn tắm để bọc đồ dễ vỡ</h2>
+          <p>Thay vì mua quá nhiều màng xốp bong bóng (bubble wrap) nhựa gây hại môi trường, hãy tận dụng tất cả chăn mỏng, khăn tắm, và quần áo dày để bọc quanh bát đĩa, ly tách và đồ sứ. Cách này vừa bảo vệ đồ đạc an toàn, vừa tiết kiệm được không gian xếp đồ trên xe tải.</p>
+        `
+      },
+      truck: {
+        category: "Tư vấn xe",
+        title: "Lựa chọn kích thước xe tải phù hợp để tiết kiệm chi phí",
+        time: "6 phút đọc • 22/06/2026",
+        image: "../../assets/blog_truck.png",
+        content: `
+          <p>Chọn sai kích thước xe tải là một trong những nguyên nhân phổ biến nhất dẫn đến lãng phí chi phí chuyển nhà. Nếu xe quá nhỏ, bạn sẽ phải chở nhiều chuyến; nếu xe quá lớn, bạn sẽ phải trả tiền cho khoảng không gian trống không cần thiết. Hãy cùng Move_home tìm hiểu cách chọn xe chuẩn xác.</p>
+
+          <h2>1. Xe tải 500kg - Phù hợp sinh viên và đồ đạc tối giản</h2>
+          <p>Kích thước thùng xe tham khảo: Dài ~2m, Rộng ~1.3m, Cao ~1.3m.</p>
+          <p>Loại xe này cực kỳ cơ động, dễ dàng di chuyển sâu vào các con ngõ nhỏ đặc thù của Hà Nội. Phù hợp cho:</p>
+          <ul>
+            <li>Sinh viên chuyển phòng trọ nhỏ.</li>
+            <li>Người độc thân có ít đồ gia dụng lớn.</li>
+            <li>Khối lượng đồ gồm: 1 tủ quần áo nhỏ, 1 đệm đơn gấp, 1 bàn học gấp gọn và 4-5 thùng carton đựng đồ cá nhân.</li>
+          </ul>
+
+          <h2>2. Xe tải 1 tấn - Lựa chọn phổ biến cho gia đình nhỏ</h2>
+          <p>Kích thước thùng xe tham khảo: Dài ~3m, Rộng ~1.6m, Cao ~1.6m.</p>
+          <p>Đây là dòng xe được đặt nhiều nhất tại hệ thống Move_home nhờ tải trọng vừa vặn. Phù hợp cho:</p>
+          <ul>
+            <li>Hộ gia đình nhỏ (2 vợ chồng, 1 con nhỏ) ở căn hộ chung cư mini hoặc phòng trọ diện tích lớn.</li>
+            <li>Khối lượng đồ gồm: 1 tủ lạnh lớn, 1 máy giặt, 1 giường đôi, 1 tủ quần áo 2 cánh, 1 tivi, bàn ghế ăn nhỏ và khoảng 8-10 thùng đồ cá nhân.</li>
+          </ul>
+
+          <h2>3. Xe tải 1.5 tấn - Giải pháp cho nhà nguyên căn hoặc đồ cồng kềnh</h2>
+          <p>Kích thước thùng xe tham khảo: Dài ~3.5m, Rộng ~1.7m, Cao ~1.8m.</p>
+          <p>Dòng xe này đáp ứng nhu cầu chở đồ khối lượng lớn, đặc biệt hữu ích khi:</p>
+          <ul>
+            <li>Nhà nguyên căn từ 2-3 tầng, đồ đạc có kích thước lớn cồng kềnh khó tháo lắp.</li>
+            <li>Các thiết bị lớn: Sofa phòng khách lớn, tủ lạnh side-by-side, giường tủ gỗ tự nhiên nặng, máy chạy bộ gia đình.</li>
+            <li>Quãng đường di chuyển xa cần gom tất cả đồ trong một chuyến duy nhất để tiết kiệm thời gian và tiền bạc.</li>
+          </ul>
+        `
+      },
+      pet: {
+        category: "Đời sống",
+        title: "Kinh nghiệm chuyển nhà cùng thú cưng an toàn và nhẹ nhàng",
+        time: "4 phút đọc • 21/06/2026",
+        image: "../../assets/blog_pet.png",
+        content: `
+          <p>Thú cưng (chó, mèo) là những loài động vật rất nhạy cảm với sự thay đổi của môi trường sống. Việc chuyển đến một không gian hoàn toàn xa lạ có thể khiến chúng lo lắng, bỏ ăn hoặc hoảng sợ bỏ chạy. Dưới đây là những lưu ý quan trọng để hành trình chuyển nhà của thú cưng diễn ra êm đẹp.</p>
+
+          <h2>1. Chuẩn bị lồng hoặc túi vận chuyển quen thuộc từ sớm</h2>
+          <p>Trước ngày chuyển nhà 1-2 tuần, hãy đặt lồng vận chuyển ra phòng khách và mở sẵn cửa để thú cưng tự do ra vào chơi. Bạn có thể để thêm đồ chơi yêu thích hoặc áo cũ của bạn có mùi hương quen thuộc vào trong lồng để thú cưng cảm thấy yên tâm, không có cảm giác bị giam cầm.</p>
+
+          <h2>2. Hạn chế cho ăn sát giờ di chuyển</h2>
+          <p>Để tránh việc thú cưng bị say xe, nôn trớ trong suốt hành trình vận chuyển bằng xe tải hoặc xe máy, hãy tránh cho chúng ăn thức ăn đặc trong vòng 4-6 tiếng trước giờ di chuyển. Bạn chỉ nên cung cấp nước uống sạch đầy đủ.</p>
+
+          <h2>3. Vận chuyển thú cưng bằng xe riêng của bạn</h2>
+          <p>Nếu có thể, hãy mang thú cưng đi cùng bạn trên cabin xe riêng hoặc xe máy thay vì để chúng phía sau thùng xe tải chứa đồ đạc. Tiếng va đập của tủ, giường gỗ và sự rung lắc mạnh của thùng xe tải lớn có thể gây sang chấn tâm lý mạnh cho chó mèo.</p>
+
+          <h2>4. Thiết lập "phòng an toàn" tại nhà mới</h2>
+          <p>Khi vừa đặt chân đến nhà mới, đừng thả thú cưng chạy tự do ngay lập tức. Hãy đặt chúng trong một phòng nhỏ khép kín và yên tĩnh nhất. Đặt vào đó khay cát, bát nước, thức ăn và đồ chơi quen thuộc. Đợi đến khi toàn bộ đồ đạc nội thất lớn được bốc xếp và lắp đặt xong xuôi, bạn mới nên mở cửa cho thú cưng ra khám phá các phòng khác.</p>
+        `
+      }
+    };
+
+    // Lấy query parameter 'post' từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const postKey = urlParams.get('post') || 'packing'; // Mặc định hiển thị bài 'packing' nếu thiếu
+    const postData = BLOG_POSTS[postKey];
+
+    if (postData) {
+      // Cập nhật tiêu đề trang
+      document.title = postData.title + " — Move_home";
+      
+      // Đổ dữ liệu vào DOM
+      document.getElementById('postCategory').textContent = postData.category;
+      document.getElementById('postTitle').textContent = postData.title;
+      document.getElementById('postTime').textContent = postData.time;
+      document.getElementById('postHeroImg').src = postData.image;
+      document.getElementById('postHeroImg').alt = postData.title;
+      document.getElementById('postContent').innerHTML = postData.content;
+    } else {
+      // Nếu bài viết không tồn tại, hiển thị thông báo lỗi
+      document.getElementById('postTitle').textContent = "Không tìm thấy bài viết";
+      document.getElementById('postContent').innerHTML = "<p>Bài viết bạn yêu cầu không tồn tại hoặc đã bị gỡ bỏ. Vui lòng quay lại trang chủ.</p>";
+      document.getElementById('postHeroImg').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

@@ -3,75 +3,194 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chi tiết đơn hàng — Move_home</title>
+  <title>Chi tiết đơn hàng — Move_home Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .quick-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.detail-grid{display:grid;grid-template-columns:1.4fr .8fr;gap:24px}.stack{display:flex;flex-direction:column;gap:16px}.info-list{display:grid;gap:12px}.info-line{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--color-surface-pressed);padding-bottom:10px}.timeline{display:grid;gap:12px}.timeline-item{border-left:4px solid var(--color-primary);padding-left:14px}.price-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-surface-pressed)}.price-total{font-size:20px;font-weight:700;color:var(--color-primary)}@media(max-width:900px){.detail-grid{grid-template-columns:1fr}.site-header-actions{align-items:flex-end;flex-direction:column}}
+    .quick-nav { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .detail-grid { display: grid; grid-template-columns: 1.4fr .8fr; gap: 24px; }
+    .stack { display: flex; flex-direction: column; gap: 16px; }
+    .info-list { display: grid; gap: 12px; }
+    .info-line { display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--color-surface-pressed); padding-bottom: 10px; }
+    .timeline { display: grid; gap: 12px; }
+    .timeline-item { border-left: 4px solid var(--color-primary); padding-left: 14px; }
+    .price-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--color-surface-pressed); }
+    .price-total { font-size: 20px; font-weight: 700; color: var(--color-primary); }
+    @media (max-width: 900px) {
+      .detail-grid { grid-template-columns: 1fr; }
+      .site-header-actions { align-items: flex-end; flex-direction: column; }
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
   <header class="site-header">
     <div class="container site-header-inner">
-      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span><span class="user-menu-name" style="color:var(--color-mute);font-weight:400;margin-left:8px;">Quản trị</span></a>
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color: var(--color-mute); font-weight: 400; margin-left: 8px;">Quản trị</span>
+      </a>
       <div class="site-header-actions quick-nav">
-        <a href="orders.html" class="btn-subtle">Đơn hàng</a>
-        <a href="transactions.html" class="btn-subtle">Giao dịch</a>
-        <a href="reports.html" class="btn-subtle">Báo cáo</a>
-        <a href="../login.html" class="btn-secondary">Đăng xuất</a>
+        <a href="orders.html" class="btn-subtle" style="font-weight: 500;">Đơn hàng</a>
+        <a href="transactions.html" class="btn-subtle" style="font-weight: 500;">Giao dịch</a>
+        <a href="reports.html" class="btn-subtle" style="font-weight: 500;">Báo cáo</a>
+        <a href="../login.html" class="btn-secondary" id="logout-btn" style="font-weight: 500;">Đăng xuất</a>
       </div>
     </div>
   </header>
   <div class="site-body">
     <aside class="sidebar" aria-label="Menu quản trị">
       <nav class="sidebar-nav">
-        <a href="dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span>Tổng quan</span></a>
-        <a href="orders.html" class="sidebar-item sidebar-item--active"><span class="sidebar-icon">📦</span><span>Đơn hàng</span></a>
-        <a href="drivers.html" class="sidebar-item"><span class="sidebar-icon">🚛</span><span>Tài xế</span></a>
-        <a href="customers.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span>Khách hàng</span></a>
-        <a href="withdrawals.html" class="sidebar-item"><span class="sidebar-icon">💰</span><span>Rút tiền</span></a>
-        <a href="transactions.html" class="sidebar-item"><span class="sidebar-icon">💳</span><span>Giao dịch</span></a>
-        <a href="reports.html" class="sidebar-item"><span class="sidebar-icon">📈</span><span>Báo cáo</span></a>
+        <a href="dashboard.html" class="sidebar-item">
+          <span class="sidebar-icon" style="display: inline-flex; align-items: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="12" x2="21" y2="12"></line><line x1="3" y1="9" x2="9" y2="9"></line><line x1="3" y1="15" x2="9" y2="15"></line></svg>
+          </span>
+          <span>Tổng quan</span>
+        </a>
+        <a href="orders.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon" style="display: inline-flex; align-items: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          </span>
+          <span>Đơn hàng</span>
+        </a>
+        <a href="drivers.html" class="sidebar-item">
+          <span class="sidebar-icon" style="display: inline-flex; align-items: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+          </span>
+          <span>Tài xế</span>
+        </a>
+        <a href="customers.html" class="sidebar-item">
+          <span class="sidebar-icon" style="display: inline-flex; align-items: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </span>
+          <span>Khách hàng</span>
+        </a>
+        <a href="withdrawals.html" class="sidebar-item">
+          <span class="sidebar-icon" style="display: inline-flex; align-items: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </span>
+          <span>Rút tiền</span>
+        </a>
+        <a href="transactions.html" class="sidebar-item">
+          <span class="sidebar-icon" style="display: inline-flex; align-items: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          </span>
+          <span>Giao dịch</span>
+        </a>
+        <a href="reports.html" class="sidebar-item">
+          <span class="sidebar-icon" style="display: inline-flex; align-items: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+          </span>
+          <span>Báo cáo</span>
+        </a>
         <div class="sidebar-divider"></div>
-        <a href="settings.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span>Cấu hình</span></a>
+        <a href="settings.html" class="sidebar-item">
+          <span class="sidebar-icon" style="display: inline-flex; align-items: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </span>
+          <span>Cấu hình</span>
+        </a>
       </nav>
     </aside>
     <main class="site-main">
       <div class="dashboard-main">
-        <header class="page-header">
-          <h1 class="page-title">Chi tiết đơn hàng MH2026060001</h1>
-          <p class="page-subtitle">Theo dõi toàn bộ thông tin đơn, giao dịch và mốc xử lý.</p>
+        <header class="page-header" style="margin-bottom: var(--spacing-xl);">
+          <h1 class="page-title" style="font-size: var(--font-size-display-md);">Chi tiết đơn hàng MH2026060001</h1>
+          <p class="page-subtitle" style="font-size: var(--font-size-body-sm); color: var(--color-body);">Theo dõi toàn bộ thông tin đơn, giao dịch và mốc xử lý.</p>
         </header>
         <div class="detail-grid">
           <section class="stack">
-            <div class="card"><div class="card-header"><h2 class="card-title">Thông tin đơn</h2><span class="badge-in-progress">Đang giao</span></div><div class="card-body info-list">
-              <div class="info-line"><span>Khách hàng</span><strong>Nguyễn Văn An</strong></div>
-              <div class="info-line"><span>Tài xế</span><strong>Lê Văn Cường</strong></div>
-              <div class="info-line"><span>Điểm đón</span><strong>25 Kim Mã, Ba Đình</strong></div>
-              <div class="info-line"><span>Điểm trả</span><strong>18 Hàng Bài, Hoàn Kiếm</strong></div>
-              <div class="info-line"><span>Thời gian hẹn</span><strong>08:30, 06/06/2026</strong></div>
-            </div></div>
-            <div class="card"><div class="card-header"><h2 class="card-title">Dòng thời gian</h2></div><div class="card-body timeline">
-              <div class="timeline-item"><strong>07:45</strong><p class="text-muted">Khách hàng tạo đơn và thanh toán qua ví Move_home.</p></div>
-              <div class="timeline-item"><strong>07:56</strong><p class="text-muted">Tài xế Lê Văn Cường đã nhận đơn.</p></div>
-              <div class="timeline-item"><strong>08:28</strong><p class="text-muted">Tài xế bắt đầu vận chuyển hàng hóa.</p></div>
-            </div></div>
-            <div class="card"><div class="card-header"><h2 class="card-title">Giao dịch liên quan</h2><a href="transactions.html" class="link-primary">Xem tất cả</a></div><div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none;"><table class="table"><thead><tr><th>Loại</th><th>Người dùng</th><th class="text-right">Số tiền</th></tr></thead><tbody><tr><td>Thanh toán đơn</td><td>Nguyễn Văn An</td><td class="text-right">1.500.000 đ</td></tr><tr><td>Phí hoa hồng</td><td>Hệ thống</td><td class="text-right">450.000 đ</td></tr><tr><td>Thu nhập tài xế</td><td>Lê Văn Cường</td><td class="text-right">1.050.000 đ</td></tr></tbody></table></div></div>
+            <div class="card" style="background-color: var(--color-canvas); border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-xl); overflow: hidden;">
+              <div class="card-header" style="background-color: var(--color-canvas-soft); padding: var(--spacing-md) var(--spacing-xl); display: flex; align-items: center; justify-content: space-between;">
+                <h2 class="card-title" style="font-size: var(--font-size-body-md); font-weight: 700;">Thông tin đơn</h2>
+                <span class="badge-in-progress">Đang giao</span>
+              </div>
+              <div class="card-body info-list" style="padding: var(--spacing-xl);">
+                <div class="info-line"><span>Khách hàng</span><strong>Nguyễn Văn An</strong></div>
+                <div class="info-line"><span>Tài xế</span><strong>Lê Văn Cường</strong></div>
+                <div class="info-line"><span>Điểm đón</span><strong>25 Kim Mã, Ba Đình</strong></div>
+                <div class="info-line"><span>Điểm trả</span><strong>18 Hàng Bài, Hoàn Kiếm</strong></div>
+                <div class="info-line" style="border-bottom: none; padding-bottom: 0;"><span>Thời gian hẹn</span><strong>08:30, 06/06/2026</strong></div>
+              </div>
+            </div>
+            <div class="card" style="background-color: var(--color-canvas); border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-xl); overflow: hidden;">
+              <div class="card-header" style="background-color: var(--color-canvas-soft); padding: var(--spacing-md) var(--spacing-xl);">
+                <h2 class="card-title" style="font-size: var(--font-size-body-md); font-weight: 700;">Dòng thời gian</h2>
+              </div>
+              <div class="card-body timeline" style="padding: var(--spacing-xl); display: grid; gap: 16px;">
+                <div class="timeline-item" style="border-left: 4px solid var(--color-primary); padding-left: 14px;">
+                  <strong style="font-size: var(--font-size-body-sm-strong); color: var(--color-ink);">07:45</strong>
+                  <p class="text-muted" style="margin: 4px 0 0 0; font-size: var(--font-size-body-sm);">Khách hàng tạo đơn và thanh toán qua ví Move_home.</p>
+                </div>
+                <div class="timeline-item" style="border-left: 4px solid var(--color-primary); padding-left: 14px;">
+                  <strong style="font-size: var(--font-size-body-sm-strong); color: var(--color-ink);">07:56</strong>
+                  <p class="text-muted" style="margin: 4px 0 0 0; font-size: var(--font-size-body-sm);">Tài xế Lê Văn Cường đã nhận đơn.</p>
+                </div>
+                <div class="timeline-item" style="border-left: 4px solid var(--color-primary); padding-left: 14px;">
+                  <strong style="font-size: var(--font-size-body-sm-strong); color: var(--color-ink);">08:28</strong>
+                  <p class="text-muted" style="margin: 4px 0 0 0; font-size: var(--font-size-body-sm);">Tài xế bắt đầu vận chuyển hàng hóa.</p>
+                </div>
+              </div>
+            </div>
+            <div class="card" style="background-color: var(--color-canvas); border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-xl); overflow: hidden;">
+              <div class="card-header" style="background-color: var(--color-canvas-soft); padding: var(--spacing-md) var(--spacing-xl); display: flex; align-items: center; justify-content: space-between;">
+                <h2 class="card-title" style="font-size: var(--font-size-body-md); font-weight: 700;">Giao dịch liên quan</h2>
+                <a href="transactions.html" class="link-primary" style="font-size: var(--font-size-body-sm); font-weight: 500;">Xem tất cả</a>
+              </div>
+              <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th class="table-th-eyebrow">Loại</th>
+                      <th class="table-th-eyebrow">Người dùng</th>
+                      <th class="table-th-eyebrow text-right">Số tiền</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Thanh toán đơn</td>
+                      <td>Nguyễn Văn An</td>
+                      <td class="text-right num-money" style="font-weight: 500;">1.500.000 đ</td>
+                    </tr>
+                    <tr>
+                      <td>Phí hoa hồng</td>
+                      <td>Hệ thống</td>
+                      <td class="text-right num-money" style="font-weight: 500;">450.000 đ</td>
+                    </tr>
+                    <tr>
+                      <td>Thu nhập tài xế</td>
+                      <td>Lê Văn Cường</td>
+                      <td class="text-right num-money" style="font-weight: 500;">1.050.000 đ</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </section>
           <aside class="stack">
-            <div class="card"><div class="card-header"><h2 class="card-title">Bảng giá</h2></div><div class="card-body">
-              <div class="price-row"><span>Giá cơ bản</span><strong>950.000 đ</strong></div>
-              <div class="price-row"><span>Phụ phí giờ cao điểm</span><strong>285.000 đ</strong></div>
-              <div class="price-row"><span>Phí bốc xếp</span><strong>300.000 đ</strong></div>
-              <div class="price-row price-total"><span>Tổng cộng</span><span>1.500.000 đ</span></div>
-            </div></div>
-            <div class="card-soft-tinted">
-              <h2 class="section-title">Thao tác quản trị</h2>
-              <p class="text-muted mb-lg">Các thao tác bên dưới là dữ liệu mô phỏng cho bản demo.</p>
-              <div class="flex flex-wrap gap-sm"><a href="customer-detail.html" class="btn-subtle">Xem khách hàng</a><a href="driver-detail.html" class="btn-subtle">Xem tài xế</a><a href="orders.html" class="btn-danger">Hủy đơn</a></div>
+            <div class="card" style="background-color: var(--color-canvas); border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-xl); overflow: hidden;">
+              <div class="card-header" style="background-color: var(--color-canvas-soft); padding: var(--spacing-md) var(--spacing-xl);">
+                <h2 class="card-title" style="font-size: var(--font-size-body-md); font-weight: 700;">Bảng giá</h2>
+              </div>
+              <div class="card-body" style="padding: var(--spacing-xl);">
+                <div class="price-row"><span>Giá cơ bản</span><strong>950.000 đ</strong></div>
+                <div class="price-row"><span>Phụ phí giờ cao điểm</span><strong>285.000 đ</strong></div>
+                <div class="price-row"><span>Phí bốc xếp</span><strong>300.000 đ</strong></div>
+                <div class="price-row price-total" style="display: flex; justify-content: space-between; padding: 12px 0 0 0; font-size: var(--font-size-body-lg); font-weight: 700; color: var(--color-primary); border-bottom: none;">
+                  <span>Tổng cộng</span><span>1.500.000 đ</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-soft-tinted" style="background-color: var(--color-canvas-soft); border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-xl); padding: var(--spacing-xl);">
+              <h2 class="card-title" style="font-size: var(--font-size-body-md); font-weight: 700; margin-bottom: 6px;">Thao tác quản trị</h2>
+              <p class="text-muted" style="font-size: var(--font-size-body-sm); margin-bottom: 16px;">Các thao tác bên dưới là dữ liệu mô phỏng cho bản demo.</p>
+              <div class="flex flex-wrap gap-sm" style="gap: var(--spacing-md);">
+                <a href="customer-detail.html" class="btn-subtle" style="font-weight: 500;">Xem khách hàng</a>
+                <a href="driver-detail.html" class="btn-subtle" style="font-weight: 500;">Xem tài xế</a>
+                <a href="orders.html" class="btn-danger">Hủy đơn</a>
+              </div>
             </div>
           </aside>
         </div>

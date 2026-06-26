@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Move_home — Thư viện Component (Kitchen Sink)</title>
+  
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Be Vietnam Pro font with Vietnamese subset -->
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/public.css">
+
+  <style>
+    /* Custom styling for the kitchen sink layout only */
+    .sink-section {
+      margin-bottom: var(--spacing-5xl);
+      padding-bottom: var(--spacing-3xl);
+      border-bottom: 2px dashed var(--color-surface-pressed);
+    }
+    .sink-section:last-child {
+      border-bottom: none;
+    }
+    .sink-title {
+      font-size: var(--font-size-display-md);
+      color: var(--color-primary);
+      margin-bottom: var(--spacing-xl);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--spacing-md);
+    }
+    .color-swatch {
+      padding: var(--spacing-lg);
+      border-radius: var(--rounded-lg);
+      border: 1px solid var(--color-surface-pressed);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+    .color-swatch-box {
+      height: 60px;
+      border-radius: var(--rounded-md);
+    }
+    .component-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+    }
+    .component-label {
+      font-size: var(--font-size-caption);
+      color: var(--color-body);
+      font-weight: var(--font-weight-medium);
+      width: 100%;
+      margin-bottom: var(--spacing-xs);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="#" class="site-logo">
+        <span class="site-logo-text">Move_home Redesign</span>
+      </a>
+      <span class="badge-active" style="margin-left: var(--spacing-md);">Kitchen Sink v2.0</span>
+      <div class="site-header-actions">
+        <a href="pages/public/index.html" class="btn-subtle">Landing Page</a>
+        <a href="pages/login.html" class="btn-primary">Đăng nhập</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="padding-top: var(--spacing-4xl); padding-bottom: var(--spacing-5xl);">
+    
+    <div style="text-align: center; margin-bottom: var(--spacing-5xl);">
+      <h1 class="page-title" style="font-size: var(--font-size-display-xl);">Thư viện Component (Kitchen Sink)</h1>
+      <p class="page-subtitle" style="font-size: var(--font-size-body-lg);">Bản xem trước trực quan của mọi thành phần giao diện đã được chuẩn hóa theo DESIGN.md.</p>
+    </div>
+
+    <!-- 1. COLOR SYSTEM -->
+    <section class="sink-section">
+      <h2 class="sink-title">1. Hệ thống Màu sắc (Brand Colors)</h2>
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background-color: var(--color-primary);"></div>
+          <strong>Forest Green (Primary)</strong>
+          <span>#1B4D3E</span>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background-color: var(--color-primary-soft);"></div>
+          <strong>Primary Soft (Hover)</strong>
+          <span>#2A6B57</span>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background-color: var(--color-primary-strong);"></div>
+          <strong>Primary Strong (Pressed)</strong>
+          <span>#0F3329</span>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background-color: var(--color-accent);"></div>
+          <strong>Amber (Accent)</strong>
+          <span>#F5A623</span>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background-color: var(--color-ink);"></div>
+          <strong>Ink (Typography)</strong>
+          <span>#1A1A1A</span>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background-color: var(--color-body);"></div>
+          <strong>Body Text</strong>
+          <span>#5E5E5E</span>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background-color: var(--color-canvas-soft);"></div>
+          <strong>Canvas Soft</strong>
+          <span>#F4F5F4</span>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background-color: var(--color-surface-pressed);"></div>
+          <strong>Surface Pressed</strong>
+          <span>#E5E7EB</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. TYPOGRAPHY -->
+    <section class="sink-section">
+      <h2 class="sink-title">2. Kiểu chữ (Typography)</h2>
+      <div class="flex-col gap-lg" style="text-align: left;">
+        <div>
+          <span class="eyebrow">eyebrow tag (dịch vụ)</span>
+          <h1 style="font-size: var(--font-size-display-xxl); line-height: var(--line-height-display-xxl); font-weight: var(--font-weight-bold); margin-top: var(--spacing-xs);">Display XXL: Chuyển nhà dễ dàng cùng Move_home</h1>
+        </div>
+        <div>
+          <h2 style="font-size: var(--font-size-display-xl); line-height: var(--line-height-display-xl); font-weight: var(--font-weight-bold);">Display XL: Cách thức hoạt động của chúng tôi</h2>
+        </div>
+        <div>
+          <h3 style="font-size: var(--font-size-display-lg); line-height: var(--line-height-display-lg); font-weight: var(--font-weight-bold);">Display LG: Bảng giá dịch vụ tham khảo</h3>
+        </div>
+        <div>
+          <h4 style="font-size: var(--font-size-display-sm); font-weight: var(--font-weight-bold);">Display SM: Đăng ký tài khoản tài xế</h4>
+        </div>
+        <div>
+          <p style="font-size: var(--font-size-body-lg); line-height: 26px;">Body LG: Đặt dịch vụ chuyển nhà với tài xế xác minh, báo giá minh bạch, theo dõi trực quan.</p>
+        </div>
+        <div>
+          <p>Body MD: Đây là đoạn văn bản mặc định sử dụng kích thước 16px để hiển thị các mô tả dài hơn hoặc đoạn thông tin hỗ trợ khách hàng chuyển dọn đồ đạc một cách an tâm nhất.</p>
+        </div>
+        <div>
+          <p style="font-size: var(--font-size-body-sm); color: var(--color-body);">Body SM: Phụ phí giờ cao điểm và ngõ nhỏ có thể thay đổi tùy thuộc vào tình trạng giao thông thực tế tại Hà Nội.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. BUTTONS (Pill Shape Signature) -->
+    <section class="sink-section">
+      <h2 class="sink-title">3. Nút bấm (Buttons)</h2>
+      <p style="margin-bottom: var(--spacing-lg); color: var(--color-body);">Mọi nút tương tác mặc định bo tròn dạng Pill (999px) trừ nút CTAs form lớn.</p>
+      
+      <div class="component-group">
+        <div class="component-label">Nút CTA & Điều hướng</div>
+        <button class="btn-primary">Đặt đơn ngay</button>
+        <button class="btn-primary-amber">Nhận ưu đãi 20%</button>
+        <button class="btn-secondary">Quay lại</button>
+        <button class="btn-subtle">Xem chi tiết</button>
+        <button class="btn-danger">Hủy đơn hàng</button>
+        <button class="btn-primary" disabled>Đang gửi đi...</button>
+      </div>
+
+      <div class="component-group">
+        <div class="component-label">Nút kích thước lớn / đặc thù</div>
+        <button class="btn-large-rounded">Xem báo giá (bo 16px)</button>
+        <a href="#" class="btn-primary-lg">Đặt đơn Hero</a>
+        <a href="#" class="btn-secondary-lg">Đăng nhập tài xế</a>
+      </div>
+
+      <div class="component-group">
+        <div class="component-label">Nút Tab & Phân loại & Icon tròn</div>
+        <button class="btn-subtle" style="border-radius: var(--rounded-pill-tab); padding: var(--spacing-sm) var(--spacing-xl);">Khách hàng</button>
+        <button class="category-chip active">🚚 Xe tải 500kg</button>
+        <button class="category-chip">🚛 Xe tải 1 tấn</button>
+        <button class="category-chip">📦 Chuyển nhà trọn gói</button>
+        <button class="pagination-btn-page active">1</button>
+        <button class="pagination-btn-page">2</button>
+        <button class="pagination-btn-page">3</button>
+      </div>
+    </section>
+
+    <!-- 4. CARDS (Flat with Rounded 16px default) -->
+    <section class="sink-section">
+      <h2 class="sink-title">4. Thẻ nội dung (Cards)</h2>
+      <p style="margin-bottom: var(--spacing-lg); color: var(--color-body);">Mặc định phẳng hoàn toàn (shadow level 0 / hairline border), chỉ shadow cho KPI hoặc nổi.</p>
+      
+      <div class="grid-3">
+        <!-- Content Card Flat -->
+        <div class="card-content" style="border: 1px solid var(--color-surface-pressed); text-align: left;">
+          <h3 class="section-title">Thẻ phẳng mặc định</h3>
+          <p style="color: var(--color-body); font-size: var(--font-size-body-sm);">Bo 16px, không bóng đổ. Dựa trên độ tương phản phẳng của Canvas và Canvas Soft.</p>
+        </div>
+
+        <!-- Elevated Card (Subtle Shadow) -->
+        <div class="card-elevated" style="text-align: left;">
+          <h3 class="section-title">Thẻ nổi (Elevated)</h3>
+          <p style="color: var(--color-body); font-size: var(--font-size-body-sm);">Bóng đổ Level 2. Chỉ dùng cho các phần tử cần thu hút sự chú ý tức thì hoặc form nổi.</p>
+        </div>
+
+        <!-- Soft Tinted Card -->
+        <div class="card-soft-tinted" style="text-align: left;">
+          <h3 class="section-title">Thẻ xám (Soft Tinted)</h3>
+          <p style="color: var(--color-body); font-size: var(--font-size-body-sm);">Sử dụng nền Canvas Soft xám ấm. Thích hợp cho các callout, thông tin phụ.</p>
+        </div>
+      </div>
+
+      <div class="grid-2 mt-lg">
+        <!-- Legacy Card Flat -->
+        <div class="card" style="text-align: left;">
+          <div class="card-header">
+            <h4 class="card-title">Legacy Card (Đã làm phẳng)</h4>
+            <span class="card-meta">MH-9023</span>
+          </div>
+          <div class="card-body">
+            <p>Trang quản trị sử dụng hệ thống card cũ đã được làm phẳng hoàn toàn, giữ bo 16px đồng bộ.</p>
+          </div>
+          <div class="card-footer">
+            <button class="btn-subtle btn-sm">Xem lịch sử</button>
+          </div>
+        </div>
+
+        <!-- KPI Card -->
+        <div class="kpi">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-body">
+            <div class="kpi-value">1.250 đơn</div>
+            <div class="kpi-label">Đơn hàng hoàn thành tháng này</div>
+            <div class="kpi-sub"><span style="color: var(--color-success); font-weight: bold;">↑ 12%</span> so với tháng trước</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. PROMO CARDS & MARKETING BANDS -->
+    <section class="sink-section">
+      <h2 class="sink-title">5. Thẻ khuyến mãi & Rhythm phân đoạn (Bands)</h2>
+      
+      <!-- Promo Illustrated Card -->
+      <div class="promo-card-illustrated" style="text-align: left; margin-bottom: var(--spacing-xl);">
+        <div>
+          <h3 style="font-size: var(--font-size-display-md); font-weight: var(--font-weight-bold); margin-bottom: var(--spacing-sm);">Chuyển nhà nhanh, an toàn</h3>
+          <p style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Tài xế chuyên nghiệp được xác minh đầy đủ, các loại xe tải đa dạng và giá cả minh bạch tuyệt đối.</p>
+          <button class="btn-primary">Đặt đơn ngay</button>
+        </div>
+        <div class="illustration-frame illustration-frame--4-3">
+          <div class="illustration-placeholder">🚚 Khung ảnh minh hoạ 4:3<br>(Preserved Aspect Ratio)</div>
+        </div>
+      </div>
+
+      <!-- Promo On Dark / Promo Amber Grid -->
+      <div class="grid-2">
+        <div class="promo-card-on-dark" style="text-align: left;">
+          <h3 style="font-size: var(--font-size-display-sm); font-weight: var(--font-weight-bold); margin-bottom: var(--spacing-sm);">Cam kết bảo đảm an toàn 100%</h3>
+          <p style="margin-bottom: var(--spacing-lg); opacity: 0.9;">Move_home đền bù 100% giá trị đồ đạc nếu xảy ra sự cố hỏng hóc hay thất lạc trong suốt quá trình vận chuyển dọn nhà.</p>
+          <button class="btn-secondary" style="background-color: white; border-color: white; color: var(--color-primary);">Tìm hiểu thêm</button>
+        </div>
+
+        <div class="promo-card-amber" style="text-align: left;">
+          <h3 style="font-size: var(--font-size-display-sm); font-weight: var(--font-weight-bold); margin-bottom: var(--spacing-sm);">Nhận ngay ưu đãi 20% lần đầu</h3>
+          <p style="margin-bottom: var(--spacing-lg);">Nhập mã giới thiệu bạn bè nhận ngay voucher trị giá 500.000 VND trực tiếp vào tài khoản ví Move_home của bạn.</p>
+          <button class="btn-primary" style="background-color: var(--color-ink); color: white;">Nhận ưu đãi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. BOOKING COMPONENTS & INPUTS -->
+    <section class="sink-section">
+      <h2 class="sink-title">6. Thành phần Form & Nhập liệu (Inputs)</h2>
+      
+      <div class="grid-2">
+        <!-- Hero Request Form Card -->
+        <div class="request-form-card">
+          <div style="text-align: left; margin-bottom: var(--spacing-sm);">
+            <h3 style="font-size: var(--font-size-display-sm); font-weight: bold; margin: 0;">Ước tính phí vận chuyển</h3>
+            <p style="color: var(--color-body); font-size: var(--font-size-body-sm); margin: 0;">Nhận báo giá chính xác chỉ trong 30 giây.</p>
+          </div>
+          
+          <div class="request-form-input-row">
+            <span class="request-form-icon">📍</span>
+            <div class="request-form-content">
+              <span class="request-form-label">Điểm đón</span>
+              <span class="request-form-value">Quận Ba Đình, Hà Nội</span>
+            </div>
+            <span class="request-form-chevron">▼</span>
+          </div>
+
+          <div class="request-form-input-row">
+            <span class="request-form-icon">🏁</span>
+            <div class="request-form-content">
+              <span class="request-form-label">Điểm trả</span>
+              <span class="request-form-value">Quận Cầu Giấy, Hà Nội</span>
+            </div>
+            <span class="request-form-chevron">▼</span>
+          </div>
+
+          <div class="request-form-input-row">
+            <span class="request-form-icon">🕒</span>
+            <div class="request-form-content">
+              <span class="request-form-label">Thời gian đặt</span>
+              <span class="request-form-value">Giao ngay (Bây giờ)</span>
+            </div>
+            <span class="request-form-chevron">▼</span>
+          </div>
+
+          <button class="btn-large-rounded btn-full" style="margin-top: var(--spacing-sm);">Xem báo giá</button>
+        </div>
+
+        <!-- Form fields and states -->
+        <div class="flex-col gap-lg" style="text-align: left;">
+          <div class="form-group">
+            <label class="form-label">Họ và tên khách hàng <span class="form-required">*</span></label>
+            <input type="text" class="text-input" placeholder="Nhập họ và tên đầy đủ của bạn">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mật khẩu tài khoản</label>
+            <div class="input-password-wrapper">
+              <input type="password" class="text-input" value="supersecretpassword" style="padding-right: 48px;">
+              <button class="input-password-toggle">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Lựa chọn Quận huyện (Dropdown)</label>
+            <select class="text-input" style="appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%231A1A1A\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>'); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px;">
+              <option>Quận Hoàn Kiếm</option>
+              <option>Quận Đống Đa</option>
+              <option>Quận Cầu Giấy</option>
+            </select>
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" id="sink-check" class="form-check-input" checked>
+            <div class="form-check-box"></div>
+            <span class="form-check-label">Tôi đồng ý với <a href="#">Điều khoản sử dụng</a> và <a href="#">Chính sách bảo mật</a></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. STATUS BADGES & ACCORDIONS (FAQ) -->
+    <section class="sink-section">
+      <h2 class="sink-title">7. Nhãn trạng thái (Pills) & FAQ Accordions</h2>
+      
+      <div class="component-group">
+        <div class="component-label">BEM Status Badges (pill bo 999px)</div>
+        <span class="status-badge status-badge--pending">Đang chờ</span>
+        <span class="status-badge status-badge--in-progress">Đang giao</span>
+        <span class="status-badge status-badge--active">Đang hoạt động</span>
+        <span class="status-badge status-badge--completed">Hoàn thành</span>
+        <span class="status-badge status-badge--cancelled">Đã hủy</span>
+        <span class="status-badge status-badge--disputed">Khiếu nại</span>
+      </div>
+
+      <div class="component-group mt-lg">
+        <div class="component-label">Legacy Badge Fallbacks</div>
+        <span class="badge-pending">Đang chờ (legacy)</span>
+        <span class="badge-in-progress">Đang giao (legacy)</span>
+        <span class="badge-completed">Hoàn thành (legacy)</span>
+        <span class="badge-cancelled">Đã hủy (legacy)</span>
+        <span class="badge-disputed">Khiếu nại (legacy)</span>
+      </div>
+
+      <div style="margin-top: var(--spacing-3xl);">
+        <h3 class="section-title" style="text-align: left;">Câu hỏi thường gặp (FAQ rows)</h3>
+        <div class="faq-row">
+          <h4 class="faq-question">Làm thế nào để đặt dịch vụ chuyển dọn nhà nhanh nhất? <span>▼</span></h4>
+          <p class="faq-answer">Bạn chỉ cần đăng nhập tài khoản khách hàng, lựa chọn loại xe tương ứng với khối lượng đồ đạc cần chuyển, nhập địa điểm đón trả và bấm nút ước tính giá để đặt tài xế ngay lập tức.</p>
+        </div>
+        <div class="faq-row">
+          <h4 class="faq-question">Tài xế của Move_home có đảm bảo độ tin cậy an tâm không? <span>▼</span></h4>
+          <p class="faq-answer">Tất cả tài xế khi đăng ký vào hệ thống đều phải trải qua quá trình xác minh lý lịch nhân thân rõ ràng, kiểm tra tính hợp pháp của bằng lái và ký kết thỏa thuận cam kết chất lượng của chúng tôi.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. ILLUSTRATION FRAMES & PAGINATION -->
+    <section class="sink-section">
+      <h2 class="sink-title">8. Khung minh hoạ & Phân trang (Pagination)</h2>
+      
+      <div class="grid-2" style="margin-bottom: var(--spacing-xl);">
+        <div>
+          <span class="component-label">Khung tỷ lệ 16:9</span>
+          <div class="illustration-frame illustration-frame--16-9">
+            <div class="illustration-placeholder">🚚 Khung ảnh minh hoạ 16:9<br>(Không cắt bừa hình tròn, giữ đúng tỷ lệ biên tập)</div>
+          </div>
+        </div>
+        <div>
+          <span class="component-label">Khung tỷ lệ 4:3</span>
+          <div class="illustration-frame illustration-frame--4-3">
+            <div class="illustration-placeholder">📦 Khung ảnh minh hoạ 4:3<br>(Preserved Aspect Ratio)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination bar -->
+      <div class="pagination-bar" style="margin-top: var(--spacing-3xl);">
+        <span class="pagination-info">Hiển thị 1-10 trong tổng số 30 đơn hàng</span>
+        <div class="pagination-controls">
+          <button class="pagination-btn-prev" disabled>« Trước</button>
+          <button class="pagination-btn-page active">1</button>
+          <button class="pagination-btn-page">2</button>
+          <button class="pagination-btn-page">3</button>
+          <button class="pagination-btn-next">Tiếp »</button>
+        </div>
+        <div class="pagination-size-wrapper">
+          <span class="pagination-size-label">Số dòng/trang:</span>
+          <select class="pagination-size-select">
+            <option>10</option>
+            <option>20</option>
+            <option>50</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. ALTERNATING BANDS DEMO -->
+    <section class="sink-section" style="padding: 0; border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-xl); overflow: hidden;">
+      <h2 class="sink-title" style="padding: var(--spacing-lg) var(--spacing-xl); margin: 0; border-bottom: 1px solid var(--color-surface-pressed);">9. Nhịp điệu phân đoạn (Alternating Bands - Polarity Flip)</h2>
+      
+      <!-- Light Band -->
+      <div class="band-light">
+        <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+          <span class="eyebrow">phân đoạn sáng</span>
+          <h3 style="font-size: var(--font-size-display-sm); font-weight: bold; margin-top: var(--spacing-xs); margin-bottom: var(--spacing-sm);">Nội dung đặt trên nền trắng Canvas</h3>
+          <p style="color: var(--color-body); font-size: var(--font-size-body-sm);">Nền trắng sáng giúp nội dung đọc cực kỳ thoáng, chữ sắc nét và nổi bật các nút hành động chính.</p>
+        </div>
+      </div>
+
+      <!-- Dark Band (Polarity Flip) -->
+      <div class="band-dark">
+        <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+          <span class="eyebrow" style="color: var(--color-accent);">phân đoạn tối (flip)</span>
+          <h3 style="font-size: var(--font-size-display-sm); font-weight: bold; margin-top: var(--spacing-xs); margin-bottom: var(--spacing-sm); color: white;">Nền xanh rừng sâu lắng Forest Green</h3>
+          <p style="margin-bottom: var(--spacing-lg); color: white; opacity: 0.9;">Tận dụng nhịp chuyển đổi tương phản giữa trắng và xanh rừng để phân tách rõ rệt các vùng truyền tải thông điệp tin cậy của dịch vụ.</p>
+          <button class="btn-primary-amber">Đăng ký tài xế ngay</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-column" style="text-align: left;">
+        <h4>Move_home</h4>
+        <p>Hệ thống kết nối dịch vụ vận chuyển dọn nhà chuyên nghiệp và uy tín hàng đầu tại Hà Nội.</p>
+      </div>
+      <div class="footer-column" style="text-align: left;">
+        <h4>Liên kết nhanh</h4>
+        <a href="pages/public/index.html">Trang chủ Landing</a>
+        <a href="pages/login.html">Đăng nhập tài khoản</a>
+        <a href="pages/register.html">Đăng ký khách hàng</a>
+      </div>
+      <div class="footer-column" style="text-align: left;">
+        <h4>Hỗ trợ pháp lý</h4>
+        <a href="#">Điều khoản dịch vụ</a>
+        <a href="#">Chính sách bảo mật</a>
+        <a href="#">Giải quyết tranh chấp</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Move_home. Mọi quyền được bảo lưu. Thiết kế và tối ưu bởi Antigravity.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

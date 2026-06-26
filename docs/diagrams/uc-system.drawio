@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-09T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram name="UC System" id="uc-system">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="system_boundary" value="Move_home - System / Cross-cutting" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;verticalAlign=top;fontSize=14;fontStyle=1;spacingTop=8;" vertex="1" parent="1"><mxGeometry x="170" y="30" width="850" height="730" as="geometry"/></mxCell>
+        <mxCell id="actor_system" value="Move_home System" style="shape=umlActor;html=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="40" y="330" width="50" height="100" as="geometry"/></mxCell>
+        <mxCell id="actor_cloudinary" value="Cloudinary" style="shape=umlActor;html=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="1080" y="100" width="50" height="100" as="geometry"/></mxCell>
+        <mxCell id="actor_vnpay" value="VNPay" style="shape=umlActor;html=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="1080" y="260" width="50" height="100" as="geometry"/></mxCell>
+        <mxCell id="actor_osrm" value="OSRM" style="shape=umlActor;html=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="1080" y="420" width="50" height="100" as="geometry"/></mxCell>
+        <mxCell id="actor_gmail" value="Gmail SMTP" style="shape=umlActor;html=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="1080" y="580" width="50" height="100" as="geometry"/></mxCell>
+        <mxCell id="uc057" value="UC-057: Hiển thị trang 404" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="230" y="100" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc058" value="UC-058: Hiển thị trang 403" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="480" y="100" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc059" value="UC-059: Hiển thị trang 500" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="730" y="100" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc060" value="UC-060: Refresh token / Session Expired" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="230" y="300" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc061" value="UC-061: Validation và error recovery" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="480" y="300" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc062" value="UC-062: Ghi Audit Log" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="730" y="300" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc063" value="UC-063: Gửi email notifications" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="230" y="500" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc064" value="UC-064: Tính khoảng cách OSRM" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="480" y="500" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc065" value="UC-065: VNPay và Cloudinary integrations" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="730" y="500" width="230" height="65" as="geometry"/></mxCell>
+        <mxCell id="s057" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_system" target="uc057"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="s058" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_system" target="uc058"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="s059" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_system" target="uc059"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="s060" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_system" target="uc060"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="s061" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_system" target="uc061"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="s062" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_system" target="uc062"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="s063" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_system" target="uc063"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="s064" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_system" target="uc064"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="s065" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_system" target="uc065"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ext_cloudinary" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_cloudinary" target="uc065"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ext_vnpay" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_vnpay" target="uc065"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ext_osrm" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_osrm" target="uc064"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ext_gmail" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_gmail" target="uc063"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="include_059_061" value="&lt;&lt;include&gt;&gt;" style="endArrow=open;html=1;strokeColor=#666666;dashed=1;fontSize=10;" edge="1" parent="1" source="uc059" target="uc061"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="include_060_062" value="&lt;&lt;include&gt;&gt;" style="endArrow=open;html=1;strokeColor=#666666;dashed=1;fontSize=10;" edge="1" parent="1" source="uc060" target="uc062"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

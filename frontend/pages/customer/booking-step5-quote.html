@@ -3,50 +3,562 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Báo giá — Move_home</title>
+  <title>Báo giá — MoveHome</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
-    .booking-shell{display:grid;grid-template-columns:280px 1fr;gap:24px}.booking-steps{display:grid;gap:10px}.booking-step{padding:12px 14px;border-radius:999px;background:var(--color-canvas-soft);font-weight:500;color:var(--color-body)}.booking-step.active{background:var(--color-primary);color:var(--color-on-primary)}
-    .price-row{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--color-surface-pressed)}.price-row.total{font-size:24px;font-weight:700;color:var(--color-primary);border-bottom:none}.route-box{display:grid;gap:10px;padding:16px;border-radius:16px;background:var(--color-canvas-soft)}
-    @media (max-width:800px){.booking-shell{grid-template-columns:1fr}.site-header-actions{display:none}}
+    .customer-nav {
+      display: flex;
+      gap: var(--spacing-lg);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .customer-nav a {
+      color: var(--color-ink);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      padding: var(--spacing-xs) 0;
+      transition: color var(--transition-fast);
+    }
+    .customer-nav a:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+    .customer-nav a.active {
+      color: var(--color-primary);
+      border-bottom: 3px solid var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .booking-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--spacing-2xl);
+    }
+    
+    /* Progress Timeline style */
+    .progress-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      padding: var(--spacing-md) 0;
+      position: relative;
+    }
+    .progress-timeline::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: var(--spacing-xl);
+      bottom: var(--spacing-xl);
+      width: 2px;
+      background: var(--color-surface-pressed);
+      z-index: 1;
+    }
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      position: relative;
+      z-index: 2;
+    }
+    .timeline-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--rounded-full);
+      background: var(--color-canvas);
+      border: 2px solid var(--color-surface-pressed);
+      color: var(--color-body);
+      display: grid;
+      place-items: center;
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-body-sm);
+      transition: all var(--transition-fast);
+    }
+    .timeline-item.active .timeline-badge {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-on-primary);
+      box-shadow: 0 0 0 4px rgba(27, 77, 62, 0.12);
+    }
+    .timeline-item.completed .timeline-badge {
+      background: var(--color-success-bg);
+      border-color: var(--color-success);
+      color: var(--color-success-text);
+    }
+    .timeline-text {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-body);
+      font-size: var(--font-size-body-md);
+      transition: color var(--transition-fast);
+    }
+    .timeline-item.active .timeline-text {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .timeline-item.completed .timeline-text {
+      color: var(--color-success-text);
+    }
+
+    /* Layout Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-xl);
+      align-items: start;
+    }
+    
+    .route-timeline {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding-left: var(--spacing-xl);
+      margin-top: var(--spacing-md);
+    }
+    .route-timeline::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 10px;
+      bottom: 10px;
+      width: 2px;
+      background: var(--color-surface-pressed);
+      border-left: 2px dashed var(--color-primary-soft);
+    }
+    .route-point {
+      position: relative;
+      margin-bottom: var(--spacing-lg);
+    }
+    .route-point:last-child {
+      margin-bottom: 0;
+    }
+    .point-marker {
+      position: absolute;
+      left: -20px;
+      top: 4px;
+      width: 14px;
+      height: 14px;
+      border-radius: var(--rounded-full);
+      background: var(--color-canvas);
+      border: 3px solid var(--color-primary);
+    }
+    .route-point.dropoff .point-marker {
+      border-color: var(--color-accent);
+    }
+    .point-label {
+      font-size: var(--font-size-caption);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-body);
+      text-transform: uppercase;
+      margin-bottom: var(--spacing-xxs);
+    }
+    .point-address {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-ink);
+    }
+    
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md) 0;
+      border-bottom: 1px solid var(--color-surface-pressed);
+    }
+    .price-row:last-child {
+      border-bottom: none;
+    }
+    .price-row.total {
+      font-size: var(--font-size-display-sm);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      margin-top: var(--spacing-md);
+      border-top: 2px solid var(--color-surface-pressed);
+      border-bottom: none;
+      padding-top: var(--spacing-lg);
+    }
+    
+    .eyebrow {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent-strong);
+      margin-bottom: var(--spacing-xxs);
+    }
+    
+    @media (max-width: 800px) {
+      .booking-shell, .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .site-header-actions {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
-  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html" class="active">Đặt đơn</a><a href="my-orders-pending.html">Đơn hàng</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
-  <main class="site-main"><div class="dashboard-main">
-    <header class="page-header"><h1 class="page-title">Báo giá chi tiết</h1><p class="page-subtitle">Bước 5/6 — Giá minh bạch trước khi xác nhận đặt đơn.</p></header>
-    <div class="booking-shell">
-      <aside class="card-content"><div class="booking-steps"><div class="booking-step">1. Chọn xe</div><div class="booking-step">2. Điểm đón</div><div class="booking-step">3. Điểm trả</div><div class="booking-step">4. Chi tiết</div><div class="booking-step active">5. Báo giá</div><div class="booking-step">6. Thanh toán</div></div></aside>
-      <section>
-        <div class="grid-2">
-          <div class="card-elevated">
-            <h2>Lộ trình</h2>
-            <div class="route-box mt-md">
-              <strong>Điểm đón</strong><span>Số 25 ngõ 68 phố Đội Cấn, Quận Ba Đình</span>
-              <strong>Điểm trả</strong><span>Tòa A2, phố Duy Tân, Quận Cầu Giấy</span>
-              <strong>Quãng đường dự kiến</strong><span>8,6 km</span>
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="spinner-page" style="display: none;">
+    <div class="spinner spinner-md"></div>
+    <p>Đang tính toán báo giá...</p>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">MoveHome</span>
+      </a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html" class="active">Đặt đơn</a>
+        <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-wallet.html">Ví của tôi</a>
+        <a href="my-profile.html">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name" id="header-user-name">Xin chào, Nguyễn Văn An</span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">AN</div>
+        <button id="logout-btn" class="btn-subtle btn-sm">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="site-main">
+    <div class="dashboard-main">
+      <!-- ERROR BANNER -->
+      <div class="alert alert-danger" id="error-banner" style="display:none; margin-bottom: 24px;" role="alert"></div>
+
+      <header class="page-header">
+        <div class="eyebrow">BƯỚC 5 / 6</div>
+        <h1 class="page-title">Báo giá chi tiết</h1>
+        <p class="page-subtitle">Giá minh bạch trước khi xác nhận đặt đơn.</p>
+      </header>
+
+      <div class="booking-shell">
+        <!-- SIDEBAR progress -->
+        <aside>
+          <div class="card-content">
+            <div class="progress-timeline">
+              <div class="timeline-item completed">
+                <div class="timeline-badge">✓</div>
+                <div class="timeline-text">Chọn xe</div>
+              </div>
+              <div class="timeline-item completed">
+                <div class="timeline-badge">✓</div>
+                <div class="timeline-text">Điểm đón</div>
+              </div>
+              <div class="timeline-item completed">
+                <div class="timeline-badge">✓</div>
+                <div class="timeline-text">Điểm trả</div>
+              </div>
+              <div class="timeline-item completed">
+                <div class="timeline-badge">✓</div>
+                <div class="timeline-text">Chi tiết</div>
+              </div>
+              <div class="timeline-item active">
+                <div class="timeline-badge">5</div>
+                <div class="timeline-text">Báo giá</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">6</div>
+                <div class="timeline-text">Thanh toán</div>
+              </div>
             </div>
           </div>
-          <div class="card-elevated">
-            <h2>Chi phí</h2>
-            <div class="price-row"><span>Giá cơ bản</span><strong>420.000 VND</strong></div>
-            <div class="price-row"><span>Phụ phí giờ cao điểm</span><strong>126.000 VND</strong></div>
-            <div class="price-row"><span>Phụ phí ngõ nhỏ</span><strong>200.000 VND</strong></div>
-            <div class="price-row"><span>Phụ phí tầng</span><strong>100.000 VND</strong></div>
-            <div class="price-row"><span>Phí bốc xếp</span><strong>600.000 VND</strong></div>
-            <div class="price-row"><span>Phí hoa hồng</span><strong>156.000 VND</strong></div>
-            <div class="price-row total"><span>Tổng cộng</span><span>1.602.000 VND</span></div>
+
+          <!-- Editorial Trust Card -->
+          <div class="card-soft-tinted mt-8 text-center" style="background-color: #E6EDE9; border: 1px solid rgba(27, 77, 62, 0.15); margin-top: var(--spacing-2xl);">
+            <!-- SVG Illustration -->
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; display: block;">
+              <circle cx="60" cy="60" r="45" fill="#1B4D3E" fill-opacity="0.08"/>
+              <!-- Shield Outline -->
+              <path d="M60 25C40 25 35 35 35 48C35 70 50 85 60 90C70 85 85 70 85 48C85 35 80 25 60 25Z" fill="#D29B52" stroke="#1B4D3E" stroke-width="2.5"/>
+              <path d="M60 25V90" stroke="#1B4D3E" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <!-- Checkmark / Guarantee -->
+              <circle cx="60" cy="55" r="14" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="2"/>
+              <path d="M54 55L58 59L66 51" stroke="#1B4D3E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h4 style="color: var(--color-primary); font-size: var(--font-size-body-md); font-weight: var(--font-weight-bold); margin-top: var(--spacing-sm); margin-bottom: 0;">Giá cả minh bạch</h4>
+            <p style="font-size: var(--font-size-caption); color: var(--color-body); margin-top: var(--spacing-xs); line-height: 1.4; margin-bottom: 0;">
+              Mọi khoản phí đều được tính toán rõ ràng theo khoảng cách thực tế và các phụ phí dịch vụ đã chọn. Cam kết không phát sinh phí ẩn.
+            </p>
           </div>
-        </div>
-        <div class="mt-md"><a href="booking-step4-details.html" class="btn-secondary">Quay lại</a> <a href="booking-step6-payment.html" class="btn-primary">Đặt đơn ngay</a></div>
-      </section>
+        </aside>
+
+        <!-- QUOTE CONTENT -->
+        <section>
+          <div class="grid-2">
+            <!-- Left Column: Route Summary -->
+            <div class="card-elevated" style="height: 100%;">
+              <h2 style="font-size: var(--font-size-display-sm); font-weight: var(--font-weight-bold); color: var(--color-primary); margin-top: 0; margin-bottom: var(--spacing-md);">Lộ trình vận chuyển</h2>
+              <div class="route-timeline">
+                <div class="route-point pickup">
+                  <div class="point-marker"></div>
+                  <div class="point-content">
+                    <div class="point-label">Điểm đón</div>
+                    <div class="point-address" id="pickup-display-address">Đang tải...</div>
+                  </div>
+                </div>
+                <div class="route-point dropoff">
+                  <div class="point-marker"></div>
+                  <div class="point-content">
+                    <div class="point-label">Điểm trả</div>
+                    <div class="point-address" id="dropoff-display-address">Đang tải...</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-md" style="background-color: var(--color-canvas-soft); padding: var(--spacing-md); border-radius: var(--rounded-lg); margin-top: var(--spacing-xl); display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                <div>
+                  <div style="font-size: var(--font-size-caption); color: var(--color-body); font-weight: var(--font-weight-semibold); text-transform: uppercase;">Quãng đường</div>
+                  <strong style="font-size: var(--font-size-body-lg); color: var(--color-primary);" id="distance-display">0 km</strong>
+                </div>
+                <div>
+                  <div style="font-size: var(--font-size-caption); color: var(--color-body); font-weight: var(--font-weight-semibold); text-transform: uppercase;">Thời gian ước tính</div>
+                  <strong style="font-size: var(--font-size-body-lg); color: var(--color-primary);" id="duration-display">0 phút</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Cost Surcharges Breakdown -->
+            <div class="card-elevated">
+              <h2 style="font-size: var(--font-size-display-sm); font-weight: var(--font-weight-bold); color: var(--color-primary); margin-top: 0; margin-bottom: var(--spacing-md);">Chi phí dự kiến</h2>
+              
+              <div class="price-row">
+                <span>Giá cơ bản</span>
+                <strong id="base-fare-display">0 VND</strong>
+              </div>
+              <div class="price-row">
+                <span>Phụ phí giờ cao điểm</span>
+                <strong id="peak-surcharge-display">0 VND</strong>
+              </div>
+              <div class="price-row">
+                <span>Phụ phí ngõ nhỏ</span>
+                <strong id="alley-surcharge-display">0 VND</strong>
+              </div>
+              <div class="price-row">
+                <span>Phụ phí tầng</span>
+                <strong id="floor-surcharge-display">0 VND</strong>
+              </div>
+              <div class="price-row">
+                <span>Phí bốc xếp</span>
+                <strong id="porter-fee-display">0 VND</strong>
+              </div>
+              
+              <div class="price-row total">
+                <span>Tổng cộng</span>
+                <span id="total-quote-display">0 VND</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="mt-md" style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-2xl);">
+            <a href="booking-step4-details.html" class="btn-secondary" id="back-btn">Quay lại</a>
+            <button class="btn-primary" id="continue-btn" style="min-width: 160px;">Đặt đơn ngay</button>
+          </div>
+        </section>
+      </div>
     </div>
-  </div></main>
+  </main>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, postAuthenticated } from '../../js/api.js';
+
+  // district name to backend enum mapping
+  const districtMapping = {
+    "Quận Ba Đình": "BA_DINH",
+    "Quận Hoàn Kiếm": "HOAN_KIEM",
+    "Quận Hai Bà Trưng": "HAI_BA_TRUNG",
+    "Quận Đống Đa": "DONG_DA",
+    "Quận Tây Hồ": "TAY_HO",
+    "Quận Cầu Giấy": "CAU_GIAY",
+    "Quận Thanh Xuân": "THANH_XUAN",
+    "Quận Long Biên": "LONG_BIEN",
+    "Quận Hà Đông": "HA_DONG",
+    "Quận Hoàng Mai": "HOANG_MAI",
+    "Quận Bắc Từ Liêm": "BAC_TU_LIEM",
+    "Quận Nam Từ Liêm": "NAM_TU_LIEM"
+  };
+
+  function formatPrice(value) {
+    return Number(value).toLocaleString('vi-VN') + ' VND';
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Guard check
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') {
+      logout('../login.html');
+      return;
+    }
+
+    // 1.1 Check local storage keys to prevent calculating empty quotes
+    let vehicleType = localStorage.getItem('booking_vehicleType');
+    let pickupAddress = localStorage.getItem('booking_pickupAddress');
+    let dropoffAddress = localStorage.getItem('booking_dropoffAddress');
+
+    if (!vehicleType || !pickupAddress || !dropoffAddress) {
+      console.warn('Booking info is missing in localStorage, redirecting to Step 1...');
+      window.location.href = 'booking-step1-vehicle.html';
+      return;
+    }
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const errorBanner = document.getElementById('error-banner');
+
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    if (errorBanner) errorBanner.style.display = 'none';
+
+    try {
+      // 2. Fetch real user profile to verify session & get details
+      const profile = await getAuthenticated('/api/customer/profile');
+      
+      // Update header details dynamically
+      const nameEl = document.getElementById('header-user-name');
+      const avatarEl = document.getElementById('header-user-avatar');
+      if (nameEl) nameEl.textContent = `Xin chào, ${profile.fullName}`;
+      if (avatarEl) {
+        avatarEl.textContent = profile.fullName
+          .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+      }
+    } catch (err) {
+      console.error('Lỗi khi tải thông tin khách hàng:', err);
+      if (errorBanner) {
+        errorBanner.textContent = '⚠️ Phiên đăng nhập hết hạn hoặc lỗi kết nối. Đang chuyển hướng đăng nhập...';
+        errorBanner.style.display = 'flex';
+      }
+      setTimeout(() => {
+        logout('../login.html');
+      }, 2500);
+      return;
+    }
+
+    // Bind logout button click
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        logout('../login.html');
+      });
+    }
+
+    // 3. Load values from localStorage
+    vehicleType = vehicleType || 'TRUCK_1T';
+
+    pickupAddress = pickupAddress || '';
+    const pickupDistrict = localStorage.getItem('booking_pickupDistrict') || '';
+    const pickupLatStr = localStorage.getItem('booking_pickupLat') || '21.0357';
+    const pickupLngStr = localStorage.getItem('booking_pickupLng') || '105.7958';
+    const pickupFloorStr = localStorage.getItem('booking_pickupFloor') || '1';
+    const pickupHasElevator = localStorage.getItem('booking_pickupHasElevator') === 'true';
+    const pickupHasAlley = localStorage.getItem('booking_pickupHasAlley') === 'true';
+
+    dropoffAddress = dropoffAddress || '';
+    const dropoffDistrict = localStorage.getItem('booking_dropoffDistrict') || '';
+    const dropoffLatStr = localStorage.getItem('booking_dropoffLat') || '21.0357';
+    const dropoffLngStr = localStorage.getItem('booking_dropoffLng') || '105.7958';
+    const dropoffFloorStr = localStorage.getItem('booking_dropoffFloor') || '1';
+    const dropoffHasElevator = localStorage.getItem('booking_dropoffHasElevator') === 'true';
+    const dropoffHasAlley = localStorage.getItem('booking_dropoffHasAlley') === 'true';
+
+    const dateStr = localStorage.getItem('booking_date');
+    const timeStr = localStorage.getItem('booking_time');
+    const porterCountStr = localStorage.getItem('booking_porterCount') || '2';
+
+    // Populate route display fields
+    const pickupDisplayAddressEl = document.getElementById('pickup-display-address');
+    const dropoffDisplayAddressEl = document.getElementById('dropoff-display-address');
+    if (pickupDisplayAddressEl) pickupDisplayAddressEl.textContent = `${pickupAddress}, ${pickupDistrict}`;
+    if (dropoffDisplayAddressEl) dropoffDisplayAddressEl.textContent = `${dropoffAddress}, ${dropoffDistrict}`;
+
+    // Combine date/time into UTC ISO instant
+    let scheduledAt = new Date().toISOString();
+    if (dateStr && timeStr) {
+      try {
+        const localDateTimeStr = `${dateStr}T${timeStr}:00`;
+        scheduledAt = new Date(localDateTimeStr).toISOString();
+      } catch (e) {
+        console.error('Lỗi khi parse thời gian hẹn:', e);
+      }
+    }
+
+    // 4. Send POST /api/customer/quote request
+    try {
+      const payload = {
+        vehicleType,
+        pickup: {
+          address: pickupAddress,
+          district: districtMapping[pickupDistrict] || 'CAU_GIAY',
+          lat: parseFloat(pickupLatStr),
+          lng: parseFloat(pickupLngStr),
+          floor: parseInt(pickupFloorStr, 10),
+          hasElevator: pickupHasElevator,
+          hasAlley: pickupHasAlley
+        },
+        dropoff: {
+          address: dropoffAddress,
+          district: districtMapping[dropoffDistrict] || 'CAU_GIAY',
+          lat: parseFloat(dropoffLatStr),
+          lng: parseFloat(dropoffLngStr),
+          floor: parseInt(dropoffFloorStr, 10),
+          hasElevator: dropoffHasElevator,
+          hasAlley: dropoffHasAlley
+        },
+        scheduledAt,
+        porterCount: parseInt(porterCountStr, 10)
+      };
+
+      console.log('Sending quote payload:', payload);
+      const quoteRes = await postAuthenticated('/api/customer/quote', payload);
+      console.log('Received quote response:', quoteRes);
+
+      // Populate UI with response pricing details
+      document.getElementById('distance-display').textContent = `${quoteRes.distanceKm.toFixed(1)} km`;
+      document.getElementById('duration-display').textContent = `${quoteRes.durationMinutes} phút`;
+
+      document.getElementById('base-fare-display').textContent = formatPrice(quoteRes.baseFare);
+      document.getElementById('peak-surcharge-display').textContent = formatPrice(quoteRes.peakSurcharge);
+      document.getElementById('alley-surcharge-display').textContent = formatPrice(quoteRes.alleySurcharge);
+      document.getElementById('floor-surcharge-display').textContent = formatPrice(quoteRes.floorSurcharge);
+      document.getElementById('porter-fee-display').textContent = formatPrice(quoteRes.porterFee);
+      
+      const totalQuoteEl = document.getElementById('total-quote-display');
+      if (totalQuoteEl) totalQuoteEl.textContent = formatPrice(quoteRes.totalQuote);
+
+      // Persist computed quote details to local storage
+      localStorage.setItem('booking_totalQuote', quoteRes.totalQuote);
+      localStorage.setItem('booking_distanceKm', quoteRes.distanceKm);
+      localStorage.setItem('booking_durationMinutes', quoteRes.durationMinutes);
+    } catch (err) {
+      console.error('Lỗi khi tính toán báo giá:', err);
+      if (errorBanner) {
+        errorBanner.textContent = '⚠️ Không thể tính toán báo giá: ' + (err.message || 'Lỗi hệ thống.');
+        errorBanner.style.display = 'flex';
+      }
+    } finally {
+      if (loadingOverlay) loadingOverlay.style.display = 'none';
+    }
+
+    // 5. Navigation logic to Step 6
+    const continueBtn = document.getElementById('continue-btn');
+    if (continueBtn) {
+      continueBtn.addEventListener('click', () => {
+        // Navigate to Step 6 (Payment selection)
+        window.location.href = 'booking-step6-payment.html';
+      });
+    }
+  });
+</script>
 </body>
 </html>

@@ -33,15 +33,31 @@
     <aside class="sidebar" aria-label="Menu quản lý">
       <nav class="sidebar-nav">
         <a href="driver-approvals.html" class="sidebar-item sidebar-item--active">
-          <span class="sidebar-icon">✓</span>
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </span>
           <span>Duyệt tài xế</span>
         </a>
         <a href="withdrawal-pending.html" class="sidebar-item">
-          <span class="sidebar-icon">₫</span>
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </span>
           <span>Rút tiền</span>
         </a>
         <a href="disputes.html" class="sidebar-item">
-          <span class="sidebar-icon">!</span>
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </span>
           <span>Khiếu nại</span>
         </a>
       </nav>
@@ -57,7 +73,15 @@
         <section class="mb-8" aria-label="Chỉ số duyệt tài xế">
           <div class="grid-3">
             <div class="kpi kpi-warning">
-              <div class="kpi-icon">3</div>
+              <div class="kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
               <div class="kpi-body">
                 <div class="kpi-value">3</div>
                 <div class="kpi-label">Hồ sơ chờ duyệt</div>
@@ -65,7 +89,13 @@
               </div>
             </div>
             <div class="kpi kpi-success">
-              <div class="kpi-icon">2</div>
+              <div class="kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <polyline points="9 15 11 17 15 13"></polyline>
+                </svg>
+              </div>
               <div class="kpi-body">
                 <div class="kpi-value">2</div>
                 <div class="kpi-label">Hồ sơ đủ giấy tờ</div>
@@ -73,7 +103,14 @@
               </div>
             </div>
             <div class="kpi kpi-danger">
-              <div class="kpi-icon">1</div>
+              <div class="kpi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="12" x2="12" y2="16"></line>
+                  <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                </svg>
+              </div>
               <div class="kpi-body">
                 <div class="kpi-value">1</div>
                 <div class="kpi-label">Cần kiểm tra thêm</div>
@@ -92,13 +129,13 @@
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th>Họ tên</th>
-                  <th>Email</th>
-                  <th>Loại xe</th>
-                  <th>Biển số</th>
-                  <th>Ngày gửi</th>
-                  <th>Trạng thái</th>
-                  <th class="table-col-action">Thao tác</th>
+                  <th class="table-th-eyebrow">Họ tên</th>
+                  <th class="table-th-eyebrow">Email</th>
+                  <th class="table-th-eyebrow">Loại xe</th>
+                  <th class="table-th-eyebrow">Biển số</th>
+                  <th class="table-th-eyebrow">Ngày gửi</th>
+                  <th class="table-th-eyebrow">Trạng thái</th>
+                  <th class="table-th-eyebrow table-col-action">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -108,7 +145,7 @@
                   <td>Xe tải 1 tấn</td>
                   <td>30H-456.78</td>
                   <td>04/06/2026</td>
-                  <td><span class="badge badge-sm badge-pending-approval">Chờ duyệt</span></td>
+                  <td><span class="badge badge-sm badge-pending-approval status-badge status-badge--pending">Chờ duyệt</span></td>
                   <td class="table-col-action"><a href="driver-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
                 </tr>
                 <tr>
@@ -117,7 +154,7 @@
                   <td>Xe tải 500kg</td>
                   <td>29C-123.45</td>
                   <td>04/06/2026</td>
-                  <td><span class="badge badge-sm badge-pending-approval">Chờ duyệt</span></td>
+                  <td><span class="badge badge-sm badge-pending-approval status-badge status-badge--pending">Chờ duyệt</span></td>
                   <td class="table-col-action"><a href="driver-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
                 </tr>
                 <tr>
@@ -126,7 +163,7 @@
                   <td>Xe tải 1.5 tấn</td>
                   <td>30G-888.12</td>
                   <td>03/06/2026</td>
-                  <td><span class="badge badge-sm badge-warning">Cần kiểm tra</span></td>
+                  <td><span class="badge badge-sm badge-warning status-badge status-badge--disputed">Cần kiểm tra</span></td>
                   <td class="table-col-action"><a href="driver-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
                 </tr>
               </tbody>

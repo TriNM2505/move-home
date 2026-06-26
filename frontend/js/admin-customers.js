@@ -34,8 +34,11 @@ function renderCustomersTable(customers) {
   if (!customers.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="table-empty-row">
-          👥 Không có khách hàng nào với trạng thái này.
+        <td colspan="7" class="table-empty-row" style="padding: var(--spacing-4xl) var(--spacing-2xl);">
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-md); color: var(--color-mute);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span style="font-size: var(--font-size-body-sm); font-weight: 500;">Không có khách hàng nào với trạng thái này.</span>
+          </div>
         </td>
       </tr>`;
     return;
@@ -43,8 +46,8 @@ function renderCustomersTable(customers) {
 
   tbody.innerHTML = customers.map(c => {
     const emailVerified = c.emailVerified
-      ? `<span class="verified-yes">✅ Đã xác thực</span>`
-      : `<span class="verified-no">❌ Chưa xác thực</span>`;
+      ? `<span class="verified-yes" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-success);"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã xác thực</span>`
+      : `<span class="verified-no" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-danger);"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Chưa xác thực</span>`;
     return `
       <tr>
         <td><strong>${esc(c.fullName)}</strong></td>
@@ -87,7 +90,7 @@ async function loadCustomers() {
     showError(err.message || 'Không thể tải danh sách khách hàng. Vui lòng thử lại.');
     const tbody = document.getElementById('customersTableBody');
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="7" class="table-empty-row">⚠️ Lỗi tải dữ liệu.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="table-empty-row" style="color: var(--color-danger); font-weight: 500;">Không thể tải danh sách khách hàng. Vui lòng kiểm tra kết nối.</td></tr>`;
     }
   }
 }

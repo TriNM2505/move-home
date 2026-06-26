@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-09T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram name="UC Driver" id="uc-driver">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1200" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="system" value="Move_home - Driver Journey" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;verticalAlign=top;fontSize=14;fontStyle=1;spacingTop=8;" vertex="1" parent="1"><mxGeometry x="180" y="30" width="840" height="1130" as="geometry"/></mxCell>
+        <mxCell id="actor_driver" value="Driver" style="shape=umlActor;html=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="50" y="520" width="50" height="100" as="geometry"/></mxCell>
+        <mxCell id="actor_customer" value="Customer" style="shape=umlActor;html=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="1080" y="650" width="50" height="100" as="geometry"/></mxCell>
+        <mxCell id="uc023" value="UC-023: Đăng ký Driver bước 1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="250" y="100" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc024" value="UC-024: Upload giấy tờ và ảnh xe" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="650" y="100" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc025" value="UC-025: Đặt cọc 3.000.000 VND" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="250" y="270" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc026" value="UC-026: Theo dõi trạng thái chờ duyệt" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="650" y="270" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc027" value="UC-027: Nhận email duyệt và kích hoạt" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="250" y="440" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc028" value="UC-028: Xem dashboard và availability" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="650" y="440" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc029" value="UC-029: Xem assignment / đơn có sẵn" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="250" y="610" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc030" value="UC-030: Nhận hoặc từ chối đơn có lock" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="650" y="610" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc031" value="UC-031: Đến pickup và bắt đầu vận chuyển" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="250" y="780" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc032" value="UC-032: Hoàn thành đơn và earnings" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="650" y="780" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc033" value="UC-033: Xem lịch sử và hồ sơ" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="250" y="950" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc034" value="UC-034: Xem thu nhập, KPI và charts" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="650" y="950" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="uc035" value="UC-035: Yêu cầu rút tiền và lịch sử" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1"><mxGeometry x="450" y="1060" width="280" height="65" as="geometry"/></mxCell>
+        <mxCell id="d023" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc023"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d024" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc024"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d025" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc025"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d026" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc026"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d027" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc027"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d028" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc028"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d029" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc029"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d030" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc030"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d031" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc031"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d032" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc032"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d033" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc033"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d034" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc034"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="d035" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_driver" target="uc035"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="c031" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_customer" target="uc031"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="c032" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="actor_customer" target="uc032"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="extend_031_030" value="&lt;&lt;extend&gt;&gt;" style="endArrow=open;html=1;strokeColor=#666666;dashed=1;fontSize=10;" edge="1" parent="1" source="uc031" target="uc030"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="extend_032_031" value="&lt;&lt;extend&gt;&gt;" style="endArrow=open;html=1;strokeColor=#666666;dashed=1;fontSize=10;" edge="1" parent="1" source="uc032" target="uc031"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

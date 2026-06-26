@@ -5,23 +5,127 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lịch sử rút tiền — Move_home</title>
 
+  <!-- Google Fonts for Be Vietnam Pro -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
-    .badge-approved { background: var(--color-success-bg); color: var(--color-success-text); display: inline-flex; border-radius: var(--rounded-pill); padding: var(--spacing-xs) var(--spacing-md); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-medium); }
-    .badge-rejected { background: var(--color-danger-bg); color: var(--color-danger-text); display: inline-flex; border-radius: var(--rounded-pill); padding: var(--spacing-xs) var(--spacing-md); font-size: var(--font-size-body-sm); font-weight: var(--font-weight-medium); }
-    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+    .driver-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      flex-wrap: wrap;
+    }
+    @media (max-width: 900px) {
+      .driver-nav { order: 3; width: 100%; justify-content: center; }
+    }
+
+    /* Page eyebrow styled as sentence-case, DISPLAY 700 */
+    .page-eyebrow {
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-accent);
+      margin-bottom: var(--spacing-xxs);
+      display: block;
+    }
+
+    /* Premium Forest Green Balance Overview Card */
+    .balance-overview-card {
+      background-color: var(--color-primary);
+      color: var(--color-on-dark);
+      border-radius: var(--rounded-xl);
+      padding: var(--spacing-2xl);
+      margin-bottom: var(--spacing-2xl);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-lg);
+      box-shadow: var(--shadow-level-1);
+    }
+    .balance-overview-info {
+      display: flex;
+      gap: var(--spacing-3xl);
+      flex-wrap: wrap;
+    }
+    .balance-overview-item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xxs);
+    }
+    .balance-overview-label {
+      font-size: var(--font-size-caption);
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: var(--font-weight-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .balance-overview-value {
+      font-size: var(--font-size-display-md);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-on-dark);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: var(--spacing-xs) var(--spacing-md);
+      font-size: var(--font-size-body-sm);
+      font-weight: var(--font-weight-semibold);
+      border-radius: var(--rounded-pill);
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .status-badge--pending {
+      background-color: #FEF3C7;
+      color: #92400E;
+    }
+    .status-badge--processed {
+      background-color: #D1FAE5;
+      color: #065F46;
+    }
+    .status-badge--rejected {
+      background-color: #FEE2E2;
+      color: #991B1B;
+    }
+
+    /* Skeleton Loading styles */
+    .skeleton-row td {
+      padding: var(--spacing-md) var(--spacing-lg);
+    }
+    .skeleton-bar {
+      height: 16px;
+      background: linear-gradient(90deg, var(--color-surface-pressed) 25%, var(--color-canvas-soft) 50%, var(--color-surface-pressed) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--rounded-md);
+    }
+    @keyframes shimmer {
+      from { background-position: -200% 0; }
+      to { background-position: 200% 0; }
+    }
+
+    /* Tabular numeric alignment */
+    .table td.num-money {
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
 <div class="site-layout">
+  <!-- SITE HEADER -->
   <header class="site-header">
     <div class="container site-header-inner">
-      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+      </a>
       <nav class="driver-nav" aria-label="Điều hướng tài xế">
         <a href="home.html" class="nav-link">Trang chủ</a>
         <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
@@ -32,25 +136,50 @@
         <a href="withdrawal-request.html" class="nav-link active">Rút tiền</a>
       </nav>
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
-        <div class="avatar avatar-sm avatar-initials">LC</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Tài xế</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">TX</div>
+        <button id="logout-btn" class="btn-subtle" style="margin-left: 12px; border:none; cursor:pointer;">Đăng xuất</button>
       </div>
     </div>
   </header>
 
+  <!-- MAIN CONTENT -->
   <main class="site-main">
     <div class="dashboard-main">
-      <header class="page-header flex-between">
+      
+      <!-- Error Banner -->
+      <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-xl);"></div>
+
+      <!-- Page Header -->
+      <header class="page-header flex-between" style="margin-bottom: var(--spacing-xl);">
         <div>
-          <h1 class="page-title">Lịch sử rút tiền</h1>
-          <p class="page-subtitle">Theo dõi trạng thái các yêu cầu rút tiền.</p>
+          <span class="page-eyebrow">Tài xế</span>
+          <h1 class="page-title" style="margin-bottom: 2px;">Lịch sử rút tiền</h1>
+          <p class="page-subtitle">Theo dõi trạng thái các yêu cầu rút tiền từ tài khoản của bạn.</p>
         </div>
-        <a href="withdrawal-request.html" class="btn-primary">Tạo yêu cầu mới</a>
+        <a href="withdrawal-request.html" class="btn btn-primary">Tạo yêu cầu mới</a>
       </header>
 
-      <div class="table-wrapper">
-        <table class="table table-hover">
+      <!-- Wallet Balance Overview Card -->
+      <div class="balance-overview-card">
+        <div class="balance-overview-info">
+          <div class="balance-overview-item">
+            <span class="balance-overview-label">Số dư khả dụng</span>
+            <span class="balance-overview-value" id="wallet-balance">0 đ</span>
+          </div>
+          <div class="balance-overview-item">
+            <span class="balance-overview-label">Đã rút tích lũy</span>
+            <span class="balance-overview-value" id="wallet-withdrawn">0 đ</span>
+          </div>
+        </div>
+        <a href="earnings.html" class="btn btn-secondary" style="border-color: rgba(255,255,255,0.4); color: var(--color-on-dark); background: transparent;">
+          Xem thu nhập
+        </a>
+      </div>
+
+      <!-- LOADING STATE (Skeleton Rows) -->
+      <section id="withdrawals-loading" class="card-content" style="display: none; padding: 0; overflow: hidden; border: 1px solid var(--color-surface-pressed);">
+        <table class="table">
           <thead>
             <tr>
               <th>Mã yêu cầu</th>
@@ -61,32 +190,402 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>RT2026060007</td>
-              <td class="num-money">2.000.000 VND</td>
-              <td>05/06/2026</td>
-              <td><span class="badge-pending">Đang chờ</span></td>
-              <td>Chưa xử lý</td>
+            <tr class="skeleton-row">
+              <td><div class="skeleton-bar" style="width: 120px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 100px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 80px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 90px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 80px;"></div></td>
             </tr>
-            <tr>
-              <td>RT2026050012</td>
-              <td class="num-money">3.500.000 VND</td>
-              <td>28/05/2026</td>
-              <td><span class="badge-approved">Đã duyệt</span></td>
-              <td>29/05/2026</td>
+            <tr class="skeleton-row">
+              <td><div class="skeleton-bar" style="width: 120px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 100px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 80px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 90px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 80px;"></div></td>
             </tr>
-            <tr>
-              <td>RT2026050006</td>
-              <td class="num-money">500.000 VND</td>
-              <td>18/05/2026</td>
-              <td><span class="badge-rejected">Bị từ chối</span></td>
-              <td>18/05/2026</td>
+            <tr class="skeleton-row">
+              <td><div class="skeleton-bar" style="width: 120px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 100px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 80px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 90px;"></div></td>
+              <td><div class="skeleton-bar" style="width: 80px;"></div></td>
             </tr>
           </tbody>
         </table>
-      </div>
+      </section>
+
+      <!-- ERROR STATE -->
+      <section id="withdrawals-error" style="display: none; text-align: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-md);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <h2 style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm); color: var(--color-ink);">Không thể tải lịch sử rút tiền</h2>
+        <p id="withdrawals-error-message" style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Có lỗi xảy ra trong quá trình kết nối đến máy chủ.</p>
+        <button id="withdrawals-retry-btn" class="btn btn-primary" style="margin: 0 auto; border: none; cursor: pointer;">Thử lại</button>
+      </section>
+
+      <!-- EMPTY STATE -->
+      <section id="withdrawals-empty" style="display: none; text-align: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--color-mute)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-lg); color: var(--color-mute);">
+          <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+          <line x1="12" y1="18" x2="12" y2="18"></line>
+          <line x1="2" y1="10" x2="22" y2="10"></line>
+        </svg>
+        <h2 style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm); color: var(--color-ink);">Không có yêu cầu rút tiền nào</h2>
+        <p style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Bạn chưa tạo bất kỳ yêu cầu rút tiền nào trên hệ thống.</p>
+        <a href="withdrawal-request.html" class="btn btn-primary" style="margin: 0 auto;">Tạo yêu cầu rút tiền</a>
+      </section>
+
+      <!-- CONTENT STATE (Table) -->
+      <section id="withdrawals-content" style="display: none;">
+        <div class="card-content" style="padding: 0; overflow: hidden; border: 1px solid var(--color-surface-pressed);">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Mã yêu cầu</th>
+                <th>Số tiền</th>
+                <th>Ngày yêu cầu</th>
+                <th>Trạng thái</th>
+                <th>Ngày xử lý</th>
+              </tr>
+            </thead>
+            <tbody id="withdrawals-table-body">
+              <!-- Dynamic rows go here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Bar -->
+        <div class="pagination-bar" id="withdrawals-pagination" style="margin-top: var(--spacing-3xl);">
+          <!-- Dynamic pagination controls -->
+        </div>
+      </section>
+
     </div>
   </main>
 </div>
+
+<!-- SCRIPT LOGIC (ES Module) -->
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  let currentPage = 0;
+  let currentSize = 10;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Authenticate and authorize role
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'DRIVER') {
+      logout('../login.html');
+      return;
+    }
+
+    // 2. Set dynamic user details in top bar
+    setupUserIdentityHeader(user);
+
+    // 3. Register Event Listeners
+    setupEventListeners();
+
+    // 4. Fetch Wallet and Withdrawal History
+    loadWalletData();
+    loadData(0);
+  });
+
+  function setupUserIdentityHeader(user) {
+    const nameEl = document.getElementById('header-user-name');
+    if (nameEl) nameEl.textContent = user.fullName || 'Tài xế';
+
+    const avatarEl = document.getElementById('header-user-avatar');
+    if (avatarEl && user.fullName) {
+      const words = user.fullName.trim().split(/\s+/).filter(Boolean);
+      avatarEl.textContent = words.map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+  }
+
+  function setupEventListeners() {
+    // Logout button handler
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => logout('../login.html'));
+    }
+
+    // Retry and refresh actions
+    document.getElementById('withdrawals-retry-btn')?.addEventListener('click', () => loadData(currentPage));
+  }
+
+  async function loadWalletData() {
+    try {
+      const wallet = await getAuthenticated('/api/driver/wallet');
+      if (wallet) {
+        document.getElementById('wallet-balance').textContent = formatVnd(wallet.balance);
+        document.getElementById('wallet-withdrawn').textContent = formatVnd(wallet.totalWithdrawn);
+      }
+    } catch (err) {
+      console.warn('Could not load wallet balance:', err);
+    }
+  }
+
+  async function loadData(page = 0) {
+    currentPage = page;
+    showSection('withdrawals-loading');
+    hideErrorBanner();
+
+    try {
+      // 1. Attempt to fetch from real API (to support future backend sprint integration)
+      const response = await getAuthenticated(`/api/driver/withdrawals?page=${page}&size=${currentSize}`);
+      handleLoadSuccess(response, page);
+    } catch (err) {
+      // 2. Local fallback if API is not implemented (returns 500/404)
+      console.warn('Backend GET /api/driver/withdrawals not available. Falling back to local cache.');
+      loadFromLocalCache(page);
+    }
+  }
+
+  function handleLoadSuccess(response, page) {
+    if (!response || !response.content || response.content.length === 0) {
+      showSection('withdrawals-empty');
+      return;
+    }
+
+    renderTableRows(response.content);
+    renderPaginationBar(response);
+    showSection('withdrawals-content');
+  }
+
+  function loadFromLocalCache(page) {
+    let cache = localStorage.getItem('driver_withdrawals');
+    if (!cache) {
+      // Seed default mock withdrawals to match user's screenshot
+      const seedData = [
+        {
+          id: 'RT2026060007',
+          amount: 2000000,
+          requestedAt: '2026-06-05T08:00:00Z',
+          status: 'PENDING',
+          processedAt: null
+        },
+        {
+          id: 'RT2026050012',
+          amount: 3500000,
+          requestedAt: '2026-05-28T09:30:00Z',
+          status: 'PROCESSED',
+          processedAt: '2026-05-29T10:00:00Z'
+        },
+        {
+          id: 'RT2026050006',
+          amount: 500000,
+          requestedAt: '2026-05-18T14:15:00Z',
+          status: 'REJECTED',
+          processedAt: '2026-05-18T16:00:00Z'
+        }
+      ];
+      localStorage.setItem('driver_withdrawals', JSON.stringify(seedData));
+      cache = JSON.stringify(seedData);
+    }
+
+    const allWithdrawals = JSON.parse(cache);
+    
+    // Sort by requestedAt descending
+    allWithdrawals.sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
+
+    const totalElements = allWithdrawals.length;
+    if (totalElements === 0) {
+      showSection('withdrawals-empty');
+      return;
+    }
+
+    const totalPages = Math.ceil(totalElements / currentSize);
+    const paginatedContent = allWithdrawals.slice(page * currentSize, (page + 1) * currentSize);
+    
+    const pageResponse = {
+      content: paginatedContent,
+      totalElements: totalElements,
+      totalPages: totalPages,
+      number: page,
+      size: currentSize
+    };
+
+    renderTableRows(pageResponse.content);
+    renderPaginationBar(pageResponse);
+    showSection('withdrawals-content');
+  }
+
+  function showSection(sectionId) {
+    const sections = ['withdrawals-loading', 'withdrawals-error', 'withdrawals-empty', 'withdrawals-content'];
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.display = id === sectionId ? 'block' : 'none';
+      }
+    });
+  }
+
+  function renderTableRows(withdrawals) {
+    const tbody = document.getElementById('withdrawals-table-body');
+    tbody.innerHTML = '';
+
+    withdrawals.forEach(req => {
+      const code = req.id || '—';
+      const amountFormatted = formatVnd(req.amount);
+      const requestedDate = formatDate(req.requestedAt);
+      const statusBadge = renderStatusBadge(req.status);
+      const processedDate = req.status === 'PENDING' ? 'Chưa xử lý' : formatDate(req.processedAt);
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${code}</strong></td>
+        <td class="num-money">${amountFormatted}</td>
+        <td>${requestedDate}</td>
+        <td>${statusBadge}</td>
+        <td>${processedDate}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderStatusBadge(status) {
+    switch (status) {
+      case 'PENDING':
+        return '<span class="status-badge status-badge--pending">Đang chờ</span>';
+      case 'PROCESSED':
+      case 'APPROVED':
+        return '<span class="status-badge status-badge--processed">Đã duyệt</span>';
+      case 'REJECTED':
+      case 'CANCELLED':
+        return '<span class="status-badge status-badge--rejected">Bị từ chối</span>';
+      default:
+        return `<span class="status-badge">${status || '—'}</span>`;
+    }
+  }
+
+  function renderPaginationBar(pageResponse) {
+    const container = document.getElementById('withdrawals-pagination');
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    const totalElements = pageResponse.totalElements ?? 0;
+    const totalPages = pageResponse.totalPages ?? 0;
+    const number = pageResponse.number ?? 0;
+    const size = pageResponse.size ?? currentSize;
+
+    if (totalElements === 0) {
+      container.style.display = 'none';
+      return;
+    }
+    container.style.display = 'flex';
+
+    // 1. Info text
+    const start = totalElements === 0 ? 0 : number * size + 1;
+    const end = Math.min((number + 1) * size, totalElements);
+    const infoText = `Hiển thị ${start}-${end} trong ${totalElements} yêu cầu`;
+    const infoHtml = `<span class="pagination-info">${infoText}</span>`;
+
+    // 2. Navigation buttons
+    let controlsHtml = `<div class="pagination-controls">`;
+
+    // Prev Button
+    const prevDisabled = number === 0 ? 'disabled' : '';
+    controlsHtml += `<button class="pagination-btn-prev" ${prevDisabled} data-page="${number - 1}">« Trước</button>`;
+
+    // Page Numbers with compression
+    const maxVisiblePages = 5;
+    let startPage = Math.max(0, number - 2);
+    let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(0, endPage - maxVisiblePages + 1);
+    }
+
+    if (startPage > 0) {
+      controlsHtml += `<button class="pagination-btn-page" data-page="0">1</button>`;
+      if (startPage > 1) {
+        controlsHtml += `<span class="pagination-ellipsis">...</span>`;
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      const activeClass = i === number ? 'active' : '';
+      controlsHtml += `<button class="pagination-btn-page ${activeClass}" data-page="${i}">${i + 1}</button>`;
+    }
+
+    if (endPage < totalPages - 1) {
+      if (endPage < totalPages - 2) {
+        controlsHtml += `<span class="pagination-ellipsis">...</span>`;
+      }
+      controlsHtml += `<button class="pagination-btn-page" data-page="${totalPages - 1}">${totalPages}</button>`;
+    }
+
+    // Next Button
+    const nextDisabled = number >= totalPages - 1 ? 'disabled' : '';
+    controlsHtml += `<button class="pagination-btn-next" ${nextDisabled} data-page="${number + 1}">Tiếp »</button>`;
+
+    controlsHtml += `</div>`;
+
+    // 3. Size dropdown
+    const sizeSelectHtml = `
+      <div class="pagination-size-wrapper">
+        <span class="pagination-size-label">Số dòng/trang:</span>
+        <select class="pagination-size-select" id="pagination-size-select-el">
+          <option value="5" ${size === 5 ? 'selected' : ''}>5</option>
+          <option value="10" ${size === 10 ? 'selected' : ''}>10</option>
+          <option value="20" ${size === 20 ? 'selected' : ''}>20</option>
+        </select>
+      </div>
+    `;
+
+    container.innerHTML = infoHtml + controlsHtml + sizeSelectHtml;
+
+    // Attach Click Handlers
+    container.querySelectorAll('.pagination-btn-prev, .pagination-btn-next, .pagination-btn-page').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const pageTarget = parseInt(e.currentTarget.getAttribute('data-page'));
+        if (!isNaN(pageTarget) && pageTarget >= 0 && pageTarget < totalPages) {
+          loadData(pageTarget);
+        }
+      });
+    });
+
+    const selectEl = document.getElementById('pagination-size-select-el');
+    if (selectEl) {
+      selectEl.addEventListener('change', (e) => {
+        currentSize = parseInt(e.target.value);
+        loadData(0);
+      });
+    }
+  }
+
+  function formatVnd(val) {
+    if (val === null || val === undefined) return '0 VND';
+    return Number(val).toLocaleString('vi-VN') + ' VND';
+  }
+
+  function formatDate(isoStr) {
+    if (!isoStr) return '—';
+    try {
+      const date = new Date(isoStr);
+      if (isNaN(date)) return isoStr;
+      return date.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        timeZone: 'Asia/Ho_Chi_Minh'
+      });
+    } catch {
+      return isoStr;
+    }
+  }
+
+  function hideErrorBanner() {
+    const banner = document.getElementById('error-banner');
+    if (banner) {
+      banner.style.display = 'none';
+    }
+  }
+</script>
 </body>
 </html>

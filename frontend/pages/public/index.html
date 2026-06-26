@@ -10,216 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../../css/styles.css">
-  <style>
-    :root {
-      --shadow-card: var(--shadow-level-2);
-    }
-
-    .hero-band-light {
-      background: var(--color-canvas-soft);
-    }
-
-    .public-nav {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-lg);
-      flex-wrap: wrap;
-    }
-
-    .hero-inner {
-      text-align: center;
-      padding: var(--spacing-4xl) 0;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .hero-title {
-      font-size: var(--font-size-display-xl);
-      color: var(--color-ink);
-      margin-bottom: var(--spacing-lg);
-    }
-
-    .hero-subtitle {
-      font-size: var(--font-size-body-lg);
-      color: var(--color-body);
-      margin-bottom: var(--spacing-2xl);
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: var(--spacing-md);
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .section-spacing {
-      padding: var(--spacing-4xl) 0;
-    }
-
-    .section-title {
-      text-align: center;
-      font-size: var(--font-size-display-lg);
-      color: var(--color-ink);
-      margin-bottom: var(--spacing-2xl);
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--spacing-lg);
-    }
-
-    .promo-card {
-      background: var(--color-canvas);
-      padding: var(--spacing-xl);
-      border-radius: var(--rounded-xl);
-      box-shadow: var(--shadow-card);
-      text-align: center;
-    }
-
-    .promo-icon {
-      font-size: 48px;
-      margin-bottom: var(--spacing-md);
-    }
-
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--spacing-lg);
-    }
-
-    .step-card {
-      background: var(--color-canvas);
-      padding: var(--spacing-xl);
-      border-radius: var(--rounded-xl);
-      text-align: center;
-    }
-
-    .step-number {
-      width: 48px;
-      height: 48px;
-      background: var(--color-primary);
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--font-size-display-md);
-      font-weight: var(--font-weight-bold);
-      margin: 0 auto var(--spacing-md);
-    }
-
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--spacing-lg);
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .pricing-card {
-      background: var(--color-canvas);
-      padding: var(--spacing-xl);
-      border-radius: var(--rounded-xl);
-      text-align: center;
-      border: 2px solid transparent;
-      position: relative;
-    }
-
-    .pricing-card-featured {
-      border-color: var(--color-accent);
-    }
-
-    .pricing-amount {
-      font-size: var(--font-size-display-md);
-      color: var(--color-primary);
-      font-weight: var(--font-weight-bold);
-      margin: var(--spacing-md) 0;
-    }
-
-    .pricing-badge {
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--color-accent);
-      color: white;
-      padding: var(--spacing-xs) var(--spacing-md);
-      border-radius: var(--rounded-pill);
-      font-size: var(--font-size-body-sm);
-      font-weight: var(--font-weight-medium);
-    }
-
-    .pricing-note {
-      text-align: center;
-      margin-top: var(--spacing-lg);
-      color: var(--color-mute);
-      font-style: italic;
-      font-size: var(--font-size-body-sm);
-    }
-
-    .btn-primary-lg, .btn-secondary-lg {
-      padding: var(--spacing-md) var(--spacing-2xl);
-      font-size: var(--font-size-body-lg);
-      border-radius: var(--rounded-pill);
-      display: inline-block;
-      text-decoration: none;
-    }
-
-    .btn-primary-lg {
-      background: var(--color-primary);
-      color: white;
-    }
-
-    .btn-secondary-lg {
-      background: transparent;
-      color: var(--color-primary);
-      border: 2px solid var(--color-primary);
-    }
-
-    .cta-inner {
-      text-align: center;
-    }
-
-    .site-footer {
-      background: var(--color-ink);
-      color: var(--color-canvas);
-      padding: var(--spacing-4xl) 0 var(--spacing-lg);
-    }
-
-    .footer-inner {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--spacing-2xl);
-    }
-
-    .footer-column h4 {
-      margin-bottom: var(--spacing-md);
-      color: var(--color-canvas);
-    }
-
-    .footer-column a {
-      display: block;
-      color: var(--color-canvas-soft);
-      text-decoration: none;
-      margin-bottom: var(--spacing-xs);
-    }
-
-    .footer-bottom {
-      text-align: center;
-      margin-top: var(--spacing-2xl);
-      padding-top: var(--spacing-lg);
-      border-top: 1px solid var(--color-surface-pressed);
-      color: var(--color-canvas-soft);
-    }
-
-    @media (max-width: 900px) {
-      .features-grid { grid-template-columns: 1fr; }
-      .steps-grid { grid-template-columns: 1fr; }
-      .pricing-grid { grid-template-columns: 1fr; }
-      .footer-inner { grid-template-columns: 1fr; }
-    }
-  </style>
+  <link rel="stylesheet" href="../../css/public.css">
 </head>
 <body>
   <!-- ĐẦU TRANG: Biểu trưng + điều hướng + nút tài khoản -->
@@ -232,6 +23,7 @@
         <a href="#features" class="nav-link">Tính năng</a>
         <a href="#how-it-works" class="nav-link">Cách hoạt động</a>
         <a href="#pricing" class="nav-link">Bảng giá</a>
+        <a href="#blog" class="nav-link">Cẩm nang</a>
         <a href="#contact" class="nav-link">Liên hệ</a>
       </nav>
       <div class="site-header-actions">
@@ -242,118 +34,195 @@
   </header>
 
   <!-- MỞ ĐẦU -->
-  <section class="hero-band-light">
-    <div class="container hero-inner">
-      <h1 class="hero-title">Chuyển nhà dễ dàng, an toàn, đúng hẹn</h1>
-      <p class="hero-subtitle">
-        Đặt dịch vụ chuyển nhà với tài xế xác minh, báo giá minh bạch,
-        theo dõi đơn hàng theo thời gian thực.
-      </p>
-      <div class="hero-actions">
-        <a href="../register.html" class="btn-primary-lg">Đặt đơn ngay</a>
-        <a href="../login.html" class="btn-secondary-lg">Đã có tài khoản</a>
+  <section class="section-white">
+    <div class="container hero-container">
+      <div class="hero-content">
+        <span class="eyebrow">Dịch vụ vận chuyển uy tín</span>
+        <h1 class="display-xxl">Chuyển nhà dễ dàng, an toàn, đúng hẹn</h1>
+        <p class="body-lg">
+          Đặt dịch vụ chuyển nhà với tài xế xác minh, báo giá minh bạch,
+          theo dõi đơn hàng theo thời gian thực.
+        </p>
+        <div class="hero-actions">
+          <a href="../register.html" class="btn-primary">Đặt đơn ngay</a>
+          <a href="../login.html" class="btn-secondary">Đã có tài khoản</a>
+        </div>
+      </div>
+      <div class="hero-illustration-wrapper">
+        <img src="../../assets/hero_illustration.png" alt="Minh họa chuyển nhà Move_home">
       </div>
     </div>
   </section>
 
   <!-- TÍNH NĂNG -->
-  <section id="features" class="container section-spacing">
-    <h2 class="section-title">Tại sao chọn Move_home?</h2>
-    <div class="features-grid">
-      <div class="promo-card">
-        <div class="promo-icon">🚚</div>
-        <h3>Đa dạng loại xe</h3>
-        <p>Xe tải 500kg, 1 tấn, 1.5 tấn phù hợp mọi nhu cầu chuyển đồ.</p>
-      </div>
-      <div class="promo-card">
-        <div class="promo-icon">✅</div>
-        <h3>Tài xế xác minh</h3>
-        <p>Toàn bộ tài xế được kiểm tra giấy phép và đặt cọc bảo đảm.</p>
-      </div>
-      <div class="promo-card">
-        <div class="promo-icon">💳</div>
-        <h3>Báo giá minh bạch</h3>
-        <p>Hiển thị chi tiết phí theo km, giờ cao điểm, phụ phí.</p>
-      </div>
-      <div class="promo-card">
-        <div class="promo-icon">📍</div>
-        <h3>Theo dõi thời gian thực</h3>
-        <p>Biết chính xác vị trí tài xế đang ở đâu trong suốt hành trình.</p>
-      </div>
-      <div class="promo-card">
-        <div class="promo-icon">⭐</div>
-        <h3>Đánh giá sau mỗi đơn</h3>
-        <p>Hệ thống đánh giá 2 chiều đảm bảo chất lượng dịch vụ.</p>
-      </div>
-      <div class="promo-card">
-        <div class="promo-icon">🛡️</div>
-        <h3>Bồi thường khi hỏng hóc</h3>
-        <p>Cam kết bồi thường nếu đồ đạc bị hư hỏng do lỗi vận chuyển.</p>
+  <section id="features" class="section-soft section-spacing">
+    <div class="container">
+      <span class="eyebrow" style="text-align: center;">Ưu điểm vượt trội</span>
+      <h2 class="display-xl" style="text-align: center; margin-bottom: var(--spacing-4xl);">Tại sao chọn Move_home?</h2>
+      <div class="features-grid">
+        <div class="promo-card">
+          <div class="promo-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm12 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6.5H17V9h2.5l2 3H19.5z"/></svg>
+          </div>
+          <h3>Đa dạng loại xe</h3>
+          <p>Xe tải 500kg, 1 tấn, 1.5 tấn phù hợp mọi nhu cầu chuyển đổi quy mô lớn nhỏ.</p>
+        </div>
+        <div class="promo-card">
+          <div class="promo-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          </div>
+          <h3>Tài xế xác minh</h3>
+          <p>Toàn bộ tài xế được kiểm tra hồ sơ, giấy phép lái xe và đặt cọc bảo đảm.</p>
+        </div>
+        <div class="promo-card">
+          <div class="promo-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          </div>
+          <h3>Báo giá minh bạch</h3>
+          <p>Hệ thống hiển thị chi tiết phí theo km, phụ phí giờ cao điểm và dịch vụ bốc xếp.</p>
+        </div>
+        <div class="promo-card">
+          <div class="promo-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          </div>
+          <h3>Theo dõi thời gian thực</h3>
+          <p>Biết chính xác lộ trình di chuyển và vị trí của tài xế trực tiếp trên bản đồ.</p>
+        </div>
+        <div class="promo-card">
+          <div class="promo-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </div>
+          <h3>Đánh giá sau mỗi đơn</h3>
+          <p>Hệ thống đánh giá hai chiều giúp cải thiện và duy trì chất lượng dịch vụ tốt nhất.</p>
+        </div>
+        <div class="promo-card">
+          <div class="promo-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 10.91h-6V6.09l6-2.25v9.07z"/></svg>
+          </div>
+          <h3>Bồi thường hỏng hóc</h3>
+          <p>Cam kết bồi thường thỏa đáng nếu xảy ra rơi vỡ, thất lạc đồ đạc do vận chuyển.</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- CÁCH HOẠT ĐỘNG -->
-  <section id="how-it-works" class="hero-band-light section-spacing">
+  <section id="how-it-works" class="section-white section-spacing">
     <div class="container">
-      <h2 class="section-title">Cách hoạt động</h2>
+      <span class="eyebrow" style="text-align: center;">Quy trình đơn giản</span>
+      <h2 class="display-xl" style="text-align: center; margin-bottom: var(--spacing-4xl);">Cách hoạt động</h2>
       <div class="steps-grid">
         <div class="step-card">
           <div class="step-number">1</div>
           <h3>Đăng ký tài khoản</h3>
-          <p>Tạo tài khoản miễn phí trong 1 phút.</p>
+          <p>Tạo tài khoản miễn phí và xác thực số điện thoại nhanh chóng.</p>
         </div>
         <div class="step-card">
           <div class="step-number">2</div>
-          <h3>Chọn xe và địa điểm</h3>
-          <p>Nhập điểm đón, điểm trả và loại xe phù hợp.</p>
+          <h3>Chọn xe & địa điểm</h3>
+          <p>Nhập địa chỉ đón, trả và lựa chọn trọng tải xe tải phù hợp.</p>
         </div>
         <div class="step-card">
           <div class="step-number">3</div>
           <h3>Xem báo giá</h3>
-          <p>Hệ thống tự tính giá dựa trên quãng đường và phụ phí.</p>
+          <p>Hệ thống tính giá minh bạch tự động dựa trên quãng đường tối ưu.</p>
         </div>
         <div class="step-card">
           <div class="step-number">4</div>
-          <h3>Đặt đơn và đánh giá</h3>
-          <p>Tài xế nhận đơn, hoàn thành, bạn đánh giá.</p>
+          <h3>Đặt đơn & đánh giá</h3>
+          <p>Tài xế nhận đơn, vận chuyển an toàn và hoàn thành giao dịch.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- BẢNG GIÁ THAM KHẢO -->
-  <section id="pricing" class="container section-spacing">
-    <h2 class="section-title">Bảng giá tham khảo</h2>
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <h3>Xe tải 500kg</h3>
-        <div class="pricing-amount">Từ 300.000 VND</div>
-        <p>Phù hợp đồ ít, 1-2 người</p>
+  <section id="pricing" class="section-soft section-spacing">
+    <div class="container">
+      <span class="eyebrow" style="text-align: center;">Chi phí tối ưu</span>
+      <h2 class="display-xl" style="text-align: center; margin-bottom: var(--spacing-4xl);">Bảng giá tham khảo</h2>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>Xe tải 500kg</h3>
+          <div class="pricing-amount">Từ 300.000đ</div>
+          <p>Phù hợp sinh viên dọn trọ, đồ đạc ít cho 1-2 người.</p>
+        </div>
+        <div class="pricing-card pricing-card-featured">
+          <div class="pricing-badge">Phổ biến nhất</div>
+          <h3>Xe tải 1 tấn</h3>
+          <div class="pricing-amount">Từ 500.000đ</div>
+          <p>Phù hợp dọn hộ gia đình nhỏ, căn hộ chung cư mini.</p>
+        </div>
+        <div class="pricing-card">
+          <h3>Xe tải 1.5 tấn</h3>
+          <div class="pricing-amount">Từ 800.000đ</div>
+          <p>Phù hợp dọn nhà nguyên căn, đồ đạc cồng kềnh nhiều phòng.</p>
+        </div>
       </div>
-      <div class="pricing-card pricing-card-featured">
-        <h3>Xe tải 1 tấn</h3>
-        <div class="pricing-amount">Từ 500.000 VND</div>
-        <p>Phù hợp gia đình nhỏ</p>
-        <div class="pricing-badge">Phổ biến nhất</div>
-      </div>
-      <div class="pricing-card">
-        <h3>Xe tải 1.5 tấn</h3>
-        <div class="pricing-amount">Từ 800.000 VND</div>
-        <p>Phù hợp gia đình lớn</p>
+      <p class="pricing-note">
+        * Giá thực tế có thể dao động nhẹ tùy thuộc vào giờ cao điểm, ngõ hẻm nhỏ hoặc các yêu cầu bốc xếp thêm.
+      </p>
+    </div>
+  </section>
+
+  <!-- BÀI VIẾT / CẨM NANG (Bay bổng mới) -->
+  <section id="blog" class="section-white section-spacing">
+    <div class="container">
+      <span class="eyebrow" style="text-align: center;">Cẩm Nang Chuyển Nhà</span>
+      <h2 class="display-xl" style="text-align: center; margin-bottom: var(--spacing-4xl);">Kinh nghiệm & Bí quyết từ chuyên gia</h2>
+      <div class="blog-grid">
+        <div class="blog-card">
+          <a href="blog-detail.html?post=packing" class="blog-image-wrapper" style="display: block;">
+            <img src="../../assets/blog_packing.png" alt="5 mẹo sắp xếp đồ đạc thông minh">
+          </a>
+          <div class="blog-info">
+            <span class="eyebrow">Mẹo vặt</span>
+            <h3><a href="blog-detail.html?post=packing" style="color: inherit; text-decoration: none;">5 mẹo sắp xếp đồ đạc thông minh khi chuyển nhà</a></h3>
+            <p>Bật mí cách phân loại, đóng gói và dán nhãn thùng đồ giúp việc dọn dẹp nhà mới nhanh gấp đôi.</p>
+            <a href="blog-detail.html?post=packing" class="blog-link">
+              Đọc thêm
+              <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="blog-card">
+          <a href="blog-detail.html?post=truck" class="blog-image-wrapper" style="display: block;">
+            <img src="../../assets/blog_truck.png" alt="Lựa chọn kích thước xe tải">
+          </a>
+          <div class="blog-info">
+            <span class="eyebrow">Tư vấn xe</span>
+            <h3><a href="blog-detail.html?post=truck" style="color: inherit; text-decoration: none;">Lựa chọn kích thước xe tải phù hợp để tiết kiệm</a></h3>
+            <p>Hướng dẫn tính toán thể tích đồ đạc để chọn xe tải 500kg, 1 tấn hay 1.5 tấn tối ưu nhất.</p>
+            <a href="blog-detail.html?post=truck" class="blog-link">
+              Đọc thêm
+              <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="blog-card">
+          <a href="blog-detail.html?post=pet" class="blog-image-wrapper" style="display: block;">
+            <img src="../../assets/blog_pet.png" alt="Kinh nghiệm chuyển nhà cùng thú cưng">
+          </a>
+          <div class="blog-info">
+            <span class="eyebrow">Đời sống</span>
+            <h3><a href="blog-detail.html?post=pet" style="color: inherit; text-decoration: none;">Kinh nghiệm chuyển nhà cùng thú cưng an toàn</a></h3>
+            <p>Chuẩn bị lồng vận chuyển, thức ăn và cách giúp thú cưng không bị căng thẳng khi chuyển nhà.</p>
+            <a href="blog-detail.html?post=pet" class="blog-link">
+              Đọc thêm
+              <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
-    <p class="pricing-note">
-      * Giá có thể thay đổi theo giờ cao điểm, ngõ nhỏ, tầng cao, dịch vụ thêm.
-    </p>
   </section>
 
   <!-- KÊU GỌI HÀNH ĐỘNG -->
-  <section class="hero-band-light section-spacing">
+  <section class="section-dark section-spacing">
     <div class="container cta-inner">
-      <h2 class="section-title">Sẵn sàng đặt đơn?</h2>
-      <p>Đăng ký ngay để nhận ưu đãi cho lần đặt đơn đầu tiên.</p>
-      <a href="../register.html" class="btn-primary-lg">Đăng ký miễn phí</a>
+      <h2 class="display-xl" style="color: var(--color-on-dark);">Sẵn sàng đặt đơn?</h2>
+      <p>Đăng ký ngay hôm nay để nhận ưu đãi 10% cho chuyến đi đầu tiên của bạn.</p>
+      <a href="../register.html" class="btn-primary-amber">Đăng ký miễn phí</a>
     </div>
   </section>
 
@@ -362,7 +231,7 @@
     <div class="container footer-inner">
       <div class="footer-column">
         <h4>Move_home</h4>
-        <p>Dịch vụ chuyển nhà uy tín tại Hà Nội.</p>
+        <p>Dịch vụ chuyển nhà uy tín, an toàn và chuyên nghiệp hàng đầu tại Hà Nội.</p>
       </div>
       <div class="footer-column">
         <h4>Liên hệ</h4>

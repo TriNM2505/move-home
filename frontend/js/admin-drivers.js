@@ -34,8 +34,11 @@ function renderDriversTable(drivers) {
   if (!drivers.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="10" class="table-empty-row">
-          🚛 Không có tài xế nào với trạng thái này.
+        <td colspan="10" class="table-empty-row" style="padding: var(--spacing-4xl) var(--spacing-2xl);">
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-md); color: var(--color-mute);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            <span style="font-size: var(--font-size-body-sm); font-weight: 500;">Không có tài xế nào với trạng thái này.</span>
+          </div>
         </td>
       </tr>`;
     return;
@@ -89,7 +92,7 @@ async function loadDrivers() {
     showError(err.message || 'Không thể tải danh sách tài xế. Vui lòng thử lại.');
     const tbody = document.getElementById('driversTableBody');
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="10" class="table-empty-row">⚠️ Lỗi tải dữ liệu.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="10" class="table-empty-row" style="color: var(--color-danger); font-weight: 500;">Không thể tải danh sách tài xế. Vui lòng kiểm tra kết nối.</td></tr>`;
     }
   }
 }
