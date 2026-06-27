@@ -30,6 +30,46 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
                 Long getCount();
         }
 
+        interface VehicleRevenueProjection {
+                String getVehicleType();
+
+                BigDecimal getTotalRevenue();
+        }
+
+        interface StatusCountProjection {
+                String getStatus();
+
+                Long getCount();
+        }
+
+        interface OrderTrendProjection {
+                String getBucket();
+
+                Long getCreatedCount();
+
+                Long getCompletedCount();
+        }
+
+        interface PeakHourProjection {
+                Integer getWeekday();
+
+                Integer getHour();
+
+                Long getOrderCount();
+
+                Long getCompletedCount();
+        }
+
+        interface TopSpenderProjection {
+                UUID getCustomerId();
+
+                String getFullName();
+
+                Long getCompletedOrders();
+
+                BigDecimal getTotalSpent();
+        }
+
         Optional<ServiceOrder> findByIdAndCustomerId(UUID id, UUID customerId);
 
         Optional<ServiceOrder> findByIdAndCustomerIdAndDeletedAtIsNull(UUID id, UUID customerId);
@@ -243,6 +283,224 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
                         @Param("customerId") UUID customerId,
                         @Param("status") String status,
                         Pageable pageable);
+
+        @Query("""
+                        select coalesce(sum(so.totalQuote), 0)
+                        from CustomerServiceOrder so
+                        where so.status = 'COMPLETED'
+                          and so.completedAt >= :from and so.completedAt < :to
+                          and so.deletedAt is null
+                        """)
+        BigDecimal sumCompletedTotalQuoteBetween(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query("""
+                        select so.vehicleType as vehicleType, coalesce(sum(so.totalQuote), 0) as totalRevenue
+                        from CustomerServiceOrder so
+                        where so.status = 'COMPLETED'
+                          and so.completedAt >= :from and so.completedAt < :to
+                          and so.deletedAt is null
+                        group by so.vehicleType
+                        """)
+        List<VehicleRevenueProjection> sumCompletedTotalQuoteByVehicleBetween(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query("""
+                        select coalesce(avg(so.totalQuote), 0)
+                        from CustomerServiceOrder so
+                        where so.status = 'COMPLETED'
+                          and so.completedAt >= :from and so.completedAt < :to
+                          and so.deletedAt is null
+                        """)
+        BigDecimal averageCompletedOrderValueBetween(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query("""
+                        select coalesce(avg(so.distanceKm), 0)
+                        from CustomerServiceOrder so
+                        where so.createdAt >= :from and so.createdAt < :to
+                          and so.deletedAt is null
+                        """)
+        BigDecimal averageDistanceKmForCreatedOrdersBetween(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query("""
+                        select count(so)
+                        from CustomerServiceOrder so
+                        where so.createdAt >= :from and so.createdAt < :to
+                          and so.deletedAt is null
+                        """)
+        long countCreatedOrdersBetween(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query("""
+                        select count(so)
+                        from CustomerServiceOrder so
+                        where so.createdAt >= :from and so.createdAt < :to
+                          and so.status = :status
+                          and so.deletedAt is null
+                        """)
+        long countCreatedOrdersByStatusBetween(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to,
+                        @Param("status") String status);
+
+        @Query("""
+                        select so.status as status, count(so) as count
+                        from CustomerServiceOrder so
+                        where so.createdAt >= :from and so.createdAt < :to
+                          and so.deletedAt is null
+                        group by so.status
+                        """)
+        List<StatusCountProjection> countCreatedOrdersGroupByStatusBetween(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query("""
+                        select count(so)
+                        from CustomerServiceOrder so
+                        where so.createdAt >= :from and so.createdAt < :to
+                          and so.peakSurcharge is not null and so.peakSurcharge > 0
+                          and so.deletedAt is null
+                        """)
+        long countPeakSurchargeOrdersBetween(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query(value = """
+                        SELECT
+                            TO_CHAR(d.bucket AT TIME ZONE 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD') AS "bucket",
+                            COUNT(*) FILTER (WHERE d.event = 'CREATED') AS "createdCount",
+                            COUNT(*) FILTER (WHERE d.event = 'COMPLETED') AS "completedCount"
+                        FROM (
+                            SELECT created_at AS bucket, 'CREATED' AS event
+                            FROM service_order
+                            WHERE created_at >= :from AND created_at < :to AND deleted_at IS NULL
+                            UNION ALL
+                            SELECT completed_at AS bucket, 'COMPLETED' AS event
+                            FROM service_order
+                            WHERE completed_at >= :from AND completed_at < :to AND deleted_at IS NULL
+                              AND status = 'COMPLETED'
+                        ) d
+                        GROUP BY TO_CHAR(d.bucket AT TIME ZONE 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD')
+                        ORDER BY "bucket"
+                        """, nativeQuery = true)
+        List<OrderTrendProjection> findCompletionTrend(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query(value = """
+                        SELECT
+                            EXTRACT(ISODOW FROM scheduled_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::int AS "weekday",
+                            EXTRACT(HOUR FROM scheduled_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::int AS "hour",
+                            COUNT(*) AS "orderCount",
+                            COUNT(*) FILTER (WHERE status = 'COMPLETED') AS "completedCount"
+                        FROM service_order
+                        WHERE scheduled_at IS NOT NULL
+                          AND scheduled_at >= :from AND scheduled_at < :to
+                          AND deleted_at IS NULL
+                        GROUP BY "weekday", "hour"
+                        ORDER BY "weekday", "hour"
+                        """, nativeQuery = true)
+        List<PeakHourProjection> countOrdersByScheduledWeekdayHour(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query("""
+                        select count(so)
+                        from CustomerServiceOrder so
+                        where so.scheduledAt is null
+                          and so.createdAt >= :from and so.createdAt < :to
+                          and so.deletedAt is null
+                        """)
+        long countMissingScheduleBetween(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query("""
+                        select
+                            so.customerId as customerId,
+                            cust.fullName as fullName,
+                            count(so) as completedOrders,
+                            coalesce(sum(so.totalQuote), 0) as totalSpent
+                        from CustomerServiceOrder so
+                        join User cust on cust.id = so.customerId
+                        where so.status = 'COMPLETED'
+                          and so.completedAt >= :from and so.completedAt < :to
+                          and so.deletedAt is null
+                        group by so.customerId, cust.fullName
+                        order by coalesce(sum(so.totalQuote), 0) desc, so.customerId asc
+                        """)
+        List<TopSpenderProjection> findTopSpendersByCompletedOrderTotal(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to,
+                        Pageable pageable);
+
+        @Query("""
+                        select count(distinct u.id)
+                        from User u
+                        where u.role = vn.movehome.backend.entity.UserRole.DRIVER
+                          and u.deletedAt is null
+                          and u.id not in (
+                              select distinct so.driverId
+                              from CustomerServiceOrder so
+                              where so.driverId is not null
+                                and so.createdAt >= :churnFrom and so.createdAt < :periodEnd
+                                and so.deletedAt is null
+                          )
+                        """)
+        long countChurnedDrivers(
+                        @Param("churnFrom") OffsetDateTime churnFrom,
+                        @Param("periodEnd") OffsetDateTime periodEnd);
+
+        @Query("""
+                        select count(distinct so.customerId)
+                        from CustomerServiceOrder so
+                        where so.createdAt >= :from and so.createdAt < :to
+                          and so.deletedAt is null
+                        """)
+        long countMauBetween(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query(value = """
+                        SELECT COALESCE(AVG(daily_count), 0)
+                        FROM (
+                            SELECT COUNT(DISTINCT customer_id) AS daily_count
+                            FROM service_order
+                            WHERE created_at >= :from AND created_at < :to
+                              AND deleted_at IS NULL
+                            GROUP BY DATE(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh')
+                        ) sub
+                        """, nativeQuery = true)
+        BigDecimal calculateDauAverage(
+                        @Param("from") OffsetDateTime from,
+                        @Param("to") OffsetDateTime to);
+
+        @Query(value = """
+                        SELECT
+                            COUNT(DISTINCT u.id) FILTER (
+                                WHERE EXISTS (
+                                    SELECT 1 FROM service_order so2
+                                    WHERE so2.customer_id = u.id
+                                      AND so2.created_at >= :periodStart AND so2.created_at < :periodEnd
+                                      AND so2.deleted_at IS NULL
+                                )
+                            )::decimal / NULLIF(COUNT(DISTINCT u.id), 0) AS rate
+                        FROM app_user u
+                        WHERE u.role = 'CUSTOMER'
+                          AND u.deleted_at IS NULL
+                          AND u.created_at >= :cohortStart AND u.created_at < :periodStart
+                        """, nativeQuery = true)
+        BigDecimal calculateRetentionRate30d(
+                        @Param("cohortStart") OffsetDateTime cohortStart,
+                        @Param("periodStart") OffsetDateTime periodStart,
+                        @Param("periodEnd") OffsetDateTime periodEnd);
 
         boolean existsByOrderCode(String orderCode);
 }

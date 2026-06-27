@@ -10,6 +10,7 @@ import vn.movehome.backend.entity.Transaction;
 import vn.movehome.backend.entity.TransactionType;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,6 +21,24 @@ import java.util.UUID;
  * KHONG bao gio delete hay update ban ghi — neu can revert: them ADJUSTMENT transaction moi.
  */
 public interface TransactionRepository extends JpaRepository<Transaction, UUID>, JpaSpecificationExecutor<Transaction> {
+
+    interface TopEarnerProjection {
+        UUID getDriverId();
+
+        String getFullName();
+
+        BigDecimal getTotalEarning();
+
+        Long getCompletedOrders();
+    }
+
+    interface FinancialTrendProjection {
+        String getBucket();
+
+        BigDecimal getGrossBookingValue();
+
+        BigDecimal getPlatformFee();
+    }
 
     /**
      * Lich su giao dich cua mot user, moi nhat truoc (co phan trang).
@@ -66,4 +85,45 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID>,
      * Lay ket qua da xu ly de IPN lap lai tra ve dung ban ghi cu, khong tao audit log moi.
      */
     Optional<Transaction> findByVnpayTxnRef(String vnpayTxnRef);
+
+    @Query("""
+            select coalesce(sum(t.amount), 0)
+            from Transaction t
+            where t.type = :type
+              and t.createdAt >= :from and t.createdAt < :to
+            """)
+    BigDecimal sumAmountByTypeBetween(
+            @Param("type") TransactionType type,
+            @Param("from") Instant from,
+            @Param("to") Instant to);
+
+    @Query("""
+            select t.userId as driverId, u.fullName as fullName,
+                   coalesce(sum(t.amount), 0) as totalEarning,
+                   count(t) as completedOrders
+            from Transaction t
+            join User u on u.id = t.userId
+            where t.type = vn.movehome.backend.entity.TransactionType.DRIVER_EARNING
+              and t.createdAt >= :from and t.createdAt < :to
+            group by t.userId, u.fullName
+            order by coalesce(sum(t.amount), 0) desc, t.userId asc
+            """)
+    List<TopEarnerProjection> findTopEarnersByDriverEarning(
+            @Param("from") Instant from,
+            @Param("to") Instant to,
+            Pageable pageable);
+
+    @Query(value = """
+            SELECT
+                TO_CHAR(t.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD') AS "bucket",
+                COALESCE(SUM(CASE WHEN t.type = 'PLATFORM_FEE' THEN t.amount ELSE 0 END), 0) AS "grossBookingValue",
+                COALESCE(SUM(CASE WHEN t.type = 'PLATFORM_FEE' THEN t.amount ELSE 0 END), 0) AS "platformFee"
+            FROM transaction t
+            WHERE t.created_at >= :from AND t.created_at < :to
+            GROUP BY TO_CHAR(t.created_at AT TIME ZONE 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD')
+            ORDER BY "bucket"
+            """, nativeQuery = true)
+    List<FinancialTrendProjection> findFinancialTrendByType(
+            @Param("from") Instant from,
+            @Param("to") Instant to);
 }

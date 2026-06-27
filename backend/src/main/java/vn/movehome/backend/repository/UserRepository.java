@@ -1,5 +1,6 @@
 package vn.movehome.backend.repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -235,6 +236,21 @@ public interface UserRepository extends JpaRepository<User, UUID> {
               and u.role = 'CUSTOMER'
             """)
     Optional<User> findAdminCustomerDetailUser(@Param("userId") UUID userId);
+
+    long countByRoleAndDeletedAtIsNullAndCreatedAtBefore(UserRole role, Instant end);
+
+    long countByRoleAndStatusAndDeletedAtIsNullAndCreatedAtBefore(UserRole role, UserStatus status, Instant end);
+
+    @Query("""
+            select count(u)
+            from User u
+            where u.role = vn.movehome.backend.entity.UserRole.CUSTOMER
+              and u.deletedAt is null
+              and u.createdAt >= :from and u.createdAt < :to
+            """)
+    long countNewCustomersBetween(
+            @Param("from") Instant from,
+            @Param("to") Instant to);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from User u where u.id = :id")

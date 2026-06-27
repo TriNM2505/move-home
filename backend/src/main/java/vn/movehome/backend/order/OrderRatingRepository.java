@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,4 +44,19 @@ public interface OrderRatingRepository extends JpaRepository<OrderRating, UUID> 
 
     @Query("select avg(r.stars) from OrderRating r where r.driverId = :driverId")
     Optional<BigDecimal> averageRatingByDriver(@Param("driverId") UUID driverId);
+
+    @Query("""
+            select r.stars as star, count(r) as count
+            from OrderRating r
+            where r.createdAt >= :from and r.createdAt < :to
+            group by r.stars
+            """)
+    List<RatingStarCount> countRatingsByStarBetween(
+            @Param("from") OffsetDateTime from,
+            @Param("to") OffsetDateTime to);
+
+    @Query("select avg(r.stars) from OrderRating r where r.createdAt >= :from and r.createdAt < :to")
+    Optional<BigDecimal> averageRatingBetween(
+            @Param("from") OffsetDateTime from,
+            @Param("to") OffsetDateTime to);
 }
