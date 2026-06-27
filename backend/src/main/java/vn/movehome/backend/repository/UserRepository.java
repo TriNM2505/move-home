@@ -1,10 +1,14 @@
 package vn.movehome.backend.repository;
 
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import vn.movehome.backend.dto.admin.list.CustomerListItem;
+import vn.movehome.backend.dto.admin.list.DriverListItem;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.entity.UserRole;
 import vn.movehome.backend.entity.UserStatus;
@@ -145,6 +149,72 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         nativeQuery = true
     )
     List<Object[]> findAllCustomersByStatusForAdmin(@Param("status") String status);
+
+    @Query("""
+            select new vn.movehome.backend.dto.admin.list.DriverListItem(
+                u.id,
+                u.fullName,
+                u.email,
+                u.phone,
+                dp.vehicleType,
+                dp.vehiclePlate,
+                u.status,
+                dp.averageRating,
+                dp.totalOrdersCompleted,
+                dw.totalEarned,
+                dw.balance,
+                u.createdAt,
+                null
+            )
+            from User u
+            join DriverProfile dp on dp.userId = u.id
+            left join DriverWallet dw on dw.driverId = u.id
+            where u.role = vn.movehome.backend.entity.UserRole.DRIVER
+              and u.deletedAt is null
+              and (:status is null or cast(u.status as string) = :status)
+              and (
+                  :search is null
+                  or lower(u.fullName) like lower(concat('%', :search, '%'))
+                  or lower(u.email) like lower(concat('%', :search, '%'))
+                  or lower(u.phone) like lower(concat('%', :search, '%'))
+                  or lower(dp.vehiclePlate) like lower(concat('%', :search, '%'))
+              )
+            """)
+    Page<DriverListItem> findAdminDriverList(
+            @Param("status") String status,
+            @Param("search") String search,
+            Pageable pageable);
+
+    @Query("""
+            select new vn.movehome.backend.dto.admin.list.CustomerListItem(
+                u.id,
+                u.fullName,
+                u.email,
+                u.phone,
+                u.status,
+                (select count(o) from CustomerServiceOrder o where o.customerId = u.id and o.deletedAt is null),
+                cw.totalSpent,
+                cw.balance,
+                u.createdAt,
+                null,
+                u.emailVerified
+            )
+            from User u
+            left join CustomerWallet cw on cw.customerId = u.id
+            where u.role = vn.movehome.backend.entity.UserRole.CUSTOMER
+              and u.deletedAt is null
+              and (:status is null or cast(u.status as string) = :status)
+              and (
+                  :search is null
+                  or lower(u.fullName) like lower(concat('%', :search, '%'))
+                  or lower(u.email) like lower(concat('%', :search, '%'))
+                  or lower(u.phone) like lower(concat('%', :search, '%'))
+              )
+            """)
+    Page<CustomerListItem> findAdminCustomerList(
+            @Param("status") String status,
+            @Param("search") String search,
+            Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from User u where u.id = :id")

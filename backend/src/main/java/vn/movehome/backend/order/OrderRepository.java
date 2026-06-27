@@ -7,8 +7,10 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import vn.movehome.backend.dto.admin.list.OrderListItem;
 
 import jakarta.persistence.LockModeType;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,6 +58,41 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
             String status);
 
     Optional<ServiceOrder> findByIdAndDeletedAtIsNull(UUID id);
+
+    @Query("""
+            select new vn.movehome.backend.dto.admin.list.OrderListItem(
+                so.id,
+                so.orderCode,
+                cust.fullName,
+                drv.fullName,
+                so.vehicleType,
+                so.pickupDistrict,
+                so.dropoffDistrict,
+                so.totalQuote,
+                so.status,
+                so.createdAt,
+                so.scheduledAt
+            )
+            from CustomerServiceOrder so
+            join User cust on cust.id = so.customerId
+            left join User drv on drv.id = so.driverId
+            where so.deletedAt is null
+              and (:status is null or so.status = :status)
+              and (
+                  :search is null
+                  or lower(so.orderCode) like lower(concat('%', :search, '%'))
+                  or lower(cust.fullName) like lower(concat('%', :search, '%'))
+                  or lower(drv.fullName) like lower(concat('%', :search, '%'))
+              )
+              and (:from is null or so.createdAt >= :from)
+              and (:to is null or so.createdAt < :to)
+            """)
+    Page<OrderListItem> findAdminOrderList(
+            @Param("status") String status,
+            @Param("search") String search,
+            @Param("from") OffsetDateTime from,
+            @Param("to") OffsetDateTime to,
+            Pageable pageable);
 
     boolean existsByOrderCode(String orderCode);
 }

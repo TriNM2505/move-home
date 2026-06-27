@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import vn.movehome.backend.dto.admin.list.WithdrawalListItemRaw;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -74,4 +75,37 @@ public interface WithdrawalRequestRepository extends JpaRepository<WithdrawalReq
               and r.status = 'PENDING'
             """)
     BigDecimal sumPendingAmount(@Param("driverId") UUID driverId);
+
+    @Query("""
+            select new vn.movehome.backend.dto.admin.list.WithdrawalListItemRaw(
+                wr.id,
+                wr.driverId,
+                driver.fullName,
+                wr.amount,
+                wr.bankNameSnapshot,
+                wr.bankAccountNumber,
+                wr.status,
+                wr.requestedAt,
+                wr.processedAt,
+                processor.fullName,
+                wr.bankTxnRef
+            )
+            from WithdrawalRequest wr
+            join User driver on driver.id = wr.driverId
+            left join User processor on processor.id = wr.processedBy
+            where (:status is null or wr.status = :status)
+              and (
+                  :search is null
+                  or lower(driver.fullName) like lower(concat('%', :search, '%'))
+                  or lower(wr.bankTxnRef) like lower(concat('%', :search, '%'))
+              )
+              and (:from is null or wr.requestedAt >= :from)
+              and (:to is null or wr.requestedAt < :to)
+            """)
+    Page<WithdrawalListItemRaw> findAdminWithdrawalList(
+            @Param("status") String status,
+            @Param("search") String search,
+            @Param("from") OffsetDateTime from,
+            @Param("to") OffsetDateTime to,
+            Pageable pageable);
 }
