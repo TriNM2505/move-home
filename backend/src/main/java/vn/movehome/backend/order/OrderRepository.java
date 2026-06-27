@@ -65,6 +65,8 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
                         String status,
                         Pageable pageable);
 
+        long countByDriverIdAndStatusAndDeletedAtIsNull(UUID driverId, String status);
+
         Optional<ServiceOrder> findFirstByDriverIdAndStatusAndDeletedAtIsNullOrderByUpdatedAtDesc(
                         UUID driverId,
                         String status);
@@ -124,17 +126,6 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
         List<DriverDetailResponse.RecentOrderItem> findRecentOrdersByDriver(
                         @Param("driverId") UUID driverId,
                         Pageable pageable);
-
-        @Query("""
-                        select
-                            sum(case when so.status = 'COMPLETED' then 1 else 0 end),
-                            sum(case when so.status = 'CANCELLED' then 1 else 0 end),
-                            sum(case when so.status = 'DISPUTED' then 1 else 0 end)
-                        from CustomerServiceOrder so
-                        where so.driverId = :driverId
-                          and so.deletedAt is null
-                        """)
-        Object[] countDriverOrdersByStatus(@Param("driverId") UUID driverId);
 
         @Query("""
                         select
