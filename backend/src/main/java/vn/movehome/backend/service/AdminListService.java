@@ -1,24 +1,5 @@
 package vn.movehome.backend.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.JpaSort;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import vn.movehome.backend.driver.finance.WithdrawalRequestRepository;
-import vn.movehome.backend.dto.admin.list.CustomerListItem;
-import vn.movehome.backend.dto.admin.list.DriverListItem;
-import vn.movehome.backend.dto.admin.list.OrderListItem;
-import vn.movehome.backend.dto.admin.list.WithdrawalListItem;
-import vn.movehome.backend.dto.admin.list.WithdrawalListItemRaw;
-import vn.movehome.backend.order.OrderRepository;
-import vn.movehome.backend.repository.UserRepository;
-
 import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -28,6 +9,26 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.JpaSort;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import lombok.RequiredArgsConstructor;
+import vn.movehome.backend.driver.finance.WithdrawalRequestRepository;
+import vn.movehome.backend.dto.admin.list.CustomerListItem;
+import vn.movehome.backend.dto.admin.list.DriverListItem;
+import vn.movehome.backend.dto.admin.list.OrderListItem;
+import vn.movehome.backend.dto.admin.list.WithdrawalListItem;
+import vn.movehome.backend.dto.admin.list.WithdrawalListItemRaw;
+import vn.movehome.backend.order.OrderRepository;
+import vn.movehome.backend.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -39,37 +40,24 @@ public class AdminListService {
     private static final int MAX_DATE_RANGE_DAYS = 366;
     private static final Set<Integer> ALLOWED_SIZES = Set.of(10, 20, 50, 100);
 
+    // TODO Sprint 6: neu migrate sang naming SPEC 011 (PENDING_PAYMENT, CONFIRMED,
+    // ASSIGNED, AWAITING_FINAL_PAYMENT, IN_DISPUTE), doi allowlist tuong ung hoac
+    // them logic translate.
     private static final Set<String> ORDER_STATUS_ALLOWED = Set.of(
-            "ALL", "PENDING_PAYMENT", "CONFIRMED", "ASSIGNED", "IN_PROGRESS",
-            "AWAITING_FINAL_PAYMENT", "COMPLETED", "CANCELLED", "IN_DISPUTE"
-    );
+            "ALL", "PENDING", "ACCEPTED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "DISPUTED");
     private static final Set<String> DRIVER_STATUS_ALLOWED = Set.of(
             "ALL", "ACTIVE", "PENDING_VERIFY", "PENDING_DOCUMENTS", "PENDING_DEPOSIT",
-            "PENDING_APPROVAL", "REJECTED", "SUSPENDED", "LOCKED"
-    );
+            "PENDING_APPROVAL", "REJECTED", "SUSPENDED", "LOCKED");
     private static final Set<String> CUSTOMER_STATUS_ALLOWED = Set.of(
-            "ALL", "ACTIVE", "PENDING_VERIFY", "SUSPENDED", "LOCKED"
-    );
+            "ALL", "ACTIVE", "PENDING_VERIFY", "SUSPENDED", "LOCKED");
     private static final Set<String> WITHDRAWAL_STATUS_ALLOWED = Set.of(
-            "ALL", "PENDING", "PROCESSED", "REJECTED", "CANCELLED"
-    );
-
-    private static final Map<String, String> ORDER_STATUS_TRANSLATE = Map.of(
-            "PENDING_PAYMENT", "PENDING",
-            "CONFIRMED", "ACCEPTED",
-            "ASSIGNED", "ACCEPTED",
-            "IN_PROGRESS", "IN_PROGRESS",
-            "COMPLETED", "COMPLETED",
-            "CANCELLED", "CANCELLED",
-            "IN_DISPUTE", "DISPUTED"
-    );
+            "ALL", "PENDING", "PROCESSED", "REJECTED", "CANCELLED");
 
     private static final Map<String, String> ORDER_SORT_MAP = Map.of(
             "created_at", "so.createdAt",
             "total_quote", "so.totalQuote",
             "status", "so.status",
-            "scheduled_at", "so.scheduledAt"
-    );
+            "scheduled_at", "so.scheduledAt");
     private static final Map<String, String> DRIVER_SORT_MAP = Map.of(
             "created_at", "u.createdAt",
             "total_earnings", "dw.totalEarned",
@@ -87,25 +75,24 @@ public class AdminListService {
             "requested_at", "wr.requestedAt",
             "processed_at", "wr.processedAt",
             "amount", "wr.amount",
-            "status", "wr.status"
-    );
+            "status", "wr.status");
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final WithdrawalRequestRepository withdrawalRequestRepository;
 
-    // Spec 011/012/016 FR de xuat audit GET. Theo chot Leader Sprint 5: GET read-only khong audit, chi POST/PUT moi audit.
+    // Spec 011/012/016 FR de xuat audit GET. Theo chot Leader Sprint 5: GET
+    // read-only khong audit, chi POST/PUT moi audit.
 
     public Page<OrderListItem> listOrders(String status, String search, String dateFrom,
             String dateTo, int page, int size, String sort) {
         validatePageSize(page, size);
         String normSearch = validateAndNormalizeSearch(search);
         DateRange range = parseAndValidateDateRange(dateFrom, dateTo);
-        String schemaStatus = translateOrderStatus(status);
+        String schemaStatus = validateOrderStatus(status);
         Pageable pageable = buildPageable(page, size, sort, ORDER_SORT_MAP, "so.id");
         return orderRepository.findAdminOrderList(
-                schemaStatus, normSearch, range.from(), range.to(), pageable
-        );
+                schemaStatus, normSearch, range.from(), range.to(), pageable);
     }
 
     public Page<DriverListItem> listDrivers(String status, String search,
@@ -234,19 +221,14 @@ public class AdminListService {
         return PageRequest.of(page, size, sort);
     }
 
-    private String translateOrderStatus(String specStatus) {
-        if (specStatus == null || "ALL".equals(specStatus)) {
+    private String validateOrderStatus(String status) {
+        if (status == null || "ALL".equals(status)) {
             return null;
         }
-        if (!ORDER_STATUS_ALLOWED.contains(specStatus)) {
+        if (!ORDER_STATUS_ALLOWED.contains(status)) {
             throw invalidStatusFilter();
         }
-
-        String translated = ORDER_STATUS_TRANSLATE.get(specStatus);
-        if (translated == null) {
-            throw invalidStatusFilter();
-        }
-        return translated;
+        return status;
     }
 
     private String validateDriverStatus(String status) {
@@ -291,8 +273,7 @@ public class AdminListService {
                 raw.requestedAt(),
                 raw.processedAt(),
                 raw.processorName(),
-                maskBankTxnRef(raw.bankTxnRef())
-        );
+                maskBankTxnRef(raw.bankTxnRef()));
     }
 
     private String maskBankAccount(String raw) {
