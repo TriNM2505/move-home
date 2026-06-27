@@ -118,6 +118,7 @@ public class SecurityConfig {
                 // Audit log là màn vận hành dùng chung cho Admin và Manager (HR-10).
                 .requestMatchers(HttpMethod.GET, "/api/admin/audit-logs").hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/manager/disputes", "/api/manager/disputes/**").hasAnyRole("MANAGER", "ADMIN")
                 .requestMatchers("/api/manager/**").hasRole("MANAGER")
 
                 // Onboarding chỉ cần Driver đã xác thực email; workflow orders bắt buộc ACTIVE.
