@@ -1,7 +1,10 @@
 package vn.movehome.backend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,14 +14,18 @@ import vn.movehome.backend.driver.finance.DriverWalletRepository;
 import vn.movehome.backend.driver.finance.WithdrawalRequestRepository;
 import vn.movehome.backend.driver.location.DriverLocation;
 import vn.movehome.backend.driver.location.DriverLocationRepository;
+import vn.movehome.backend.dto.admin.detail.AuditLogItem;
 import vn.movehome.backend.dto.admin.detail.CustomerDetailResponse;
+import vn.movehome.backend.dto.admin.detail.CustomerOrderItem;
 import vn.movehome.backend.dto.admin.detail.DriverDetailResponse;
+import vn.movehome.backend.dto.admin.detail.DriverOrderItem;
 import vn.movehome.backend.entity.CustomerWallet;
 import vn.movehome.backend.entity.DriverProfile;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.order.OrderRatingRepository;
 import vn.movehome.backend.order.OrderRepository;
 import vn.movehome.backend.order.ServiceOrder;
+import vn.movehome.backend.repository.AuditLogRepository;
 import vn.movehome.backend.repository.DriverDocumentRepository;
 import vn.movehome.backend.repository.DriverProfileRepository;
 import vn.movehome.backend.repository.UserRepository;
@@ -28,7 +35,9 @@ import vn.movehome.backend.repository.WalletTransactionRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
@@ -46,9 +55,16 @@ public class AdminDetailService {
     private static final int RECENT_WITHDRAWALS_LIMIT = 10;
     private static final int RECENT_TRANSACTIONS_LIMIT = 20;
     private static final int ONLINE_THRESHOLD_MINUTES = 5;
+    private static final int AUDIT_DATE_RANGE_MAX_DAYS = 366;
     private static final Set<String> BUSY_ORDER_STATUSES = Set.of("ACCEPTED", "IN_PROGRESS");
     private static final List<String> DRIVER_ALLOWED_ACTIONS = List.of("VIEW_AUDIT", "VIEW_ORDER_HISTORY");
     private static final List<String> CUSTOMER_ALLOWED_ACTIONS = List.of("VIEW_AUDIT", "VIEW_ORDER_HISTORY");
+    private static final Set<String> AUDIT_ENTITY_TYPES = Set.of("orders", "drivers", "customers");
+    private static final Set<String> ORDER_HISTORY_STATUSES = Set.of(
+            "ALL", "PENDING", "ACCEPTED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "DISPUTED"
+    );
+    private static final Set<Integer> ALLOWED_PAGE_SIZES = Set.of(10, 20, 50, 100);
+    private static final ZoneId VN_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
 
     private final UserRepository userRepository;
     private final DriverProfileRepository driverProfileRepository;
@@ -60,6 +76,7 @@ public class AdminDetailService {
     private final DriverLocationRepository driverLocationRepository;
     private final WalletRepository walletRepository;
     private final WalletTransactionRepository walletTransactionRepository;
+    private final AuditLogRepository auditLogRepository;
 
     // Spec 011/012/016 FR de xuat audit GET. Theo chot Leader Sprint 5:
     // GET read-only khong audit, chi POST/PUT moi audit.
@@ -130,6 +147,83 @@ public class AdminDetailService {
                 List.of(),
                 CUSTOMER_ALLOWED_ACTIONS
         );
+    }
+
+    public Page<AuditLogItem> entityAuditLog(
+            String entityType,
+            UUID entityId,
+            String eventType,
+            LocalDate dateFrom,
+            LocalDate dateTo,
+            int page,
+            int size) {
+        if (!AUDIT_ENTITY_TYPES.contains(entityType)) {
+            throw invalidAuditFilter("entityType khong hop le");
+        }
+        validatePageSize(page, size);
+        validateEntityExists(entityType, entityId);
+
+        String schemaEntityType = switch (entityType) {
+            case "orders" -> "SERVICE_ORDER";
+            case "drivers", "customers" -> "USER";
+            default -> throw invalidAuditFilter("entityType khong hop le");
+        };
+
+        OffsetDateTime from = null;
+        OffsetDateTime to = null;
+        if (dateFrom != null && dateTo != null) {
+            if (dateFrom.isAfter(dateTo)) {
+                throw invalidDateRange();
+            }
+            if (ChronoUnit.DAYS.between(dateFrom, dateTo) > AUDIT_DATE_RANGE_MAX_DAYS) {
+                throw invalidDateRange();
+            }
+            from = dateFrom.atStartOfDay(VN_ZONE).toOffsetDateTime();
+            to = dateTo.plusDays(1).atStartOfDay(VN_ZONE).toOffsetDateTime();
+        } else if (dateFrom != null || dateTo != null) {
+            throw invalidDateRange();
+        }
+
+        String normalizedEventType = eventType != null && !eventType.isBlank() ? eventType.trim() : null;
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")));
+
+        return auditLogRepository.findAdminEntityAuditLog(
+                schemaEntityType,
+                entityId.toString(),
+                normalizedEventType,
+                from,
+                to,
+                pageable
+        );
+    }
+
+    public Page<DriverOrderItem> driverOrderHistory(UUID driverId, String status, int page, int size) {
+        if (userRepository.findAdminDriverDetailUser(driverId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "DRIVER_NOT_FOUND|Khong tim thay tai xe.");
+        }
+        validatePageSize(page, size);
+
+        String schemaStatus = validateOrderHistoryStatus(status);
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")));
+
+        return orderRepository.findDriverOrderHistory(driverId, schemaStatus, pageable);
+    }
+
+    public Page<CustomerOrderItem> customerOrderHistory(UUID customerId, String status, int page, int size) {
+        if (userRepository.findAdminCustomerDetailUser(customerId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "CUSTOMER_NOT_FOUND|Khong tim thay khach hang.");
+        }
+        validatePageSize(page, size);
+
+        String schemaStatus = validateOrderHistoryStatus(status);
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")));
+
+        return orderRepository.findCustomerOrderHistory(customerId, schemaStatus, pageable);
     }
 
     private DriverDetailResponse.UserSection buildUserSection(User user) {
@@ -371,6 +465,44 @@ public class AdminDetailService {
         return new OnlineStatusResult("ONLINE", null);
     }
 
+    private void validateEntityExists(String entityType, UUID entityId) {
+        switch (entityType) {
+            case "orders" -> {
+                if (orderRepository.findByIdAndDeletedAtIsNull(entityId).isEmpty()) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "ORDER_NOT_FOUND|Khong tim thay don hang.");
+                }
+            }
+            case "drivers" -> {
+                if (userRepository.findAdminDriverDetailUser(entityId).isEmpty()) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "DRIVER_NOT_FOUND|Khong tim thay tai xe.");
+                }
+            }
+            case "customers" -> {
+                if (userRepository.findAdminCustomerDetailUser(entityId).isEmpty()) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "CUSTOMER_NOT_FOUND|Khong tim thay khach hang.");
+                }
+            }
+            default -> throw invalidAuditFilter("entityType khong hop le");
+        }
+    }
+
+    private String validateOrderHistoryStatus(String status) {
+        String normalizedStatus = status == null ? "ALL" : status;
+        if (!ORDER_HISTORY_STATUSES.contains(normalizedStatus)) {
+            throw invalidStatusFilter();
+        }
+        return "ALL".equals(normalizedStatus) ? null : normalizedStatus;
+    }
+
+    private void validatePageSize(int page, int size) {
+        if (page < 0 || !ALLOWED_PAGE_SIZES.contains(size)) {
+            throw invalidPagination();
+        }
+    }
+
     private String maskPhone(String raw) {
         if (raw == null) {
             return null;
@@ -399,6 +531,26 @@ public class AdminDetailService {
 
     private long safeLong(Object value) {
         return value instanceof Number number ? number.longValue() : 0;
+    }
+
+    private ResponseStatusException invalidPagination() {
+        return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "INVALID_PAGINATION|Tham so phan trang khong hop le.");
+    }
+
+    private ResponseStatusException invalidStatusFilter() {
+        return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "INVALID_STATUS_FILTER|Bo loc trang thai khong hop le.");
+    }
+
+    private ResponseStatusException invalidDateRange() {
+        return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "INVALID_DATE_RANGE|Khoang ngay khong hop le.");
+    }
+
+    private ResponseStatusException invalidAuditFilter(String reason) {
+        return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                "INVALID_AUDIT_FILTER|Bo loc audit khong hop le.");
     }
 
     private record OnlineStatusResult(String status, DriverDetailResponse.LastKnownLocation location) {
