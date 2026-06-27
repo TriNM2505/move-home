@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.movehome.backend.dto.admin.detail.CustomerDetailResponse;
 import vn.movehome.backend.dto.admin.detail.DriverDetailResponse;
 import vn.movehome.backend.service.AdminDetailService;
 
@@ -22,5 +23,10 @@ public class AdminDetailController {
     @GetMapping("/drivers/{id}")
     public DriverDetailResponse driverDetail(@PathVariable("id") UUID id) {
         return adminDetailService.driverDetail(id);
+    }
+
+    @GetMapping("/customers/{id}")
+    public CustomerDetailResponse customerDetail(@PathVariable("id") UUID id) {
+        return adminDetailService.customerDetail(id);
     }
 }

@@ -1,5 +1,6 @@
 package vn.movehome.backend.order;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -51,10 +52,14 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
 
         Page<ServiceOrder> findByCustomerIdAndDeletedAtIsNull(UUID customerId, Pageable pageable);
 
+        long countByCustomerIdAndDeletedAtIsNull(UUID customerId);
+
         Page<ServiceOrder> findByCustomerIdAndStatusAndDeletedAtIsNull(
                         UUID customerId,
                         String status,
                         Pageable pageable);
+
+        long countByCustomerIdAndStatusAndDeletedAtIsNull(UUID customerId, String status);
 
         Page<ServiceOrder> findByStatusAndDeletedAtIsNull(String status, Pageable pageable);
 
@@ -128,19 +133,29 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
                         Pageable pageable);
 
         @Query("""
-                        select
-                            count(so),
-                            sum(case when so.status = 'COMPLETED' then 1 else 0 end),
-                            sum(case when so.status = 'CANCELLED' then 1 else 0 end),
-                            sum(case when so.status = 'DISPUTED' then 1 else 0 end),
-                            coalesce(sum(case when so.status = 'COMPLETED' then so.totalQuote else 0 end), 0),
-                            min(so.createdAt),
-                            max(so.createdAt)
+                        select coalesce(sum(so.totalQuote), 0)
+                        from CustomerServiceOrder so
+                        where so.customerId = :customerId
+                          and so.status = 'COMPLETED'
+                          and so.deletedAt is null
+                        """)
+        BigDecimal sumCompletedTotalQuoteByCustomer(@Param("customerId") UUID customerId);
+
+        @Query("""
+                        select min(so.createdAt)
                         from CustomerServiceOrder so
                         where so.customerId = :customerId
                           and so.deletedAt is null
                         """)
-        Object[] aggregateCustomerStats(@Param("customerId") UUID customerId);
+        Optional<OffsetDateTime> findFirstOrderAtByCustomer(@Param("customerId") UUID customerId);
+
+        @Query("""
+                        select max(so.createdAt)
+                        from CustomerServiceOrder so
+                        where so.customerId = :customerId
+                          and so.deletedAt is null
+                        """)
+        Optional<OffsetDateTime> findLastOrderAtByCustomer(@Param("customerId") UUID customerId);
 
         @Query("""
                         select new vn.movehome.backend.dto.admin.detail.CustomerDetailResponse$RecentOrderItem(

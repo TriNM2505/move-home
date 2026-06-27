@@ -11,7 +11,9 @@ import vn.movehome.backend.driver.finance.DriverWalletRepository;
 import vn.movehome.backend.driver.finance.WithdrawalRequestRepository;
 import vn.movehome.backend.driver.location.DriverLocation;
 import vn.movehome.backend.driver.location.DriverLocationRepository;
+import vn.movehome.backend.dto.admin.detail.CustomerDetailResponse;
 import vn.movehome.backend.dto.admin.detail.DriverDetailResponse;
+import vn.movehome.backend.entity.CustomerWallet;
 import vn.movehome.backend.entity.DriverProfile;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.order.OrderRatingRepository;
@@ -20,6 +22,8 @@ import vn.movehome.backend.order.ServiceOrder;
 import vn.movehome.backend.repository.DriverDocumentRepository;
 import vn.movehome.backend.repository.DriverProfileRepository;
 import vn.movehome.backend.repository.UserRepository;
+import vn.movehome.backend.repository.WalletRepository;
+import vn.movehome.backend.repository.WalletTransactionRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,7 +31,9 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,9 +44,11 @@ public class AdminDetailService {
 
     private static final int RECENT_ORDERS_LIMIT = 10;
     private static final int RECENT_WITHDRAWALS_LIMIT = 10;
+    private static final int RECENT_TRANSACTIONS_LIMIT = 20;
     private static final int ONLINE_THRESHOLD_MINUTES = 5;
     private static final Set<String> BUSY_ORDER_STATUSES = Set.of("ACCEPTED", "IN_PROGRESS");
     private static final List<String> DRIVER_ALLOWED_ACTIONS = List.of("VIEW_AUDIT", "VIEW_ORDER_HISTORY");
+    private static final List<String> CUSTOMER_ALLOWED_ACTIONS = List.of("VIEW_AUDIT", "VIEW_ORDER_HISTORY");
 
     private final UserRepository userRepository;
     private final DriverProfileRepository driverProfileRepository;
@@ -50,6 +58,8 @@ public class AdminDetailService {
     private final OrderRepository orderRepository;
     private final OrderRatingRepository orderRatingRepository;
     private final DriverLocationRepository driverLocationRepository;
+    private final WalletRepository walletRepository;
+    private final WalletTransactionRepository walletTransactionRepository;
 
     // Spec 011/012/016 FR de xuat audit GET. Theo chot Leader Sprint 5:
     // GET read-only khong audit, chi POST/PUT moi audit.
@@ -92,8 +102,51 @@ public class AdminDetailService {
         );
     }
 
+    public CustomerDetailResponse customerDetail(UUID customerId) {
+        User user = userRepository.findAdminCustomerDetailUser(customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "CUSTOMER_NOT_FOUND|Khong tim thay khach hang."));
+
+        CustomerDetailResponse.UserSection userSection = buildCustomerUserSection(user);
+        CustomerDetailResponse.StatsSection stats = buildCustomerStats(customerId);
+        List<CustomerDetailResponse.RecentOrderItem> recentOrders = orderRepository
+                .findRecentOrdersByCustomer(customerId, PageRequest.of(0, RECENT_ORDERS_LIMIT));
+        CustomerDetailResponse.WalletSummary walletSummary = buildCustomerWalletSummary(customerId);
+        List<CustomerDetailResponse.RecentWalletTransactionItem> recentTransactions = walletTransactionRepository
+                .findRecentByUserId(customerId, PageRequest.of(0, RECENT_TRANSACTIONS_LIMIT))
+                .stream()
+                .map(this::maskTransactionReference)
+                .toList();
+        List<CustomerDetailResponse.DistrictActivityItem> districtActivity = buildDistrictActivity(customerId);
+
+        return new CustomerDetailResponse(
+                userSection,
+                stats,
+                recentOrders,
+                walletSummary,
+                recentTransactions,
+                List.of(),
+                districtActivity,
+                List.of(),
+                CUSTOMER_ALLOWED_ACTIONS
+        );
+    }
+
     private DriverDetailResponse.UserSection buildUserSection(User user) {
         return new DriverDetailResponse.UserSection(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                maskPhone(user.getPhone()),
+                user.getStatus() != null ? user.getStatus().name() : null,
+                user.isEmailVerified(),
+                toOffsetDateTime(user.getCreatedAt()),
+                null
+        );
+    }
+
+    private CustomerDetailResponse.UserSection buildCustomerUserSection(User user) {
+        return new CustomerDetailResponse.UserSection(
                 user.getId(),
                 user.getFullName(),
                 user.getEmail(),
@@ -217,6 +270,77 @@ public class AdminDetailService {
         return new DriverDetailResponse.RatingDistribution(one, two, three, four, five, total, average);
     }
 
+    private CustomerDetailResponse.StatsSection buildCustomerStats(UUID customerId) {
+        long total = orderRepository.countByCustomerIdAndDeletedAtIsNull(customerId);
+        long completed = orderRepository.countByCustomerIdAndStatusAndDeletedAtIsNull(customerId, "COMPLETED");
+        long cancelled = orderRepository.countByCustomerIdAndStatusAndDeletedAtIsNull(customerId, "CANCELLED");
+        long disputed = orderRepository.countByCustomerIdAndStatusAndDeletedAtIsNull(customerId, "DISPUTED");
+        BigDecimal totalSpent = orderRepository.sumCompletedTotalQuoteByCustomer(customerId);
+        OffsetDateTime firstOrderAt = orderRepository.findFirstOrderAtByCustomer(customerId).orElse(null);
+        OffsetDateTime lastOrderAt = orderRepository.findLastOrderAtByCustomer(customerId).orElse(null);
+        return new CustomerDetailResponse.StatsSection(
+                total,
+                completed,
+                cancelled,
+                disputed,
+                totalSpent,
+                firstOrderAt,
+                lastOrderAt
+        );
+    }
+
+    private CustomerDetailResponse.WalletSummary buildCustomerWalletSummary(UUID customerId) {
+        CustomerWallet wallet = walletRepository.findByCustomerId(customerId).orElse(null);
+        BigDecimal totalToppedUp = walletTransactionRepository.sumTopUpByUserId(customerId);
+        BigDecimal safeTotalToppedUp = totalToppedUp != null ? totalToppedUp : BigDecimal.ZERO;
+        if (wallet == null) {
+            return new CustomerDetailResponse.WalletSummary(
+                    BigDecimal.ZERO,
+                    safeTotalToppedUp,
+                    BigDecimal.ZERO
+            );
+        }
+        return new CustomerDetailResponse.WalletSummary(
+                wallet.getBalance(),
+                safeTotalToppedUp,
+                wallet.getTotalSpent()
+        );
+    }
+
+    private CustomerDetailResponse.RecentWalletTransactionItem maskTransactionReference(
+            CustomerDetailResponse.RecentWalletTransactionItem item) {
+        String masked = item.referenceMasked() == null ? null : maskReference(item.referenceMasked());
+        return new CustomerDetailResponse.RecentWalletTransactionItem(
+                item.id(),
+                item.type(),
+                item.amount(),
+                item.balanceAfter(),
+                item.createdAt(),
+                masked
+        );
+    }
+
+    private List<CustomerDetailResponse.DistrictActivityItem> buildDistrictActivity(UUID customerId) {
+        List<OrderRepository.DistrictCount> pickups = orderRepository.countPickupDistrictsByCustomer(customerId);
+        List<OrderRepository.DistrictCount> dropoffs = orderRepository.countDropoffDistrictsByCustomer(customerId);
+
+        Map<String, long[]> merged = new LinkedHashMap<>();
+        for (OrderRepository.DistrictCount pickup : pickups) {
+            merged.computeIfAbsent(pickup.getDistrict(), key -> new long[2])[0] = safeLong(pickup.getCount());
+        }
+        for (OrderRepository.DistrictCount dropoff : dropoffs) {
+            merged.computeIfAbsent(dropoff.getDistrict(), key -> new long[2])[1] = safeLong(dropoff.getCount());
+        }
+
+        return merged.entrySet().stream()
+                .map(entry -> new CustomerDetailResponse.DistrictActivityItem(
+                        entry.getKey(),
+                        entry.getValue()[0],
+                        entry.getValue()[1]
+                ))
+                .toList();
+    }
+
     private OnlineStatusResult computeOnlineStatus(UUID driverId) {
         DriverLocation location = driverLocationRepository.findByDriverId(driverId).orElse(null);
         if (location == null || location.getUpdatedAt() == null) {
@@ -256,6 +380,17 @@ public class AdminDetailService {
             return "*".repeat(length);
         }
         return raw.substring(0, 3) + "*".repeat(Math.max(0, length - 6)) + raw.substring(length - 3);
+    }
+
+    private String maskReference(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        int length = raw.length();
+        if (length <= 4) {
+            return "*".repeat(length);
+        }
+        return "***" + raw.substring(length - 4);
     }
 
     private OffsetDateTime toOffsetDateTime(Instant instant) {
