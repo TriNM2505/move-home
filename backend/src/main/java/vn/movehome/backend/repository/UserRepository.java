@@ -218,6 +218,15 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             @Param("search") String search,
             Pageable pageable);
 
+    @Query("""
+            select u
+            from User u
+            where u.id = :userId
+              and u.deletedAt is null
+              and u.role = 'DRIVER'
+            """)
+    Optional<User> findAdminDriverDetailUser(@Param("userId") UUID userId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from User u where u.id = :id")
     Optional<User> findByIdForUpdate(@Param("id") UUID id);

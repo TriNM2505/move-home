@@ -1,6 +1,7 @@
 package vn.movehome.backend.order;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.LockModeType;
+import vn.movehome.backend.dto.admin.detail.DriverDetailResponse;
 import vn.movehome.backend.dto.admin.list.OrderListItem;
 
 @Repository("customerOrderRepository")
@@ -94,6 +96,36 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
                         @Param("from") OffsetDateTime from,
                         @Param("to") OffsetDateTime to,
                         Pageable pageable);
+
+        @Query("""
+                        select new vn.movehome.backend.dto.admin.detail.DriverDetailResponse$RecentOrderItem(
+                            so.id,
+                            so.orderCode,
+                            so.status,
+                            so.pickupDistrict,
+                            so.dropoffDistrict,
+                            so.totalQuote,
+                            so.createdAt
+                        )
+                        from CustomerServiceOrder so
+                        where so.driverId = :driverId
+                          and so.deletedAt is null
+                        order by so.createdAt desc, so.id desc
+                        """)
+        List<DriverDetailResponse.RecentOrderItem> findRecentOrdersByDriver(
+                        @Param("driverId") UUID driverId,
+                        Pageable pageable);
+
+        @Query("""
+                        select
+                            sum(case when so.status = 'COMPLETED' then 1 else 0 end),
+                            sum(case when so.status = 'CANCELLED' then 1 else 0 end),
+                            sum(case when so.status = 'DISPUTED' then 1 else 0 end)
+                        from CustomerServiceOrder so
+                        where so.driverId = :driverId
+                          and so.deletedAt is null
+                        """)
+        Object[] countDriverOrdersByStatus(@Param("driverId") UUID driverId);
 
         boolean existsByOrderCode(String orderCode);
 }

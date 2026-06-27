@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import jakarta.persistence.LockModeType;
+import vn.movehome.backend.dto.admin.detail.DriverDetailResponse;
 import vn.movehome.backend.dto.admin.list.WithdrawalListItemRaw;
 
 public interface WithdrawalRequestRepository extends JpaRepository<WithdrawalRequest, UUID> {
@@ -109,4 +110,28 @@ public interface WithdrawalRequestRepository extends JpaRepository<WithdrawalReq
                         @Param("from") OffsetDateTime from,
                         @Param("to") OffsetDateTime to,
                         Pageable pageable);
+
+        @Query("""
+                        select new vn.movehome.backend.dto.admin.detail.DriverDetailResponse$RecentWithdrawalItem(
+                            wr.id,
+                            wr.amount,
+                            wr.status,
+                            wr.requestedAt,
+                            wr.processedAt
+                        )
+                        from WithdrawalRequest wr
+                        where wr.driverId = :driverId
+                        order by wr.requestedAt desc, wr.id desc
+                        """)
+        List<DriverDetailResponse.RecentWithdrawalItem> findRecentWithdrawalsByDriver(
+                        @Param("driverId") UUID driverId,
+                        Pageable pageable);
+
+        @Query("""
+                        select coalesce(sum(wr.amount), 0)
+                        from WithdrawalRequest wr
+                        where wr.driverId = :driverId
+                          and wr.status = 'PROCESSED'
+                        """)
+        BigDecimal sumProcessedAmountByDriver(@Param("driverId") UUID driverId);
 }
