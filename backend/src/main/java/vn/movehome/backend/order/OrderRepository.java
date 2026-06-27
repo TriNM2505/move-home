@@ -14,11 +14,20 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.LockModeType;
+import vn.movehome.backend.dto.admin.detail.CustomerDetailResponse;
+import vn.movehome.backend.dto.admin.detail.CustomerOrderItem;
 import vn.movehome.backend.dto.admin.detail.DriverDetailResponse;
+import vn.movehome.backend.dto.admin.detail.DriverOrderItem;
 import vn.movehome.backend.dto.admin.list.OrderListItem;
 
 @Repository("customerOrderRepository")
 public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
+
+        interface DistrictCount {
+                String getDistrict();
+
+                Long getCount();
+        }
 
         Optional<ServiceOrder> findByIdAndCustomerId(UUID id, UUID customerId);
 
@@ -126,6 +135,108 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
                           and so.deletedAt is null
                         """)
         Object[] countDriverOrdersByStatus(@Param("driverId") UUID driverId);
+
+        @Query("""
+                        select
+                            count(so),
+                            sum(case when so.status = 'COMPLETED' then 1 else 0 end),
+                            sum(case when so.status = 'CANCELLED' then 1 else 0 end),
+                            sum(case when so.status = 'DISPUTED' then 1 else 0 end),
+                            coalesce(sum(case when so.status = 'COMPLETED' then so.totalQuote else 0 end), 0),
+                            min(so.createdAt),
+                            max(so.createdAt)
+                        from CustomerServiceOrder so
+                        where so.customerId = :customerId
+                          and so.deletedAt is null
+                        """)
+        Object[] aggregateCustomerStats(@Param("customerId") UUID customerId);
+
+        @Query("""
+                        select new vn.movehome.backend.dto.admin.detail.CustomerDetailResponse$RecentOrderItem(
+                            so.id,
+                            so.orderCode,
+                            so.status,
+                            so.pickupDistrict,
+                            so.dropoffDistrict,
+                            so.totalQuote,
+                            so.createdAt
+                        )
+                        from CustomerServiceOrder so
+                        where so.customerId = :customerId
+                          and so.deletedAt is null
+                        order by so.createdAt desc, so.id desc
+                        """)
+        List<CustomerDetailResponse.RecentOrderItem> findRecentOrdersByCustomer(
+                        @Param("customerId") UUID customerId,
+                        Pageable pageable);
+
+        @Query("""
+                        select so.pickupDistrict as district, count(so) as count
+                        from CustomerServiceOrder so
+                        where so.customerId = :customerId
+                          and so.deletedAt is null
+                          and so.pickupDistrict is not null
+                        group by so.pickupDistrict
+                        """)
+        List<DistrictCount> countPickupDistrictsByCustomer(@Param("customerId") UUID customerId);
+
+        @Query("""
+                        select so.dropoffDistrict as district, count(so) as count
+                        from CustomerServiceOrder so
+                        where so.customerId = :customerId
+                          and so.deletedAt is null
+                          and so.dropoffDistrict is not null
+                        group by so.dropoffDistrict
+                        """)
+        List<DistrictCount> countDropoffDistrictsByCustomer(@Param("customerId") UUID customerId);
+
+        @Query("""
+                        select new vn.movehome.backend.dto.admin.detail.DriverOrderItem(
+                            so.id,
+                            so.orderCode,
+                            so.status,
+                            cust.fullName,
+                            so.pickupDistrict,
+                            so.dropoffDistrict,
+                            so.vehicleType,
+                            so.totalQuote,
+                            so.createdAt,
+                            so.scheduledAt
+                        )
+                        from CustomerServiceOrder so
+                        join User cust on cust.id = so.customerId
+                        where so.driverId = :driverId
+                          and so.deletedAt is null
+                          and (coalesce(:status, '') = '' or so.status = :status)
+                        """)
+        Page<DriverOrderItem> findDriverOrderHistory(
+                        @Param("driverId") UUID driverId,
+                        @Param("status") String status,
+                        Pageable pageable);
+
+        @Query("""
+                        select new vn.movehome.backend.dto.admin.detail.CustomerOrderItem(
+                            so.id,
+                            so.orderCode,
+                            so.status,
+                            drv.fullName,
+                            so.pickupDistrict,
+                            so.dropoffDistrict,
+                            so.vehicleType,
+                            so.totalQuote,
+                            so.createdAt,
+                            so.scheduledAt
+                        )
+                        from CustomerServiceOrder so
+                        left join User drv on drv.id = so.driverId
+                        where so.customerId = :customerId
+                          and so.deletedAt is null
+                          and (coalesce(:status, '') = '' or so.status = :status)
+                        """)
+        Page<CustomerOrderItem> findCustomerOrderHistory(
+                        @Param("customerId") UUID customerId,
+                        @Param("status") String status,
+                        Pageable pageable);
 
         boolean existsByOrderCode(String orderCode);
 }
