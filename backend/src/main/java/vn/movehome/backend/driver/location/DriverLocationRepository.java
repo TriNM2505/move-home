@@ -7,10 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface DriverLocationRepository extends JpaRepository<DriverLocation, UUID> {
+
+    Optional<DriverLocation> findByDriverId(UUID driverId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
