@@ -1834,10 +1834,66 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   font-weight: 600 !important;
 }
 
+.sidebar-item--active::after {
+  content: "";
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--rounded-full);
+  background-color: var(--color-accent) !important;
+  margin-left: auto;
+}
+
 .alert-warning {
   background-color: var(--color-warning-bg) !important;
   color: var(--color-warning-text) !important;
   border: 1px solid #FCD34D !important;
   border-radius: var(--rounded-md) !important;
+}
+
+.eyebrow {
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-xxs);
+  display: block;
+}
+
+.card-header-title-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-xxs);
+}
+
+.card-header {
+  background-color: var(--color-canvas) !important;
+}
+
+.kpi-icon {
+  font-size: 0 !important;
+  line-height: 0 !important;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+}
+.kpi-primary .kpi-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%231B4D3E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M23 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E");
+}
+.kpi-success .kpi-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%2316A34A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='1' y='3' width='15' height='13'/%3E%3Cpolygon points='16 8 20 8 23 11 23 16 16 16 16 8'/%3E%3Ccircle cx='5.5' cy='18.5' r='2.5'/%3E%3Ccircle cx='18.5' cy='18.5' r='2.5'/%3E%3C/svg%3E");
+}
+.kpi-warning .kpi-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23F5A623' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='16.5' y1='9.4' x2='7.5' y2='4.21'/%3E%3Cpolygon points='12 22.08 12 12 3 6.92 3 17.08 12 22.08'/%3E%3Cpolygon points='12 12 21 6.92 21 17.08 12 22.08'/%3E%3Cpolygon points='12 2 21 6.92 12 12 3 6.92 12 2'/%3E%3Cline x1='12' y1='22.08' x2='12' y2='12'/%3E%3C/svg%3E");
+}
+.kpi-info .kpi-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%230EA5E9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='6' width='20' height='12' rx='2'/%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cline x1='6' y1='12' x2='6.01' y2='12'/%3E%3Cline x1='18' y1='12' x2='18.01' y2='12'/%3E%3C/svg%3E");
 }
 
