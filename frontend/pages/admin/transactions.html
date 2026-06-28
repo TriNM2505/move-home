@@ -4,25 +4,285 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Giao dịch hệ thống — Move_home</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  
   <link rel="stylesheet" href="../../css/styles.css">
-  <style>.quick-nav{display:flex;gap:8px;flex-wrap:wrap}.summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.amount-plus{color:var(--color-success);font-weight:700}.amount-minus{color:var(--color-danger);font-weight:700}@media(max-width:900px){.summary-strip{grid-template-columns:1fr 1fr}.site-header-actions{flex-direction:column;align-items:flex-end}}@media(max-width:560px){.summary-strip{grid-template-columns:1fr}}</style>
+  <style>
+    .quick-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .amount-plus {
+      color: var(--color-success);
+      font-weight: 700;
+    }
+    .amount-minus {
+      color: var(--color-danger);
+      font-weight: 700;
+    }
+    .kpi-icon-raw {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .kpi-icon-raw svg {
+      width: 32px;
+      height: 32px;
+    }
+    @media (max-width: 900px) {
+      .summary-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+      .site-header-actions {
+        flex-direction: column;
+        align-items: flex-end;
+      }
+    }
+    @media (max-width: 560px) {
+      .summary-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
+
 <div class="site-layout">
-  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span><span class="user-menu-name" style="color:var(--color-mute);font-weight:400;margin-left:8px;">Quản trị</span></a><div class="site-header-actions quick-nav"><a href="dashboard.html" class="btn-subtle">Tổng quan</a><a href="order-detail.html" class="btn-subtle">Chi tiết đơn</a><a href="reports.html" class="btn-subtle">Báo cáo</a><a href="../login.html" class="btn-secondary">Đăng xuất</a></div></div></header>
+  
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản trị</span>
+      </a>
+      
+      <div class="site-header-actions quick-nav">
+        <a href="dashboard.html" class="btn-subtle">Tổng quan</a>
+        <a href="order-detail.html" class="btn-subtle">Chi tiết đơn</a>
+        <a href="reports.html" class="btn-subtle">Báo cáo</a>
+        <a href="../login.html" class="btn-secondary">Đăng xuất</a>
+      </div>
+    </div>
+  </header>
+
   <div class="site-body">
-    <aside class="sidebar" aria-label="Menu quản trị"><nav class="sidebar-nav"><a href="dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span>Tổng quan</span></a><a href="orders.html" class="sidebar-item"><span class="sidebar-icon">📦</span><span>Đơn hàng</span></a><a href="drivers.html" class="sidebar-item"><span class="sidebar-icon">🚛</span><span>Tài xế</span></a><a href="customers.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span>Khách hàng</span></a><a href="withdrawals.html" class="sidebar-item"><span class="sidebar-icon">💰</span><span>Rút tiền</span></a><a href="transactions.html" class="sidebar-item sidebar-item--active"><span class="sidebar-icon">💳</span><span>Giao dịch</span></a><a href="reports.html" class="sidebar-item"><span class="sidebar-icon">📈</span><span>Báo cáo</span></a><div class="sidebar-divider"></div><a href="settings.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span>Cấu hình</span></a></nav></aside>
-    <main class="site-main"><div class="dashboard-main">
-      <header class="page-header"><h1 class="page-title">Giao dịch hệ thống</h1><p class="page-subtitle">Đối soát thanh toán, hoa hồng, thu nhập tài xế và hoàn tiền.</p></header>
-      <section class="summary-strip mb-8"><div class="kpi kpi-success"><div class="kpi-body"><div class="kpi-value">86,4tr</div><div class="kpi-label">Tổng thu hôm nay</div></div></div><div class="kpi kpi-primary"><div class="kpi-body"><div class="kpi-value">25,9tr</div><div class="kpi-label">Hoa hồng nền tảng</div></div></div><div class="kpi kpi-info"><div class="kpi-body"><div class="kpi-value">60,5tr</div><div class="kpi-label">Thu nhập tài xế</div></div></div><div class="kpi kpi-warning"><div class="kpi-body"><div class="kpi-value">1,2tr</div><div class="kpi-label">Hoàn tiền</div></div></div></section>
-      <div class="filter-bar"><button class="filter-pill active">Tất cả</button><button class="filter-pill">Thanh toán đơn</button><button class="filter-pill">Phí hoa hồng</button><button class="filter-pill">Thu nhập tài xế</button><button class="filter-pill">Hoàn tiền</button><button class="filter-pill">Nạp ví</button><button class="filter-pill">Rút tiền</button></div>
-      <section class="card"><div class="card-header"><h2 class="card-title">Lịch sử giao dịch</h2><a href="reports.html" class="btn-subtle">Xuất báo cáo</a></div><div class="table-wrapper" style="border:none;border-radius:0;box-shadow:none;overflow-x:auto;"><table class="table" style="min-width:960px;"><thead><tr><th>Mã giao dịch</th><th>Người dùng</th><th>Vai trò</th><th>Mã đơn</th><th>Loại</th><th>Ngày</th><th class="text-right">Số tiền</th></tr></thead><tbody><tr><td>GD202606001</td><td>Nguyễn Văn An</td><td>Khách hàng</td><td><a href="order-detail.html" class="link-primary">MH2026060001</a></td><td>Thanh toán đơn</td><td>06/06/2026</td><td class="text-right amount-minus">-1.500.000 đ</td></tr><tr><td>GD202606002</td><td>Hệ thống</td><td>Quản trị</td><td>MH2026060001</td><td>Phí hoa hồng</td><td>06/06/2026</td><td class="text-right amount-plus">+450.000 đ</td></tr><tr><td>GD202606003</td><td>Lê Văn Cường</td><td>Tài xế</td><td>MH2026060001</td><td>Thu nhập tài xế</td><td>06/06/2026</td><td class="text-right amount-plus">+1.050.000 đ</td></tr><tr><td>GD202606004</td><td>Trần Thị Bình</td><td>Khách hàng</td><td>MH2026050021</td><td>Hoàn tiền</td><td>05/06/2026</td><td class="text-right amount-plus">+200.000 đ</td></tr></tbody></table></div></section>
-      <div class="pagination-bar"><span class="pagination-info">Hiển thị 1-4 trong 128 giao dịch</span><div class="pagination-controls"><button class="pagination-btn-prev" disabled>Trước</button><button class="pagination-btn-page active">1</button><button class="pagination-btn-page">2</button><button class="pagination-btn-page">3</button><button class="pagination-btn-next">Sau</button></div></div>
-    </div></main>
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="Menu quản trị">
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-item">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </span>
+          <span>Tổng quan</span>
+        </a>
+        <a href="orders.html" class="sidebar-item">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><polygon points="12 22.08 12 12 3 6.92 3 17.08 12 22.08"></polygon><polygon points="12 12 21 6.92 21 17.08 12 22.08"></polygon><polygon points="12 2 21 6.92 12 12 3 6.92 12 2"></polygon><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          </span>
+          <span>Đơn hàng</span>
+        </a>
+        <a href="drivers.html" class="sidebar-item">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+          </span>
+          <span>Tài xế</span>
+        </a>
+        <a href="customers.html" class="sidebar-item">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v-2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </span>
+          <span>Khách hàng</span>
+        </a>
+        <a href="withdrawals.html" class="sidebar-item">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </span>
+          <span>Rút tiền</span>
+        </a>
+        <a href="transactions.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          </span>
+          <span>Giao dịch</span>
+        </a>
+        <a href="reports.html" class="sidebar-item">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </span>
+          <span>Báo cáo</span>
+        </a>
+        <div class="sidebar-divider"></div>
+        <a href="settings.html" class="sidebar-item">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </span>
+          <span>Cấu hình</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="site-main">
+      <div class="dashboard-main">
+        
+        <header class="page-header">
+          <span class="eyebrow">Lịch sử hệ thống</span>
+          <h1 class="page-title">Giao dịch hệ thống</h1>
+          <p class="page-subtitle">Đối soát thanh toán, hoa hồng, thu nhập tài xế và hoàn tiền.</p>
+        </header>
+
+        <!-- KPI SUMMARY STRIP -->
+        <section class="summary-strip mb-8">
+          
+          <div class="kpi kpi-success">
+            <div class="kpi-icon-raw">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="4"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/></svg>
+            </div>
+            <div class="kpi-body">
+              <div class="kpi-value">86,4tr</div>
+              <div class="kpi-label">Tổng thu hôm nay</div>
+            </div>
+          </div>
+          
+          <div class="kpi kpi-primary">
+            <div class="kpi-icon-raw">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+            </div>
+            <div class="kpi-body">
+              <div class="kpi-value">25,9tr</div>
+              <div class="kpi-label">Hoa hồng nền tảng</div>
+            </div>
+          </div>
+          
+          <div class="kpi kpi-info">
+            <div class="kpi-icon-raw">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-info)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            </div>
+            <div class="kpi-body">
+              <div class="kpi-value">60,5tr</div>
+              <div class="kpi-label">Thu nhập tài xế</div>
+            </div>
+          </div>
+          
+          <div class="kpi kpi-warning">
+            <div class="kpi-icon-raw">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </div>
+            <div class="kpi-body">
+              <div class="kpi-value">1,2tr</div>
+              <div class="kpi-label">Hoàn tiền</div>
+            </div>
+          </div>
+          
+        </section>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+          <button class="filter-pill active">Tất cả</button>
+          <button class="filter-pill">Thanh toán đơn</button>
+          <button class="filter-pill">Phí hoa hồng</button>
+          <button class="filter-pill">Thu nhập tài xế</button>
+          <button class="filter-pill">Hoàn tiền</button>
+          <button class="filter-pill">Nạp ví</button>
+          <button class="filter-pill">Rút tiền</button>
+        </div>
+
+        <!-- TRANSACTIONS CARD -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-header-title-group">
+              <span class="eyebrow">Biên lai & đối soát</span>
+              <h2 class="card-title">Lịch sử giao dịch</h2>
+            </div>
+            <a href="reports.html" class="btn-subtle">Xuất báo cáo</a>
+          </div>
+          
+          <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none; overflow-x:auto;">
+            <table class="table" style="min-width:960px;">
+              <thead>
+                <tr>
+                  <th class="table-th-eyebrow">Mã giao dịch</th>
+                  <th class="table-th-eyebrow">Người dùng</th>
+                  <th class="table-th-eyebrow">Vai trò</th>
+                  <th class="table-th-eyebrow">Mã đơn</th>
+                  <th class="table-th-eyebrow">Loại</th>
+                  <th class="table-th-eyebrow">Ngày</th>
+                  <th class="table-th-eyebrow text-right">Số tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>GD202606001</td>
+                  <td>Nguyễn Văn An</td>
+                  <td>Khách hàng</td>
+                  <td><a href="order-detail.html" class="link-primary">MH2026060001</a></td>
+                  <td>Thanh toán đơn</td>
+                  <td>06/06/2026</td>
+                  <td class="text-right amount-minus">-1.500.000 đ</td>
+                </tr>
+                <tr>
+                  <td>GD202606002</td>
+                  <td>Hệ thống</td>
+                  <td>Quản trị</td>
+                  <td>MH2026060001</td>
+                  <td>Phí hoa hồng</td>
+                  <td>06/06/2026</td>
+                  <td class="text-right amount-plus">+450.000 đ</td>
+                </tr>
+                <tr>
+                  <td>GD202606003</td>
+                  <td>Lê Văn Cường</td>
+                  <td>Tài xế</td>
+                  <td>MH2026060001</td>
+                  <td>Thu nhập tài xế</td>
+                  <td>06/06/2026</td>
+                  <td class="text-right amount-plus">+1.050.000 đ</td>
+                </tr>
+                <tr>
+                  <td>GD202606004</td>
+                  <td>Trần Thị Bình</td>
+                  <td>Khách hàng</td>
+                  <td>MH2026050021</td>
+                  <td>Hoàn tiền</td>
+                  <td>05/06/2026</td>
+                  <td class="text-right amount-plus">+200.000 đ</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- PAGINATION BAR -->
+        <div class="pagination-bar">
+          <span class="pagination-info">Hiển thị 1-4 trong 128 giao dịch</span>
+          <div class="pagination-controls">
+            <button class="pagination-btn-prev" disabled>« Trước</button>
+            <button class="pagination-btn-page active">1</button>
+            <button class="pagination-btn-page">2</button>
+            <button class="pagination-btn-page">3</button>
+            <button class="pagination-btn-next">Sau</button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
   </div>
 </div>
+
 </body>
 </html>
