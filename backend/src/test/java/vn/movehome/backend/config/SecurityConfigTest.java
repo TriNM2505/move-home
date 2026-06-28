@@ -93,6 +93,18 @@ class SecurityConfigTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void adminCanAccessManagerDisputesButNotOtherManagerRoutes() throws Exception {
+        mockMvc.perform(get("/api/manager/disputes")
+                        .with(user(verifiedUser(UserRole.ADMIN, UserStatus.ACTIVE))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/manager/drivers/pending-approval")
+                        .with(user(verifiedUser(UserRole.ADMIN, UserStatus.ACTIVE))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error_code").value("FORBIDDEN"));
+    }
+
     private User verifiedUser(UserRole role, UserStatus status) {
         return User.builder()
                 .email(role.name().toLowerCase() + "@movehome.vn")
@@ -142,6 +154,16 @@ class SecurityConfigTest {
 
         @GetMapping("/api/admin/test")
         public Map<String, String> adminEndpoint() {
+            return Map.of("status", "ok");
+        }
+
+        @GetMapping("/api/manager/disputes")
+        public Map<String, String> managerDisputes() {
+            return Map.of("status", "ok");
+        }
+
+        @GetMapping("/api/manager/drivers/pending-approval")
+        public Map<String, String> managerDrivers() {
             return Map.of("status", "ok");
         }
     }

@@ -10,6 +10,9 @@ public final class NotificationType {
     public static final String DRIVER_REJECTED = "DRIVER_REJECTED";
     public static final String WITHDRAWAL_PROCESSED = "WITHDRAWAL_PROCESSED";
     public static final String WITHDRAWAL_REJECTED = "WITHDRAWAL_REJECTED";
+    public static final String DISPUTE_OPENED = "DISPUTE_OPENED";
+    public static final String DISPUTE_RESOLVED = "DISPUTE_RESOLVED";
+    public static final String DISPUTE_REJECTED = "DISPUTE_REJECTED";
 
     private NotificationType() {
     }
