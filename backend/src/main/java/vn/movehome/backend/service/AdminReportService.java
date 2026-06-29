@@ -16,6 +16,7 @@ import vn.movehome.backend.entity.UserRole;
 import vn.movehome.backend.entity.UserStatus;
 import vn.movehome.backend.order.OrderRatingRepository;
 import vn.movehome.backend.order.OrderRepository;
+import vn.movehome.backend.repository.LoginEventRepository;
 import vn.movehome.backend.repository.TransactionRepository;
 import vn.movehome.backend.repository.UserRepository;
 
@@ -50,6 +51,7 @@ public class AdminReportService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final OrderRatingRepository orderRatingRepository;
+    private final LoginEventRepository loginEventRepository;
 
     public FinancialReportResponse financialReport(
             LocalDate periodStart,
@@ -313,18 +315,19 @@ public class AdminReportService {
         long totalCustomers = userRepository.countByRoleAndDeletedAtIsNullAndCreatedAtBefore(
                 UserRole.CUSTOMER, toInstant(p.endInstant()));
 
-        BigDecimal dauAverage = orderRepository.calculateDauAverage(p.startInstant(), p.endInstant());
+        BigDecimal dauAverage = loginEventRepository.calculateCustomerDauAverage(p.startInstant(), p.endInstant());
         if (dauAverage == null) {
             dauAverage = BigDecimal.ZERO;
         } else {
             dauAverage = dauAverage.setScale(2, RoundingMode.HALF_UP);
         }
-        long mau = orderRepository.countMauBetween(p.startInstant(), p.endInstant());
+        OffsetDateTime mauStart = p.endInstant().minusDays(30);
+        long mau = loginEventRepository.countCustomerMauBetween(mauStart, p.endInstant());
         CustomersReportResponse.ActiveUsers activeUsers =
                 new CustomersReportResponse.ActiveUsers(dauAverage, mau);
 
         OffsetDateTime cohortStart = p.startInstant().minusDays(30);
-        BigDecimal retentionRate = orderRepository.calculateRetentionRate30d(
+        BigDecimal retentionRate = loginEventRepository.calculateCustomerRetentionRate30d(
                 cohortStart, p.startInstant(), p.endInstant());
         if (retentionRate != null) {
             retentionRate = retentionRate.setScale(4, RoundingMode.HALF_UP);
@@ -357,7 +360,7 @@ public class AdminReportService {
             long prevNew = userRepository.countNewCustomersBetween(
                     prevStartOdt.toInstant(), prevEndOdt.toInstant());
             OffsetDateTime prevCohortStart = prevStartOdt.minusDays(30);
-            BigDecimal prevRetention = orderRepository.calculateRetentionRate30d(
+            BigDecimal prevRetention = loginEventRepository.calculateCustomerRetentionRate30d(
                     prevCohortStart, prevStartOdt, prevEndOdt);
 
             compare = new CustomersReportResponse.Compare(
@@ -367,9 +370,7 @@ public class AdminReportService {
                             retentionRate != null ? retentionRate : BigDecimal.ZERO));
         }
 
-        List<FinancialReportResponse.DataQualityWarning> dataQuality = List.of(
-                new FinancialReportResponse.DataQualityWarning("active_users", "PROXY_ORDER_BASED_ACTIVE"),
-                new FinancialReportResponse.DataQualityWarning("retention_rate_30d", "PROXY_ORDER_BASED_RETENTION"));
+        List<FinancialReportResponse.DataQualityWarning> dataQuality = List.of();
 
         return new CustomersReportResponse(
                 new FinancialReportResponse.Period(p.startDate(), p.endDate()),
