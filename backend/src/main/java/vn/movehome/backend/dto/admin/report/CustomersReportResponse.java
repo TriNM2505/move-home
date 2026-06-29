@@ -1,5 +1,6 @@
 package vn.movehome.backend.dto.admin.report;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
@@ -10,7 +11,9 @@ public record CustomersReportResponse(
         @JsonProperty("period") FinancialReportResponse.Period period,
         @JsonProperty("total_customers_at_period_end") long totalCustomersAtPeriodEnd,
         @JsonProperty("active_users") ActiveUsers activeUsers,
-        @JsonProperty("retention_rate_30d") BigDecimal retentionRate30d,
+        @JsonProperty("retention_rate_30d")
+        @JsonInclude(JsonInclude.Include.ALWAYS)
+        BigDecimal retentionRate30d,
         @JsonProperty("top_spenders") List<TopSpenderItem> topSpenders,
         @JsonProperty("average_spend_per_paying_customer") BigDecimal averageSpendPerPayingCustomer,
         @JsonProperty("new_customers_in_period") long newCustomersInPeriod,
