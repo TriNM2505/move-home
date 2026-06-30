@@ -7,11 +7,15 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.movehome.backend.dto.admin.ActivateUserRequest;
+import vn.movehome.backend.dto.admin.SuspendUserRequest;
 import vn.movehome.backend.dto.admin.UpdateUserStatusRequest;
 import vn.movehome.backend.dto.admin.UserAccountStatusResponse;
+import vn.movehome.backend.dto.admin.UserSuspensionActionResponse;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.service.AdminUserAccountService;
 
@@ -37,5 +41,23 @@ public class AdminUserAccountController {
             @AuthenticationPrincipal User actor
     ) {
         return adminUserAccountService.updateStatus(userId, request.status(), actor);
+    }
+
+    @PostMapping("/{userId}/suspend")
+    public UserSuspensionActionResponse suspend(
+            @PathVariable UUID userId,
+            @RequestBody SuspendUserRequest request,
+            @AuthenticationPrincipal User actor
+    ) {
+        return adminUserAccountService.suspend(userId, request, actor);
+    }
+
+    @PostMapping("/{userId}/activate")
+    public UserSuspensionActionResponse activate(
+            @PathVariable UUID userId,
+            @RequestBody(required = false) ActivateUserRequest request,
+            @AuthenticationPrincipal User actor
+    ) {
+        return adminUserAccountService.activate(userId, request, actor);
     }
 }
