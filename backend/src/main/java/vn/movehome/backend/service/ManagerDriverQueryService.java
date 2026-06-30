@@ -1,6 +1,11 @@
 package vn.movehome.backend.service;
 
-import lombok.RequiredArgsConstructor;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import lombok.RequiredArgsConstructor;
 import vn.movehome.backend.dto.manager.DriverDetailResponse;
 import vn.movehome.backend.dto.manager.DriverDocumentItem;
 import vn.movehome.backend.dto.manager.PendingDriverItem;
@@ -21,12 +28,6 @@ import vn.movehome.backend.repository.DriverDocumentRepository;
 import vn.movehome.backend.repository.DriverProfileRepository;
 import vn.movehome.backend.repository.UserRepository;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -35,6 +36,7 @@ public class ManagerDriverQueryService {
     private final UserRepository userRepository;
     private final DriverProfileRepository driverProfileRepository;
     private final DriverDocumentRepository driverDocumentRepository;
+    private final DriverDocumentService driverDocumentService;
 
     public Page<PendingDriverItem> findPendingApproval(int page, int size) {
         Pageable pageable = PageRequest.of(
@@ -96,9 +98,21 @@ public class ManagerDriverQueryService {
                 .map(doc -> new DriverDocumentItem(
                         doc.getId(),
                         doc.getDocType(),
-                        doc.getUrl(),
+                        resolveUrl(doc),
                         doc.getUploadedAt()))
                 .toList();
+    }
+
+    /**
+     * Rule fallback Leader chot:
+     * - publicId co (data moi) -> tra signed URL
+     * - publicId null (data cu) -> tra URL tho
+     */
+    private String resolveUrl(DriverDocument doc) {
+        if (doc.getPublicId() != null && !doc.getPublicId().isBlank()) {
+            return driverDocumentService.signUrl(doc.getPublicId());
+        }
+        return doc.getUrl();
     }
 
     private User loadDriver(UUID driverId) {
