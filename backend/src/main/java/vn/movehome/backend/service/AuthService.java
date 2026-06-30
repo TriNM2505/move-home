@@ -152,6 +152,11 @@ public class AuthService {
                 "ACCOUNT_LOCKED|Tai khoan da bi khoa. Vui long lien he quan tri vien.");
         }
 
+        if (user.getStatus() == UserStatus.SUSPENDED) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "ACCOUNT_SUSPENDED|Tai khoan da bi dinh chi. Vui long lien he quan tri vien.");
+        }
+
         // Kiem tra khoa tam thoi do dang nhap sai truoc khi verify password (FR-021, FR-032)
         if (!user.isAccountNonLocked()) {
             long minutesLeft = ChronoUnit.MINUTES.between(Instant.now(), user.getLockedUntil()) + 1;
@@ -218,6 +223,11 @@ public class AuthService {
         if (user.getStatus() == UserStatus.LOCKED) {
             throw new ResponseStatusException(HttpStatus.LOCKED,
                     "ACCOUNT_LOCKED|Tai khoan da bi khoa. Vui long lien he quan tri vien.");
+        }
+
+        if (user.getStatus() == UserStatus.SUSPENDED) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "ACCOUNT_SUSPENDED|Tai khoan da bi dinh chi. Vui long lien he quan tri vien.");
         }
 
         // Tao token moi

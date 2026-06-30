@@ -134,6 +134,25 @@ class AuthServiceTest {
         verify(loginEventRecorder, never()).recordSuccessfulLogin(any());
     }
 
+    @Test
+    void suspendedUserCannotLoginAndDoesNotReceiveTokens() {
+        String email = "suspended-customer@movehome.vn";
+        User user = verifiedUser(email, UserRole.CUSTOMER, UserStatus.SUSPENDED);
+        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> authService.login(new LoginRequest(email, PASSWORD)))
+                .isInstanceOfSatisfying(ResponseStatusException.class, ex -> {
+                    assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                    assertThat(ex.getReason()).isEqualTo(
+                            "ACCOUNT_SUSPENDED|Tai khoan da bi dinh chi. Vui long lien he quan tri vien.");
+                });
+
+        assertThat(user.isAccountNonLocked()).isFalse();
+        verify(passwordEncoder, never()).matches(any(), any());
+        verify(jwtTokenProvider, never()).generateAccessToken(any());
+        verify(refreshTokenRepository, never()).save(any());
+    }
+
     private void stubSuccessfulLogin(User user) {
         when(userRepository.findByEmailAndDeletedAtIsNull(user.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(PASSWORD, PASSWORD_HASH)).thenReturn(true);

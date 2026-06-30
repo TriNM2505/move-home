@@ -100,6 +100,22 @@ public class User implements UserDetails {
     @Column(name = "locked_until")
     private Instant lockedUntil;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "suspension_previous_status", length = 30)
+    private UserStatus suspensionPreviousStatus;
+
+    @Column(name = "suspended_at")
+    private Instant suspendedAt;
+
+    @Column(name = "suspended_by")
+    private UUID suspendedBy;
+
+    @Column(name = "suspension_reason", columnDefinition = "TEXT")
+    private String suspensionReason;
+
+    @Column(name = "suspension_until")
+    private Instant suspensionUntil;
+
     // Tu dong set khi tao — luu UTC (AC-07)
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -150,6 +166,7 @@ public class User implements UserDetails {
     @Override
     public boolean isAccountNonLocked() {
         return status != UserStatus.LOCKED
+                && status != UserStatus.SUSPENDED
                 && (lockedUntil == null || lockedUntil.isBefore(Instant.now()));
     }
 
