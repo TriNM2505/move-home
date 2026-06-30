@@ -3,8 +3,10 @@ package vn.movehome.backend.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import vn.movehome.backend.entity.RefreshToken;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,9 +31,13 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
      * Goi khi phat hien ke tan cong dang reuse token da bi revoke cua na nhan.
      * @Modifying can phai kem @Transactional tren caller.
      */
+    default void revokeAllByUserId(UUID userId) {
+        revokeAllByUserIdAt(userId, Instant.now());
+    }
+
     @Modifying
-    @Query("UPDATE RefreshToken r SET r.revokedAt = CURRENT_TIMESTAMP WHERE r.userId = :userId AND r.revokedAt IS NULL")
-    void revokeAllByUserId(UUID userId);
+    @Query("UPDATE RefreshToken r SET r.revokedAt = :revokedAt WHERE r.userId = :userId AND r.revokedAt IS NULL")
+    void revokeAllByUserIdAt(@Param("userId") UUID userId, @Param("revokedAt") Instant revokedAt);
 
     /**
      * Lay danh sach refresh token con hieu luc cua mot user.
