@@ -16,10 +16,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DriverLocationService {
 
-    private static final String IN_PROGRESS = "IN_PROGRESS";
+    private static final Set<String> ACTIVE_ORDER_STATUSES = Set.of(
+            "CONFIRMED",
+            "ASSIGNED",
+            "IN_PROGRESS");
     private static final Set<String> CUSTOMER_TRACKABLE_STATUSES = Set.of(
-            IN_PROGRESS,
-            "AWAITING_FINAL_PAYMENT");
+            "CONFIRMED",
+            "ASSIGNED",
+            "IN_PROGRESS");
     private static final long STALE_AFTER_SECONDS = 30;
 
     private final DriverLocationRepository driverLocationRepository;
@@ -28,7 +32,8 @@ public class DriverLocationService {
     @Transactional
     public void updateLocation(UUID driverId, UpdateDriverLocationRequest request) {
         UUID currentOrderId = orderRepository
-                .findFirstByDriverIdAndStatusAndDeletedAtIsNullOrderByUpdatedAtDesc(driverId, IN_PROGRESS)
+                .findFirstByDriverIdAndStatusInAndDeletedAtIsNullOrderByUpdatedAtDesc(
+                        driverId, ACTIVE_ORDER_STATUSES)
                 .map(ServiceOrder::getId)
                 .orElse(null);
 

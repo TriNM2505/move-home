@@ -56,12 +56,23 @@ public class AdminDetailService {
     private static final int RECENT_TRANSACTIONS_LIMIT = 20;
     private static final int ONLINE_THRESHOLD_MINUTES = 5;
     private static final int AUDIT_DATE_RANGE_MAX_DAYS = 366;
-    private static final Set<String> BUSY_ORDER_STATUSES = Set.of("ACCEPTED", "IN_PROGRESS");
+    private static final Set<String> BUSY_ORDER_STATUSES = Set.of(
+            "ACCEPTED", "CONFIRMED", "ASSIGNED", "IN_PROGRESS");
     private static final List<String> DRIVER_ALLOWED_ACTIONS = List.of("VIEW_AUDIT", "VIEW_ORDER_HISTORY");
     private static final List<String> CUSTOMER_ALLOWED_ACTIONS = List.of("VIEW_AUDIT", "VIEW_ORDER_HISTORY");
     private static final Set<String> AUDIT_ENTITY_TYPES = Set.of("orders", "drivers", "customers");
     private static final Set<String> ORDER_HISTORY_STATUSES = Set.of(
-            "ALL", "PENDING", "ACCEPTED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "DISPUTED"
+            "ALL",
+            "PENDING",
+            "PENDING_PAYMENT",
+            "CONFIRMED",
+            "ASSIGNED",
+            "ACCEPTED",
+            "IN_PROGRESS",
+            "COMPLETED",
+            "CANCELLED",
+            "DISPUTED",
+            "IN_DISPUTE"
     );
     private static final Set<Integer> ALLOWED_PAGE_SIZES = Set.of(10, 20, 50, 100);
     private static final ZoneId VN_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
@@ -322,7 +333,7 @@ public class AdminDetailService {
     private DriverDetailResponse.StatsSection buildDriverStats(UUID driverId) {
         long completed = orderRepository.countByDriverIdAndStatusAndDeletedAtIsNull(driverId, "COMPLETED");
         long cancelled = orderRepository.countByDriverIdAndStatusAndDeletedAtIsNull(driverId, "CANCELLED");
-        long disputed = orderRepository.countByDriverIdAndStatusAndDeletedAtIsNull(driverId, "DISPUTED");
+        long disputed = countDriverDisputeOrders(driverId);
         BigDecimal avgRating = orderRatingRepository.averageRatingByDriver(driverId)
                 .orElse(BigDecimal.ZERO);
         long totalRatings = orderRatingRepository.countRatingsByDriverGroupByStar(driverId).stream()
@@ -368,7 +379,7 @@ public class AdminDetailService {
         long total = orderRepository.countByCustomerIdAndDeletedAtIsNull(customerId);
         long completed = orderRepository.countByCustomerIdAndStatusAndDeletedAtIsNull(customerId, "COMPLETED");
         long cancelled = orderRepository.countByCustomerIdAndStatusAndDeletedAtIsNull(customerId, "CANCELLED");
-        long disputed = orderRepository.countByCustomerIdAndStatusAndDeletedAtIsNull(customerId, "DISPUTED");
+        long disputed = countCustomerDisputeOrders(customerId);
         BigDecimal totalSpent = orderRepository.sumCompletedTotalQuoteByCustomer(customerId);
         OffsetDateTime firstOrderAt = orderRepository.findFirstOrderAtByCustomer(customerId).orElse(null);
         OffsetDateTime lastOrderAt = orderRepository.findLastOrderAtByCustomer(customerId).orElse(null);
@@ -490,11 +501,21 @@ public class AdminDetailService {
     }
 
     private String validateOrderHistoryStatus(String status) {
-        String normalizedStatus = status == null ? "ALL" : status;
+        String normalizedStatus = status == null ? "ALL" : status.trim().toUpperCase();
         if (!ORDER_HISTORY_STATUSES.contains(normalizedStatus)) {
             throw invalidStatusFilter();
         }
         return "ALL".equals(normalizedStatus) ? null : normalizedStatus;
+    }
+
+    private long countDriverDisputeOrders(UUID driverId) {
+        return orderRepository.countByDriverIdAndStatusAndDeletedAtIsNull(driverId, "DISPUTED")
+                + orderRepository.countByDriverIdAndStatusAndDeletedAtIsNull(driverId, "IN_DISPUTE");
+    }
+
+    private long countCustomerDisputeOrders(UUID customerId) {
+        return orderRepository.countByCustomerIdAndStatusAndDeletedAtIsNull(customerId, "DISPUTED")
+                + orderRepository.countByCustomerIdAndStatusAndDeletedAtIsNull(customerId, "IN_DISPUTE");
     }
 
     private void validatePageSize(int page, int size) {

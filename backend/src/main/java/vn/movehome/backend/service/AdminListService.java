@@ -40,11 +40,18 @@ public class AdminListService {
     private static final int MAX_DATE_RANGE_DAYS = 366;
     private static final Set<Integer> ALLOWED_SIZES = Set.of(10, 20, 50, 100);
 
-    // TODO Sprint 6: neu migrate sang naming SPEC 011 (PENDING_PAYMENT, CONFIRMED,
-    // ASSIGNED, AWAITING_FINAL_PAYMENT, IN_DISPUTE), doi allowlist tuong ung hoac
-    // them logic translate.
     private static final Set<String> ORDER_STATUS_ALLOWED = Set.of(
-            "ALL", "PENDING", "ACCEPTED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "DISPUTED");
+            "ALL",
+            "PENDING",
+            "PENDING_PAYMENT",
+            "CONFIRMED",
+            "ASSIGNED",
+            "ACCEPTED",
+            "IN_PROGRESS",
+            "COMPLETED",
+            "CANCELLED",
+            "DISPUTED",
+            "IN_DISPUTE");
     private static final Set<String> DRIVER_STATUS_ALLOWED = Set.of(
             "ALL", "ACTIVE", "PENDING_VERIFY", "PENDING_DOCUMENTS", "PENDING_DEPOSIT",
             "PENDING_APPROVAL", "REJECTED", "SUSPENDED", "LOCKED");
@@ -222,13 +229,14 @@ public class AdminListService {
     }
 
     private String validateOrderStatus(String status) {
-        if (status == null || "ALL".equals(status)) {
+        String normalizedStatus = status == null ? "ALL" : status.trim().toUpperCase();
+        if ("ALL".equals(normalizedStatus)) {
             return null;
         }
-        if (!ORDER_STATUS_ALLOWED.contains(status)) {
+        if (!ORDER_STATUS_ALLOWED.contains(normalizedStatus)) {
             throw invalidStatusFilter();
         }
-        return status;
+        return normalizedStatus;
     }
 
     private String validateDriverStatus(String status) {

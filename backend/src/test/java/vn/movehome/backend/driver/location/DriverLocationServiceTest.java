@@ -17,6 +17,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,8 +46,8 @@ class DriverLocationServiceTest {
         UpdateDriverLocationRequest request = request();
         ServiceOrder order = ServiceOrder.builder().id(orderId).build();
 
-        when(orderRepository.findFirstByDriverIdAndStatusAndDeletedAtIsNullOrderByUpdatedAtDesc(
-                driverId, "IN_PROGRESS"))
+        when(orderRepository.findFirstByDriverIdAndStatusInAndDeletedAtIsNullOrderByUpdatedAtDesc(
+                eq(driverId), anyCollection()))
                 .thenReturn(Optional.of(order));
         when(driverLocationRepository.upsertLatest(
                 driverId,
@@ -72,8 +74,8 @@ class DriverLocationServiceTest {
         UUID driverId = UUID.randomUUID();
         UpdateDriverLocationRequest request = request();
 
-        when(orderRepository.findFirstByDriverIdAndStatusAndDeletedAtIsNullOrderByUpdatedAtDesc(
-                driverId, "IN_PROGRESS"))
+        when(orderRepository.findFirstByDriverIdAndStatusInAndDeletedAtIsNullOrderByUpdatedAtDesc(
+                eq(driverId), anyCollection()))
                 .thenReturn(Optional.empty());
         when(driverLocationRepository.upsertLatest(
                 driverId,
@@ -100,8 +102,8 @@ class DriverLocationServiceTest {
         UUID driverId = UUID.randomUUID();
         UpdateDriverLocationRequest request = request();
 
-        when(orderRepository.findFirstByDriverIdAndStatusAndDeletedAtIsNullOrderByUpdatedAtDesc(
-                driverId, "IN_PROGRESS"))
+        when(orderRepository.findFirstByDriverIdAndStatusInAndDeletedAtIsNullOrderByUpdatedAtDesc(
+                eq(driverId), anyCollection()))
                 .thenReturn(Optional.empty());
         when(driverLocationRepository.upsertLatest(
                 driverId,

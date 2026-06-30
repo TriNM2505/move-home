@@ -30,6 +30,18 @@ public class OrderNotificationListener {
 
         String orderCode = event.orderCode();
         switch (event.newStatus()) {
+            case "CONFIRMED" -> notifyOne(
+                    event.customerId(),
+                    NotificationType.ORDER_CONFIRMED,
+                    "Đơn đã xác nhận",
+                    "Đơn " + orderCode + " đã được xác nhận thanh toán."
+            );
+            case "ASSIGNED" -> notifyOne(
+                    event.customerId(),
+                    NotificationType.ORDER_ASSIGNED,
+                    "Đơn đã được phân công",
+                    "Đơn " + orderCode + " đã được phân công tài xế."
+            );
             case "ACCEPTED" -> notifyOne(
                     event.customerId(),
                     NotificationType.ORDER_ACCEPTED,
@@ -49,8 +61,27 @@ public class OrderNotificationListener {
                     "Đơn " + orderCode + " đã hoàn thành."
             );
             case "CANCELLED" -> notifyCancelled(event);
+            case "DISPUTED", "IN_DISPUTE" -> notifyInDispute(event);
             default -> {
             }
+        }
+    }
+
+    private void notifyInDispute(OrderStatusChangedEvent event) {
+        String orderCode = event.orderCode();
+        String title = "Đơn đang tranh chấp";
+        String message = "Đơn " + orderCode + " đã được chuyển sang trạng thái tranh chấp.";
+
+        LinkedHashSet<UUID> candidateUserIds = new LinkedHashSet<>();
+        if (event.customerId() != null) {
+            candidateUserIds.add(event.customerId());
+        }
+        if (event.driverId() != null) {
+            candidateUserIds.add(event.driverId());
+        }
+
+        for (UUID userId : candidateUserIds) {
+            notifyOne(userId, NotificationType.ORDER_IN_DISPUTE, title, message);
         }
     }
 
