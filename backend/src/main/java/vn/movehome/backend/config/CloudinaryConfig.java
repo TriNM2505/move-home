@@ -17,21 +17,23 @@ import com.cloudinary.utils.ObjectUtils;
  * Cau hinh Cloudinary tu 3 bien moi truong rieng: cloud_name, api_key,
  * api_secret.
  * HR-01: khong hardcode credential trong source code.
- * Neu 1 trong 3 bien thieu -> log warn + tra ve Cloudinary empty (upload se
- * fail som).
+ * Doc qua namespace app.cloudinary.* (resolve tu env CLOUDINARY_* qua
+ * application.properties).
+ * Neu 1 trong 3 thieu -> log warn + tra ve Cloudinary empty (upload se fail
+ * som).
  */
 @Configuration
 public class CloudinaryConfig {
 
     private static final Logger log = LoggerFactory.getLogger(CloudinaryConfig.class);
 
-    @Value("${CLOUDINARY_CLOUD_NAME:}")
+    @Value("${app.cloudinary.cloud-name:}")
     private String cloudName;
 
-    @Value("${CLOUDINARY_API_KEY:}")
+    @Value("${app.cloudinary.api-key:}")
     private String apiKey;
 
-    @Value("${CLOUDINARY_API_SECRET:}")
+    @Value("${app.cloudinary.api-secret:}")
     private String apiSecret;
 
     @Bean
