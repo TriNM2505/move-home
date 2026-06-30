@@ -42,6 +42,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final LoginEventRecorder loginEventRecorder;
 
     // ===== DANG KY CUSTOMER =====
 
@@ -179,7 +180,9 @@ public class AuthService {
         userRepository.save(user);
 
         log.info("Dang nhap thanh cong: userId={}, email={}", user.getId(), email);
-        return buildAuthResponse(user, email);
+        AuthResponse response = buildAuthResponse(user, email);
+        recordLoginEvent(user.getId());
+        return response;
     }
 
     // ===== LAM MOI TOKEN =====
@@ -328,6 +331,14 @@ public class AuthService {
             ACCESS_TOKEN_EXPIRY_SECONDS,
             toUserInfo(user)
         );
+    }
+
+    private void recordLoginEvent(UUID userId) {
+        try {
+            loginEventRecorder.recordSuccessfulLogin(userId);
+        } catch (RuntimeException ex) {
+            log.warn("Khong the day su kien dang nhap vao hang doi: userId={}", userId, ex);
+        }
     }
 
     /** Tao UserInfo DTO tu User entity (KHONG include du lieu noi bo). */

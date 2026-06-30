@@ -55,6 +55,9 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private LoginEventRecorder loginEventRecorder;
+
     private AuthService authService;
 
     @BeforeEach
@@ -64,7 +67,8 @@ class AuthServiceTest {
                 emailTokenRepository,
                 refreshTokenRepository,
                 jwtTokenProvider,
-                passwordEncoder);
+                passwordEncoder,
+                loginEventRecorder);
     }
 
     @ParameterizedTest
@@ -83,6 +87,7 @@ class AuthServiceTest {
         assertThat(response.refreshToken()).isEqualTo("refresh-token");
         assertThat(response.user().status()).isEqualTo(status);
         verify(userRepository).save(user);
+        verify(loginEventRecorder).recordSuccessfulLogin(user.getId());
     }
 
     @Test
@@ -107,6 +112,7 @@ class AuthServiceTest {
                 });
 
         verify(jwtTokenProvider, never()).generateAccessToken(any());
+        verify(loginEventRecorder, never()).recordSuccessfulLogin(any());
     }
 
     @Test
@@ -125,6 +131,7 @@ class AuthServiceTest {
         verify(passwordEncoder, never()).matches(any(), any());
         verify(jwtTokenProvider, never()).generateAccessToken(any());
         verify(refreshTokenRepository, never()).save(any());
+        verify(loginEventRecorder, never()).recordSuccessfulLogin(any());
     }
 
     @Test
