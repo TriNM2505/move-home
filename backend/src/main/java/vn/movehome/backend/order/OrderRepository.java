@@ -2,6 +2,7 @@ package vn.movehome.backend.order;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -115,6 +116,10 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
         Optional<ServiceOrder> findFirstByDriverIdAndStatusAndDeletedAtIsNullOrderByUpdatedAtDesc(
                         UUID driverId,
                         String status);
+
+        Optional<ServiceOrder> findFirstByDriverIdAndStatusInAndDeletedAtIsNullOrderByUpdatedAtDesc(
+                        UUID driverId,
+                        Collection<String> statuses);
 
         Optional<ServiceOrder> findByIdAndDeletedAtIsNull(UUID id);
 

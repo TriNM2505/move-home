@@ -63,9 +63,9 @@ public class AdminDashboardService {
         long ordersThisMonth     = orderRepository.countByCreatedAtGreaterThanEqual(monthStart);
         BigDecimal revenueMonth  = coalesce(orderRepository.sumTotalQuoteSince(monthStart));
         BigDecimal commMonth     = coalesce(orderRepository.sumRevenueSince(monthStart));
-        long pendingOrders       = orderRepository.countByStatus(OrderStatus.PENDING);
+        long pendingOrders       = countStatuses(OrderStatus.PENDING, OrderStatus.PENDING_PAYMENT);
         long completedOrders     = orderRepository.countByStatus(OrderStatus.COMPLETED);
-        long inDisputeOrders     = orderRepository.countByStatus(OrderStatus.DISPUTED);
+        long inDisputeOrders     = countStatuses(OrderStatus.DISPUTED, OrderStatus.IN_DISPUTE);
 
         log.debug("[Dashboard] KPI: customers={}, activeDrivers={}, pendingApprovals={}, ordersToday={}, revenueMonth={}",
                 totalCustomers, activeDrivers, pendingApprovals, ordersToday, revenueMonth);
@@ -169,7 +169,7 @@ public class AdminDashboardService {
     // ===== STATUS DISTRIBUTION =====
 
     /**
-     * Phan bo don hang theo tung trang thai (tat ca 6 status).
+     * Phan bo don hang theo tung trang thai runtime (10 status, tru AWAITING_FINAL_PAYMENT).
      * Moi status deu xuat hien du count = 0.
      */
     public OrderStatusDistribution getStatusDistribution() {
@@ -353,5 +353,13 @@ public class AdminDashboardService {
         if (val == null) return false;
         if (val instanceof Boolean b) return b;
         return Boolean.parseBoolean(val.toString());
+    }
+
+    private long countStatuses(OrderStatus... statuses) {
+        long count = 0L;
+        for (OrderStatus status : statuses) {
+            count += orderRepository.countByStatus(status);
+        }
+        return count;
     }
 }

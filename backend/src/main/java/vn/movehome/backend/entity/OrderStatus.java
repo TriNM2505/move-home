@@ -5,9 +5,8 @@ package vn.movehome.backend.entity;
  * Spec #028 Admin Dashboard tham chieu cac gia tri nay trong KPI queries.
  * Constitution HR-05: transition khong nam trong bang hop le → HTTP 409.
  *
- * Luu y: CONTEXT.md v2.0 §2 dinh nghia 8 trang thai chi tiet hon (PENDING_PAYMENT,
- * CONFIRMED, ASSIGNED, AWAITING_FINAL_PAYMENT...). Bang nay la phien ban don gian hoa
- * cho demo Thu Ba. Phase sau se mo rong theo state machine day du cua CONTEXT.md.
+ * Luu y: V21 cho phep 11 status, nhung AWAITING_FINAL_PAYMENT dang vuot
+ * do dai cot service_order.status VARCHAR(20) nen chua dua vao runtime enum.
  */
 public enum OrderStatus {
 
@@ -16,6 +15,21 @@ public enum OrderStatus {
      * Truong thai dau tien sau khi Customer dat don.
      */
     PENDING,
+
+    /**
+     * Don da tao va dang cho thanh toan coc qua VNPay.
+     */
+    PENDING_PAYMENT,
+
+    /**
+     * Don da thanh toan coc thanh cong, cho phan cong tai xe.
+     */
+    CONFIRMED,
+
+    /**
+     * Don da duoc phan cong tai xe.
+     */
+    ASSIGNED,
 
     /**
      * Driver da nhan va chap nhan don; dang tren duong den diem don hoac chuan bi.
@@ -46,5 +60,10 @@ public enum OrderStatus {
      * Spec day du / Spec #028 tham chieu: 'IN_DISPUTE'.
      * Chi Manager/Admin moi co quyen chuyen tu DISPUTED → COMPLETED (Constitution HR-07).
      */
-    DISPUTED
+    DISPUTED,
+
+    /**
+     * Ten canonical moi cho trang thai tranh chap; DISPUTED la alias legacy.
+     */
+    IN_DISPUTE
 }

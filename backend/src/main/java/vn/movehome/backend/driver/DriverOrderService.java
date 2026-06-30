@@ -14,6 +14,7 @@ import vn.movehome.backend.order.ServiceOrder;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -23,8 +24,10 @@ public class DriverOrderService {
 
     private static final String PENDING = "PENDING";
     private static final String ACCEPTED = "ACCEPTED";
+    private static final String ASSIGNED = "ASSIGNED";
     private static final String IN_PROGRESS = "IN_PROGRESS";
     private static final String COMPLETED = "COMPLETED";
+    private static final Set<String> STARTABLE_STATUSES = Set.of(ACCEPTED, ASSIGNED);
 
     private final OrderRepository orderRepository;
     private final OrderStatusTransitionService orderStatusTransitionService;
@@ -50,14 +53,15 @@ public class DriverOrderService {
         ServiceOrder order = findForUpdate(orderId);
         requireOwnership(order, driverId);
 
-        if (!ACCEPTED.equals(order.getStatus())) {
+        String currentStatus = order.getStatus();
+        if (!STARTABLE_STATUSES.contains(currentStatus)) {
             throw new IllegalStateException("Chỉ có thể bắt đầu đơn đã được chấp nhận");
         }
 
         OffsetDateTime changedAt = OffsetDateTime.now(ZoneOffset.UTC);
         orderStatusTransitionService.transition(order, IN_PROGRESS, driverId, changedByRole, changedAt);
 
-        logStateChange(driverId, orderId, ACCEPTED, IN_PROGRESS, changedAt);
+        logStateChange(driverId, orderId, currentStatus, IN_PROGRESS, changedAt);
     }
 
     @Transactional

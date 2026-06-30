@@ -141,8 +141,7 @@ public class AdminReportService {
                 p.startInstant(), p.endInstant(), "COMPLETED");
         long cancelled = orderRepository.countCreatedOrdersByStatusBetween(
                 p.startInstant(), p.endInstant(), "CANCELLED");
-        long inDispute = orderRepository.countCreatedOrdersByStatusBetween(
-                p.startInstant(), p.endInstant(), "DISPUTED");
+        long inDispute = countCreatedDisputeOrdersBetween(p.startInstant(), p.endInstant());
         long terminalEligible = completed + cancelled + inDispute;
 
         BigDecimal completionRate = (terminalEligible > 0)
@@ -193,8 +192,7 @@ public class AdminReportService {
                     prevStartOdt, prevEndOdt, "COMPLETED");
             long prevCancelled = orderRepository.countCreatedOrdersByStatusBetween(
                     prevStartOdt, prevEndOdt, "CANCELLED");
-            long prevDispute = orderRepository.countCreatedOrdersByStatusBetween(
-                    prevStartOdt, prevEndOdt, "DISPUTED");
+            long prevDispute = countCreatedDisputeOrdersBetween(prevStartOdt, prevEndOdt);
             long prevTerminal = prevCompleted + prevCancelled + prevDispute;
             BigDecimal prevCompletionRate = (prevTerminal > 0)
                     ? BigDecimal.valueOf(prevCompleted)
@@ -467,6 +465,11 @@ public class AdminReportService {
         return current.subtract(previous)
                 .multiply(BigDecimal.valueOf(100))
                 .divide(previous, 2, RoundingMode.HALF_UP);
+    }
+
+    private long countCreatedDisputeOrdersBetween(OffsetDateTime from, OffsetDateTime to) {
+        return orderRepository.countCreatedOrdersByStatusBetween(from, to, "DISPUTED")
+                + orderRepository.countCreatedOrdersByStatusBetween(from, to, "IN_DISPUTE");
     }
 
     private ResponseStatusException invalidDateRange() {

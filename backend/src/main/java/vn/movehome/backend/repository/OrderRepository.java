@@ -237,7 +237,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     /**
      * Don hang cho Admin, loc theo status cu the (Phase 3C).
-     * @param status gia tri enum name: PENDING / ACCEPTED / IN_PROGRESS / COMPLETED / CANCELLED / DISPUTED
+     * @param status gia tri enum name trong OrderStatus runtime.
      */
     @Query(
         value = """

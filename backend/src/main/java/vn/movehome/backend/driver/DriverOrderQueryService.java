@@ -23,11 +23,15 @@ public class DriverOrderQueryService {
     private static final String AVAILABLE_STATUS = "PENDING";
     private static final Set<String> ALLOWED_STATUSES = Set.of(
             "PENDING",
+            "PENDING_PAYMENT",
+            "CONFIRMED",
+            "ASSIGNED",
             "ACCEPTED",
             "IN_PROGRESS",
             "COMPLETED",
             "CANCELLED",
-            "DISPUTED"
+            "DISPUTED",
+            "IN_DISPUTE"
     );
 
     private final OrderRepository orderRepository;
