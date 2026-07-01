@@ -73,6 +73,9 @@ public class ServiceOrder {
     @Column(name = "estimated_duration_minutes")
     private Integer estimatedDurationMinutes;
 
+    @Column(name = "started_at")
+    private OffsetDateTime startedAt;
+
     @Column(name = "completed_at")
     private OffsetDateTime completedAt;
 

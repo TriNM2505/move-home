@@ -59,6 +59,7 @@ public class DriverOrderService {
         }
 
         OffsetDateTime changedAt = OffsetDateTime.now(ZoneOffset.UTC);
+        order.setStartedAt(changedAt);
         orderStatusTransitionService.transition(order, IN_PROGRESS, driverId, changedByRole, changedAt);
 
         logStateChange(driverId, orderId, currentStatus, IN_PROGRESS, changedAt);
