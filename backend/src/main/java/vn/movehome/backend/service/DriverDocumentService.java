@@ -1,17 +1,5 @@
 package vn.movehome.backend.service;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
-import vn.movehome.backend.dto.driver.DriverDocumentResponse;
-import vn.movehome.backend.entity.DriverDocument;
-import vn.movehome.backend.repository.DriverDocumentRepository;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
@@ -22,6 +10,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+
+import lombok.RequiredArgsConstructor;
+import vn.movehome.backend.dto.driver.DriverDocumentResponse;
+import vn.movehome.backend.entity.DriverDocument;
+import vn.movehome.backend.repository.DriverDocumentRepository;
+
 @Service
 @RequiredArgsConstructor
 public class DriverDocumentService {
@@ -29,8 +31,7 @@ public class DriverDocumentService {
     static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of(
             "DRIVING_LICENSE",
             "VEHICLE_REGISTRATION",
-            "VEHICLE_PHOTO"
-    );
+            "VEHICLE_PHOTO");
     static final long MAX_FILE_SIZE = 1_572_864L;
 
     private final DriverDocumentRepository driverDocumentRepository;
@@ -39,12 +40,13 @@ public class DriverDocumentService {
     public DriverDocumentResponse upload(UUID driverId, String requestedDocType, MultipartFile file) {
         String docType = validateDocumentType(requestedDocType);
         byte[] content = validateAndReadImage(file);
-        String url = uploadToCloudinary(driverId, docType, content);
+        CloudinaryUploadResult uploadResult = uploadToCloudinary(driverId, docType, content);
 
         DriverDocument saved = driverDocumentRepository.save(DriverDocument.builder()
                 .driverId(driverId)
                 .docType(docType)
-                .url(url)
+                .url(uploadResult.secureUrl())
+                .publicId(uploadResult.publicId())
                 .uploadedAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .build());
 
@@ -102,22 +104,44 @@ public class DriverDocumentService {
                 "INVALID_FILE|" + message);
     }
 
-    private String uploadToCloudinary(UUID driverId, String docType, byte[] content) {
+    private CloudinaryUploadResult uploadToCloudinary(UUID driverId, String docType, byte[] content) {
         String folder = "movehome/drivers/%s/documents/%s".formatted(driverId, docType);
         try {
             Map<?, ?> uploadResult = cloudinary.uploader().upload(content, ObjectUtils.asMap(
                     "resource_type", "image",
-                    "folder", folder
-            ));
+                    "folder", folder,
+                    "type", "authenticated"));
             Object secureUrl = uploadResult.get("secure_url");
+            Object publicId = uploadResult.get("public_id");
             if (!(secureUrl instanceof String url) || !url.startsWith("https://")) {
                 throw new IOException("Cloudinary không trả về secure_url hợp lệ");
             }
-            return url;
+            if (!(publicId instanceof String pid) || pid.isBlank()) {
+                throw new IOException("Cloudinary không trả về public_id hợp lệ");
+            }
+            return new CloudinaryUploadResult(url, pid);
         } catch (IOException | RuntimeException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                     "CLOUDINARY_UNAVAILABLE|Không thể tải tài liệu lên Cloudinary. Vui lòng thử lại.", ex);
         }
+    }
+
+    /**
+     * Generate signed URL cho tai lieu nhay cam (GPLX, dang ky xe).
+     * Spec 008 yeu cau TTL 1h — Cloudinary free plan khong support TTL truc tiep o
+     * URL level
+     * (chi Advanced plan moi co AuthToken). Implement signed URL + security
+     * boundary
+     * qua JWT lifecycle (15 phut access token expire).
+     * Resource type "authenticated" -> bat buoc co chu ky de access.
+     */
+    String signUrl(String publicId) {
+        return cloudinary.url()
+                .resourceType("image")
+                .type("authenticated")
+                .secure(true)
+                .signed(true)
+                .generate(publicId);
     }
 
     private boolean isJpeg(byte[] bytes) {
@@ -128,7 +152,7 @@ public class DriverDocumentService {
     }
 
     private boolean isPng(byte[] bytes) {
-        int[] signature = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+        int[] signature = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
         if (bytes.length < signature.length) {
             return false;
         }
@@ -154,12 +178,27 @@ public class DriverDocumentService {
         return value & 0xFF;
     }
 
+    /**
+     * Build response DTO voi rule fallback:
+     * - publicId co (data moi) -> tra signed URL
+     * - publicId null (data cu truoc khi co Cloudinary that) -> tra URL tho (Leader
+     * chot)
+     */
     private DriverDocumentResponse toResponse(DriverDocument document) {
+        String responseUrl;
+        if (document.getPublicId() != null && !document.getPublicId().isBlank()) {
+            responseUrl = signUrl(document.getPublicId());
+        } else {
+            responseUrl = document.getUrl();
+        }
         return new DriverDocumentResponse(
                 document.getId(),
                 document.getDocType(),
-                document.getUrl(),
-                document.getUploadedAt()
-        );
+                responseUrl,
+                document.getUploadedAt());
+    }
+
+    /** Internal record gom secure_url + public_id tu Cloudinary upload response. */
+    private record CloudinaryUploadResult(String secureUrl, String publicId) {
     }
 }

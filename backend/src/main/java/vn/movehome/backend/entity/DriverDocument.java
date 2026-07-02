@@ -1,5 +1,8 @@
 package vn.movehome.backend.entity;
 
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,9 +14,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.OffsetDateTime;
-import java.util.UUID;
 
 /** Tài liệu onboarding của tài xế, ánh xạ đúng bảng được tạo bởi Flyway V14. */
 @Entity(name = "DriverDocument")
@@ -38,6 +38,9 @@ public class DriverDocument {
 
     @Column(name = "url", nullable = false, length = 500)
     private String url;
+
+    @Column(name = "public_id", length = 255)
+    private String publicId;
 
     @Column(name = "uploaded_at", nullable = false, updatable = false)
     private OffsetDateTime uploadedAt;
