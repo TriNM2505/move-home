@@ -87,7 +87,12 @@ class OrderStatusEventTransactionTest {
 
         driverOrderService.startOrder(driverId, "DRIVER", orderId);
 
+        assertThat(order.getStatus()).isEqualTo("IN_PROGRESS");
+        assertThat(order.getStartedAt()).isNotNull();
         assertEvent(orderId, customerId, driverId, "ACCEPTED", "IN_PROGRESS", driverId, "DRIVER");
+        assertThat(eventCollector.events())
+                .singleElement()
+                .satisfies(event -> assertThat(order.getStartedAt()).isEqualTo(event.changedAt()));
         verify(orderRepository).save(order);
     }
 
