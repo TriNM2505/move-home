@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import vn.movehome.backend.entity.User;
 import vn.movehome.backend.order.OrderRepository;
 import vn.movehome.backend.order.ServiceOrder;
+import vn.movehome.backend.repository.UserRepository;
 
 import java.util.Set;
 import java.util.UUID;
@@ -20,7 +22,8 @@ public class DriverOrderQueryService {
 
     private static final int DEFAULT_PAGE_SIZE = 10;
     private static final int MAX_PAGE_SIZE = 100;
-    private static final String AVAILABLE_STATUS = "PENDING";
+    // Don kha dung cho tai xe nhan = don da coc 30% (CONFIRMED), chua co tai xe.
+    private static final String AVAILABLE_STATUS = "CONFIRMED";
     private static final Set<String> ALLOWED_STATUSES = Set.of(
             "PENDING",
             "PENDING_PAYMENT",
@@ -28,6 +31,7 @@ public class DriverOrderQueryService {
             "ASSIGNED",
             "ACCEPTED",
             "IN_PROGRESS",
+            "AWAITING_FINAL_PAYMENT",
             "COMPLETED",
             "CANCELLED",
             "DISPUTED",
@@ -35,6 +39,7 @@ public class DriverOrderQueryService {
     );
 
     private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public Page<DriverOrderListItemDTO> getAvailableOrders(int page, int size) {
@@ -120,12 +125,21 @@ public class DriverOrderQueryService {
     }
 
     private DriverOrderDetailDTO toDetail(ServiceOrder order, UUID driverId) {
+        User customer = order.getCustomerId() == null
+                ? null
+                : userRepository.findById(order.getCustomerId()).orElse(null);
+        String customerName = customer != null ? customer.getFullName() : null;
+        String customerPhone = customer != null ? customer.getPhone() : null;
+
         return new DriverOrderDetailDTO(
                 order.getId(),
                 order.getOrderCode(),
                 order.getStatus(),
                 isAvailable(order),
                 isAssignedToDriver(order, driverId),
+                order.getFinalPaidAt() != null,
+                customerName,
+                customerPhone,
                 order.getVehicleType(),
                 order.getPorterCount(),
                 order.getPickupAddress(),

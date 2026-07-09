@@ -68,12 +68,12 @@ class OrderStatusEventTransactionTest {
         UUID orderId = UUID.randomUUID();
         UUID customerId = UUID.randomUUID();
         UUID driverId = UUID.randomUUID();
-        ServiceOrder order = order(orderId, customerId, null, "PENDING");
+        ServiceOrder order = order(orderId, customerId, null, "CONFIRMED");
         when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
 
         driverOrderService.acceptOrder(driverId, "DRIVER", orderId);
 
-        assertEvent(orderId, customerId, driverId, "PENDING", "ACCEPTED", driverId, "DRIVER");
+        assertEvent(orderId, customerId, driverId, "CONFIRMED", "ACCEPTED", driverId, "DRIVER");
         verify(orderRepository).save(order);
     }
 
@@ -101,7 +101,8 @@ class OrderStatusEventTransactionTest {
         UUID orderId = UUID.randomUUID();
         UUID customerId = UUID.randomUUID();
         UUID driverId = UUID.randomUUID();
-        ServiceOrder order = order(orderId, customerId, driverId, "IN_PROGRESS");
+        ServiceOrder order = order(orderId, customerId, driverId, "AWAITING_FINAL_PAYMENT");
+        order.setFinalPaidAt(java.time.OffsetDateTime.now());
         when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
         doAnswer(invocation -> {
             assertThat(eventCollector.events()).isEmpty();
@@ -111,7 +112,7 @@ class OrderStatusEventTransactionTest {
         driverOrderService.completeOrder(driverId, "DRIVER", orderId);
 
         assertThat(order.getCompletedAt()).isNotNull();
-        assertEvent(orderId, customerId, driverId, "IN_PROGRESS", "COMPLETED", driverId, "DRIVER");
+        assertEvent(orderId, customerId, driverId, "AWAITING_FINAL_PAYMENT", "COMPLETED", driverId, "DRIVER");
         verify(orderRepository).save(order);
         verify(driverEarningService).creditEarning(order);
     }
@@ -140,7 +141,8 @@ class OrderStatusEventTransactionTest {
         UUID orderId = UUID.randomUUID();
         UUID customerId = UUID.randomUUID();
         UUID driverId = UUID.randomUUID();
-        ServiceOrder order = order(orderId, customerId, driverId, "IN_PROGRESS");
+        ServiceOrder order = order(orderId, customerId, driverId, "AWAITING_FINAL_PAYMENT");
+        order.setFinalPaidAt(java.time.OffsetDateTime.now());
         when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
         doThrow(new IllegalStateException("credit failed"))
                 .when(driverEarningService).creditEarning(order);

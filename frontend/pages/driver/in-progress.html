@@ -304,6 +304,8 @@
             
             <div class="flex-col gap-md mt-lg" style="margin-top: var(--spacing-xl);">
               <button id="btn-start" class="btn-primary btn-full" style="display: none; justify-content: center;">Đã đến điểm đón</button>
+              <button id="btn-request-payment" class="btn-primary btn-full" style="display: none; justify-content: center;">Yêu cầu khách thanh toán 70%</button>
+              <p id="final-wait-hint" style="display:none; text-align:center; color: var(--color-mute); font-size: var(--font-size-body-sm); margin: 8px 0 0;">Đang chờ khách thanh toán nốt 70%. Nút Hoàn thành sẽ mở khi khách trả xong.</p>
               <button id="btn-complete" class="btn-primary-amber btn-full" style="display: none; justify-content: center;">Đã hoàn thành</button>
             </div>
           </section>
@@ -365,6 +367,7 @@
     
     // Actions on order
     document.getElementById('btn-start')?.addEventListener('click', () => handleOrderAction('start'));
+    document.getElementById('btn-request-payment')?.addEventListener('click', () => handleOrderAction('request-final-payment'));
     document.getElementById('btn-complete')?.addEventListener('click', () => handleOrderAction('complete'));
   }
 
@@ -380,14 +383,13 @@
       if (!orderId) {
         // Retrieve driver's active orders
         // Try IN_PROGRESS first
-        let response = await getAuthenticated('/api/driver/orders?status=IN_PROGRESS&page=0&size=1');
-        if (response && response.content && response.content.length > 0) {
-          orderId = response.content[0].id;
-        } else {
-          // Try ACCEPTED next
-          response = await getAuthenticated('/api/driver/orders?status=ACCEPTED&page=0&size=1');
+        // Tìm đơn đang xử lý của tài xế theo thứ tự ưu tiên
+        const statuses = ['ACCEPTED', 'IN_PROGRESS', 'AWAITING_FINAL_PAYMENT'];
+        for (const st of statuses) {
+          const response = await getAuthenticated(`/api/driver/orders?status=${st}&page=0&size=1`);
           if (response && response.content && response.content.length > 0) {
             orderId = response.content[0].id;
+            break;
           }
         }
       }
@@ -444,16 +446,17 @@
       subtitle.textContent = `Cập nhật tiến độ đơn ${order.orderCode || ''}.`;
     }
 
-    // 2. Consistent simulated customer details (Consistent Generator)
-    const custInfo = getCustomerSimulatedInfo(order.customerId, order.orderCode);
+    // 2. Thông tin khách hàng THẬT (từ backend)
+    const custName = order.customerName || 'Khách hàng';
+    const custPhone = order.customerPhone || '';
     const nameEl = document.getElementById('cust-name');
-    if (nameEl) nameEl.textContent = custInfo.name;
+    if (nameEl) nameEl.textContent = custName;
 
     const phoneEl = document.getElementById('cust-phone');
-    if (phoneEl) phoneEl.textContent = custInfo.phone;
+    if (phoneEl) phoneEl.textContent = custPhone || '—';
 
     const callBtn = document.getElementById('call-btn');
-    if (callBtn) callBtn.href = `tel:${custInfo.phone.replace(/\s+/g, '')}`;
+    if (callBtn && custPhone) callBtn.href = `tel:${custPhone.replace(/\s+/g, '')}`;
 
     // 3. Route Details
     const distanceEl = document.getElementById('route-distance');
@@ -519,10 +522,14 @@
     });
 
     const btnStart = document.getElementById('btn-start');
+    const btnRequest = document.getElementById('btn-request-payment');
     const btnComplete = document.getElementById('btn-complete');
+    const finalHint = document.getElementById('final-wait-hint');
 
     btnStart.style.display = 'none';
+    btnRequest.style.display = 'none';
     btnComplete.style.display = 'none';
+    if (finalHint) finalHint.style.display = 'none';
 
     // Populate timeline times based on statuses
     // For timeline:
@@ -551,8 +558,29 @@
       times.pickup.textContent = updatedTime;
       times.delivering.textContent = updatedTime;
 
+      // Đã giao xong → yêu cầu khách thanh toán 70% trước khi Hoàn thành
+      btnRequest.style.display = 'inline-flex';
+    }
+    else if (status === 'AWAITING_FINAL_PAYMENT') {
+      nodes.accepted.classList.add('active');
+      nodes.pickup.classList.add('active');
+      nodes.delivering.classList.add('active');
+
+      times.accepted.textContent = createdTime;
+      times.pickup.textContent = updatedTime;
+      times.delivering.textContent = updatedTime;
+
+      // Chỉ Hoàn thành được khi khách đã trả nốt 70%
       btnComplete.style.display = 'inline-flex';
-    } 
+      if (!order.finalPaid) {
+        btnComplete.disabled = true;
+        btnComplete.style.opacity = '0.5';
+        if (finalHint) finalHint.style.display = 'block';
+      } else {
+        btnComplete.disabled = false;
+        btnComplete.style.opacity = '';
+      }
+    }
     else if (status === 'COMPLETED') {
       nodes.accepted.classList.add('active');
       nodes.pickup.classList.add('active');
@@ -663,7 +691,8 @@
   async function handleOrderAction(action) {
     if (!currentOrder) return;
     
-    const actionBtn = document.getElementById(action === 'start' ? 'btn-start' : 'btn-complete');
+    const btnMap = { 'start': 'btn-start', 'request-final-payment': 'btn-request-payment', 'complete': 'btn-complete' };
+    const actionBtn = document.getElementById(btnMap[action] || 'btn-complete');
     if (actionBtn) {
       actionBtn.classList.add('btn-loading');
       actionBtn.disabled = true;

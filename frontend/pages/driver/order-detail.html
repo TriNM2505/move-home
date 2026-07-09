@@ -355,8 +355,10 @@
 
   const STATUS_MAP = {
     'PENDING': { text: 'Đang chờ', class: 'badge-pending' },
+    'CONFIRMED': { text: 'Đã xác nhận', class: 'badge-info' },
     'ACCEPTED': { text: 'Đã nhận', class: 'badge-in-progress' },
     'IN_PROGRESS': { text: 'Đang giao', class: 'badge-in-progress' },
+    'AWAITING_FINAL_PAYMENT': { text: 'Chờ thanh toán cuối', class: 'badge-warning' },
     'COMPLETED': { text: 'Hoàn thành', class: 'badge-completed' },
     'CANCELLED': { text: 'Đã hủy', class: 'badge-cancelled' }
   };
@@ -401,9 +403,16 @@
     }
 
     document.getElementById('retry-btn')?.addEventListener('click', () => loadOrderDetails());
-    document.getElementById('btn-back')?.addEventListener('click', () => {
-      window.location.href = 'available-orders.html';
-    });
+    // Nút quay lại theo ngữ cảnh: vào từ lịch sử → về lịch sử, ngược lại → đơn có sẵn
+    (function setupBackButton() {
+      const from = new URLSearchParams(window.location.search).get('from');
+      const backBtn = document.getElementById('btn-back');
+      if (!backBtn) return;
+      if (from === 'history') backBtn.textContent = 'Quay lại lịch sử';
+      backBtn.addEventListener('click', () => {
+        window.location.href = from === 'history' ? 'history.html' : 'available-orders.html';
+      });
+    })();
 
     document.getElementById('btn-accept')?.addEventListener('click', () => handleAcceptOrder());
   }
@@ -476,7 +485,7 @@
     // Subtitle
     const subtitleEl = document.getElementById('page-subtitle');
     if (subtitleEl) {
-      if (order.status === 'PENDING' && order.available) {
+      if (order.available) {
         subtitleEl.textContent = 'Kiểm tra thông tin trước khi nhận đơn.';
       } else {
         subtitleEl.textContent = `Cập nhật tiến trình cho đơn ${order.orderCode || ''}.`;
@@ -491,13 +500,12 @@
       badgeEl.className = info.class;
     }
 
-    // Simulated Customer details (for consistency across pages)
-    const custInfo = getCustomerSimulatedInfo(order.customerId, order.orderCode);
+    // Thông tin khách hàng THẬT (từ backend)
     const nameEl = document.getElementById('cust-name');
-    if (nameEl) nameEl.textContent = custInfo.name;
+    if (nameEl) nameEl.textContent = order.customerName || 'Khách hàng';
 
     const phoneEl = document.getElementById('cust-phone');
-    if (phoneEl) phoneEl.textContent = custInfo.phone;
+    if (phoneEl) phoneEl.textContent = order.customerPhone || '—';
 
     // Addresses
     const pickupAddress = document.getElementById('pickup-address');
@@ -539,7 +547,10 @@
     // Set accept / redirect / disabled buttons state
     const acceptBtn = document.getElementById('btn-accept');
     if (acceptBtn) {
-      if (order.status === 'PENDING' && order.available) {
+      if (order.status === 'COMPLETED' || order.status === 'CANCELLED') {
+        // Đơn đã kết thúc — chỉ xem, không có thao tác
+        acceptBtn.style.display = 'none';
+      } else if (order.available) {
         acceptBtn.style.display = 'inline-flex';
         acceptBtn.disabled = false;
         acceptBtn.innerHTML = 'Nhận đơn';

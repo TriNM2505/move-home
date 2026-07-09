@@ -38,6 +38,15 @@ public class DriverOrderController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{id}/request-final-payment")
+    public ResponseEntity<Void> requestFinalPayment(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable UUID id
+    ) {
+        driverOrderService.requestFinalPayment(currentUser.getId(), currentUser.getRole().name(), id);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/{id}/complete")
     public ResponseEntity<Void> completeOrder(
             @AuthenticationPrincipal User currentUser,

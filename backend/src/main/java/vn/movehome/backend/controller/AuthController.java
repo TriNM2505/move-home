@@ -65,6 +65,17 @@ public class AuthController {
         return authService.refresh(req);
     }
 
+    /**
+     * Gui lai email xac thuc cho tai khoan chua verify (FR-011, token cu het han 24h).
+     * Luon tra ve message trung tinh de chong user enumeration (FR-019).
+     */
+    @PostMapping("/resend-verification")
+    public Map<String, String> resendVerification(@Valid @RequestBody ResendVerificationRequest req) {
+        authService.resendVerification(req);
+        return Map.of("message",
+                "Nếu email tồn tại và chưa được xác thực, chúng tôi đã gửi lại liên kết xác thực.");
+    }
+
     @PostMapping("/forgot-password")
     public Map<String, String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest req) {
         return Map.of("message", passwordResetService.requestReset(req));

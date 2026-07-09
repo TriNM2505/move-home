@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
@@ -59,6 +61,38 @@ public class OsrmClient {
         } catch (Exception ex) {
             log.warn("Không gọi được OSRM, dùng ước lượng Haversine cho khoảng cách giữa 2 toạ độ.", ex);
             return fallbackEstimate(lat1, lng1, lat2, lng2);
+        }
+    }
+
+    /**
+     * Lay hinh tuyen duong that (danh sach diem [lat, lng]) tu OSRM de mo phong tai xe di theo duong.
+     * Loi/khong co geometry → fallback duong thang [start, end].
+     */
+    public List<double[]> fetchRouteGeometry(double lat1, double lng1, double lat2, double lng2) {
+        try {
+            JsonNode response = restClient.get()
+                    .uri("/route/v1/driving/{lng1},{lat1};{lng2},{lat2}?overview=full&geometries=geojson",
+                            lng1, lat1, lng2, lat2)
+                    .retrieve()
+                    .body(JsonNode.class);
+
+            JsonNode coords = response == null ? null
+                    : response.path("routes").path(0).path("geometry").path("coordinates");
+            if (coords != null && coords.isArray() && coords.size() >= 2) {
+                List<double[]> points = new ArrayList<>(coords.size());
+                for (JsonNode c : coords) {
+                    // GeoJSON tra ve [lng, lat] → doi thanh [lat, lng]
+                    points.add(new double[]{c.path(1).asDouble(), c.path(0).asDouble()});
+                }
+                return points;
+            }
+            throw new IllegalStateException("OSRM không trả về geometry");
+        } catch (Exception ex) {
+            log.warn("Không lấy được geometry OSRM, dùng đường thẳng.", ex);
+            List<double[]> straight = new ArrayList<>(2);
+            straight.add(new double[]{lat1, lng1});
+            straight.add(new double[]{lat2, lng2});
+            return straight;
         }
     }
 

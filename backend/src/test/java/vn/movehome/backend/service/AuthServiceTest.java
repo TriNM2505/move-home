@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 import vn.movehome.backend.dto.auth.AuthResponse;
 import vn.movehome.backend.dto.auth.LoginRequest;
+import vn.movehome.backend.email.notification.EmailService;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.entity.UserRole;
 import vn.movehome.backend.entity.UserStatus;
@@ -58,6 +59,12 @@ class AuthServiceTest {
     @Mock
     private LoginEventRecorder loginEventRecorder;
 
+    @Mock
+    private EmailService emailService;
+
+    private static final String VERIFY_EMAIL_URL =
+            "http://localhost:5500/frontend/pages/verify-email-success.html";
+
     private AuthService authService;
 
     @BeforeEach
@@ -68,7 +75,9 @@ class AuthServiceTest {
                 refreshTokenRepository,
                 jwtTokenProvider,
                 passwordEncoder,
-                loginEventRecorder);
+                loginEventRecorder,
+                emailService,
+                VERIFY_EMAIL_URL);
     }
 
     @ParameterizedTest

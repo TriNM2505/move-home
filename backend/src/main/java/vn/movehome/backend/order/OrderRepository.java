@@ -104,6 +104,12 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
 
         Page<ServiceOrder> findByStatusAndDeletedAtIsNull(String status, Pageable pageable);
 
+        // Don dang giao (dung cho service mo phong di chuyen tai xe)
+        List<ServiceOrder> findByStatusInAndDeletedAtIsNull(Collection<String> statuses);
+
+        // Tai xe co dang ban 1 don nao khong (chan nhan >1 don cung luc)
+        boolean existsByDriverIdAndStatusInAndDeletedAtIsNull(UUID driverId, Collection<String> statuses);
+
         Page<ServiceOrder> findByDriverIdAndDeletedAtIsNull(UUID driverId, Pageable pageable);
 
         Page<ServiceOrder> findByDriverIdAndStatusAndDeletedAtIsNull(
@@ -287,6 +293,66 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
         Page<CustomerOrderItem> findCustomerOrderHistory(
                         @Param("customerId") UUID customerId,
                         @Param("status") String status,
+                        Pageable pageable);
+
+        /**
+         * Danh sach don cua chinh Customer, KHONG thuoc cac trang thai truyen vao.
+         * Dung cho trang "Don dang cho" (pending = chua ket thuc: khong COMPLETED/CANCELLED).
+         * Filter theo customerId dam bao khach chi thay don cua minh (HR-10).
+         */
+        @Query("""
+                        select new vn.movehome.backend.dto.admin.detail.CustomerOrderItem(
+                            so.id,
+                            so.orderCode,
+                            so.status,
+                            drv.fullName,
+                            so.pickupDistrict,
+                            so.dropoffDistrict,
+                            so.vehicleType,
+                            so.totalQuote,
+                            so.createdAt,
+                            so.scheduledAt
+                        )
+                        from CustomerServiceOrder so
+                        left join User drv on drv.id = so.driverId
+                        where so.customerId = :customerId
+                          and so.deletedAt is null
+                          and so.status not in :statuses
+                        order by so.createdAt desc
+                        """)
+        Page<CustomerOrderItem> findCustomerOrdersByStatusNotIn(
+                        @Param("customerId") UUID customerId,
+                        @Param("statuses") Collection<String> statuses,
+                        Pageable pageable);
+
+        /**
+         * Danh sach don cua chinh Customer thuoc cac trang thai truyen vao.
+         * Dung cho trang "Lich su" (history = COMPLETED, CANCELLED).
+         * Filter theo customerId dam bao khach chi thay don cua minh (HR-10).
+         */
+        @Query("""
+                        select new vn.movehome.backend.dto.admin.detail.CustomerOrderItem(
+                            so.id,
+                            so.orderCode,
+                            so.status,
+                            drv.fullName,
+                            so.pickupDistrict,
+                            so.dropoffDistrict,
+                            so.vehicleType,
+                            so.totalQuote,
+                            so.createdAt,
+                            so.scheduledAt
+                        )
+                        from CustomerServiceOrder so
+                        left join User drv on drv.id = so.driverId
+                        where so.customerId = :customerId
+                          and so.deletedAt is null
+                          and so.status in :statuses
+                        order by so.createdAt desc
+                        """)
+        Page<CustomerOrderItem> findCustomerOrdersByStatusIn(
+                        @Param("customerId") UUID customerId,
+                        @Param("statuses") Collection<String> statuses,
                         Pageable pageable);
 
         @Query("""

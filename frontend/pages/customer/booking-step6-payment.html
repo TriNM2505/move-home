@@ -259,17 +259,11 @@
 
         <!-- PAYMENT CONTAINER -->
         <section>
-          <div class="grid-3">
+          <div class="grid-3" style="grid-template-columns: repeat(2, 1fr);">
             <article class="payment-card selected" id="payment-vnpay" data-method="vnpay">
               <div class="payment-icon">💳</div>
               <h2 style="font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); color: var(--color-primary); margin-top: 0; margin-bottom: var(--spacing-xs);">VNPay</h2>
-              <p style="font-size: var(--font-size-body-sm); color: var(--color-body); margin: 0; line-height: 1.4;">Thanh toán qua cổng VNPay thử nghiệm.</p>
-            </article>
-
-            <article class="payment-card" id="payment-cash" data-method="cash">
-              <div class="payment-icon">💵</div>
-              <h2 style="font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); color: var(--color-primary); margin-top: 0; margin-bottom: var(--spacing-xs);">Tiền mặt</h2>
-              <p style="font-size: var(--font-size-body-sm); color: var(--color-body); margin: 0; line-height: 1.4;">Thanh toán trực tiếp cho tài xế sau khi hoàn thành.</p>
+              <p style="font-size: var(--font-size-body-sm); color: var(--color-body); margin: 0; line-height: 1.4;">Trả cọc 30% qua cổng VNPay.</p>
             </article>
 
             <article class="payment-card" id="payment-wallet" data-method="wallet">
@@ -280,8 +274,9 @@
           </div>
 
           <div class="card-soft-tinted mt-8" style="margin-top: var(--spacing-2xl);">
-            <h2 style="font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); color: var(--color-primary); margin-top: 0; margin-bottom: var(--spacing-xs);">Tổng cần thanh toán</h2>
-            <p class="page-title" style="margin-top: 0; margin-bottom: var(--spacing-lg);" id="total-quote-display">0 VND</p>
+            <h2 style="font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); color: var(--color-primary); margin-top: 0; margin-bottom: var(--spacing-xs);">Cọc cần thanh toán ngay (30%)</h2>
+            <p class="page-title" style="margin-top: 0; margin-bottom: var(--spacing-xs);" id="total-quote-display">0 VND</p>
+            <p style="margin-top: 0; margin-bottom: var(--spacing-lg); color: var(--color-body); font-size: var(--font-size-body-sm);" id="payment-note"></p>
             
             <div style="display: flex; gap: var(--spacing-md);">
               <a href="booking-step5-quote.html" class="btn-secondary" id="back-btn">Quay lại</a>
@@ -396,7 +391,15 @@
       window.location.href = 'booking-step5-quote.html';
       return;
     }
-    document.getElementById('total-quote-display').textContent = formatPrice(totalQuote);
+    // Khach chi tra COC 30% ngay bay gio; 70% con lai tra sau khi giao (CONTEXT §2)
+    const totalNum = Number(totalQuote);
+    const depositNum = Math.floor(totalNum * 0.30);
+    const remainingNum = totalNum - depositNum;
+    document.getElementById('total-quote-display').textContent = formatPrice(depositNum);
+    const noteEl = document.getElementById('payment-note');
+    if (noteEl) {
+      noteEl.textContent = `Tổng đơn ${formatPrice(totalNum)} · Còn lại 70% (${formatPrice(remainingNum)}) sẽ trả sau khi giao xong.`;
+    }
 
     // 3. Interactive payment card toggling
     let selectedMethod = 'vnpay';
@@ -445,12 +448,16 @@
           const servicesStr = localStorage.getItem('booking_services') || '[]';
           const noteText = localStorage.getItem('booking_note') || '';
 
-          // Combine date/time into UTC ISO instant (Jackson Spring Boot expects ISO 8601 offset format)
-          let scheduledAt = new Date().toISOString();
+          // Thời gian hẹn PHẢI ở tương lai (backend @Future). Nếu thiếu/quá khứ → mặc định +2 giờ.
+          let scheduled = new Date(Date.now() + 2 * 60 * 60 * 1000);
           if (dateStr && timeStr) {
-            const localDateTimeStr = `${dateStr}T${timeStr}:00`;
-            scheduledAt = new Date(localDateTimeStr).toISOString();
+            const parsed = new Date(`${dateStr}T${timeStr}:00`);
+            if (!isNaN(parsed.getTime())) scheduled = parsed;
           }
+          if (scheduled.getTime() <= Date.now()) {
+            scheduled = new Date(Date.now() + 2 * 60 * 60 * 1000);
+          }
+          const scheduledAt = scheduled.toISOString();
 
           // Format notes with services appended
           let finalNotes = noteText;
@@ -508,21 +515,31 @@
           ];
           keysToRemove.forEach(k => localStorage.removeItem(k));
 
-          // Payment processing routing
-          if (selectedMethod === 'vnpay') {
-            console.log('Initiating VNPay payment redirect for order:', orderRes.id);
-            const vnpayRes = await postAuthenticated(`/api/customer/orders/${orderRes.id}/vnpay-payment`, null);
-            console.log('Redirecting to VNPay payment URL:', vnpayRes.paymentUrl);
-            window.location.href = vnpayRes.paymentUrl;
-          } else {
-            // For Cash or Wallet, directly redirect to order success page
-            console.log('Redirecting to success page for Cash/Wallet...');
+          // Định tuyến trả cọc 30%: mọi hình thức đều phải cọc xong thì đơn mới được xác nhận (bắn đi).
+          if (selectedMethod === 'wallet') {
+            // Trừ cọc 30% trực tiếp từ số dư ví → đơn về CONFIRMED
+            await postAuthenticated(`/api/customer/orders/${orderRes.id}/wallet-payment`, null);
             window.location.href = 'booking-success.html';
+          } else {
+            // Mặc định VNPay: chuyển sang cổng VNPay để trả cọc 30%.
+            // Backend trả field JSON "payment_url" (snake_case) — phải đọc đúng tên này.
+            const vnpayRes = await postAuthenticated(`/api/customer/orders/${orderRes.id}/vnpay-payment`, null);
+            const paymentUrl = vnpayRes.payment_url || vnpayRes.paymentUrl;
+            if (!paymentUrl) {
+              throw new Error('Không nhận được đường dẫn thanh toán VNPay từ máy chủ.');
+            }
+            window.location.href = paymentUrl;
           }
         } catch (err) {
           console.error('Lỗi khi tạo đơn hàng:', err);
+          // Hiện rõ field nào sai (backend trả details: [{field, message}])
+          let msg = err.message || 'Lỗi hệ thống.';
+          const details = err && err.data && err.data.details;
+          if (Array.isArray(details) && details.length) {
+            msg = details.map((d) => d.message).join(' ');
+          }
           if (errorBanner) {
-            errorBanner.textContent = '⚠️ Đặt đơn không thành công: ' + (err.message || 'Lỗi hệ thống.');
+            errorBanner.textContent = '⚠️ Đặt đơn không thành công: ' + msg;
             errorBanner.style.display = 'flex';
           }
           if (loadingOverlay) loadingOverlay.style.display = 'none';

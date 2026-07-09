@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
   <style>
     .customer-nav {
       display: flex;
@@ -284,7 +286,14 @@
             <!-- Address detail -->
             <div class="form-group field-span">
               <label class="form-label" for="address">Địa chỉ chi tiết</label>
-              <input type="text" class="text-input" id="address" value="Tòa A2, phố Duy Tân, phường Dịch Vọng Hậu" placeholder="Số nhà, tên ngõ, tên đường...">
+              <input type="text" class="text-input" id="address" placeholder="Số nhà, tên ngõ, tên đường...">
+            </div>
+
+            <!-- Precise dropoff location on map -->
+            <div class="form-group field-span">
+              <label class="form-label">Ghim vị trí chính xác điểm trả trên bản đồ</label>
+              <div id="dropoff-map" style="height:280px;border-radius:12px;overflow:hidden;border:1px solid var(--color-surface-pressed);margin-top:8px;"></div>
+              <p class="text-muted" id="coords-hint" style="font-size:var(--font-size-caption);margin-top:6px;">Kéo ghim hoặc bấm lên bản đồ để chọn đúng nơi trả đồ.</p>
             </div>
 
             <!-- Elevator availability -->
@@ -443,6 +452,35 @@
       });
     }
 
+    // 4.5 Bản đồ ghim vị trí chính xác điểm trả
+    const savedLat = parseFloat(localStorage.getItem('booking_dropoffLat'));
+    const savedLng = parseFloat(localStorage.getItem('booking_dropoffLng'));
+    const startCoords = (!isNaN(savedLat) && !isNaN(savedLng))
+      ? { lat: savedLat, lng: savedLng }
+      : (districtCoords[districtSelect.value] || { lat: 21.0357, lng: 105.7958 });
+
+    let dropoffMarker = null;
+    const coordsHint = document.getElementById('coords-hint');
+    const updateHint = (ll) => {
+      if (coordsHint) coordsHint.textContent = `Vị trí đã chọn: ${ll.lat.toFixed(6)}, ${ll.lng.toFixed(6)}`;
+    };
+
+    if (window.L) {
+      const map = window.L.map('dropoff-map').setView([startCoords.lat, startCoords.lng], 15);
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+      dropoffMarker = window.L.marker([startCoords.lat, startCoords.lng], { draggable: true }).addTo(map);
+      updateHint(dropoffMarker.getLatLng());
+      dropoffMarker.on('dragend', () => updateHint(dropoffMarker.getLatLng()));
+      map.on('click', (e) => { dropoffMarker.setLatLng(e.latlng); updateHint(e.latlng); });
+
+      districtSelect.addEventListener('change', () => {
+        const c = districtCoords[districtSelect.value];
+        if (c) map.setView([c.lat, c.lng], 15);
+      });
+    }
+
     // 5. Submit validation & navigation logic
     const continueBtn = document.getElementById('continue-btn');
     if (continueBtn) {
@@ -469,6 +507,15 @@
           return;
         }
 
+        if (address.length < 10) {
+          if (errorBanner) {
+            errorBanner.textContent = '⚠️ Địa chỉ phải có ít nhất 10 ký tự — nhập đầy đủ số nhà, tên đường, phường.';
+            errorBanner.style.display = 'flex';
+          }
+          addressInput.focus();
+          return;
+        }
+
         const floor = parseInt(floorText, 10);
         if (isNaN(floor) || floor < 0) {
           if (errorBanner) {
@@ -479,8 +526,10 @@
           return;
         }
 
-        // Get coordinates
-        const coords = districtCoords[district] || { lat: 21.0357, lng: 105.7958 }; // Fallback to Cau Giay center
+        // Toạ độ CHÍNH XÁC từ ghim trên bản đồ (không dùng toạ độ trung tâm quận nữa)
+        const coords = dropoffMarker
+          ? { lat: dropoffMarker.getLatLng().lat, lng: dropoffMarker.getLatLng().lng }
+          : (districtCoords[district] || { lat: 21.0357, lng: 105.7958 });
 
         // Save to localStorage
         localStorage.setItem('booking_dropoffDistrict', district);

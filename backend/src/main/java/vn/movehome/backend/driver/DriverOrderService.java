@@ -22,12 +22,15 @@ import java.util.UUID;
 @Slf4j
 public class DriverOrderService {
 
-    private static final String PENDING = "PENDING";
+    private static final String CONFIRMED = "CONFIRMED";
     private static final String ACCEPTED = "ACCEPTED";
     private static final String ASSIGNED = "ASSIGNED";
     private static final String IN_PROGRESS = "IN_PROGRESS";
+    private static final String AWAITING_FINAL_PAYMENT = "AWAITING_FINAL_PAYMENT";
     private static final String COMPLETED = "COMPLETED";
     private static final Set<String> STARTABLE_STATUSES = Set.of(ACCEPTED, ASSIGNED);
+    // Trang thai coi la tai xe DANG BAN (chi cho phep 1 don tai 1 thoi diem)
+    private static final Set<String> DRIVER_BUSY_STATUSES = Set.of(ACCEPTED, IN_PROGRESS, AWAITING_FINAL_PAYMENT);
 
     private final OrderRepository orderRepository;
     private final OrderStatusTransitionService orderStatusTransitionService;
@@ -37,15 +40,21 @@ public class DriverOrderService {
     public void acceptOrder(UUID driverId, String changedByRole, UUID orderId) {
         ServiceOrder order = findForUpdate(orderId);
 
-        if (!PENDING.equals(order.getStatus()) || order.getDriverId() != null) {
+        if (!CONFIRMED.equals(order.getStatus()) || order.getDriverId() != null) {
             throw new IllegalStateException("Đơn không còn khả dụng");
+        }
+
+        // 1 tài xế chỉ làm 1 chuyến tại một thời điểm (CONTEXT) — chặn nhận thêm khi đang bận
+        if (orderRepository.existsByDriverIdAndStatusInAndDeletedAtIsNull(driverId, DRIVER_BUSY_STATUSES)) {
+            throw new IllegalStateException(
+                    "Bạn đang có đơn chưa hoàn thành. Hãy hoàn thành đơn đó trước khi nhận đơn mới.");
         }
 
         OffsetDateTime changedAt = OffsetDateTime.now(ZoneOffset.UTC);
         order.setDriverId(driverId);
         orderStatusTransitionService.transition(order, ACCEPTED, driverId, changedByRole, changedAt);
 
-        logStateChange(driverId, orderId, PENDING, ACCEPTED, changedAt);
+        logStateChange(driverId, orderId, CONFIRMED, ACCEPTED, changedAt);
     }
 
     @Transactional
@@ -65,13 +74,37 @@ public class DriverOrderService {
         logStateChange(driverId, orderId, currentStatus, IN_PROGRESS, changedAt);
     }
 
+    /**
+     * Tài xế yêu cầu khách thanh toán nốt 70% (IN_PROGRESS → AWAITING_FINAL_PAYMENT).
+     * Khách sẽ trả 70% qua Ví/VNPay; khi trả xong tài xế mới bấm Hoàn thành.
+     */
+    @Transactional
+    public void requestFinalPayment(UUID driverId, String changedByRole, UUID orderId) {
+        ServiceOrder order = findForUpdate(orderId);
+        requireOwnership(order, driverId);
+
+        if (!IN_PROGRESS.equals(order.getStatus())) {
+            throw new IllegalStateException("Chỉ có thể yêu cầu thanh toán khi đơn đang được thực hiện");
+        }
+
+        OffsetDateTime changedAt = OffsetDateTime.now(ZoneOffset.UTC);
+        orderStatusTransitionService.transition(
+                order, AWAITING_FINAL_PAYMENT, driverId, changedByRole, changedAt);
+
+        logStateChange(driverId, orderId, IN_PROGRESS, AWAITING_FINAL_PAYMENT, changedAt);
+    }
+
     @Transactional
     public void completeOrder(UUID driverId, String changedByRole, UUID orderId) {
         ServiceOrder order = findForUpdate(orderId);
         requireOwnership(order, driverId);
 
-        if (!IN_PROGRESS.equals(order.getStatus())) {
-            throw new IllegalStateException("Chỉ có thể hoàn thành đơn đang được thực hiện");
+        // HR-05/06: chỉ hoàn thành khi đã ở bước chờ trả nốt và khách đã trả đủ 70%
+        if (!AWAITING_FINAL_PAYMENT.equals(order.getStatus())) {
+            throw new IllegalStateException("Cần yêu cầu khách thanh toán 70% trước khi hoàn thành");
+        }
+        if (order.getFinalPaidAt() == null) {
+            throw new IllegalStateException("Khách chưa thanh toán nốt 70%, chưa thể hoàn thành đơn");
         }
 
         OffsetDateTime completedAt = OffsetDateTime.now(ZoneOffset.UTC);
@@ -79,8 +112,9 @@ public class DriverOrderService {
         ServiceOrder completedOrder = orderStatusTransitionService.transition(
                 order, COMPLETED, driverId, changedByRole, completedAt);
 
+        // Phase 3: cong tien ngay khi hoan thanh. Phase 5 se thay bang escrow 2h.
         driverEarningService.creditEarning(completedOrder);
-        logStateChange(driverId, orderId, IN_PROGRESS, COMPLETED, completedAt);
+        logStateChange(driverId, orderId, AWAITING_FINAL_PAYMENT, COMPLETED, completedAt);
     }
 
     private ServiceOrder findForUpdate(UUID orderId) {

@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
   <style>
     .customer-nav {
       display: flex;
@@ -280,7 +282,17 @@
             <!-- Address detail -->
             <div class="form-group field-span">
               <label class="form-label" for="address">Địa chỉ chi tiết</label>
-              <input type="text" class="text-input" id="address" value="Số 25 ngõ 68 phố Đội Cấn, phường Đội Cấn" placeholder="Số nhà, tên ngõ, tên đường...">
+              <input type="text" class="text-input" id="address" placeholder="Số nhà, tên ngõ, tên đường...">
+            </div>
+
+            <!-- Precise pickup location on map -->
+            <div class="form-group field-span">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+                <label class="form-label" style="margin:0;">Ghim vị trí chính xác trên bản đồ</label>
+                <button type="button" class="btn-secondary btn-sm" id="use-my-location">📍 Dùng vị trí hiện tại</button>
+              </div>
+              <div id="pickup-map" style="height:280px;border-radius:12px;overflow:hidden;border:1px solid var(--color-surface-pressed);"></div>
+              <p class="text-muted" id="coords-hint" style="font-size:var(--font-size-caption);margin-top:6px;">Kéo ghim hoặc bấm lên bản đồ để chọn đúng vị trí điểm đón.</p>
             </div>
 
             <!-- Elevator availability -->
@@ -439,6 +451,54 @@
       });
     }
 
+    // 4.5 Bản đồ ghim vị trí chính xác + Geolocation API
+    const savedLat = parseFloat(localStorage.getItem('booking_pickupLat'));
+    const savedLng = parseFloat(localStorage.getItem('booking_pickupLng'));
+    const startCoords = (!isNaN(savedLat) && !isNaN(savedLng))
+      ? { lat: savedLat, lng: savedLng }
+      : (districtCoords[districtSelect.value] || { lat: 21.0285, lng: 105.8542 });
+
+    let pickupMarker = null;
+    const coordsHint = document.getElementById('coords-hint');
+    const updateHint = (ll) => {
+      if (coordsHint) coordsHint.textContent = `Vị trí đã chọn: ${ll.lat.toFixed(6)}, ${ll.lng.toFixed(6)}`;
+    };
+
+    if (window.L) {
+      const map = window.L.map('pickup-map').setView([startCoords.lat, startCoords.lng], 15);
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+      pickupMarker = window.L.marker([startCoords.lat, startCoords.lng], { draggable: true }).addTo(map);
+      updateHint(pickupMarker.getLatLng());
+      pickupMarker.on('dragend', () => updateHint(pickupMarker.getLatLng()));
+      map.on('click', (e) => { pickupMarker.setLatLng(e.latlng); updateHint(e.latlng); });
+
+      // Đổi quận → di chuyển bản đồ tới trung tâm quận (chỉ gợi ý; ghim theo tay vẫn ưu tiên)
+      districtSelect.addEventListener('change', () => {
+        const c = districtCoords[districtSelect.value];
+        if (c) map.setView([c.lat, c.lng], 15);
+      });
+
+      document.getElementById('use-my-location')?.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+          if (coordsHint) coordsHint.textContent = 'Trình duyệt không hỗ trợ định vị.';
+          return;
+        }
+        if (coordsHint) coordsHint.textContent = 'Đang lấy vị trí của bạn...';
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const ll = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            map.setView([ll.lat, ll.lng], 16);
+            pickupMarker.setLatLng(ll);
+            updateHint(ll);
+          },
+          () => { if (coordsHint) coordsHint.textContent = 'Không lấy được vị trí (có thể bạn đã từ chối quyền). Hãy kéo ghim thủ công.'; },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      });
+    }
+
     // 5. Submit validation & navigation logic
     const continueBtn = document.getElementById('continue-btn');
     if (continueBtn) {
@@ -465,6 +525,15 @@
           return;
         }
 
+        if (address.length < 10) {
+          if (errorBanner) {
+            errorBanner.textContent = '⚠️ Địa chỉ phải có ít nhất 10 ký tự — nhập đầy đủ số nhà, tên đường, phường.';
+            errorBanner.style.display = 'flex';
+          }
+          addressInput.focus();
+          return;
+        }
+
         const floor = parseInt(floorText, 10);
         if (isNaN(floor) || floor < 0) {
           if (errorBanner) {
@@ -475,8 +544,10 @@
           return;
         }
 
-        // Get coordinates
-        const coords = districtCoords[district] || { lat: 21.0285, lng: 105.8542 }; // Fallback to Hoan Kiem center
+        // Toạ độ CHÍNH XÁC từ ghim trên bản đồ (không dùng toạ độ trung tâm quận nữa)
+        const coords = pickupMarker
+          ? { lat: pickupMarker.getLatLng().lat, lng: pickupMarker.getLatLng().lng }
+          : (districtCoords[district] || { lat: 21.0285, lng: 105.8542 });
 
         // Save to localStorage
         localStorage.setItem('booking_pickupDistrict', district);
