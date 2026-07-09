@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kết quả thanh toán — Move_home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .state-container { display: none; flex-direction: column; align-items: center; }
+    .state-container.active { display: flex; }
+    .status-icon-wrapper { position: relative; width: 80px; height: 80px; margin: 0 auto var(--spacing-2xl); display: flex; align-items: center; justify-content: center; }
+    .status-icon-bg { position: absolute; inset: 0; border-radius: var(--rounded-full); opacity: 0.12; }
+    .status-icon-fg { width: 46px; height: 46px; z-index: 1; }
+    .success-theme .status-icon-bg { background-color: var(--color-success); }
+    .success-theme .status-icon-fg { color: var(--color-success); }
+    .error-theme .status-icon-bg { background-color: var(--color-danger); }
+    .error-theme .status-icon-fg { color: var(--color-danger); }
+    .btn-group { display: flex; flex-direction: column; width: 100%; gap: var(--spacing-md); margin-top: var(--spacing-3xl); }
+    .card-footer-info { font-size: var(--font-size-caption); color: var(--color-mute); margin-top: var(--spacing-2xl); }
+    .txn-ref { font-size: var(--font-size-caption); color: var(--color-body); margin-top: var(--spacing-sm); word-break: break-all; }
+    .auth-card .page-title { font-size: var(--font-size-display-sm); font-weight: var(--font-weight-bold); margin: 0 0 var(--spacing-md); color: var(--color-ink); }
+    .auth-card .text-body { color: var(--color-body); font-size: var(--font-size-body-md); line-height: var(--line-height-body-md); margin: 0; }
+  </style>
+</head>
+<body>
+<main class="auth-page">
+  <div class="card-elevated auth-card text-center">
+    <a href="../index.html" class="auth-logo">Move_home</a>
+    <p class="auth-tagline" id="tagline">Cổng thanh toán VNPay</p>
+
+    <!-- SUCCESS -->
+    <div id="success-state" class="state-container success-theme">
+      <div class="status-icon-wrapper">
+        <div class="status-icon-bg"></div>
+        <svg class="status-icon-fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h1 class="page-title">Thanh toán thành công</h1>
+      <p class="text-body">Bạn đã thanh toán cọc thành công. Đơn hàng đang được xử lý và sẽ sớm được phân tài xế.</p>
+      <p class="txn-ref" id="txn-ref-success"></p>
+      <div class="btn-group">
+        <a href="customer/my-orders-pending.html" class="btn-primary btn-full">Xem đơn hàng của tôi</a>
+        <a href="customer/home.html" class="btn-secondary btn-full">Về trang chủ</a>
+      </div>
+    </div>
+
+    <!-- FAILED -->
+    <div id="failed-state" class="state-container error-theme">
+      <div class="status-icon-wrapper">
+        <div class="status-icon-bg"></div>
+        <svg class="status-icon-fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+      </div>
+      <h1 class="page-title" style="color: var(--color-danger);">Thanh toán chưa thành công</h1>
+      <p class="text-body">Giao dịch chưa hoàn tất hoặc đã bị hủy. Bạn có thể thử thanh toán lại từ danh sách đơn hàng.</p>
+      <p class="txn-ref" id="txn-ref-failed"></p>
+      <div class="btn-group">
+        <a href="customer/my-orders-pending.html" class="btn-primary btn-full">Về đơn hàng để thử lại</a>
+        <a href="customer/home.html" class="btn-secondary btn-full">Về trang chủ</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const txnRef = params.get('txn_ref');
+
+    const isSuccess = status === 'success';
+    document.getElementById('tagline').textContent =
+      isSuccess ? 'Giao dịch hoàn tất' : 'Giao dịch không thành công';
+
+    const stateEl = document.getElementById(isSuccess ? 'success-state' : 'failed-state');
+    stateEl.classList.add('active');
+
+    if (txnRef) {
+      const refEl = document.getElementById(isSuccess ? 'txn-ref-success' : 'txn-ref-failed');
+      if (refEl) refEl.textContent = 'Mã giao dịch: ' + txnRef;
+    }
+  })();
+</script>
+</body>
+</html>

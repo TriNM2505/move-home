@@ -11,7 +11,9 @@ import vn.movehome.backend.entity.Transaction;
 import vn.movehome.backend.entity.TransactionType;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.entity.UserRole;
+import vn.movehome.backend.order.OrderDepositCalculator;
 import vn.movehome.backend.order.OrderRepository;
+import vn.movehome.backend.order.OrderStatusTransitionService;
 import vn.movehome.backend.order.ServiceOrder;
 import vn.movehome.backend.repository.UserRepository;
 import vn.movehome.backend.repository.WalletRepository;
@@ -22,6 +24,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
@@ -41,8 +44,10 @@ public class VnPayPaymentService {
     private static final int PAYMENT_EXPIRY_MINUTES = 15;
 
     private static final String ORDER_PREFIX = "ORD";
+    private static final String FINAL_PREFIX = "OFP";
     private static final String WALLET_PREFIX = "WAL";
     private static final String CONFIRMED_STATUS = "CONFIRMED";
+    private static final String AWAITING_FINAL_PAYMENT_STATUS = "AWAITING_FINAL_PAYMENT";
     private static final Set<String> ORDER_PAYABLE_STATUSES = Set.of("PENDING", "PENDING_PAYMENT");
 
     private final VnPayProperties properties;
@@ -51,6 +56,7 @@ public class VnPayPaymentService {
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final PaymentIdempotencyService paymentIdempotencyService;
+    private final OrderStatusTransitionService orderStatusTransitionService;
 
     @Transactional(readOnly = true)
     public VnPayPaymentUrlResponse createOrderPaymentUrl(UUID customerId, UUID orderId, String ipAddress) {
@@ -63,12 +69,40 @@ public class VnPayPaymentService {
                     "INVALID_ORDER_STATUS|Don hang khong o trang thai cho thanh toan.");
         }
 
-        BigDecimal amount = normalizeApiMoney(order.getTotalQuote(), "Tong tien don hang khong hop le.");
+        // Khach chi tra COC 30% khi dat don (= commission cong ty), 70% tra not sau (CONTEXT §2)
+        BigDecimal amount = normalizeApiMoney(computeDeposit(order), "So tien coc khong hop le.");
         String txnRef = newTxnRef(ORDER_PREFIX, order.getId());
         return buildPaymentUrl(
                 txnRef,
                 amount,
-                "MoveHome order " + order.getOrderCode(),
+                "MoveHome deposit " + order.getOrderCode(),
+                ipAddress);
+    }
+
+    /**
+     * Tao URL VNPay tra NOT 70% (chi khi don da AWAITING_FINAL_PAYMENT va chua tra not).
+     */
+    @Transactional(readOnly = true)
+    public VnPayPaymentUrlResponse createFinalPaymentUrl(UUID customerId, UUID orderId, String ipAddress) {
+        ServiceOrder order = orderRepository.findByIdAndCustomerIdAndDeletedAtIsNull(orderId, customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "ORDER_NOT_FOUND|Khong tim thay don hang."));
+
+        if (!AWAITING_FINAL_PAYMENT_STATUS.equals(order.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "INVALID_ORDER_STATUS|Don chua o buoc thanh toan not 70%.");
+        }
+        if (order.getFinalPaidAt() != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "FINAL_ALREADY_PAID|Don da thanh toan not 70%.");
+        }
+
+        BigDecimal amount = normalizeApiMoney(finalAmount(order), "So tien con lai khong hop le.");
+        String txnRef = newTxnRef(FINAL_PREFIX, order.getId());
+        return buildPaymentUrl(
+                txnRef,
+                amount,
+                "MoveHome final " + order.getOrderCode(),
                 ipAddress);
     }
 
@@ -192,6 +226,7 @@ public class VnPayPaymentService {
 
         return switch (parsedTxnRef.target()) {
             case ORDER -> processOrderPayment(parsedTxnRef.entityId(), txnRef, paidAmount);
+            case ORDER_FINAL -> processOrderFinalPayment(parsedTxnRef.entityId(), txnRef, paidAmount);
             case WALLET -> processWalletTopUp(parsedTxnRef.entityId(), txnRef, paidAmount);
         };
     }
@@ -202,7 +237,8 @@ public class VnPayPaymentService {
                     .filter(item -> item.getDeletedAt() == null)
                     .orElseThrow(() -> new VnPayPaymentException("01", "Order not found"));
 
-            BigDecimal expectedAmount = normalizeCallbackMoney(order.getTotalQuote());
+            // Khach phai tra dung so tien COC 30% (khong phai 100% tong don)
+            BigDecimal expectedAmount = normalizeCallbackMoney(computeDeposit(order));
             if (expectedAmount.compareTo(paidAmount) != 0) {
                 throw new VnPayPaymentException("04", "Invalid amount");
             }
@@ -211,7 +247,47 @@ public class VnPayPaymentService {
                 throw new VnPayPaymentException("02", "Order already confirmed");
             }
 
-            order.setStatus(CONFIRMED_STATUS);
+            // Chuyen PENDING_PAYMENT → CONFIRMED qua transition service:
+            // ghi audit (HR-13) + phat OrderStatusChangedEvent → notification (HR-05).
+            // Actor la SYSTEM vi cap nhat den tu IPN server-to-server (CONTEXT §2).
+            orderStatusTransitionService.transition(
+                    order,
+                    CONFIRMED_STATUS,
+                    order.getCustomerId(),
+                    "SYSTEM",
+                    OffsetDateTime.now(ZoneOffset.UTC));
+
+            return Transaction.builder()
+                    .userId(order.getCustomerId())
+                    .type(TransactionType.ORDER_PAYMENT)
+                    .amount(paidAmount)
+                    .relatedOrderId(order.getId())
+                    .description("Thanh toan coc 30% don " + order.getOrderCode() + " qua VNPay")
+                    .build();
+        });
+    }
+
+    private PaymentProcessingResult processOrderFinalPayment(UUID orderId, String txnRef, BigDecimal paidAmount) {
+        return paymentIdempotencyService.process(txnRef, () -> {
+            ServiceOrder order = orderRepository.findByIdForUpdate(orderId)
+                    .filter(item -> item.getDeletedAt() == null)
+                    .orElseThrow(() -> new VnPayPaymentException("01", "Order not found"));
+
+            // Khach phai tra dung so tien con lai 70%
+            BigDecimal expectedAmount = normalizeCallbackMoney(finalAmount(order));
+            if (expectedAmount.compareTo(paidAmount) != 0) {
+                throw new VnPayPaymentException("04", "Invalid amount");
+            }
+
+            if (!AWAITING_FINAL_PAYMENT_STATUS.equals(order.getStatus())) {
+                throw new VnPayPaymentException("02", "Order not awaiting final payment");
+            }
+            if (order.getFinalPaidAt() != null) {
+                throw new VnPayPaymentException("02", "Final payment already made");
+            }
+
+            // Danh dau da tra not 70%; KHONG doi status (van AWAITING_FINAL_PAYMENT cho tai xe bam Hoan thanh).
+            order.setFinalPaidAt(OffsetDateTime.now(ZoneOffset.UTC));
             orderRepository.save(order);
 
             return Transaction.builder()
@@ -219,7 +295,7 @@ public class VnPayPaymentService {
                     .type(TransactionType.ORDER_PAYMENT)
                     .amount(paidAmount)
                     .relatedOrderId(order.getId())
-                    .description("Thanh toan don " + order.getOrderCode() + " qua VNPay")
+                    .description("Thanh toan not 70% don " + order.getOrderCode() + " qua VNPay")
                     .build();
         });
     }
@@ -289,6 +365,7 @@ public class VnPayPaymentService {
 
         CallbackTarget target = switch (parts[0]) {
             case ORDER_PREFIX -> CallbackTarget.ORDER;
+            case FINAL_PREFIX -> CallbackTarget.ORDER_FINAL;
             case WALLET_PREFIX -> CallbackTarget.WALLET;
             default -> throw new VnPayPaymentException("01", "Order not found");
         };
@@ -322,6 +399,26 @@ public class VnPayPaymentService {
         return amount.multiply(VNPAY_AMOUNT_MULTIPLIER)
                 .setScale(0, RoundingMode.UNNECESSARY)
                 .toPlainString();
+    }
+
+    /**
+     * Tinh so tien coc 30% (nguon chung OrderDepositCalculator). Phan 70% con lai tra sau.
+     */
+    private BigDecimal computeDeposit(ServiceOrder order) {
+        try {
+            return OrderDepositCalculator.deposit(order);
+        } catch (IllegalStateException exception) {
+            throw new VnPayPaymentException("04", "Invalid amount");
+        }
+    }
+
+    /** So tien con lai 70% (nguon chung OrderDepositCalculator). */
+    private BigDecimal finalAmount(ServiceOrder order) {
+        try {
+            return OrderDepositCalculator.finalAmount(order);
+        } catch (IllegalStateException exception) {
+            throw new VnPayPaymentException("04", "Invalid amount");
+        }
     }
 
     private BigDecimal normalizeApiMoney(BigDecimal amount, String message) {
@@ -389,6 +486,7 @@ public class VnPayPaymentService {
 
     private enum CallbackTarget {
         ORDER,
+        ORDER_FINAL,
         WALLET
     }
 

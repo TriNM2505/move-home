@@ -2,8 +2,9 @@ package vn.movehome.backend.payment;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,16 +16,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import vn.movehome.backend.entity.User;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequiredArgsConstructor
 public class VnPayController {
 
     private final VnPayPaymentService vnpayPaymentService;
+    private final String frontendReturnUrl;
+
+    public VnPayController(
+            VnPayPaymentService vnpayPaymentService,
+            @Value("${app.frontend.vnpay-return-url:http://localhost:5500/frontend/pages/vnpay-return.html}")
+            String frontendReturnUrl) {
+        this.vnpayPaymentService = vnpayPaymentService;
+        this.frontendReturnUrl = frontendReturnUrl;
+    }
 
     @PostMapping("/api/customer/orders/{orderId}/vnpay-payment")
     @PreAuthorize("hasRole('CUSTOMER')")
@@ -34,6 +47,20 @@ public class VnPayController {
             @PathVariable UUID orderId,
             HttpServletRequest request) {
         return vnpayPaymentService.createOrderPaymentUrl(
+                customer.getId(),
+                orderId,
+                clientIp(request));
+    }
+
+    /** Tao URL VNPay tra NOT 70% (don da AWAITING_FINAL_PAYMENT). */
+    @PostMapping("/api/customer/orders/{orderId}/vnpay-final-payment")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public VnPayPaymentUrlResponse createFinalPaymentUrl(
+            @AuthenticationPrincipal User customer,
+            @PathVariable UUID orderId,
+            HttpServletRequest request) {
+        return vnpayPaymentService.createFinalPaymentUrl(
                 customer.getId(),
                 orderId,
                 clientIp(request));
@@ -52,9 +79,30 @@ public class VnPayController {
                 clientIp(request));
     }
 
+    /**
+     * VNPay redirect trinh duyet khach ve day sau khi thanh toan.
+     * Xu ly callback (verify + cap nhat don) roi REDIRECT sang trang ket qua FE thay vi tra JSON tho.
+     * HR-03: return chi de hien thi; nguon cap nhat that su van la IPN (idempotent).
+     */
     @GetMapping("/api/vnpay/return")
-    public VnPayReturnResponse handleReturn(@RequestParam Map<String, String> params) {
-        return vnpayPaymentService.handleReturn(params);
+    public ResponseEntity<Void> handleReturn(@RequestParam Map<String, String> params) {
+        String status;
+        try {
+            VnPayReturnResponse result = vnpayPaymentService.handleReturn(params);
+            status = result.successful() ? "success" : "failed";
+        } catch (ResponseStatusException exception) {
+            status = "failed";
+        }
+
+        String txnRef = params.getOrDefault("vnp_TxnRef", "");
+        String separator = frontendReturnUrl.contains("?") ? "&" : "?";
+        String location = frontendReturnUrl + separator
+                + "status=" + status
+                + "&txn_ref=" + URLEncoder.encode(txnRef, StandardCharsets.UTF_8);
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(location))
+                .build();
     }
 
     @RequestMapping(value = "/api/vnpay/ipn", method = {RequestMethod.GET, RequestMethod.POST})

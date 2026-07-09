@@ -1,19 +1,24 @@
 package vn.movehome.backend.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.HtmlUtils;
 import vn.movehome.backend.dto.auth.*;
+import vn.movehome.backend.email.notification.EmailService;
 import vn.movehome.backend.entity.*;
 import vn.movehome.backend.repository.*;
 import vn.movehome.backend.security.JwtTokenProvider;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -26,7 +31,6 @@ import java.util.UUID;
 @Service
 @Transactional
 @Slf4j
-@RequiredArgsConstructor
 public class AuthService {
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
@@ -43,6 +47,29 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final LoginEventRecorder loginEventRecorder;
+    private final EmailService emailService;
+    // URL trang FE xac thuc email; production tro toi domain that qua bien moi truong (HR-01)
+    private final String verifyEmailUrl;
+
+    public AuthService(
+            UserRepository userRepository,
+            EmailVerificationTokenRepository emailTokenRepository,
+            RefreshTokenRepository refreshTokenRepository,
+            JwtTokenProvider jwtTokenProvider,
+            PasswordEncoder passwordEncoder,
+            LoginEventRecorder loginEventRecorder,
+            EmailService emailService,
+            @Value("${app.frontend.verify-email-url:http://localhost:5500/frontend/pages/verify-email-success.html}")
+            String verifyEmailUrl) {
+        this.userRepository = userRepository;
+        this.emailTokenRepository = emailTokenRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.passwordEncoder = passwordEncoder;
+        this.loginEventRecorder = loginEventRecorder;
+        this.emailService = emailService;
+        this.verifyEmailUrl = verifyEmailUrl;
+    }
 
     // ===== DANG KY CUSTOMER =====
 
@@ -73,11 +100,9 @@ public class AuthService {
         userRepository.save(user);
         log.info("Tai khoan Customer moi: userId={}, email={}", user.getId(), user.getEmail());
 
-        // Tao email verification token (FR-008)
-        String rawToken = sendVerificationEmail(user);
-
-        // TODO Round 3: thay log bang gui email that qua Gmail SMTP (HR-11)
-        log.info("[DEMO] Link xac thuc email: POST /api/auth/verify-email voi token={}", rawToken);
+        // Tao email verification token (FR-008) va gui email xac thuc that qua Gmail SMTP (HR-11)
+        String rawToken = createVerificationToken(user);
+        sendVerificationEmailAfterCommit(user.getEmail(), rawToken);
 
         // Tao tokens va tra response (Round 2 demo: token trong body)
         return buildAuthResponse(user, req.email());
@@ -129,6 +154,31 @@ public class AuthService {
 
         log.info("Email da xac thuc: userId={}, role={}, newStatus={}",
                 user.getId(), user.getRole(), user.getStatus());
+    }
+
+    // ===== GUI LAI EMAIL XAC THUC =====
+
+    /**
+     * Gui lai link xac thuc email cho user chua verify (token cu het han 24h).
+     * Chong user enumeration (FR-019): luon tra ve giong nhau o controller;
+     * chi thuc su gui email khi email ton tai va tai khoan chua xac thuc.
+     */
+    public void resendVerification(ResendVerificationRequest req) {
+        String email = req.email().toLowerCase().strip();
+        Optional<User> userOpt = userRepository.findByEmailAndDeletedAtIsNull(email);
+        if (userOpt.isEmpty()) {
+            return;
+        }
+
+        User user = userOpt.get();
+        // Da xac thuc roi thi khong gui lai (tranh spam va nham lan)
+        if (user.isEmailVerified()) {
+            return;
+        }
+
+        String rawToken = createVerificationToken(user);
+        sendVerificationEmailAfterCommit(user.getEmail(), rawToken);
+        log.info("Da gui lai email xac thuc: userId={}", user.getId());
     }
 
     // ===== DANG NHAP =====
@@ -286,12 +336,12 @@ public class AuthService {
     }
 
     /**
-     * Tao email verification token va luu DB.
-     * Xoa token cu truoc khi tao moi (FR-008).
+     * Tao email verification token moi va luu DB.
+     * Xoa token cu truoc khi tao moi de dam bao chi co 1 token hieu luc (FR-008).
      *
-     * @return rawToken (de log cho demo; Round 3 se gui qua email that)
+     * @return rawToken (chuoi goc gui trong link email; DB chi luu ban hash)
      */
-    private String sendVerificationEmail(User user) {
+    private String createVerificationToken(User user) {
         // Xoa token cu cua user nay (neu co) de dam bao chi co 1 token hieu luc (FR-008)
         emailTokenRepository.deleteByUserId(user.getId());
 
@@ -306,6 +356,34 @@ public class AuthService {
         emailTokenRepository.save(evToken);
 
         return rawToken;
+    }
+
+    /**
+     * Gui email xac thuc (HTML tieng Viet co dau, HR-20) sau khi transaction commit thanh cong.
+     * HR-11: gui bat dong bo qua EmailService (@Async); loi SMTP KHONG rollback nghiep vu dang ky.
+     * Neu chua co transaction dang chay (vd goi tu test) thi gui truc tiep.
+     */
+    private void sendVerificationEmailAfterCommit(String email, String rawToken) {
+        String separator = verifyEmailUrl.contains("?") ? "&" : "?";
+        String verifyLink = verifyEmailUrl + separator + "token=" + rawToken;
+        String htmlBody = """
+                <p>Chào mừng bạn đến với Move_home!</p>
+                <p>Vui lòng nhấn vào liên kết bên dưới để xác thực email và kích hoạt tài khoản:</p>
+                <p><a href="%s">Xác thực email</a></p>
+                <p>Liên kết có hiệu lực trong 24 giờ. Nếu bạn không đăng ký tài khoản này, hãy bỏ qua email này.</p>
+                """.formatted(HtmlUtils.htmlEscape(verifyLink));
+        Runnable sendEmail = () -> emailService.send(email, "Xác thực email Move_home", htmlBody);
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    sendEmail.run();
+                }
+            });
+        } else {
+            sendEmail.run();
+        }
     }
 
     /**

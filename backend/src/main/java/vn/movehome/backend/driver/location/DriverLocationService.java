@@ -1,6 +1,7 @@
 package vn.movehome.backend.driver.location;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,15 +15,18 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DriverLocationService {
 
     private static final Set<String> ACTIVE_ORDER_STATUSES = Set.of(
             "CONFIRMED",
             "ASSIGNED",
+            "ACCEPTED",
             "IN_PROGRESS");
     private static final Set<String> CUSTOMER_TRACKABLE_STATUSES = Set.of(
             "CONFIRMED",
             "ASSIGNED",
+            "ACCEPTED",
             "IN_PROGRESS");
     private static final long STALE_AFTER_SECONDS = 30;
 
@@ -79,6 +83,11 @@ public class DriverLocationService {
                         .orElse(null);
 
         if (location == null) {
+            DriverLocation raw = driverId == null ? null
+                    : driverLocationRepository.findById(driverId).orElse(null);
+            log.warn("Vi tri 404: order={} driver={} co_dong_vi_tri={} current_order_id_cua_dong={}",
+                    orderId, driverId, raw != null,
+                    raw != null ? raw.getCurrentOrderId() : null);
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     "DRIVER_LOCATION_NOT_FOUND|Tài xế chưa cập nhật vị trí.");

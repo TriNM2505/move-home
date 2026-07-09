@@ -57,7 +57,7 @@ public class ServiceOrder {
     private OffsetDateTime scheduledAt;
 
     @Builder.Default
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = 30)
     private String status = "PENDING_PAYMENT";
 
     @Column(name = "total_quote", nullable = false, precision = 15, scale = 0)
@@ -78,6 +78,14 @@ public class ServiceOrder {
 
     @Column(name = "completed_at")
     private OffsetDateTime completedAt;
+
+    // Thoi diem khach tra not 70% (xac nhan boi VNPay IPN); NULL = chua tra
+    @Column(name = "final_paid_at")
+    private OffsetDateTime finalPaidAt;
+
+    // Thoi diem escrow release 70% vao vi tai xe; NULL = chua release
+    @Column(name = "earning_released_at")
+    private OffsetDateTime earningReleasedAt;
 
     @Column(name = "cancelled_at")
     private OffsetDateTime cancelledAt;

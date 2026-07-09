@@ -43,6 +43,11 @@ let marker;
 let pollTimer;
 let hasLocation = false;
 let orderMeta = {};
+let pickupMarker = null;
+let dropoffMarker = null;
+let routeLine = null;
+let targetLatLng = null;
+let currentOrderStatus = '';
 
 const $ = (id) => document.getElementById(id);
 
@@ -80,9 +85,14 @@ function bindManualOrderForm() {
   });
 }
 
-function startTracking() {
+async function startTracking() {
   clearPoll();
   orderId = getOrderId();
+
+  // Không truyền order_id → tự tìm đơn đang giao của khách
+  if (!orderId) {
+    orderId = await resolveActiveOrderId();
+  }
 
   if (!orderId) {
     showOnly('tracking-empty');
@@ -94,9 +104,73 @@ function startTracking() {
   showOnly('tracking-content');
   showMapState('Đang tải vị trí tài xế', 'Hệ thống đang lấy vị trí mới nhất từ API.');
   initMap();
+  await loadOrderRoute();
 
   pollLocation(true);
   pollTimer = window.setInterval(() => pollLocation(false), POLL_INTERVAL_MS);
+}
+
+// Tự tìm đơn đang giao (ACCEPTED/IN_PROGRESS) của khách để theo dõi
+async function resolveActiveOrderId() {
+  try {
+    const page = await getAuthenticated('/api/customer/orders?scope=pending&page=0&size=50');
+    const items = (page && page.content) || [];
+    const active = items.find((o) => o.status === 'ACCEPTED' || o.status === 'IN_PROGRESS');
+    return active ? active.id : '';
+  } catch {
+    return '';
+  }
+}
+
+// Tải chi tiết đơn → vẽ điểm đón/điểm trả + tuyến đường + đặt đích cho ETA
+async function loadOrderRoute() {
+  try {
+    const detail = await getAuthenticated(`/api/customer/orders/${encodeURIComponent(orderId)}`);
+    currentOrderStatus = detail.status || 'IN_PROGRESS';
+
+    setText('order-code', detail.orderCode || orderMeta.orderCode || shortOrderId(orderId));
+    setText('driver-name', detail.driverName || 'Tài xế đang thực hiện đơn');
+    setText('driver-avatar', initials(detail.driverName || 'Tài xế'));
+    renderBadge('order-status-badge', ORDER_STATUSES[detail.status], detail.status);
+    renderTimeline(detail.status);
+
+    const pLat = Number(detail.pickupLat);
+    const pLng = Number(detail.pickupLng);
+    const dLat = Number(detail.dropoffLat);
+    const dLng = Number(detail.dropoffLng);
+
+    if (map && Number.isFinite(pLat) && Number.isFinite(pLng) && Number.isFinite(dLat) && Number.isFinite(dLng)) {
+      if (pickupMarker) map.removeLayer(pickupMarker);
+      if (dropoffMarker) map.removeLayer(dropoffMarker);
+      if (routeLine) map.removeLayer(routeLine);
+
+      pickupMarker = window.L.marker([pLat, pLng]).addTo(map).bindPopup('📦 Điểm đón');
+      dropoffMarker = window.L.marker([dLat, dLng]).addTo(map).bindPopup('🏁 Điểm trả');
+
+      // Tuyến đường THẬT bám đường (OSRM) thay vì đường thẳng
+      let routePoints = [[pLat, pLng], [dLat, dLng]];
+      try {
+        const road = await getAuthenticated(`/api/customer/orders/${encodeURIComponent(orderId)}/route`);
+        if (Array.isArray(road) && road.length >= 2) {
+          routePoints = road.map((p) => [Number(p[0]), Number(p[1])]);
+        }
+      } catch {
+        // fallback đường thẳng
+      }
+
+      routeLine = window.L.polyline(routePoints, {
+        color: '#1B4D3E', weight: 5, opacity: 0.7,
+      }).addTo(map);
+      map.fitBounds(routeLine.getBounds(), { padding: [45, 45] });
+    }
+
+    // Đích để tính ETA: chưa tới điểm đón (ACCEPTED) → điểm đón; đang giao → điểm trả
+    targetLatLng = (detail.status === 'ACCEPTED')
+      ? [pLat, pLng]
+      : [dLat, dLng];
+  } catch {
+    // Không tải được chi tiết vẫn tiếp tục theo dõi vị trí tài xế
+  }
 }
 
 async function pollLocation(firstLoad) {
@@ -189,6 +263,25 @@ function renderLocation(location) {
 
   hideMapState();
   renderLocationMeta(location);
+  updateEta(lat, lng);
+}
+
+// ETA = quãng đường còn lại tới đích ÷ 30 km/h
+function updateEta(driverLat, driverLng) {
+  if (!targetLatLng || !Number.isFinite(targetLatLng[0]) || !Number.isFinite(targetLatLng[1])) return;
+  const remKm = haversineKm(driverLat, driverLng, targetLatLng[0], targetLatLng[1]);
+  const etaMin = Math.max(1, Math.round((remKm / 30) * 60));
+  const dest = currentOrderStatus === 'ACCEPTED' ? 'đến điểm đón' : 'đến điểm trả';
+  setText('tracking-subtitle', `Tài xế còn khoảng ${etaMin} phút ${dest} (còn ~${remKm.toFixed(1)} km, tốc độ 30 km/h).`);
+}
+
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371.0088;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function renderLocationMeta(location) {

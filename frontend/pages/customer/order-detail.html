@@ -9,29 +9,316 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
-    .detail-grid{display:grid;grid-template-columns:1.4fr .9fr;gap:24px}.info-list{display:grid;gap:12px}.info-row{display:flex;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:1px solid var(--color-surface-pressed)}.timeline{display:grid;gap:16px}.timeline-item{border-left:4px solid var(--color-primary);padding-left:16px}.map-preview{min-height:180px;border-radius:16px;background:var(--color-canvas-soft);display:grid;place-items:center;text-align:center;padding:20px}
-    @media (max-width:900px){.detail-grid{grid-template-columns:1fr}.site-header-actions{display:none}.info-row{display:block}}
+    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+    .customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}
+    .customer-nav a.active{color:var(--color-primary);font-weight:700}
+    .detail-grid{display:grid;grid-template-columns:1.4fr .9fr;gap:24px}
+    .info-list{display:grid;gap:16px}
+    .card-elevated h2{font-size:var(--font-size-body-lg);margin:0 0 12px}
+    .info-row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--color-surface-pressed)}
+    .info-row:last-child{border-bottom:none}
+    .info-row span{color:var(--color-body)}
+    .info-row strong{text-align:right}
+    .deposit-box{border:1px solid var(--color-surface-pressed);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .deposit-box.paid{background:#E6F4EC;border-color:var(--color-success)}
+    .state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:64px 24px;background:var(--color-canvas);border:1px solid var(--color-surface-pressed);border-radius:16px}
+    @media (max-width:900px){.detail-grid{grid-template-columns:1fr}.site-header-actions{display:none}.info-row{flex-direction:column;gap:4px}.info-row strong{text-align:left}}
   </style>
 </head>
 <body>
 <div class="site-layout">
-  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html">Đặt đơn</a><a href="my-orders-pending.html" class="active">Đơn hàng</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
-  <main class="site-main"><div class="dashboard-main">
-    <header class="page-header"><h1 class="page-title">Chi tiết đơn MH2026060001</h1><p class="page-subtitle"><span class="badge badge-pending">Đang chờ</span> Tạo lúc 07:45, 05/06/2026</p></header>
-    <section class="detail-grid">
-      <div class="info-list">
-        <div class="card-elevated"><h2>Thông tin đơn</h2><div class="info-row"><span>Loại xe</span><strong>Xe tải 500kg</strong></div><div class="info-row"><span>Thời gian hẹn</span><strong>08:30, 06/06/2026</strong></div><div class="info-row"><span>Dịch vụ thêm</span><strong>2 bốc xếp, đóng gói thêm</strong></div></div>
-        <div class="card-elevated"><h2>Điểm đón và điểm trả</h2><div class="info-row"><span>Điểm đón</span><strong>Số 25 ngõ 68 phố Đội Cấn, Quận Ba Đình</strong></div><div class="info-row"><span>Điểm trả</span><strong>Tòa A2, phố Duy Tân, Quận Cầu Giấy</strong></div><div class="map-preview">Bản đồ xem trước tuyến đường 8,6 km</div></div>
-        <div class="card-elevated"><h2>Tài xế</h2><p class="text-muted">Chưa có tài xế nhận đơn. Hệ thống đang gửi đơn đến tài xế phù hợp.</p></div>
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html">Đặt đơn</a>
+        <a href="my-orders-pending.html" class="active">Đơn hàng</a>
+        <a href="my-profile.html">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Khách hàng</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">KH</div>
+        <button id="logout-btn" class="btn-subtle" style="margin-left:12px;padding:var(--spacing-xs) var(--spacing-md);font-size:var(--font-size-body-sm);">Đăng xuất</button>
       </div>
-      <aside class="info-list">
-        <div class="card-elevated"><h2>Chi phí</h2><div class="info-row"><span>Giá cơ bản</span><strong>420.000 VND</strong></div><div class="info-row"><span>Phụ phí</span><strong>582.000 VND</strong></div><div class="info-row"><span>Phí bốc xếp</span><strong>600.000 VND</strong></div><div class="info-row"><span>Tổng cộng</span><strong>1.602.000 VND</strong></div></div>
-        <div class="card-elevated"><h2>Dòng thời gian</h2><div class="timeline"><div class="timeline-item"><strong>Đã tạo đơn</strong><p class="text-muted">07:45, 05/06/2026</p></div><div class="timeline-item"><strong>Đang chờ tài xế</strong><p class="text-muted">07:46, 05/06/2026</p></div></div></div>
-        <div class="card-elevated"><h2>Thao tác</h2><a href="my-orders-pending.html" class="btn-danger">Hủy đơn</a> <a href="my-orders-pending.html" class="btn-secondary">Quay lại</a></div>
-      </aside>
+    </div>
+  </header>
+
+  <main class="site-main"><div class="dashboard-main">
+    <!-- LOADING -->
+    <section id="detail-loading" class="state-box" aria-live="polite">
+      <span class="spinner spinner-md" style="margin-bottom:12px;"></span>
+      <span style="color:var(--color-body);font-weight:500;">Đang tải chi tiết đơn...</span>
     </section>
+
+    <!-- ERROR -->
+    <section id="detail-error" class="state-box" style="display:none;" aria-live="assertive">
+      <h2 style="color:var(--color-ink);margin-bottom:6px;">Không thể tải chi tiết đơn</h2>
+      <p id="detail-error-message" style="color:var(--color-body);margin-bottom:16px;">Có lỗi xảy ra.</p>
+      <a href="my-orders-pending.html" class="btn-primary">Về danh sách đơn</a>
+    </section>
+
+    <!-- CONTENT -->
+    <div id="detail-content" style="display:none;">
+      <header class="page-header">
+        <h1 class="page-title" id="d-title">Chi tiết đơn</h1>
+        <p class="page-subtitle"><span class="badge" id="d-status">—</span> <span id="d-created" class="text-muted"></span></p>
+      </header>
+      <section class="detail-grid">
+        <div class="info-list">
+          <div class="card-elevated">
+            <h2>Thông tin đơn</h2>
+            <div class="info-row"><span>Loại xe</span><strong id="d-vehicle">—</strong></div>
+            <div class="info-row"><span>Thời gian hẹn</span><strong id="d-scheduled">—</strong></div>
+            <div class="info-row"><span>Số bốc xếp</span><strong id="d-porter">—</strong></div>
+            <div class="info-row"><span>Ghi chú</span><strong id="d-notes">—</strong></div>
+          </div>
+          <div class="card-elevated">
+            <h2>Điểm đón và điểm trả</h2>
+            <div class="info-row"><span>Điểm đón</span><strong id="d-pickup">—</strong></div>
+            <div class="info-row"><span>Điểm trả</span><strong id="d-dropoff">—</strong></div>
+            <div class="info-row"><span>Quãng đường</span><strong id="d-distance">—</strong></div>
+          </div>
+          <div class="card-elevated">
+            <h2>Tài xế</h2>
+            <p id="d-driver" class="text-muted">Chưa có tài xế nhận đơn.</p>
+          </div>
+        </div>
+        <aside class="info-list">
+          <div class="card-elevated">
+            <h2>Thanh toán</h2>
+            <div class="deposit-box" id="d-deposit-box">
+              <div>
+                <div style="font-weight:700;">Cọc 30%</div>
+                <div class="text-muted" id="d-deposit-status">Chưa thanh toán</div>
+              </div>
+              <strong id="d-deposit-amount">—</strong>
+            </div>
+            <div class="deposit-box" id="d-final-box">
+              <div>
+                <div style="font-weight:700;">Còn lại 70%</div>
+                <div class="text-muted" id="d-final-status">Trả sau khi giao</div>
+              </div>
+              <strong id="d-remaining-amount">—</strong>
+            </div>
+          </div>
+          <div class="card-elevated" id="final-pay-card" style="display:none;border-color:var(--color-accent-strong);">
+            <h2>Thanh toán nốt 70%</h2>
+            <p class="text-muted" style="margin-bottom:12px;">Tài xế đã yêu cầu thanh toán phần còn lại. Thanh toán để tài xế hoàn tất đơn.</p>
+            <div class="info-row"><span>Số tiền cần trả</span><strong id="final-pay-amount">—</strong></div>
+            <div id="final-pay-error" style="color:var(--color-danger);display:none;margin:8px 0;font-size:var(--font-size-body-sm);"></div>
+            <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+              <button class="btn-primary" id="pay-vnpay-btn">Trả qua VNPay</button>
+              <button class="btn-secondary" id="pay-wallet-btn">Trả bằng Ví</button>
+            </div>
+          </div>
+          <div class="card-elevated">
+            <h2>Chi phí</h2>
+            <div class="info-row"><span>Giá cơ bản</span><strong id="d-base">—</strong></div>
+            <div class="info-row"><span>Phụ phí giờ cao điểm</span><strong id="d-peak">—</strong></div>
+            <div class="info-row"><span>Phụ phí ngõ nhỏ</span><strong id="d-alley">—</strong></div>
+            <div class="info-row"><span>Phụ phí tầng</span><strong id="d-floor">—</strong></div>
+            <div class="info-row"><span>Phí bốc xếp</span><strong id="d-porterfee">—</strong></div>
+            <div class="info-row"><span>Tổng cộng</span><strong id="d-total">—</strong></div>
+          </div>
+          <div class="card-elevated">
+            <h2>Thao tác</h2>
+            <a href="#" id="track-btn" class="btn-primary" style="display:none;margin-bottom:10px;width:100%;justify-content:center;">📍 Theo dõi tài xế trên bản đồ</a>
+            <button id="cancel-btn" class="btn-danger" style="display:none;width:100%;justify-content:center;margin-bottom:10px;">Hủy đơn</button>
+            <div id="cancel-confirm" style="display:none;border:1px solid var(--color-danger);border-radius:12px;padding:12px;margin-bottom:10px;">
+              <p id="cancel-msg" style="margin:0 0 10px;color:var(--color-danger);font-size:var(--font-size-body-sm);">Bạn chắc chắn hủy đơn? Nếu đã trả cọc, cọc có thể không được hoàn lại.</p>
+              <button id="cancel-confirm-btn" class="btn-danger" style="width:100%;justify-content:center;">Xác nhận hủy</button>
+              <button id="cancel-cancel-btn" class="btn-secondary" style="width:100%;justify-content:center;margin-top:8px;">Không hủy</button>
+            </div>
+            <a href="my-orders-pending.html" class="btn-secondary" style="width:100%;justify-content:center;">Về danh sách đơn</a>
+          </div>
+        </aside>
+      </section>
+    </div>
   </div></main>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, postAuthenticated, putAuthenticated } from '../../js/api.js';
+
+  const DISTRICT_VN = {
+    BA_DINH:'Ba Đình', HOAN_KIEM:'Hoàn Kiếm', HAI_BA_TRUNG:'Hai Bà Trưng', DONG_DA:'Đống Đa',
+    TAY_HO:'Tây Hồ', CAU_GIAY:'Cầu Giấy', THANH_XUAN:'Thanh Xuân', LONG_BIEN:'Long Biên',
+    HA_DONG:'Hà Đông', HOANG_MAI:'Hoàng Mai', BAC_TU_LIEM:'Bắc Từ Liêm', NAM_TU_LIEM:'Nam Từ Liêm'
+  };
+  const VEHICLE_VN = {
+    TRUCK_500KG:'Xe tải 500kg', TRUCK_1T:'Xe tải 1 tấn', TRUCK_1_5T:'Xe tải 1.5 tấn', TRUCK_2T:'Xe tải 2 tấn'
+  };
+  const STATUS_VN = {
+    PENDING:{t:'Chờ thanh toán',c:'badge-pending'}, PENDING_PAYMENT:{t:'Chờ thanh toán',c:'badge-pending'},
+    CONFIRMED:{t:'Đã xác nhận',c:'badge-info'}, ASSIGNED:{t:'Đã phân tài xế',c:'badge-info'},
+    ACCEPTED:{t:'Tài xế đã nhận',c:'badge-info'}, IN_PROGRESS:{t:'Đang giao',c:'badge-in-progress'},
+    AWAITING_FINAL_PAYMENT:{t:'Chờ thanh toán cuối',c:'badge-warning'}, COMPLETED:{t:'Hoàn thành',c:'badge-completed'},
+    CANCELLED:{t:'Đã hủy',c:'badge-cancelled'}, IN_DISPUTE:{t:'Đang khiếu nại',c:'badge-disputed'},
+    DISPUTED:{t:'Đang khiếu nại',c:'badge-disputed'}
+  };
+
+  const vnd = (v) => (v === null || v === undefined) ? '—' : Number(v).toLocaleString('vi-VN') + ' VND';
+  const district = (d) => DISTRICT_VN[d] || d || '';
+  const dt = (iso) => !iso ? '—' : new Date(iso).toLocaleString('vi-VN', {
+    hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Asia/Ho_Chi_Minh'
+  });
+  const initials = (n) => !n ? 'KH' : n.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+  function show(id) {
+    ['detail-loading','detail-error','detail-content'].forEach(x =>
+      document.getElementById(x).style.display = (x === id) ? (id==='detail-content'?'block':'flex') : 'none');
+  }
+
+  function render(o) {
+    document.getElementById('d-title').textContent = 'Chi tiết đơn ' + (o.orderCode || '');
+    const st = STATUS_VN[o.status] || {t:o.status, c:'badge-neutral'};
+    const badge = document.getElementById('d-status');
+    badge.textContent = st.t; badge.className = 'badge ' + st.c;
+    document.getElementById('d-created').textContent = 'Tạo lúc ' + dt(o.createdAt);
+
+    document.getElementById('d-vehicle').textContent = VEHICLE_VN[o.vehicleType] || o.vehicleType || '—';
+    document.getElementById('d-scheduled').textContent = dt(o.scheduledAt);
+    document.getElementById('d-porter').textContent = (o.porterCount ?? 0) + ' người';
+    document.getElementById('d-notes').textContent = o.notes || 'Không có';
+
+    document.getElementById('d-pickup').textContent =
+      (o.pickupAddress || '') + (o.pickupDistrict ? ', Quận ' + district(o.pickupDistrict) : '');
+    document.getElementById('d-dropoff').textContent =
+      (o.dropoffAddress || '') + (o.dropoffDistrict ? ', Quận ' + district(o.dropoffDistrict) : '');
+    document.getElementById('d-distance').textContent = o.distanceKm ? (o.distanceKm + ' km') : '—';
+
+    document.getElementById('d-driver').textContent = o.driverName
+      ? ('Tài xế: ' + o.driverName) : 'Chưa có tài xế nhận đơn.';
+
+    // Thanh toán 2 giai đoạn
+    document.getElementById('d-deposit-amount').textContent = vnd(o.depositAmount);
+    document.getElementById('d-remaining-amount').textContent = vnd(o.remainingAmount);
+    const depBox = document.getElementById('d-deposit-box');
+    const depStatus = document.getElementById('d-deposit-status');
+    if (o.depositPaid) { depBox.classList.add('paid'); depStatus.textContent = '✓ Đã thanh toán'; }
+    else { depStatus.textContent = 'Chưa thanh toán'; }
+    const finBox = document.getElementById('d-final-box');
+    const finStatus = document.getElementById('d-final-status');
+    if (o.finalPaid) { finBox.classList.add('paid'); finStatus.textContent = '✓ Đã thanh toán'; }
+    else { finStatus.textContent = 'Trả sau khi giao xong'; }
+
+    document.getElementById('d-base').textContent = vnd(o.baseFare);
+    document.getElementById('d-peak').textContent = vnd(o.peakSurcharge);
+    document.getElementById('d-alley').textContent = vnd(o.alleySurcharge);
+    document.getElementById('d-floor').textContent = vnd(o.floorSurcharge);
+    document.getElementById('d-porterfee').textContent = vnd(o.porterFee);
+    document.getElementById('d-total').textContent = vnd(o.totalQuote);
+
+    // Khi tài xế đã yêu cầu thanh toán và khách chưa trả nốt → hiện ô trả 70%
+    const finalCard = document.getElementById('final-pay-card');
+    if (o.status === 'AWAITING_FINAL_PAYMENT' && !o.finalPaid) {
+      finalCard.style.display = 'block';
+      document.getElementById('final-pay-amount').textContent = vnd(o.remainingAmount);
+    } else {
+      finalCard.style.display = 'none';
+    }
+
+    // Nút theo dõi tài xế trên bản đồ — chỉ khi đơn đang có tài xế di chuyển
+    const trackBtn = document.getElementById('track-btn');
+    if (trackBtn) {
+      if (o.status === 'ACCEPTED' || o.status === 'IN_PROGRESS') {
+        trackBtn.href = `my-orders-active.html?order_id=${encodeURIComponent(o.id)}`;
+        trackBtn.style.display = 'inline-flex';
+      } else {
+        trackBtn.style.display = 'none';
+      }
+    }
+
+    // Nút Hủy đơn — chỉ khi chưa có tài xế nhận (PENDING/PENDING_PAYMENT/CONFIRMED)
+    const cancelBtn = document.getElementById('cancel-btn');
+    if (cancelBtn) {
+      const cancellable = ['PENDING', 'PENDING_PAYMENT', 'CONFIRMED'].includes(o.status);
+      cancelBtn.style.display = cancellable ? 'inline-flex' : 'none';
+    }
+  }
+
+  function setupCancel(id) {
+    const cancelBtn = document.getElementById('cancel-btn');
+    const confirmBox = document.getElementById('cancel-confirm');
+    const confirmBtn = document.getElementById('cancel-confirm-btn');
+    const noBtn = document.getElementById('cancel-cancel-btn');
+    const msg = document.getElementById('cancel-msg');
+
+    cancelBtn?.addEventListener('click', () => {
+      cancelBtn.style.display = 'none';
+      if (confirmBox) confirmBox.style.display = 'block';
+    });
+    noBtn?.addEventListener('click', () => {
+      if (confirmBox) confirmBox.style.display = 'none';
+      cancelBtn.style.display = 'inline-flex';
+    });
+    confirmBtn?.addEventListener('click', async () => {
+      confirmBtn.disabled = true;
+      try {
+        await putAuthenticated(`/api/customer/orders/${id}/cancel`, { reason: 'Khách hủy đơn' });
+        window.location.href = 'my-orders-pending.html';
+      } catch (e) {
+        confirmBtn.disabled = false;
+        if (msg) { msg.textContent = e.message || 'Không thể hủy đơn. Vui lòng thử lại.'; }
+      }
+    });
+  }
+
+  function setupFinalPayment(id) {
+    const errEl = document.getElementById('final-pay-error');
+    const showErr = (m) => { errEl.textContent = m; errEl.style.display = 'block'; };
+
+    document.getElementById('pay-vnpay-btn')?.addEventListener('click', async () => {
+      errEl.style.display = 'none';
+      try {
+        const res = await postAuthenticated(`/api/customer/orders/${id}/vnpay-final-payment`, null);
+        const url = res.payment_url || res.paymentUrl;
+        if (!url) throw new Error('Không nhận được đường dẫn thanh toán VNPay.');
+        window.location.href = url;
+      } catch (e) { showErr(e.message || 'Thanh toán thất bại.'); }
+    });
+
+    document.getElementById('pay-wallet-btn')?.addEventListener('click', async () => {
+      errEl.style.display = 'none';
+      try {
+        await postAuthenticated(`/api/customer/orders/${id}/wallet-final-payment`, null);
+        window.location.reload();
+      } catch (e) { showErr(e.message || 'Thanh toán thất bại.'); }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') { logout('../login.html'); return; }
+
+    document.getElementById('header-user-name').textContent = user.fullName || 'Khách hàng';
+    document.getElementById('header-user-avatar').textContent = initials(user.fullName);
+    document.getElementById('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (!id) {
+      show('detail-error');
+      document.getElementById('detail-error-message').textContent = 'Thiếu mã đơn hàng.';
+      return;
+    }
+
+    show('detail-loading');
+    try {
+      const order = await getAuthenticated(`/api/customer/orders/${id}`);
+      render(order);
+      setupFinalPayment(id);
+      setupCancel(id);
+      show('detail-content');
+    } catch (err) {
+      console.error(err);
+      show('detail-error');
+      document.getElementById('detail-error-message').textContent =
+        err.message || 'Không thể tải chi tiết đơn. Vui lòng thử lại.';
+    }
+  });
+</script>
 </body>
 </html>
