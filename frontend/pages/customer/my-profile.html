@@ -14,6 +14,13 @@
   
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
+    /* Centering dashboard main */
+    .dashboard-main {
+      margin: 0 auto;
+      width: 100%;
+      max-width: 1200px;
+    }
+
     .customer-nav {
       display: flex;
       gap: 16px;
@@ -65,6 +72,18 @@
       font-size: 36px;
       font-weight: var(--font-weight-bold);
       margin: 0 auto;
+      overflow: hidden;
+    }
+    .profile-avatar img,
+    #header-user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: inherit;
+    }
+    #header-user-avatar {
+      overflow: hidden;
     }
     
     .info-row {
@@ -167,7 +186,7 @@
           <div class="profile-avatar-container">
             <div class="profile-avatar" id="profile-avatar-val">KH</div>
           </div>
-          <h2 id="profile-name-val" style="font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); color: var(--color-ink); margin-bottom: var(--spacing-xs);">Nguyễn Văn An</h2>
+          <h2 id="profile-name-val" style="font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); color: var(--color-ink); margin-bottom: var(--spacing-xs);">—</h2>
           <p style="color: var(--color-body); font-size: var(--font-size-body-sm); margin-bottom: var(--spacing-md);">Khách hàng thân thiết</p>
           <span id="profile-status-badge" class="badge-success">Đang hoạt động</span>
           
@@ -197,11 +216,11 @@
           </div>
           <div class="info-row">
             <span class="info-label">Ngày tham gia</span>
-            <strong class="info-value" id="info-join-date">15/04/2026</strong>
+            <strong class="info-value" id="info-join-date">—</strong>
           </div>
           <div class="info-row">
             <span class="info-label">Tổng số đơn đã đặt</span>
-            <strong class="info-value" id="info-total-orders">12 đơn</strong>
+            <strong class="info-value" id="info-total-orders">—</strong>
           </div>
           <div class="info-row">
             <span class="info-label">Số dư ví khả dụng</span>
@@ -284,6 +303,10 @@
       loadingEl.style.display = 'none';
       contentEl.style.display = 'grid';
 
+      // 0. Đồng bộ tên + avatar vào userInfo — phiên đăng nhập cũ (trước khi có avatar)
+      // sẽ được cập nhật khi ghé trang này, các trang khác hiện đúng theo
+      syncUserInfo(profile);
+
       // 1. Render Header Identity
       renderHeader(profile);
 
@@ -307,16 +330,16 @@
     if (nameEl) nameEl.textContent = profile.fullName || 'Khách hàng';
 
     const avatarEl = document.getElementById('header-user-avatar');
-    if (avatarEl && profile.fullName) {
-      avatarEl.textContent = getInitials(profile.fullName);
+    if (avatarEl) {
+      setAvatarContent(avatarEl, profile);
     }
   }
 
   function renderProfileOverview(profile) {
-    // Avatar
+    // Avatar: hien anh that neu co avatarUrl, fallback chu cai dau
     const avatarEl = document.getElementById('profile-avatar-val');
-    if (avatarEl && profile.fullName) {
-      avatarEl.textContent = getInitials(profile.fullName);
+    if (avatarEl) {
+      setAvatarContent(avatarEl, profile);
     }
 
     // Name
@@ -354,22 +377,15 @@
     const phone = profile.phone || '—';
     document.getElementById('info-phone').textContent = formatPhone(phone);
 
-    // Ngày tham gia (Fallback if not in API response)
+    // Ngày tham gia — lấy từ API thật, không còn fallback mock
     const joinDateEl = document.getElementById('info-join-date');
-    if (profile.created_at || profile.createdAt) {
-      joinDateEl.textContent = formatDate(profile.created_at || profile.createdAt);
-    } else {
-      // Fallback statically to standard stub
-      joinDateEl.textContent = '15/04/2026';
-    }
+    joinDateEl.textContent = profile.createdAt ? formatDate(profile.createdAt) : '—';
 
-    // Tổng số đơn đã đặt (Fallback if not in API response)
+    // Tổng số đơn đã đặt — số thật từ DB (backend đếm service_order theo customer)
     const totalOrdersEl = document.getElementById('info-total-orders');
-    if (profile.total_orders || profile.totalOrders) {
-      totalOrdersEl.textContent = `${profile.total_orders || profile.totalOrders} đơn`;
-    } else {
-      totalOrdersEl.textContent = '12 đơn';
-    }
+    totalOrdersEl.textContent = (profile.totalOrders !== undefined && profile.totalOrders !== null)
+      ? `${profile.totalOrders} đơn`
+      : '—';
 
     // Số dư ví
     const balanceEl = document.getElementById('info-balance');
@@ -377,6 +393,37 @@
       balanceEl.textContent = formatVnd(wallet.balance);
     } else {
       balanceEl.textContent = '0 VND';
+    }
+  }
+
+  // Helper: cap nhat userInfo trong localStorage khop du lieu profile moi nhat
+  function syncUserInfo(profile) {
+    const stored = getCurrentUser();
+    if (!stored) return;
+    let changed = false;
+    if (profile.fullName && stored.fullName !== profile.fullName) {
+      stored.fullName = profile.fullName;
+      changed = true;
+    }
+    if ((profile.avatarUrl || null) !== (stored.avatarUrl || null)) {
+      stored.avatarUrl = profile.avatarUrl || null;
+      changed = true;
+    }
+    if (changed) localStorage.setItem('userInfo', JSON.stringify(stored));
+  }
+
+  // Helper: gan noi dung avatar — anh that (avatarUrl) hoac chu cai dau
+  function setAvatarContent(el, profile) {
+    if (profile.avatarUrl) {
+      el.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = profile.avatarUrl;
+      img.alt = 'Ảnh đại diện';
+      // Neu anh loi (URL hong) thi quay ve chu cai dau
+      img.onerror = () => { el.textContent = getInitials(profile.fullName); };
+      el.appendChild(img);
+    } else if (profile.fullName) {
+      el.textContent = getInitials(profile.fullName);
     }
   }
 

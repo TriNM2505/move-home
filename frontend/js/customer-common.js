@@ -23,6 +23,13 @@ function formatTimeVN(dateString) {
   }
 }
 
+function getInitialsFromName(name) {
+  if (!name) return 'KH';
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return 'KH';
+  return words.map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
 function escapeHTML(str) {
   if (!str) return '';
   return str.replace(/[&<>'"]/g, 
@@ -234,13 +241,24 @@ document.addEventListener('DOMContentLoaded', () => {
         userNameEl.innerHTML = `Xin chào, <span id="userName">${user.fullName || 'Khách hàng'}</span>`;
       }
     }
-    // Update Avatar
+    // Update Avatar — anh that tu Cloudinary neu co avatarUrl, fallback chu cai dau
     const avatarEl = document.getElementById('userAvatar') || document.querySelector('.avatar');
-    if (avatarEl && user.fullName) {
+    if (avatarEl) {
       if (!avatarEl.id) avatarEl.id = 'userAvatar';
-      avatarEl.textContent = user.fullName
-        .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
       avatarEl.className = 'avatar avatar-sm avatar-initials';
+      if (user.avatarUrl) {
+        avatarEl.style.overflow = 'hidden';
+        avatarEl.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = user.avatarUrl;
+        img.alt = 'Ảnh đại diện';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;';
+        // Anh loi (URL hong) -> quay ve chu cai dau
+        img.onerror = () => { avatarEl.textContent = getInitialsFromName(user.fullName); };
+        avatarEl.appendChild(img);
+      } else if (user.fullName) {
+        avatarEl.textContent = getInitialsFromName(user.fullName);
+      }
     }
   }
 

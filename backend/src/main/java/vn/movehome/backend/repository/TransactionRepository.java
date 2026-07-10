@@ -11,6 +11,7 @@ import vn.movehome.backend.entity.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,6 +54,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID>,
      * Lịch sử giao dịch theo loại, dùng cho Driver earnings.
      */
     Page<Transaction> findByUserIdAndType(UUID userId, TransactionType type, Pageable pageable);
+
+    /**
+     * Lịch sử giao dịch theo NHIỀU loại — dùng cho trang Thu nhập tài xế hiển thị
+     * cả thu nhập (DRIVER_EARNING) lẫn khấu trừ bồi thường (DAMAGE_DEDUCTION) và nộp bổ sung.
+     */
+    Page<Transaction> findByUserIdAndTypeIn(UUID userId, Collection<TransactionType> types, Pageable pageable);
 
     /**
      * Idempotency cho earning: một đơn hàng chỉ được ghi DRIVER_EARNING một lần.

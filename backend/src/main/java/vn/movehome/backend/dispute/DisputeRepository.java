@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,4 +23,16 @@ public interface DisputeRepository extends JpaRepository<Dispute, UUID> {
     boolean existsByOrderIdAndStatusIn(UUID orderId, Collection<String> statuses);
 
     Page<Dispute> findByStatus(String status, Pageable pageable);
+
+    // Khoan phat dang cho nop bo sung cua 1 tai xe (banner FE)
+    Optional<Dispute> findFirstByDriverIdAndPendingDeductShortfallIsNotNullOrderByDeductDeadlineAsc(UUID driverId);
+
+    // Cac khoan qua han nop bo sung — scheduled job khoa tai khoan + tru coc
+    @Query("""
+            select d.id
+            from Dispute d
+            where d.pendingDeductShortfall is not null
+              and d.deductDeadline < :now
+            """)
+    List<UUID> findExpiredPendingDeductionIds(@Param("now") OffsetDateTime now);
 }

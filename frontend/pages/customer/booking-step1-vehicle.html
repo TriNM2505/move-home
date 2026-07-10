@@ -92,32 +92,41 @@
       font-weight: var(--font-weight-bold);
     }
 
+    /* Centering dashboard main */
+    .dashboard-main {
+      margin: 0 auto;
+      width: 100%;
+      max-width: 1200px;
+    }
+
     /* Vehicle Grid and Cards */
     .vehicle-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(3, 1fr); /* Fixed 3 columns for beautiful desktop view */
       gap: var(--spacing-xl);
     }
     .vehicle-card {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-sm);
       border: 1px solid var(--color-surface-pressed);
       border-radius: var(--rounded-xl);
-      padding: var(--spacing-xl);
       background: var(--color-canvas);
       cursor: pointer;
       transition: all var(--transition-base);
       position: relative;
+      padding: 0; /* Remove old padding to allow full-bleed image */
+      overflow: visible; /* Prevent badge clipping */
     }
     .vehicle-card:hover {
-      border-color: var(--color-mute);
-      transform: translateY(-2px);
+      border-color: var(--color-primary-soft);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-level-2);
     }
     .vehicle-card.selected {
       border-color: var(--color-primary);
       border-width: 2px;
       background-color: #F0F6F3; /* Soft green brand background tint */
+      box-shadow: var(--shadow-level-2);
     }
     .vehicle-card.selected::after {
       content: "✓";
@@ -133,12 +142,13 @@
       place-items: center;
       font-size: 12px;
       font-weight: bold;
+      z-index: 11;
     }
     
     /* Vehicle Tag (Popularity, recommendation badges) */
     .vehicle-tag {
       position: absolute;
-      top: -10px;
+      top: -12px;
       left: var(--spacing-lg);
       font-size: 11px;
       font-weight: var(--font-weight-bold);
@@ -147,6 +157,7 @@
       background-color: var(--color-canvas-soft);
       color: var(--color-body);
       border: 1px solid var(--color-surface-pressed);
+      z-index: 12;
     }
     .vehicle-tag.accent {
       background-color: var(--color-accent);
@@ -154,30 +165,49 @@
       border-color: var(--color-accent-strong);
     }
 
-    .vehicle-icon {
-      width: 72px;
-      height: 72px;
-      border-radius: var(--rounded-full);
-      background: var(--color-canvas-soft);
-      display: grid;
-      place-items: center;
-      transition: background-color var(--transition-fast);
-      margin-bottom: var(--spacing-xs);
+    .vehicle-image-wrapper {
+      width: 100%;
+      height: 160px;
+      overflow: hidden;
+      background-color: var(--color-canvas-soft);
+      border-bottom: 1px solid var(--color-surface-pressed);
+      border-top-left-radius: 14px; /* Match outer card radius */
+      border-top-right-radius: 14px;
     }
-    .vehicle-card.selected .vehicle-icon {
-      background: var(--color-success-bg);
+    .vehicle-card.selected .vehicle-image-wrapper {
+      border-bottom-color: rgba(27, 77, 62, 0.15);
     }
+    .vehicle-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-top-left-radius: 14px;
+      border-top-right-radius: 14px;
+      transition: transform var(--transition-base);
+    }
+    .vehicle-card:hover .vehicle-image-wrapper img {
+      transform: scale(1.04);
+    }
+
+    .vehicle-body {
+      padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
     .vehicle-title {
       font-size: var(--font-size-body-lg);
       font-weight: var(--font-weight-bold);
       color: var(--color-ink);
-      margin: 0;
+      margin: 0 0 var(--spacing-xxs) 0;
     }
     .vehicle-desc {
       font-size: var(--font-size-body-sm);
       color: var(--color-body);
       line-height: var(--line-height-body-sm);
-      margin: 0;
+      margin: 0 0 var(--spacing-sm) 0;
+      flex-grow: 1;
     }
     
     /* Capacity detail checklists */
@@ -187,7 +217,7 @@
       display: flex;
       flex-direction: column;
       gap: var(--spacing-xxs);
-      margin: var(--spacing-xs) 0 var(--spacing-sm) 0;
+      margin: var(--spacing-xs) 0 var(--spacing-lg) 0;
       padding: 0;
       list-style: none;
       border-top: 1px dashed var(--color-surface-pressed);
@@ -211,7 +241,7 @@
     .vehicle-price {
       font-size: var(--font-size-body-md);
       color: var(--color-primary);
-      font-weight: var(--font-weight-semibold);
+      font-weight: var(--font-weight-bold);
       margin-top: auto;
       display: block;
     }
@@ -378,81 +408,55 @@
             <!-- Xe tải 500kg -->
             <article class="vehicle-card" data-type="TRUCK_500KG" data-name="Xe tải 500kg" data-suitability="Đồ ít, phòng trọ, 1-2 người">
               <span class="vehicle-tag accent">Phổ biến nhất</span>
-              <div class="vehicle-icon">
-                <svg width="72" height="72" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <line x1="4" y1="52" x2="60" y2="52" stroke="#1B4D3E" stroke-width="2" stroke-linecap="round"/>
-                  <rect x="8" y="20" width="30" height="24" rx="3" fill="#1B4D3E" stroke="#1B4D3E" stroke-width="2"/>
-                  <path d="M38 26H48L56 34V44H38V26Z" fill="#F5A623" stroke="#1B4D3E" stroke-width="2" stroke-linejoin="round"/>
-                  <path d="M40 29H47L51 34H40V29Z" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="2"/>
-                  <rect x="52" y="42" width="6" height="3" rx="1" fill="#1A1A1A"/>
-                  <circle cx="18" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
-                  <circle cx="18" cy="48" r="2.5" fill="#FFFFFF"/>
-                  <circle cx="44" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
-                  <circle cx="44" cy="48" r="2.5" fill="#FFFFFF"/>
-                </svg>
+              <div class="vehicle-image-wrapper">
+                <img src="../../assets/pricing_truck_500kg.jpg" alt="Xe tải Suzuki 5 tạ chuyển trọ sinh viên">
               </div>
-              <h2 class="vehicle-title">Xe tải 500kg</h2>
-              <p class="vehicle-desc">Phù hợp chuyển đồ phòng trọ, chung cư nhỏ, đồ đạc của 1-2 người.</p>
-              <ul class="vehicle-features">
-                <li>1 giường đơn + 1 tủ nhỏ</li>
-                <li>5 - 10 thùng carton đồ</li>
-                <li>Dễ dàng di chuyển ngõ nhỏ</li>
-              </ul>
-              <strong class="vehicle-price">Giá khởi điểm: 350.000 VND</strong>
+              <div class="vehicle-body">
+                <h2 class="vehicle-title">Xe tải 500kg</h2>
+                <p class="vehicle-desc">Phù hợp chuyển đồ phòng trọ, chung cư nhỏ, đồ đạc của 1-2 người.</p>
+                <ul class="vehicle-features">
+                  <li>1 giường đơn + 1 tủ nhỏ</li>
+                  <li>5 - 10 thùng carton đồ</li>
+                  <li>Dễ dàng di chuyển ngõ nhỏ</li>
+                </ul>
+                <strong class="vehicle-price">Giá khởi điểm: 350.000 VND</strong>
+              </div>
             </article>
 
             <!-- Xe tải 1 tấn -->
             <article class="vehicle-card" data-type="TRUCK_1T" data-name="Xe tải 1 tấn" data-suitability="Gia đình nhỏ, nhiều thùng đồ & đồ nội thất">
               <span class="vehicle-tag">Khuyên dùng</span>
-              <div class="vehicle-icon">
-                <svg width="72" height="72" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <line x1="4" y1="52" x2="60" y2="52" stroke="#1B4D3E" stroke-width="2" stroke-linecap="round"/>
-                  <rect x="6" y="16" width="34" height="30" rx="3" fill="#1B4D3E" stroke="#1B4D3E" stroke-width="2"/>
-                  <path d="M40 22H50L58 30V44H40V22Z" fill="#F5A623" stroke="#1B4D3E" stroke-width="2" stroke-linejoin="round"/>
-                  <path d="M42 25H49L53 30H42V25Z" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="2"/>
-                  <rect x="10" y="24" width="26" height="4" rx="1" fill="#F5A623" fill-opacity="0.8"/>
-                  <circle cx="16" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
-                  <circle cx="16" cy="48" r="2.5" fill="#FFFFFF"/>
-                  <circle cx="46" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
-                  <circle cx="46" cy="48" r="2.5" fill="#FFFFFF"/>
-                </svg>
+              <div class="vehicle-image-wrapper">
+                <img src="../../assets/pricing_truck_1t.jpg" alt="Xe tải 1 tấn dọn nhà gia đình nhỏ">
               </div>
-              <h2 class="vehicle-title">Xe tải 1 tấn</h2>
-              <p class="vehicle-desc">Phù hợp chuyển nhà gia đình nhỏ, có các thiết bị gia dụng cơ bản.</p>
-              <ul class="vehicle-features">
-                <li>1 giường đôi + 1 tủ lớn</li>
-                <li>Tủ lạnh + Máy giặt + Bàn ghế</li>
-                <li>10 - 15 thùng carton đồ</li>
-              </ul>
-              <strong class="vehicle-price">Giá khởi điểm: 550.000 VND</strong>
+              <div class="vehicle-body">
+                <h2 class="vehicle-title">Xe tải 1 tấn</h2>
+                <p class="vehicle-desc">Phù hợp chuyển nhà gia đình nhỏ, có các thiết bị gia dụng cơ bản.</p>
+                <ul class="vehicle-features">
+                  <li>1 giường đôi + 1 tủ lớn</li>
+                  <li>Tủ lạnh + Máy giặt + Bàn ghế</li>
+                  <li>10 - 15 thùng carton đồ</li>
+                </ul>
+                <strong class="vehicle-price">Giá khởi điểm: 550.000 VND</strong>
+              </div>
             </article>
 
             <!-- Xe tải 1.5 tấn -->
             <article class="vehicle-card" data-type="TRUCK_15T" data-name="Xe tải 1.5 tấn" data-suitability="Gia đình lớn, nhiều đồ cồng kềnh">
               <span class="vehicle-tag">Sức chứa lớn</span>
-              <div class="vehicle-icon">
-                <svg width="72" height="72" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <line x1="4" y1="52" x2="60" y2="52" stroke="#1B4D3E" stroke-width="2" stroke-linecap="round"/>
-                  <rect x="4" y="12" width="38" height="32" rx="3" fill="#1B4D3E" stroke="#1B4D3E" stroke-width="2"/>
-                  <path d="M42 18H51L59 26V44H42V18Z" fill="#F5A623" stroke="#1B4D3E" stroke-width="2" stroke-linejoin="round"/>
-                  <path d="M44 21H50L54 26H44V21Z" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="2"/>
-                  <rect x="8" y="20" width="30" height="6" rx="1" fill="#FFFFFF" fill-opacity="0.25"/>
-                  <circle cx="14" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
-                  <circle cx="14" cy="48" r="2.5" fill="#FFFFFF"/>
-                  <circle cx="26" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
-                  <circle cx="26" cy="48" r="2.5" fill="#FFFFFF"/>
-                  <circle cx="48" cy="48" r="7" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="2"/>
-                  <circle cx="48" cy="48" r="2.5" fill="#FFFFFF"/>
-                </svg>
+              <div class="vehicle-image-wrapper">
+                <img src="../../assets/pricing_truck_1_5t.png" alt="Xe tải JAC 1.5 tấn dọn nhà nguyên căn">
               </div>
-              <h2 class="vehicle-title">Xe tải 1.5 tấn</h2>
-              <p class="vehicle-desc">Thích hợp chuyển nhà nguyên căn, đồ đạc căn hộ 2-3 phòng ngủ.</p>
-              <ul class="vehicle-features">
-                <li>Phù hợp căn hộ 2-3 PN</li>
-                <li>Sofa + Tủ kệ tivi + Nệm lớn</li>
-                <li>15 - 25 thùng carton đồ</li>
-              </ul>
-              <strong class="vehicle-price">Giá khởi điểm: 750.000 VND</strong>
+              <div class="vehicle-body">
+                <h2 class="vehicle-title">Xe tải 1.5 tấn</h2>
+                <p class="vehicle-desc">Thích hợp chuyển nhà nguyên căn, đồ đạc căn hộ 2-3 phòng ngủ.</p>
+                <ul class="vehicle-features">
+                  <li>Phù hợp căn hộ 2-3 PN</li>
+                  <li>Sofa + Tủ kệ tivi + Nệm lớn</li>
+                  <li>15 - 25 thùng carton đồ</li>
+                </ul>
+                <strong class="vehicle-price">Giá khởi điểm: 750.000 VND</strong>
+              </div>
             </article>
           </div>
 
@@ -509,8 +513,19 @@
       const avatarEl = document.getElementById('header-user-avatar');
       if (nameEl) nameEl.textContent = `Xin chào, ${profile.fullName}`;
       if (avatarEl) {
-        avatarEl.textContent = profile.fullName
-          .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        // Anh that neu co avatarUrl, fallback chu cai dau (dong bo voi customer-common.js)
+        if (profile.avatarUrl) {
+          avatarEl.style.overflow = 'hidden';
+          avatarEl.innerHTML = '';
+          const img = document.createElement('img');
+          img.src = profile.avatarUrl;
+          img.alt = 'Ảnh đại diện';
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;';
+          avatarEl.appendChild(img);
+        } else {
+          avatarEl.textContent = profile.fullName
+            .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        }
       }
     } catch (err) {
       console.error('Lỗi khi tải thông tin khách hàng:', err);

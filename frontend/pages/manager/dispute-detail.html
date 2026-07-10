@@ -10,6 +10,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    /* CSS rieng cho trang nay (additive) */
+    .dsp-field-error { color: var(--color-danger); font-size: var(--font-size-body-sm); margin-top: 4px; display: none; }
+    .dsp-resolution-box {
+      background: var(--color-canvas-soft); border-radius: 16px;
+      padding: var(--spacing-lg); margin-top: var(--spacing-md);
+    }
+    .dsp-statement {
+      background: var(--color-canvas-soft); border-radius: 12px;
+      padding: var(--spacing-md) var(--spacing-lg); white-space: pre-wrap;
+      color: var(--color-ink); line-height: 1.7;
+    }
+  </style>
 </head>
 <body>
 
@@ -22,9 +35,9 @@
       </a>
 
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Quản lý</span>
-        <div class="avatar avatar-sm avatar-initials">QL</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <span class="user-menu-name">Xin chào, <span id="mgr-name">Quản lý</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="mgr-avatar">QL</div>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
     </div>
   </header>
@@ -35,10 +48,6 @@
         <a href="driver-approvals.html" class="sidebar-item">
           <span class="sidebar-icon">✓</span>
           <span>Duyệt tài xế</span>
-        </a>
-        <a href="withdrawal-pending.html" class="sidebar-item">
-          <span class="sidebar-icon">₫</span>
-          <span>Rút tiền</span>
         </a>
         <a href="disputes.html" class="sidebar-item sidebar-item--active">
           <span class="sidebar-icon">!</span>
@@ -51,117 +60,507 @@
       <div class="dashboard-main">
         <header class="page-header">
           <h1 class="page-title">Xử lý khiếu nại</h1>
-          <p class="page-subtitle">Đơn MH202606050001 có báo cáo trầy xước tủ gỗ sau khi vận chuyển.</p>
+          <p class="page-subtitle" id="page-subtitle">Đang tải thông tin khiếu nại...</p>
         </header>
 
-        <section class="grid-2 mb-8" aria-label="Thông tin đơn và người liên quan">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title">Thông tin đơn hàng</h2>
-              <span class="badge badge-sm badge-danger">Khiếu nại</span>
-            </div>
-            <div class="card-body">
-              <div class="welcome-info">
-                <div class="info-row"><span>Mã đơn</span><strong>MH202606050001</strong></div>
-                <div class="info-row"><span>Khách hàng</span><strong>Nguyễn Thu Hà</strong></div>
-                <div class="info-row"><span>Tài xế</span><strong>Nguyễn Văn Hùng</strong></div>
-                <div class="info-row"><span>Tổng tiền</span><strong class="num-money">2.400.000 đ</strong></div>
-                <div class="info-row"><span>Ngày hoàn thành</span><strong>05/06/2026 10:20</strong></div>
-              </div>
-            </div>
-          </div>
+        <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-lg);"></div>
 
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title">Tuyến vận chuyển</h2>
-              <span class="card-meta">Nội thành Hà Nội</span>
-            </div>
-            <div class="card-body">
-              <div class="welcome-info">
-                <div class="info-row"><span>Điểm đón</span><strong>Quận Ba Đình</strong></div>
-                <div class="info-row"><span>Địa chỉ đón</span><strong>12 Kim Mã</strong></div>
-                <div class="info-row"><span>Điểm trả</span><strong>Quận Cầu Giấy</strong></div>
-                <div class="info-row"><span>Địa chỉ trả</span><strong>88 Duy Tân</strong></div>
-                <div class="info-row"><span>Loại xe</span><strong>Xe tải 1 tấn</strong></div>
-              </div>
-            </div>
-          </div>
+        <!-- LOADING STATE -->
+        <section id="detail-loading" style="display: flex; flex-direction: column; align-items: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: 16px; border: 1px solid var(--color-surface-pressed);" aria-live="polite">
+          <span class="spinner spinner-md" style="margin-bottom: var(--spacing-md);"></span>
+          <span style="color: var(--color-body);">Đang tải chi tiết khiếu nại...</span>
         </section>
 
-        <section class="grid-2 mb-8" aria-label="Nội dung khiếu nại và phản hồi">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title">Nội dung khách hàng báo cáo</h2>
-              <span class="card-meta">Gửi lúc 11:05</span>
-            </div>
-            <div class="card-body">
-              <p class="text-muted">Khách hàng báo tủ gỗ bị trầy ở cạnh trái sau khi chuyển lên tầng. Khách yêu cầu hỗ trợ bồi thường chi phí sửa chữa.</p>
-              <div class="grid-2 mt-lg">
-                <div class="card-soft-tinted text-center">
-                  <div class="empty-state-icon" aria-hidden="true">▣</div>
-                  <p class="empty-state-desc">Ảnh cạnh tủ bị trầy</p>
-                </div>
-                <div class="card-soft-tinted text-center">
-                  <div class="empty-state-icon" aria-hidden="true">▣</div>
-                  <p class="empty-state-desc">Ảnh vị trí đặt tủ sau giao</p>
+        <!-- ERROR STATE -->
+        <section id="detail-error" style="display: none; text-align: center; padding: var(--spacing-4xl); background: var(--color-canvas); border-radius: 16px; border: 1px solid var(--color-surface-pressed);" aria-live="assertive">
+          <h2 style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm);">Không thể tải khiếu nại</h2>
+          <p id="detail-error-message" style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Có lỗi xảy ra khi kết nối máy chủ.</p>
+          <a href="disputes.html" class="btn btn-secondary btn-md" style="margin-right: 8px;">Quay lại danh sách</a>
+          <button id="detail-retry-btn" class="btn btn-primary btn-md">Thử lại</button>
+        </section>
+
+        <!-- CONTENT -->
+        <div id="detail-content" style="display: none;">
+
+          <section class="grid-2 mb-8" aria-label="Thông tin đơn và người liên quan">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Thông tin đơn hàng</h2>
+                <span id="dispute-status-badge"></span>
+              </div>
+              <div class="card-body">
+                <div class="welcome-info">
+                  <div class="info-row"><span>Mã đơn</span><strong id="order-code">—</strong></div>
+                  <div class="info-row"><span>Khách hàng</span><strong id="customer-name">—</strong></div>
+                  <div class="info-row"><span>SĐT khách</span><strong id="customer-phone">—</strong></div>
+                  <div class="info-row"><span>Tài xế</span><strong id="driver-name">—</strong></div>
+                  <div class="info-row"><span>SĐT tài xế</span><strong id="driver-phone">—</strong></div>
+                  <div class="info-row"><span>Tổng tiền đơn</span><strong class="num-money" id="order-total">—</strong></div>
+                  <div class="info-row"><span>Hoàn thành lúc</span><strong id="order-completed">—</strong></div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="card">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Tuyến vận chuyển</h2>
+                <span class="card-meta">Nội thành Hà Nội</span>
+              </div>
+              <div class="card-body">
+                <div class="welcome-info">
+                  <div class="info-row"><span>Điểm đón</span><strong id="pickup-address">—</strong></div>
+                  <div class="info-row"><span>Điểm trả</span><strong id="dropoff-address">—</strong></div>
+                  <div class="info-row"><span>Loại xe</span><strong id="vehicle-type">—</strong></div>
+                  <div class="info-row"><span>Loại khiếu nại</span><strong id="claim-type">—</strong></div>
+                  <div class="info-row"><span>Số tiền yêu cầu</span><strong class="num-money" id="claim-amount">—</strong></div>
+                  <div class="info-row"><span>Hạn xử lý</span><strong id="deadline">—</strong></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="grid-2 mb-8" aria-label="Nội dung khiếu nại và phản hồi">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Nội dung khách hàng báo cáo</h2>
+                <span class="card-meta" id="created-at">—</span>
+              </div>
+              <div class="card-body">
+                <div class="dsp-statement" id="customer-statement">—</div>
+                <div id="dispute-photos" style="display:none;margin-top:var(--spacing-md);">
+                  <p class="text-muted" style="font-size:var(--font-size-body-sm);margin-bottom:8px;">Ảnh bằng chứng khách đính kèm:</p>
+                  <div id="dispute-photos-grid" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Phản hồi tài xế</h2>
+                <span id="driver-response-badge" class="badge badge-sm badge-neutral">Chưa phản hồi</span>
+              </div>
+              <div class="card-body">
+                <div class="dsp-statement" id="driver-response">Tài xế chưa gửi phản hồi cho khiếu nại này.</div>
+                <div class="welcome-info mt-lg" id="driver-response-time-row" style="display:none;">
+                  <div class="info-row"><span>Thời điểm phản hồi</span><strong id="driver-response-at">—</strong></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- KHỐI CHỜ TÀI XẾ NỘP BỔ SUNG -->
+          <section class="card" id="pending-deduct-section" aria-label="Đang chờ tài xế nộp bổ sung" style="display:none; border-left: 4px solid var(--color-accent);">
             <div class="card-header">
-              <h2 class="card-title">Phản hồi tài xế</h2>
-              <span class="badge badge-sm badge-warning">Đã phản hồi</span>
+              <h2 class="card-title">Đang chờ tài xế nộp bổ sung</h2>
+              <span class="badge badge-sm badge-warning">Chờ nộp phạt</span>
             </div>
             <div class="card-body">
-              <p class="text-muted">Tài xế xác nhận tủ khó di chuyển qua cầu thang hẹp. Tài xế cho biết đã báo khách trước khi chuyển và đề nghị chia sẻ một phần chi phí sửa chữa.</p>
-              <div class="welcome-info mt-lg">
-                <div class="info-row"><span>Thời điểm phản hồi</span><strong>05/06/2026 12:10</strong></div>
-                <div class="info-row"><span>Đề xuất tài xế</span><strong class="num-money">500.000 đ</strong></div>
+              <p class="text-muted">Ví tài xế không đủ để khấu trừ. Đã trừ phần có thể và thông báo cho tài xế nộp bổ sung.
+                Quá hạn hệ thống sẽ tự <strong>khóa tài khoản tài xế</strong> và <strong>trừ vào tiền cọc</strong> để bồi thường khách.</p>
+              <div class="welcome-info mt-md">
+                <div class="info-row"><span>Còn thiếu</span><strong class="num-money" id="pending-shortfall">—</strong></div>
+                <div class="info-row"><span>Hạn nộp</span><strong id="pending-deadline">—</strong></div>
+                <div class="info-row"><span>Còn lại</span><strong id="pending-countdown" style="color:var(--color-danger)">—</strong></div>
+              </div>
+              <button class="btn btn-secondary btn-md mt-md" id="pending-refresh-btn">Làm mới trạng thái</button>
+            </div>
+          </section>
+
+          <!-- KHỐI HÀNH ĐỘNG — chỉ hiện khi khiếu nại còn mở -->
+          <section class="card" id="action-section" aria-label="Phán quyết xử lý khiếu nại" style="display:none;">
+            <div class="card-header">
+              <h2 class="card-title">Phán quyết</h2>
+              <span class="card-meta">Quản lý quyết định sau khi xác minh hai bên (HR-07)</span>
+            </div>
+            <div class="card-body">
+              <div class="grid-3">
+                <!-- Nhánh A: Khấu trừ tài xế (bồi thường từ tiền tài xế) -->
+                <div class="card-soft-tinted" style="border: 1px solid var(--color-accent);">
+                  <h3 class="section-title">Khấu trừ tài xế</h3>
+                  <p class="text-muted">Tài xế bồi thường: trừ ví ngay, thiếu thì tài xế có 5 phút nộp bổ sung, quá hạn khóa tài khoản + trừ cọc.</p>
+                  <div class="form-group mt-md">
+                    <label class="form-label" for="deduct-amount">Số tiền khấu trừ (VND) <span style="color:var(--color-danger)">*</span></label>
+                    <input type="number" class="text-input" id="deduct-amount" min="1" step="1" placeholder="Ví dụ: 500000">
+                    <p class="dsp-field-error" id="deduct-amount-error"></p>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="deduct-note">Ghi chú phán quyết <span style="color:var(--color-danger)">*</span></label>
+                    <textarea class="text-input" id="deduct-note" rows="3" maxlength="1000" placeholder="Căn cứ kết luận tài xế có lỗi... (tối thiểu 10 ký tự)"></textarea>
+                    <p class="dsp-field-error" id="deduct-note-error"></p>
+                  </div>
+                  <button class="btn btn-primary btn-md" id="deduct-btn" style="background: var(--color-accent); border-color: var(--color-accent); color: #1A1A1A;">Khấu trừ tài xế</button>
+                </div>
+
+                <!-- Nhánh B: Hoàn tiền khách từ quỹ công ty -->
+                <div class="card-soft-tinted">
+                  <h3 class="section-title">Hoàn tiền khách hàng</h3>
+                  <p class="text-muted">Công ty hoàn thiện chí (lỗi không thuộc tài xế). Tiền hoàn vào ví khách hàng, tài xế không bị trừ.</p>
+                  <div class="form-group mt-md">
+                    <label class="form-label" for="refund-amount">Số tiền hoàn (VND) <span style="color:var(--color-danger)">*</span></label>
+                    <input type="number" class="text-input" id="refund-amount" min="1" step="1" placeholder="Ví dụ: 500000">
+                    <p class="dsp-field-error" id="refund-amount-error"></p>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="resolve-note">Ghi chú phán quyết <span style="color:var(--color-danger)">*</span></label>
+                    <textarea class="text-input" id="resolve-note" rows="3" maxlength="1000" placeholder="Căn cứ phán quyết, thỏa thuận với hai bên... (tối thiểu 10 ký tự)"></textarea>
+                    <p class="dsp-field-error" id="resolve-note-error"></p>
+                  </div>
+                  <button class="btn btn-primary btn-md" id="resolve-btn">Xác nhận hoàn tiền</button>
+                </div>
+
+                <!-- Nhánh C: Đóng không lỗi -->
+                <div class="card-soft-tinted">
+                  <h3 class="section-title">Đóng khiếu nại — không có lỗi</h3>
+                  <p class="text-muted">Dùng khi không đủ bằng chứng hoặc báo cáo không hợp lệ. Không phát sinh tiền, tài xế không bị trừ.</p>
+                  <div class="form-group mt-md">
+                    <label class="form-label" for="reject-note">Lý do đóng <span style="color:var(--color-danger)">*</span></label>
+                    <textarea class="text-input" id="reject-note" rows="3" maxlength="1000" placeholder="Giải thích căn cứ từ chối khiếu nại... (tối thiểu 10 ký tự)"></textarea>
+                    <p class="dsp-field-error" id="reject-note-error"></p>
+                  </div>
+                  <button class="btn btn-danger btn-md" id="reject-btn">Đóng khiếu nại</button>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section class="card" aria-label="Phán quyết xử lý khiếu nại">
-          <div class="card-header">
-            <h2 class="card-title">Phán quyết đề xuất</h2>
-            <span class="card-meta">Quản lý cần xác nhận</span>
-          </div>
-          <div class="card-body">
-            <div class="grid-3">
-              <div class="card-soft-tinted">
-                <h3 class="section-title">Hoàn tiền khách hàng</h3>
-                <p class="text-muted">Áp dụng khi thiệt hại thuộc trách nhiệm vận chuyển.</p>
-                <p class="mt-sm"><strong class="num-money">700.000 đ</strong></p>
-              </div>
-              <div class="card-soft-tinted">
-                <h3 class="section-title">Khấu trừ tài xế</h3>
-                <p class="text-muted">Ghi nhận khoản khấu trừ vào ví tài xế.</p>
-                <p class="mt-sm"><strong class="num-money">500.000 đ</strong></p>
-              </div>
-              <div class="card-soft-tinted">
-                <h3 class="section-title">Đóng khiếu nại</h3>
-                <p class="text-muted">Dùng khi không đủ bằng chứng để xử lý tài chính.</p>
-                <p class="mt-sm"><span class="badge badge-sm badge-neutral">Không phát sinh tiền</span></p>
+          <!-- KHỐI KẾT QUẢ — hiện khi đã xử lý xong -->
+          <section class="card" id="resolution-section" aria-label="Kết quả xử lý" style="display:none;">
+            <div class="card-header">
+              <h2 class="card-title">Kết quả xử lý</h2>
+              <span id="resolution-badge"></span>
+            </div>
+            <div class="card-body">
+              <div class="welcome-info">
+                <div class="info-row" id="resolution-amount-row"><span>Số tiền hoàn</span><strong class="num-money" id="resolution-amount">—</strong></div>
+                <div class="info-row"><span>Ghi chú</span><strong id="resolution-note" style="white-space:pre-wrap;">—</strong></div>
+                <div class="info-row"><span>Xử lý lúc</span><strong id="resolved-at">—</strong></div>
               </div>
             </div>
-          </div>
-          <div class="card-footer">
-            <a href="disputes.html" class="btn btn-secondary btn-md">Không xử lý</a>
-            <a href="disputes.html" class="btn btn-danger btn-md">Khấu trừ tài xế</a>
-            <a href="disputes.html" class="btn btn-primary btn-md">Hoàn tiền khách hàng</a>
-          </div>
-        </section>
+          </section>
 
-        <p class="text-muted mt-lg">
-          <a href="disputes.html" class="link-primary">Quay lại danh sách khiếu nại</a>
-        </p>
+          <p class="text-muted mt-lg">
+            <a href="disputes.html" class="link-primary">← Quay lại danh sách khiếu nại</a>
+          </p>
+        </div>
       </div>
     </main>
   </div>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, postAuthenticated } from '../../js/api.js';
+  import { formatVnd, formatDateTime, esc, showError, hideError } from '../../js/admin-common.js';
+
+  const CLAIM_TYPE_VN = {
+    DAMAGE: 'Hư hỏng đồ đạc',
+    MISSING_ITEM: 'Thiếu / mất đồ',
+    LATE_DELIVERY: 'Giao trễ hẹn',
+    INAPPROPRIATE_BEHAVIOR: 'Thái độ không phù hợp',
+    OTHER: 'Khác',
+  };
+
+  const STATUS_BADGE = {
+    OPEN: '<span class="badge badge-sm badge-danger">Mới mở</span>',
+    INVESTIGATING: '<span class="badge badge-sm badge-warning">Đang xác minh</span>',
+    RESOLVED_REFUND: '<span class="badge badge-sm badge-success">Đã hoàn tiền</span>',
+    RESOLVED_DEDUCT: '<span class="badge badge-sm badge-success">Đã khấu trừ</span>',
+    CLOSED_NO_FAULT: '<span class="badge badge-sm badge-neutral">Đã đóng — không lỗi</span>',
+  };
+
+  const OPEN_STATUSES = ['OPEN', 'INVESTIGATING'];
+  const $ = (id) => document.getElementById(id);
+  let disputeId = null;
+  let dispute = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const u = getCurrentUser();
+    if (u?.role !== 'MANAGER') { logout('../login.html'); return; }
+    if (u.fullName) {
+      $('mgr-name').textContent = u.fullName;
+      $('mgr-avatar').textContent = u.fullName.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+    $('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+
+    disputeId = new URLSearchParams(window.location.search).get('id');
+    if (!disputeId) {
+      window.location.href = 'disputes.html';
+      return;
+    }
+
+    $('detail-retry-btn')?.addEventListener('click', loadDetail);
+    $('resolve-btn')?.addEventListener('click', handleResolve);
+    $('reject-btn')?.addEventListener('click', handleReject);
+    $('deduct-btn')?.addEventListener('click', handleDeduct);
+    $('pending-refresh-btn')?.addEventListener('click', loadDetail);
+
+    loadDetail();
+  });
+
+  let countdownTimer = null;
+
+  async function loadDetail() {
+    hideError();
+    $('detail-loading').style.display = 'flex';
+    $('detail-error').style.display = 'none';
+    $('detail-content').style.display = 'none';
+
+    try {
+      dispute = await getAuthenticated(`/api/manager/disputes/${encodeURIComponent(disputeId)}`);
+      if (!dispute) throw new Error('Không nhận được dữ liệu khiếu nại.');
+
+      render(dispute);
+      $('detail-loading').style.display = 'none';
+      $('detail-content').style.display = 'block';
+    } catch (err) {
+      console.error(err);
+      $('detail-loading').style.display = 'none';
+      $('detail-error').style.display = 'block';
+      $('detail-error-message').textContent = cleanMessage(err.message) || 'Không thể tải chi tiết khiếu nại.';
+    }
+  }
+
+  function render(d) {
+    const order = d.order || {};
+    const customer = d.customer || {};
+    const driver = d.driver || {};
+
+    $('page-subtitle').textContent =
+      `Đơn ${order.orderCode || '—'} — ${CLAIM_TYPE_VN[d.claimType] || d.claimType || 'khiếu nại'}.`;
+    $('dispute-status-badge').innerHTML = STATUS_BADGE[d.status] || esc(d.status);
+
+    // Thong tin don
+    $('order-code').textContent = order.orderCode || '—';
+    $('customer-name').textContent = customer.fullName || '—';
+    $('customer-phone').textContent = customer.phone || '—';
+    $('driver-name').textContent = driver.fullName || '—';
+    $('driver-phone').textContent = driver.phone || '—';
+    $('order-total').textContent = formatVnd(order.totalQuote);
+    $('order-completed').textContent = order.completedAt ? formatDateTime(order.completedAt) : '—';
+
+    // Tuyen + claim
+    $('pickup-address').textContent = order.pickupAddress || '—';
+    $('dropoff-address').textContent = order.dropoffAddress || '—';
+    $('vehicle-type').textContent = order.vehicleType || '—';
+    $('claim-type').textContent = CLAIM_TYPE_VN[d.claimType] || d.claimType || '—';
+    $('claim-amount').textContent = formatVnd(d.claimAmount);
+    $('deadline').textContent = d.deadline ? formatDateTime(d.deadline) : '—';
+
+    // Noi dung 2 ben
+    $('created-at').textContent = d.createdAt ? `Gửi lúc ${formatDateTime(d.createdAt)}` : '—';
+    $('customer-statement').textContent = d.customerStatement || '—';
+
+    // Anh bang chung (signed URL) — click mo anh lon
+    const photos = d.photoUrls || [];
+    const photosBox = $('dispute-photos');
+    const grid = $('dispute-photos-grid');
+    if (photos.length) {
+      grid.innerHTML = '';
+      photos.forEach(url => {
+        const a = document.createElement('a');
+        a.href = url; a.target = '_blank'; a.rel = 'noopener';
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'Ảnh bằng chứng khiếu nại';
+        img.style.cssText = 'width:120px;height:120px;object-fit:cover;border-radius:10px;border:1px solid var(--color-surface-pressed);';
+        a.appendChild(img);
+        grid.appendChild(a);
+      });
+      photosBox.style.display = 'block';
+    } else {
+      photosBox.style.display = 'none';
+    }
+    if (d.driverResponse) {
+      $('driver-response').textContent = d.driverResponse;
+      $('driver-response-badge').className = 'badge badge-sm badge-warning';
+      $('driver-response-badge').textContent = 'Đã phản hồi';
+      if (d.driverResponseAt) {
+        $('driver-response-time-row').style.display = 'block';
+        $('driver-response-at').textContent = formatDateTime(d.driverResponseAt);
+      }
+    }
+
+    // 3 trang thai giao dien: dang cho tai xe nop / con mo / da xong
+    const isPendingDeduct = d.pendingDeductShortfall !== null && d.pendingDeductShortfall !== undefined;
+    const isOpen = OPEN_STATUSES.includes(d.status) && !isPendingDeduct;
+    $('pending-deduct-section').style.display = isPendingDeduct ? 'block' : 'none';
+    $('action-section').style.display = isOpen ? 'block' : 'none';
+    $('resolution-section').style.display = (isOpen || isPendingDeduct) ? 'none' : 'block';
+
+    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    if (isPendingDeduct) {
+      $('pending-shortfall').textContent = formatVnd(d.pendingDeductShortfall);
+      $('pending-deadline').textContent = d.deductDeadline ? formatDateTime(d.deductDeadline) : '—';
+      startCountdown(d.deductDeadline);
+    }
+
+    if (isOpen) {
+      // Goi y san so tien = so tien khach yeu cau
+      if (d.claimAmount) {
+        $('refund-amount').value = Number(d.claimAmount);
+        $('deduct-amount').value = Number(d.claimAmount);
+      }
+    } else if (!isPendingDeduct) {
+      $('resolution-badge').innerHTML = STATUS_BADGE[d.status] || esc(d.status);
+      const hasAmount = d.resolutionAmount !== null && d.resolutionAmount !== undefined;
+      $('resolution-amount-row').style.display = hasAmount ? 'flex' : 'none';
+      if (hasAmount) $('resolution-amount').textContent = formatVnd(d.resolutionAmount);
+      $('resolution-note').textContent = d.resolutionNote || '—';
+      $('resolved-at').textContent = d.resolvedAt ? formatDateTime(d.resolvedAt) : '—';
+    }
+  }
+
+  // Dem nguoc den han nop; het han thi tu refresh de thay ket qua job xu ly
+  function startCountdown(deadlineIso) {
+    if (!deadlineIso) return;
+    const deadline = new Date(deadlineIso).getTime();
+    const tick = () => {
+      const remainMs = deadline - Date.now();
+      if (remainMs <= 0) {
+        $('pending-countdown').textContent = 'Đã quá hạn — hệ thống đang khóa tài khoản và trừ cọc...';
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+        setTimeout(loadDetail, 20000); // job chay 15s/lan
+        return;
+      }
+      const mm = Math.floor(remainMs / 60000);
+      const ss = Math.floor((remainMs % 60000) / 1000);
+      $('pending-countdown').textContent = `${mm} phút ${String(ss).padStart(2, '0')} giây`;
+    };
+    tick();
+    countdownTimer = setInterval(tick, 1000);
+  }
+
+  // ===== NHÁNH KHẤU TRỪ TÀI XẾ =====
+  async function handleDeduct() {
+    clearFieldErrors();
+    const amountVal = parseInt($('deduct-amount').value, 10);
+    const note = $('deduct-note').value.trim().replace(/\s+/g, ' ');
+
+    let valid = true;
+    if (isNaN(amountVal) || amountVal <= 0) {
+      fieldError('deduct-amount-error', 'Vui lòng nhập số tiền khấu trừ hợp lệ (lớn hơn 0).');
+      valid = false;
+    } else if (dispute?.order?.totalQuote && amountVal > Number(dispute.order.totalQuote)) {
+      fieldError('deduct-amount-error', 'Số tiền khấu trừ không được vượt quá tổng tiền đơn hàng.');
+      valid = false;
+    }
+    if (note.length < 10 || note.length > 1000) {
+      fieldError('deduct-note-error', 'Ghi chú phải dài 10–1000 ký tự.');
+      valid = false;
+    }
+    if (!valid) return;
+
+    if (!window.confirm(`Xác nhận khấu trừ ${formatVnd(amountVal)} từ tài xế? Ví tài xế sẽ bị trừ ngay, thiếu thì tài xế có 5 phút nộp bổ sung.`)) return;
+
+    const btn = $('deduct-btn');
+    btn.disabled = true;
+    btn.textContent = 'Đang xử lý...';
+    try {
+      await postAuthenticated(`/api/manager/disputes/${encodeURIComponent(disputeId)}/resolve-deduct`, {
+        deductAmount: amountVal,
+        note,
+      });
+      await loadDetail(); // hien khoi cho-nop hoac ket qua tuy vi du/thieu
+    } catch (err) {
+      console.error(err);
+      fieldError('deduct-note-error', cleanMessage(err.message) || 'Không thể xử lý. Vui lòng thử lại.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Khấu trừ tài xế';
+    }
+  }
+
+  // ===== NHÁNH A: HOÀN TIỀN =====
+  async function handleResolve() {
+    clearFieldErrors();
+    const amountVal = parseInt($('refund-amount').value, 10);
+    const note = $('resolve-note').value.trim().replace(/\s+/g, ' ');
+
+    let valid = true;
+    if (isNaN(amountVal) || amountVal <= 0) {
+      fieldError('refund-amount-error', 'Vui lòng nhập số tiền hoàn hợp lệ (lớn hơn 0).');
+      valid = false;
+    } else if (dispute?.order?.totalQuote && amountVal > Number(dispute.order.totalQuote)) {
+      fieldError('refund-amount-error', 'Số tiền hoàn không được vượt quá tổng tiền đơn hàng.');
+      valid = false;
+    }
+    if (note.length < 10 || note.length > 1000) {
+      fieldError('resolve-note-error', 'Ghi chú phải dài 10–1000 ký tự.');
+      valid = false;
+    }
+    if (!valid) return;
+
+    if (!window.confirm(`Xác nhận hoàn ${formatVnd(amountVal)} cho khách hàng? Hành động không thể hoàn tác.`)) return;
+
+    const btn = $('resolve-btn');
+    btn.disabled = true;
+    btn.textContent = 'Đang xử lý...';
+    try {
+      await postAuthenticated(`/api/manager/disputes/${encodeURIComponent(disputeId)}/resolve`, {
+        refundAmount: amountVal,
+        note,
+      });
+      await loadDetail(); // reload de hien khoi ket qua
+    } catch (err) {
+      console.error(err);
+      fieldError('resolve-note-error', cleanMessage(err.message) || 'Không thể xử lý. Vui lòng thử lại.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Xác nhận hoàn tiền';
+    }
+  }
+
+  // ===== NHÁNH B: ĐÓNG KHÔNG LỖI =====
+  async function handleReject() {
+    clearFieldErrors();
+    const note = $('reject-note').value.trim().replace(/\s+/g, ' ');
+    if (note.length < 10 || note.length > 1000) {
+      fieldError('reject-note-error', 'Lý do phải dài 10–1000 ký tự.');
+      return;
+    }
+
+    if (!window.confirm('Xác nhận đóng khiếu nại không có lỗi? Khách hàng sẽ không được hoàn tiền.')) return;
+
+    const btn = $('reject-btn');
+    btn.disabled = true;
+    btn.textContent = 'Đang xử lý...';
+    try {
+      await postAuthenticated(`/api/manager/disputes/${encodeURIComponent(disputeId)}/reject`, { note });
+      await loadDetail();
+    } catch (err) {
+      console.error(err);
+      fieldError('reject-note-error', cleanMessage(err.message) || 'Không thể xử lý. Vui lòng thử lại.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Đóng khiếu nại';
+    }
+  }
+
+  function fieldError(id, msg) {
+    const el = $(id);
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function clearFieldErrors() {
+    for (const id of ['refund-amount-error', 'resolve-note-error', 'reject-note-error',
+                      'deduct-amount-error', 'deduct-note-error']) {
+      const el = $(id);
+      if (el) {
+        el.textContent = '';
+        el.style.display = 'none';
+      }
+    }
+  }
+
+  // Backend tra message dang "CODE|Thong bao"
+  function cleanMessage(raw) {
+    if (!raw) return '';
+    return String(raw).split('|').pop().trim();
+  }
+</script>
 
 <!-- JS Common + Bell Dropdown -->
 <script type="module" src="../../js/notifications-bell.js"></script>

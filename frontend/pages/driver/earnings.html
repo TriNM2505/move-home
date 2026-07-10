@@ -11,9 +11,62 @@
 
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    /* Navbar dàn trải và chia đều khoảng cách */
+    .driver-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      gap: var(--spacing-md);
+      flex-wrap: nowrap;
+      margin: 0 var(--spacing-xl);
+    }
+
+    /* Bỏ gạch chân cho link và active link */
+    .driver-nav a.nav-link {
+      border-bottom: none !important;
+      text-decoration: none !important;
+      white-space: nowrap;
+    }
+    .driver-nav a.nav-link.active {
+      border-bottom: none !important;
+      color: var(--color-primary) !important;
+      font-weight: 600;
+    }
+    .driver-nav a.nav-link:hover {
+      text-decoration: none !important;
+      color: var(--color-primary) !important;
+    }
+
+    /* Hỗ trợ responsive để tránh bị dồn ép trên màn hình trung bình/nhỏ */
+    @media (max-width: 1024px) {
+      .site-header {
+        height: auto;
+        min-height: 64px;
+        padding: var(--spacing-sm) 0;
+      }
+      .site-header-inner {
+        height: auto;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+      }
+      .driver-nav {
+        order: 3;
+        width: 100%;
+        flex: none;
+        justify-content: center;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+        margin: var(--spacing-sm) 0 0 0;
+      }
+    }
+
+    /* Căn giữa toàn bộ vùng nội dung chính */
+    .dashboard-main {
+      margin: 0 auto;
+    }
+
     .state-cell { text-align: center; padding: 40px 16px; color: var(--color-body); }
-    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
   </style>
 </head>
 <body>
@@ -51,12 +104,12 @@
       <section class="grid-3 mb-8">
         <div class="kpi kpi-success"><div class="kpi-body"><span class="kpi-label">Tổng thu nhập</span><span class="kpi-value num-money" id="kpi-total">—</span></div></div>
         <div class="kpi kpi-primary"><div class="kpi-body"><span class="kpi-label">Số dư ví</span><span class="kpi-value num-money" id="kpi-balance">—</span></div></div>
-        <div class="kpi kpi-warning"><div class="kpi-body"><span class="kpi-label">Số đơn có thu nhập</span><span class="kpi-value" id="kpi-count">—</span></div></div>
+        <div class="kpi kpi-warning"><div class="kpi-body"><span class="kpi-label">Số giao dịch</span><span class="kpi-value" id="kpi-count">—</span></div></div>
       </section>
 
       <section class="card">
         <div class="card-header">
-          <h2 class="card-title">Giao dịch thu nhập</h2>
+          <h2 class="card-title">Giao dịch ví</h2>
           <a href="withdrawal-history.html" class="link-primary">Xem lịch sử rút tiền</a>
         </div>
         <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
@@ -112,16 +165,22 @@
       const items = (data && data.content) || [];
       $('kpi-count').textContent = data?.totalElements ?? items.length;
       if (!items.length) {
-        tbody.innerHTML = stateRow('Chưa có giao dịch thu nhập nào. Hoàn thành đơn để bắt đầu nhận tiền.');
+        tbody.innerHTML = stateRow('Chưa có giao dịch nào. Hoàn thành đơn để bắt đầu nhận tiền.');
         return;
       }
-      tbody.innerHTML = items.map(t => `
+      tbody.innerHTML = items.map(t => {
+        // Số âm (khấu trừ bồi thường) tô đỏ, số dương (thu nhập/nộp) tô xanh
+        const amt = Number(t.amount || 0);
+        const color = amt < 0 ? 'var(--color-danger)' : 'var(--color-success-text, #157347)';
+        const sign = amt > 0 ? '+' : '';
+        return `
         <tr>
           <td>${esc(t.orderCode || '—')}</td>
-          <td>${esc(t.description || 'Thu nhập tài xế')}</td>
+          <td>${esc(t.description || 'Giao dịch ví')}</td>
           <td>${fmtDate(t.createdAt)}</td>
-          <td class="text-right num-money">${vnd(t.amount)}</td>
-        </tr>`).join('');
+          <td class="text-right num-money" style="color:${color};font-weight:600;">${sign}${vnd(t.amount)}</td>
+        </tr>`;
+      }).join('');
     } catch (e) {
       console.error(e);
       $('kpi-count').textContent = '0';

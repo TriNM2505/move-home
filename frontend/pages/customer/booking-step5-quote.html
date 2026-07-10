@@ -9,6 +9,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
+    /* Centering dashboard main */
+    .dashboard-main {
+      margin: 0 auto;
+      width: 100%;
+      max-width: 1200px;
+    }
+
     .customer-nav {
       display: flex;
       gap: var(--spacing-lg);
@@ -429,8 +436,19 @@
       const avatarEl = document.getElementById('header-user-avatar');
       if (nameEl) nameEl.textContent = `Xin chào, ${profile.fullName}`;
       if (avatarEl) {
-        avatarEl.textContent = profile.fullName
-          .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        // Anh that neu co avatarUrl, fallback chu cai dau (dong bo voi customer-common.js)
+        if (profile.avatarUrl) {
+          avatarEl.style.overflow = 'hidden';
+          avatarEl.innerHTML = '';
+          const img = document.createElement('img');
+          img.src = profile.avatarUrl;
+          img.alt = 'Ảnh đại diện';
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;';
+          avatarEl.appendChild(img);
+        } else {
+          avatarEl.textContent = profile.fullName
+            .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        }
       }
     } catch (err) {
       console.error('Lỗi khi tải thông tin khách hàng:', err);

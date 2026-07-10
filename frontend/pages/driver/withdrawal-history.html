@@ -335,13 +335,12 @@
     hideErrorBanner();
 
     try {
-      // 1. Attempt to fetch from real API (to support future backend sprint integration)
+      // Doc lich su tu API that (GET /api/driver/withdrawals) — da bo fallback mock localStorage
       const response = await getAuthenticated(`/api/driver/withdrawals?page=${page}&size=${currentSize}`);
       handleLoadSuccess(response, page);
     } catch (err) {
-      // 2. Local fallback if API is not implemented (returns 500/404)
-      console.warn('Backend GET /api/driver/withdrawals not available. Falling back to local cache.');
-      loadFromLocalCache(page);
+      console.error('Không thể tải lịch sử rút tiền:', err);
+      showSection('withdrawals-error');
     }
   }
 
@@ -353,64 +352,6 @@
 
     renderTableRows(response.content);
     renderPaginationBar(response);
-    showSection('withdrawals-content');
-  }
-
-  function loadFromLocalCache(page) {
-    let cache = localStorage.getItem('driver_withdrawals');
-    if (!cache) {
-      // Seed default mock withdrawals to match user's screenshot
-      const seedData = [
-        {
-          id: 'RT2026060007',
-          amount: 2000000,
-          requestedAt: '2026-06-05T08:00:00Z',
-          status: 'PENDING',
-          processedAt: null
-        },
-        {
-          id: 'RT2026050012',
-          amount: 3500000,
-          requestedAt: '2026-05-28T09:30:00Z',
-          status: 'PROCESSED',
-          processedAt: '2026-05-29T10:00:00Z'
-        },
-        {
-          id: 'RT2026050006',
-          amount: 500000,
-          requestedAt: '2026-05-18T14:15:00Z',
-          status: 'REJECTED',
-          processedAt: '2026-05-18T16:00:00Z'
-        }
-      ];
-      localStorage.setItem('driver_withdrawals', JSON.stringify(seedData));
-      cache = JSON.stringify(seedData);
-    }
-
-    const allWithdrawals = JSON.parse(cache);
-    
-    // Sort by requestedAt descending
-    allWithdrawals.sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
-
-    const totalElements = allWithdrawals.length;
-    if (totalElements === 0) {
-      showSection('withdrawals-empty');
-      return;
-    }
-
-    const totalPages = Math.ceil(totalElements / currentSize);
-    const paginatedContent = allWithdrawals.slice(page * currentSize, (page + 1) * currentSize);
-    
-    const pageResponse = {
-      content: paginatedContent,
-      totalElements: totalElements,
-      totalPages: totalPages,
-      number: page,
-      size: currentSize
-    };
-
-    renderTableRows(pageResponse.content);
-    renderPaginationBar(pageResponse);
     showSection('withdrawals-content');
   }
 

@@ -12,12 +12,61 @@
 
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
+    /* Navbar dàn trải và chia đều khoảng cách */
     .driver-nav {
       display: flex;
       align-items: center;
-      gap: var(--spacing-lg);
-      flex-wrap: wrap;
+      justify-content: space-between;
+      flex: 1;
+      gap: var(--spacing-md);
+      flex-wrap: nowrap;
+      margin: 0 var(--spacing-xl);
     }
+
+    /* Bỏ gạch chân cho link và active link */
+    .driver-nav a.nav-link {
+      border-bottom: none !important;
+      text-decoration: none !important;
+      white-space: nowrap;
+    }
+    .driver-nav a.nav-link.active {
+      border-bottom: none !important;
+      color: var(--color-primary) !important;
+      font-weight: 600;
+    }
+    .driver-nav a.nav-link:hover {
+      text-decoration: none !important;
+      color: var(--color-primary) !important;
+    }
+
+    /* Hỗ trợ responsive để tránh bị dồn ép trên màn hình trung bình/nhỏ */
+    @media (max-width: 1024px) {
+      .site-header {
+        height: auto;
+        min-height: 64px;
+        padding: var(--spacing-sm) 0;
+      }
+      .site-header-inner {
+        height: auto;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+      }
+      .driver-nav {
+        order: 3;
+        width: 100%;
+        flex: none;
+        justify-content: center;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+        margin: var(--spacing-sm) 0 0 0;
+      }
+    }
+
+    /* Căn giữa toàn bộ vùng nội dung chính */
+    .dashboard-main {
+      margin: 0 auto;
+    }
+
     .withdraw-grid {
       display: grid;
       grid-template-columns: 1fr 1.3fr;
@@ -31,10 +80,6 @@
       background-repeat: no-repeat;
       background-position: right 16px center;
       padding-right: 40px;
-    }
-    
-    @media (max-width: 900px) {
-      .driver-nav { order: 3; width: 100%; justify-content: center; }
     }
     @media (max-width: 800px) {
       .withdraw-grid { grid-template-columns: 1fr; }
@@ -148,17 +193,21 @@
               <label class="form-label" for="bank">Ngân hàng nhận tiền <span class="form-required" aria-hidden="true">*</span></label>
               <div style="position: relative;">
                 <select class="text-input" id="bank" name="bank">
-                  <option>Vietcombank</option>
-                  <option>BIDV</option>
-                  <option>VietinBank</option>
-                  <option>Techcombank</option>
+                  <option value="VCB">Vietcombank</option>
+                  <option value="BIDV">BIDV</option>
+                  <option value="CTG">VietinBank</option>
+                  <option value="TCB">Techcombank</option>
+                  <option value="MB">MB Bank</option>
+                  <option value="ACB">ACB</option>
+                  <option value="VPB">VPBank</option>
+                  <option value="AGR">Agribank</option>
                 </select>
               </div>
             </div>
             
             <div class="form-group">
               <label class="form-label" for="accountNumber">Số tài khoản ngân hàng <span class="form-required" aria-hidden="true">*</span></label>
-              <input type="text" class="text-input" id="accountNumber" value="1023456789" required>
+              <input type="text" class="text-input" id="accountNumber" placeholder="Nhập số tài khoản nhận tiền" inputmode="numeric" required>
               <span class="form-error" id="accountNumber-error" style="display: none; color: var(--color-danger); font-size: var(--font-size-body-sm); margin-top: var(--spacing-xxs);"></span>
             </div>
             
@@ -385,24 +434,15 @@
     submitBtn.innerHTML = '<span class="btn-spinner"></span> Đang gửi...';
 
     try {
-      // 2. Call real POST API to save withdrawal request on backend
-      const response = await postAuthenticated('/api/driver/withdrawals', { amount: amountVal });
-      
-      // 3. Append to local cache fallback list for withdrawal history page sync
-      const newRequest = {
-        id: response?.id || 'RT' + new Date().getFullYear() + String(new Date().getMonth() + 1).padStart(2, '0') + String(new Date().getDate()).padStart(2, '0') + String(new Date().getTime()).slice(-4),
+      // Gui day du bank info — backend validate whitelist ngan hang + STK 8-15 chu so
+      const bankSelect = document.getElementById('bank');
+      await postAuthenticated('/api/driver/withdrawals', {
         amount: amountVal,
-        requestedAt: response?.requestedAt || new Date().toISOString(),
-        status: response?.status || 'PENDING',
-        processedAt: null
-      };
+        bankCode: bankSelect.value,
+        bankAccountNumber: accountNumberVal,
+      });
 
-      let cache = localStorage.getItem('driver_withdrawals');
-      let withdrawals = cache ? JSON.parse(cache) : [];
-      withdrawals.unshift(newRequest);
-      localStorage.setItem('driver_withdrawals', JSON.stringify(withdrawals));
-
-      // 4. Redirect to history page
+      // Lich su gio doc tu API that (GET /api/driver/withdrawals) — khong con cache localStorage
       window.location.href = 'withdrawal-history.html';
 
     } catch (err) {

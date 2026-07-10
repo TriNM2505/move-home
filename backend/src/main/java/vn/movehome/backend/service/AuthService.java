@@ -248,8 +248,13 @@ public class AuthService {
         }
 
         if (user.getStatus() == UserStatus.SUSPENDED) {
+            // Hien ly do cu the (vd thieu tien dong phat + so tien can nap lai coc) neu co
+            String reason = user.getSuspensionReason();
+            String detail = (reason != null && !reason.isBlank())
+                    ? reason
+                    : "Vui lòng liên hệ quản trị viên.";
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "ACCOUNT_SUSPENDED|Tai khoan da bi dinh chi. Vui long lien he quan tri vien.");
+                "ACCOUNT_SUSPENDED|Tài khoản đã bị khóa. " + detail);
         }
 
         // Kiem tra khoa tam thoi do dang nhap sai truoc khi verify password (FR-021, FR-032)
@@ -472,7 +477,8 @@ public class AuthService {
             user.getFullName(),
             user.getRole(),
             user.getStatus(),
-            user.isMustChangePassword()
+            user.isMustChangePassword(),
+            user.getAvatarUrl()
         );
     }
 

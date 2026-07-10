@@ -38,6 +38,9 @@ public interface WithdrawalRequestRepository extends JpaRepository<WithdrawalReq
 
         Page<WithdrawalRequest> findByStatus(String status, Pageable pageable);
 
+        // Lich su rut tien cua 1 tai xe — dung index idx_withdrawal_driver_requested
+        Page<WithdrawalRequest> findByDriverId(UUID driverId, Pageable pageable);
+
         @Query("""
                         select count(r)
                         from WithdrawalRequest r

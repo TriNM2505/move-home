@@ -76,6 +76,14 @@ public class Dispute {
     @Column(nullable = false)
     private OffsetDateTime deadline;
 
+    // So tien tai xe con thieu phai nop bo sung (nhanh khau tru). NULL = khong co khoan cho.
+    @Column(name = "pending_deduct_shortfall", precision = 15, scale = 0)
+    private BigDecimal pendingDeductShortfall;
+
+    // Han chot nop bo sung (2 phut demo); qua han job khoa tai khoan + tru coc
+    @Column(name = "deduct_deadline")
+    private OffsetDateTime deductDeadline;
+
     @Version
     @Column(nullable = false)
     private Long version;

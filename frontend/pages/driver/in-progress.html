@@ -16,7 +16,61 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <style>
-    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    /* Navbar dàn trải và chia đều khoảng cách */
+    .driver-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      gap: var(--spacing-md);
+      flex-wrap: nowrap;
+      margin: 0 var(--spacing-xl);
+    }
+
+    /* Bỏ gạch chân cho link và active link */
+    .driver-nav a.nav-link {
+      border-bottom: none !important;
+      text-decoration: none !important;
+      white-space: nowrap;
+    }
+    .driver-nav a.nav-link.active {
+      border-bottom: none !important;
+      color: var(--color-primary) !important;
+      font-weight: 600;
+    }
+    .driver-nav a.nav-link:hover {
+      text-decoration: none !important;
+      color: var(--color-primary) !important;
+    }
+
+    /* Hỗ trợ responsive để tránh bị dồn ép trên màn hình trung bình/nhỏ */
+    @media (max-width: 1024px) {
+      .site-header {
+        height: auto;
+        min-height: 64px;
+        padding: var(--spacing-sm) 0;
+      }
+      .site-header-inner {
+        height: auto;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+      }
+      .driver-nav {
+        order: 3;
+        width: 100%;
+        flex: none;
+        justify-content: center;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+        margin: var(--spacing-sm) 0 0 0;
+      }
+    }
+
+    /* Căn giữa toàn bộ vùng nội dung chính */
+    .dashboard-main {
+      margin: 0 auto;
+    }
+
     .work-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--spacing-2xl); margin-top: var(--spacing-xl); }
     .map-view-container { width: 100%; }
     .map-container {

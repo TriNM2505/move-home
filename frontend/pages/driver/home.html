@@ -11,15 +11,160 @@
 
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
+    /* Navbar dàn trải và chia đều khoảng cách */
     .driver-nav {
       display: flex;
       align-items: center;
-      gap: var(--spacing-lg);
-      flex-wrap: wrap;
+      justify-content: space-between;
+      flex: 1;
+      gap: var(--spacing-md);
+      flex-wrap: nowrap;
+      margin: 0 var(--spacing-xl);
     }
 
-    @media (max-width: 900px) {
-      .driver-nav { order: 3; width: 100%; justify-content: center; }
+    /* Bỏ gạch chân cho link và active link */
+    .driver-nav a.nav-link {
+      border-bottom: none !important;
+      text-decoration: none !important;
+      white-space: nowrap;
+    }
+    .driver-nav a.nav-link.active {
+      border-bottom: none !important;
+      color: var(--color-primary) !important;
+      font-weight: 600;
+    }
+    .driver-nav a.nav-link:hover {
+      text-decoration: none !important;
+      color: var(--color-primary) !important;
+    }
+
+    /* Hỗ trợ responsive để tránh bị dồn ép trên màn hình trung bình/nhỏ */
+    @media (max-width: 1024px) {
+      .site-header {
+        height: auto;
+        min-height: 64px;
+        padding: var(--spacing-sm) 0;
+      }
+      .site-header-inner {
+        height: auto;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+      }
+      .driver-nav {
+        order: 3;
+        width: 100%;
+        flex: none;
+        justify-content: center;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+        margin: var(--spacing-sm) 0 0 0;
+      }
+    }
+
+    /* Căn giữa toàn bộ vùng nội dung chính */
+    .dashboard-main {
+      margin: 0 auto;
+    }
+
+    /* Welcome Hero 2 cột phong cách Uber */
+    .hero-driver-card {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: var(--spacing-2xl);
+      align-items: center;
+      background-color: var(--color-canvas-soft);
+      border-radius: var(--rounded-xl);
+      padding: var(--spacing-3xl);
+      text-align: left;
+    }
+    .hero-driver-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .hero-driver-ill {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* KPI Cards thiết kế lại */
+    .driver-kpi-card {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      background-color: var(--color-canvas);
+      border-radius: var(--rounded-xl);
+      padding: var(--spacing-xl) var(--spacing-2xl);
+      box-shadow: var(--shadow-level-2);
+      text-align: left;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      border-left: 4px solid var(--color-primary);
+    }
+    .driver-kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-level-3);
+    }
+    .driver-kpi-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--rounded-pill);
+      background-color: #E8ECE9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+    .driver-kpi-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xxs);
+    }
+
+    /* Promo Cards & Tips Cards thiết kế lại */
+    .driver-promo-card {
+      background-color: var(--color-canvas);
+      border-radius: var(--rounded-xl);
+      padding: var(--spacing-2xl);
+      border: 1px solid var(--color-surface-pressed);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+    .driver-promo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-level-2);
+      border-color: transparent;
+    }
+    .driver-promo-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--rounded-pill);
+      background-color: #E8ECE9;
+      color: var(--color-primary);
+      margin-bottom: var(--spacing-lg);
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+      .hero-driver-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: var(--spacing-2xl) var(--spacing-lg);
+      }
+      .hero-driver-text {
+        align-items: center;
+      }
+      .hero-driver-ill {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -54,65 +199,141 @@
   <main class="site-main">
     <div class="dashboard-main">
 
+      <!-- BANNER PHẠT KHIẾU NẠI — chỉ hiện khi có khoản phải nộp bổ sung -->
+      <div id="penalty-banner" style="display: none; background: #FEF2F2; border: 1px solid var(--color-danger); border-left: 4px solid var(--color-danger); border-radius: 12px; padding: 16px 20px; margin-bottom: var(--spacing-lg);">
+        <div style="display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 240px;">
+            <strong style="color: var(--color-danger);">⚠ Cần nộp bổ sung tiền bồi thường</strong>
+            <p class="text-muted mt-sm" style="margin-bottom: 4px;">
+              Ví của bạn không đủ để bồi thường khiếu nại đơn <strong id="penalty-order-code">—</strong>.
+              Còn thiếu <strong class="num-money" id="penalty-shortfall" style="color: var(--color-danger);">—</strong>.
+            </p>
+            <p style="margin: 0; font-size: var(--font-size-body-sm); color: var(--color-danger); font-weight: 600;">
+              Thời gian còn lại: <span id="penalty-countdown">—</span> — quá hạn tài khoản sẽ bị khóa và tiền cọc bị trừ.
+            </p>
+            <p class="text-muted" style="margin: 4px 0 0; font-size: var(--font-size-caption); display: none;" id="penalty-error"></p>
+          </div>
+          <button id="penalty-pay-btn" class="btn-primary" style="white-space: nowrap;">Nộp ngay (giả lập)</button>
+        </div>
+      </div>
+
       <!-- Hero -->
-      <div class="card-soft-tinted text-center">
-        <h1>Chào mừng tài xế Move_home</h1>
-        <p class="text-muted mt-sm">Sẵn sàng nhận đơn và kiếm thu nhập</p>
+      <div class="hero-driver-card">
+        <div class="hero-driver-text">
+          <span class="eyebrow" style="color: var(--color-accent);">ĐỐI TÁC TIN CẬY</span>
+          <h1 style="font-size: var(--font-size-display-md); line-height: var(--line-height-display-md); margin-top: 4px;">Chào mừng tài xế Move_home</h1>
+          <p class="text-muted mt-md">Đồng hành cùng Move_home kiến tạo những hành trình chuyển nhà nhanh chóng, an toàn và tối ưu thu nhập của bạn.</p>
+        </div>
+        <div class="hero-driver-ill">
+          <svg viewBox="0 0 200 150" width="100%" height="120" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="100" cy="110" rx="80" ry="12" fill="#E8ECE9" />
+            <rect x="35" y="60" width="30" height="30" rx="3" fill="#FBC470" />
+            <line x1="35" y1="75" x2="65" y2="75" stroke="#D88A0B" stroke-width="1.5" stroke-dasharray="3,3" />
+            <rect x="55" y="70" width="25" height="20" rx="2" fill="#F5A623" />
+            <g transform="translate(10, 0)">
+              <rect x="65" y="45" width="80" height="50" rx="6" fill="#1B4D3E" />
+              <path d="M65 55 h80 M65 70 h80 M65 85 h80" stroke="#2A6B57" stroke-width="1" stroke-linecap="round" />
+              <path d="M145 60 h20 a15 15 0 0 1 15 15 v20 h-35 z" fill="#F5A623" />
+              <path d="M150 65 h10 a8 8 0 0 1 8 8 v8 h-18 z" fill="#FFFFFF" opacity="0.8" />
+              <rect x="170" y="90" width="12" height="5" rx="2.5" fill="#1A1A1A" />
+              <circle cx="85" cy="100" r="12" fill="#1A1A1A" />
+              <circle cx="85" cy="100" r="5" fill="#FFFFFF" />
+              <circle cx="135" cy="100" r="12" fill="#1A1A1A" />
+              <circle cx="135" cy="100" r="5" fill="#FFFFFF" />
+              <line x1="20" y1="70" x2="50" y2="70" stroke="#1B4D3E" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 6" />
+              <line x1="15" y1="80" x2="45" y2="80" stroke="#F5A623" stroke-width="2" stroke-linecap="round" stroke-dasharray="12 4" />
+            </g>
+          </svg>
+        </div>
       </div>
 
       <!-- 2 KPI cards -->
       <div class="grid-2 mt-8">
-        <div class="card-elevated text-center">
-          <p class="text-muted">Đơn có sẵn</p>
-          <div class="kpi-value mt-sm" id="kpi-available">—</div>
-          <div class="mt-md">
-            <a href="available-orders.html" class="btn-primary">Xem đơn có sẵn</a>
+        <div class="driver-kpi-card">
+          <div class="driver-kpi-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+          </div>
+          <div class="driver-kpi-content">
+            <span class="text-muted" style="font-size: var(--font-size-body-sm);">Đơn có sẵn</span>
+            <div class="kpi-value" id="kpi-available">—</div>
+          </div>
+          <div>
+            <a href="available-orders.html" class="btn-primary" style="padding: var(--spacing-sm) var(--spacing-lg); font-size: var(--font-size-body-sm);">Xem ngay</a>
           </div>
         </div>
-        <div class="card-elevated text-center">
-          <p class="text-muted">Số dư ví</p>
-          <div class="kpi-value mt-sm num-money" id="kpi-balance">—</div>
-          <div class="mt-md">
-            <a href="earnings.html" class="btn-subtle">Xem chi tiết</a>
+
+        <div class="driver-kpi-card" style="border-left-color: var(--color-accent);">
+          <div class="driver-kpi-icon-wrapper" style="background-color: #FEF3C7; color: var(--color-accent-strong);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4v-6z"/></svg>
+          </div>
+          <div class="driver-kpi-content">
+            <span class="text-muted" style="font-size: var(--font-size-body-sm);">Số dư ví</span>
+            <div class="kpi-value num-money" id="kpi-balance">—</div>
+          </div>
+          <div>
+            <a href="earnings.html" class="btn-subtle" style="padding: var(--spacing-sm) var(--spacing-lg); font-size: var(--font-size-body-sm);">Chi tiết</a>
           </div>
         </div>
       </div>
 
       <!-- 3 promo cards -->
       <div class="grid-3 mt-8">
-        <div class="card-elevated">
-          <div style="font-size:40px; margin-bottom:12px;">📋</div>
-          <h3>Nhận đơn linh hoạt</h3>
-          <p class="text-muted mt-sm">Chọn đơn phù hợp với tuyến đường của bạn</p>
+        <div class="driver-promo-card">
+          <div class="driver-promo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+          </div>
+          <h3 style="font-size: var(--font-size-body-lg);">Nhận đơn linh hoạt</h3>
+          <p class="text-muted mt-sm" style="font-size: var(--font-size-body-sm);">Chủ động chọn lọc các đơn hàng phù hợp với lộ trình di chuyển và thời gian biểu cá nhân.</p>
         </div>
-        <div class="card-elevated">
-          <div style="font-size:40px; margin-bottom:12px;">💰</div>
-          <h3>Thanh toán nhanh</h3>
-          <p class="text-muted mt-sm">Tự động chuyển tiền sau 2 giờ hoàn thành đơn</p>
+        <div class="driver-promo-card">
+          <div class="driver-promo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <h3 style="font-size: var(--font-size-body-lg);">Thanh toán nhanh</h3>
+          <p class="text-muted mt-sm" style="font-size: var(--font-size-body-sm);">Đối soát doanh thu tự động và chuyển khoản trực tiếp vào tài khoản liên kết chỉ 2 giờ sau khi hoàn thành.</p>
         </div>
-        <div class="card-elevated">
-          <div style="font-size:40px; margin-bottom:12px;">🎧</div>
-          <h3>Hỗ trợ 24/7</h3>
-          <p class="text-muted mt-sm">Đội ngũ luôn sẵn sàng hỗ trợ bạn</p>
+        <div class="driver-promo-card">
+          <div class="driver-promo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+          </div>
+          <h3 style="font-size: var(--font-size-body-lg);">Hỗ trợ 24/7</h3>
+          <p class="text-muted mt-sm" style="font-size: var(--font-size-body-sm);">Đội ngũ hỗ trợ sự cố luôn túc trực để giải quyết mọi thắc mắc và vấn đề phát sinh trên đường đi.</p>
         </div>
       </div>
 
-      <!-- Thông tin tài khoản -->
+      <!-- Cẩm nang hoạt động (Thêm thông tin hữu ích) -->
       <section class="mt-8">
-        <div class="card-content">
-          <h2 class="section-title">Thông tin tài khoản</h2>
-          <div class="welcome-info">
-            <div class="info-row">
-              <span>Email:</span>
-              <strong id="userEmail">—</strong>
+        <h2 class="section-title text-center mb-6" style="margin-top: var(--spacing-xl);">Cẩm nang hoạt động hiệu quả</h2>
+        <div class="grid-3">
+          <div class="driver-promo-card">
+            <div class="driver-promo-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             </div>
-            <div class="info-row">
-              <span>Trạng thái:</span>
-              <span id="userStatus">—</span>
+            <h4 style="font-size: var(--font-size-body-md); font-weight: var(--font-weight-semibold);">Bí quyết tăng thu nhập</h4>
+            <p class="text-muted mt-sm" style="font-size: var(--font-size-body-sm);">Nhận các đơn chuyển nhà vào khung giờ vàng từ 9h-15h và dịp cuối tuần để hưởng thêm phụ phí dịch vụ.</p>
+          </div>
+          <div class="driver-promo-card">
+            <div class="driver-promo-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
+            <h4 style="font-size: var(--font-size-body-md); font-weight: var(--font-weight-semibold);">Luôn đúng giờ</h4>
+            <p class="text-muted mt-sm" style="font-size: var(--font-size-body-sm);">Hãy liên hệ khách hàng ngay sau khi nhận đơn để chốt thời gian di chuyển, tạo ấn tượng chuyên nghiệp.</p>
+          </div>
+          <div class="driver-promo-card">
+            <div class="driver-promo-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h4 style="font-size: var(--font-size-body-md); font-weight: var(--font-weight-semibold);">Đảm bảo an toàn đồ đạc</h4>
+            <p class="text-muted mt-sm" style="font-size: var(--font-size-body-sm);">Kiểm tra kỹ việc bọc lót đồ dễ vỡ và cố định thùng carton trên xe tải trước khi bắt đầu hành trình.</p>
           </div>
         </div>
       </section>
+
+      <!-- Các trường dữ liệu ẩn để giữ an toàn cho JS bindings -->
+      <div style="display: none;">
+        <span id="userEmail"></span>
+        <span id="userStatus"></span>
+      </div>
 
     </div>
   </main>
@@ -121,7 +342,10 @@
 
 <script type="module">
   import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
-  import { getAuthenticated } from '../../js/api.js';
+  import { getAuthenticated, postAuthenticated } from '../../js/api.js';
+
+  let penaltyTimer = null;
+  let currentPenalty = null;
 
   document.addEventListener('DOMContentLoaded', () => {
     if (!isLoggedIn()) {
@@ -136,8 +360,78 @@
     renderUserInfo(user);
     document.getElementById('logoutBtn')
       ?.addEventListener('click', () => logout('../login.html'));
+    document.getElementById('penalty-pay-btn')
+      ?.addEventListener('click', payPenalty);
     loadStats();
+    loadPenalty();
   });
+
+  // Kiem tra khoan phat khieu nai dang cho nop bo sung — hien banner countdown
+  async function loadPenalty() {
+    const banner = document.getElementById('penalty-banner');
+    try {
+      const penalty = await getAuthenticated('/api/driver/penalties/pending');
+      if (!penalty || !penalty.shortfall) {
+        banner.style.display = 'none';
+        if (penaltyTimer) { clearInterval(penaltyTimer); penaltyTimer = null; }
+        return;
+      }
+      currentPenalty = penalty;
+      document.getElementById('penalty-order-code').textContent = penalty.orderCode || '—';
+      document.getElementById('penalty-shortfall').textContent =
+        Number(penalty.shortfall).toLocaleString('vi-VN') + ' đ';
+      banner.style.display = 'block';
+      startPenaltyCountdown(penalty.deadline);
+    } catch (err) {
+      console.warn('Không thể kiểm tra khoản phạt:', err);
+    }
+  }
+
+  function startPenaltyCountdown(deadlineIso) {
+    if (penaltyTimer) { clearInterval(penaltyTimer); penaltyTimer = null; }
+    if (!deadlineIso) return;
+    const deadline = new Date(deadlineIso).getTime();
+    const el = document.getElementById('penalty-countdown');
+    const tick = () => {
+      const remainMs = deadline - Date.now();
+      if (remainMs <= 0) {
+        el.textContent = 'Đã hết hạn';
+        clearInterval(penaltyTimer);
+        penaltyTimer = null;
+        document.getElementById('penalty-pay-btn').disabled = true;
+        return;
+      }
+      const mm = Math.floor(remainMs / 60000);
+      const ss = Math.floor((remainMs % 60000) / 1000);
+      el.textContent = `${mm} phút ${String(ss).padStart(2, '0')} giây`;
+    };
+    tick();
+    penaltyTimer = setInterval(tick, 1000);
+  }
+
+  async function payPenalty() {
+    if (!currentPenalty) return;
+    const btn = document.getElementById('penalty-pay-btn');
+    const errEl = document.getElementById('penalty-error');
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Đang nộp...';
+    try {
+      await postAuthenticated(`/api/driver/penalties/${encodeURIComponent(currentPenalty.disputeId)}/pay-mock`, null);
+      if (penaltyTimer) { clearInterval(penaltyTimer); penaltyTimer = null; }
+      const banner = document.getElementById('penalty-banner');
+      banner.style.background = '#F0FDF4';
+      banner.style.borderColor = 'var(--color-success, #16A34A)';
+      banner.innerHTML = '<strong style="color: var(--color-success, #16A34A);">✓ Đã nộp đủ tiền bồi thường. Tài khoản hoạt động bình thường.</strong>';
+      loadStats(); // cap nhat lai so du vi
+    } catch (err) {
+      console.error(err);
+      errEl.textContent = String(err.message || 'Không thể nộp. Vui lòng thử lại.').split('|').pop().trim();
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Nộp ngay (giả lập)';
+    }
+  }
 
   // Nap so lieu that: so don co san + so du vi
   async function loadStats() {

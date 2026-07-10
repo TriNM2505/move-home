@@ -64,6 +64,18 @@ class DisputeServiceTest {
     @Mock
     private DriverEarningService driverEarningService;
 
+    @Mock
+    private vn.movehome.backend.driver.finance.DriverWalletRepository driverWalletRepository;
+
+    @Mock
+    private vn.movehome.backend.repository.TransactionRepository transactionRepository;
+
+    @Mock
+    private vn.movehome.backend.repository.DriverProfileRepository driverProfileRepository;
+
+    @Mock
+    private DisputePhotoService disputePhotoService;
+
     private DisputeService service;
 
     @BeforeEach
@@ -77,7 +89,11 @@ class DisputeServiceTest {
                 auditService,
                 notificationService,
                 new ObjectMapper(),
-                driverEarningService);
+                driverEarningService,
+                driverWalletRepository,
+                transactionRepository,
+                driverProfileRepository,
+                disputePhotoService);
     }
 
     @Test

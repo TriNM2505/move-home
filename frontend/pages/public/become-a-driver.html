@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trở thành tài xế — Move_home</title>
+  <title>Trở thành tài xế — MoveHome</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,16 +14,72 @@
   <style>
     /* Minh hoa SVG thay cho anh (co the thay bang anh that sau) */
     .driver-hero-art { width: 100%; max-width: 460px; height: auto; }
+    .become-driver-image {
+      width: 100%;
+      max-width: 460px;
+      height: 360px;
+      object-fit: cover;
+      border-radius: 24px; /* More rounded to match original illustration style */
+      border: 1px solid var(--color-surface-pressed);
+      transition: transform var(--transition-base);
+    }
+    .become-driver-image:hover {
+      transform: scale(1.02);
+    }
     .req-list { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--spacing-md); }
     .req-list li { display: flex; align-items: flex-start; gap: var(--spacing-md); padding: var(--spacing-md) 0; border-bottom: 1px solid var(--color-surface-pressed); }
     .req-list li svg { flex-shrink: 0; width: 22px; height: 22px; fill: var(--color-primary); margin-top: 2px; }
     .earn-split { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-2xl); max-width: 640px; margin: var(--spacing-2xl) auto 0; }
-    .earn-box { text-align: center; padding: var(--spacing-2xl); border-radius: var(--rounded-xl); background: var(--color-canvas); box-shadow: var(--shadow-level-1); }
-    .earn-box .big { font-size: 44px; font-weight: 700; color: var(--color-primary); font-feature-settings: "tnum"; }
-    .earn-box.muted .big { color: var(--color-body); }
+    .earn-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xl) var(--spacing-2xl);
+      border-radius: var(--rounded-xl);
+      background: var(--color-canvas);
+      border: 1px solid var(--color-surface-pressed);
+      box-shadow: none;
+    }
+    .earn-box .big {
+      font-size: 32px;
+      line-height: 1.2;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      font-feature-settings: "tnum";
+    }
+    .earn-box.muted .big {
+      color: var(--color-body);
+    }
+    .earn-box p {
+      margin: 0;
+      font-size: var(--font-size-body-sm);
+      color: var(--color-body);
+    }
     .faq-item { padding: var(--spacing-lg) 0; border-bottom: 1px solid var(--color-surface-pressed); }
     .faq-item h4 { margin: 0 0 var(--spacing-sm); }
     .faq-item p { margin: 0; color: var(--color-body); }
+    .btn-terms-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-sm) var(--spacing-xl);
+      border-radius: var(--rounded-pill);
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      color: var(--color-on-dark);
+      text-decoration: none;
+      font-weight: var(--font-weight-medium);
+      font-size: var(--font-size-body-sm);
+      transition: all var(--transition-fast);
+    }
+    .btn-terms-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--color-on-dark);
+      color: var(--color-on-dark);
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
     @media (max-width: 600px) { .earn-split { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -31,9 +87,8 @@
   <!-- DAU TRANG -->
   <header class="site-header">
     <div class="container site-header-inner">
-      <a href="index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <a href="index.html" class="site-logo"><span class="site-logo-text">MoveHome</span></a>
       <nav class="public-nav" aria-label="Điều hướng">
-        <a href="index.html#features" class="nav-link">Về Move_home</a>
         <a href="#loi-ich" class="nav-link">Lợi ích</a>
         <a href="#dieu-kien" class="nav-link">Điều kiện</a>
         <a href="#cach-dang-ky" class="nav-link">Cách đăng ký</a>
@@ -50,10 +105,10 @@
   <section class="section-white">
     <div class="container hero-container">
       <div class="hero-content">
-        <span class="eyebrow">Cơ hội thu nhập cùng Move_home</span>
-        <h1 class="display-xxl">Lái xe cùng Move_home — chủ động thời gian, thu nhập minh bạch</h1>
+        <span class="eyebrow">Cơ hội thu nhập cùng MoveHome</span>
+        <h1 class="display-xxl">Lái xe cùng MoveHome — chủ động thời gian, thu nhập minh bạch</h1>
         <p class="body-lg">
-          Sở hữu xe tải riêng? Trở thành tài xế đối tác của Move_home để nhận đơn chuyển nhà
+          Sở hữu xe tải riêng? Trở thành tài xế đối tác của MoveHome để nhận đơn chuyển nhà
           nội thành Hà Nội. Bạn giữ <strong>70%</strong> mỗi đơn, thanh toán tự động vào ví,
           rút tiền dễ dàng.
         </p>
@@ -63,34 +118,7 @@
         </div>
       </div>
       <div class="hero-illustration-wrapper">
-        <!-- Minh hoa SVG (thay bang anh tai xe/xe that neu muon) -->
-        <svg class="driver-hero-art" viewBox="0 0 460 360" role="img" aria-label="Minh họa tài xế Move_home">
-          <defs>
-            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#EAF3EE"/><stop offset="1" stop-color="#F7FAF8"/>
-            </linearGradient>
-          </defs>
-          <rect x="0" y="0" width="460" height="360" rx="24" fill="url(#sky)"/>
-          <circle cx="360" cy="90" r="42" fill="#F4C542" opacity="0.85"/>
-          <!-- duong -->
-          <rect x="0" y="290" width="460" height="70" fill="#DDE7E1"/>
-          <rect x="20" y="322" width="60" height="6" rx="3" fill="#B9Cabf"/>
-          <rect x="120" y="322" width="60" height="6" rx="3" fill="#B9Cabf"/>
-          <rect x="220" y="322" width="60" height="6" rx="3" fill="#B9Cabf"/>
-          <rect x="320" y="322" width="60" height="6" rx="3" fill="#B9Cabf"/>
-          <!-- than xe tai -->
-          <rect x="90" y="150" width="180" height="120" rx="12" fill="#1B4D3E"/>
-          <rect x="110" y="172" width="140" height="66" rx="8" fill="#E9F1EC"/>
-          <text x="180" y="214" text-anchor="middle" font-family="Be Vietnam Pro, sans-serif" font-size="26" font-weight="700" fill="#1B4D3E">MH</text>
-          <!-- cabin -->
-          <path d="M270 180 h70 l34 44 v46 h-104 z" fill="#2A6B57"/>
-          <rect x="286" y="192" width="52" height="38" rx="6" fill="#CFE3D8"/>
-          <!-- banh xe -->
-          <circle cx="150" cy="278" r="26" fill="#0F2A22"/><circle cx="150" cy="278" r="11" fill="#8AA99B"/>
-          <circle cx="320" cy="278" r="26" fill="#0F2A22"/><circle cx="320" cy="278" r="11" fill="#8AA99B"/>
-          <!-- den -->
-          <rect x="372" y="238" width="10" height="16" rx="3" fill="#F4C542"/>
-        </svg>
+        <img src="../../assets/become_driver_real.png" alt="Lái xe cùng MoveHome" class="become-driver-image">
       </div>
     </div>
   </section>
@@ -99,7 +127,7 @@
   <section id="loi-ich" class="section-soft section-spacing">
     <div class="container">
       <span class="eyebrow" style="text-align:center;">Vì sao chạy cùng chúng tôi</span>
-      <h2 class="display-xl" style="text-align:center; margin-bottom: var(--spacing-4xl);">Quyền lợi của tài xế Move_home</h2>
+      <h2 class="display-xl" style="text-align:center; margin-bottom: var(--spacing-4xl);">Quyền lợi của tài xế MoveHome</h2>
       <div class="features-grid">
         <div class="promo-card">
           <div class="promo-icon-wrapper">
@@ -128,6 +156,20 @@
           </div>
           <h3>An tâm & hỗ trợ</h3>
           <p>Đội ngũ điều phối hỗ trợ khi có sự cố. Khoản cọc bảo đảm giúp xử lý khiếu nại công bằng.</p>
+        </div>
+        <div class="promo-card">
+          <div class="promo-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </div>
+          <h3>Bảo hiểm & An tâm</h3>
+          <p>Hỗ trợ các gói bảo hiểm tai nạn lao động và bảo hiểm hàng hóa khi vận chuyển, giúp bạn vững tâm cầm lái.</p>
+        </div>
+        <div class="promo-card">
+          <div class="promo-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v3c0 2.5 1.84 4.58 4.25 4.94C8.1 18.23 10.87 20 14 20v2h-4v2h8v-2h-4v-2c3.13 0 5.9-1.77 6.75-5.06C21.16 12.58 23 10.5 23 8V7c0-1.1-.9-2-2-2zM5 10V7h2v3c0 1.25-.66 2.37-1.63 2.94C5.16 12.23 5 11.16 5 10zm14 0c0 1.16-.16 2.23-.37 2.94C17.66 12.37 17 11.25 17 10V7h2v3z"/></svg>
+          </div>
+          <h3>Ưu đãi & Thưởng tháng</h3>
+          <p>Chương trình thưởng chuyên cần tuần/tháng hấp dẫn cùng các chính sách chiết khấu xăng xe từ đối tác.</p>
         </div>
       </div>
     </div>
@@ -242,7 +284,7 @@
       </div>
       <div class="faq-item">
         <h4>Nếu xảy ra hư hỏng đồ đạc?</h4>
-        <p>Khách có 2 giờ để khiếu nại sau khi hoàn thành. Khoản cọc là tiền bảo đảm giúp xử lý bồi thường công bằng theo chính sách Move_home.</p>
+        <p>Khách có 2 giờ để khiếu nại sau khi hoàn thành. Khoản cọc là tiền bảo đảm giúp xử lý bồi thường công bằng theo chính sách MoveHome.</p>
       </div>
     </div>
   </section>
@@ -250,12 +292,12 @@
   <!-- KEU GOI HANH DONG -->
   <section class="section-dark section-spacing">
     <div class="container cta-inner">
-      <h2 class="display-xl" style="color: var(--color-on-dark);">Sẵn sàng cầm lái cùng Move_home?</h2>
+      <h2 class="display-xl" style="color: var(--color-on-dark);">Sẵn sàng cầm lái cùng MoveHome?</h2>
       <p>Đăng ký hôm nay, bắt đầu nhận đơn ngay khi hồ sơ được duyệt.</p>
-      <a href="../driver/register-step1.html" class="btn-primary-amber">Đăng ký làm tài xế</a>
-      <p style="margin-top: var(--spacing-lg);">
-        <a href="../driver/driver-terms.html" style="color: var(--color-on-dark); text-decoration: underline;">Xem điều khoản dịch vụ dành cho tài xế</a>
-      </p>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
+        <a href="../driver/register-step1.html" class="btn-primary-amber">Đăng ký làm tài xế</a>
+        <a href="../driver/driver-terms.html" class="btn-terms-outline">Xem điều khoản dịch vụ dành cho tài xế</a>
+      </div>
     </div>
   </section>
 
@@ -263,7 +305,7 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-column">
-        <h4>Move_home</h4>
+        <h4>MoveHome</h4>
         <p>Dịch vụ chuyển nhà uy tín, an toàn và chuyên nghiệp hàng đầu tại Hà Nội.</p>
       </div>
       <div class="footer-column">
@@ -279,7 +321,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2026 Move_home. Mọi quyền được bảo lưu.</p>
+      <p>© 2026 MoveHome. Mọi quyền được bảo lưu.</p>
     </div>
   </footer>
 </body>
