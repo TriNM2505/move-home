@@ -137,7 +137,8 @@ public class CustomerOrderQueryService {
                 profile != null ? profile.getVehiclePlate() : null,
                 photos.get("FACE_PHOTO"),
                 vehiclePhotoUrl,
-                "ACCEPTED".equals(order.getStatus()));
+                // Chi cho xac thuc/bao khong khop khi tai xe DA DEN diem don (arrived_at != null)
+                "ACCEPTED".equals(order.getStatus()) && order.getArrivedAt() != null);
     }
 
     /**

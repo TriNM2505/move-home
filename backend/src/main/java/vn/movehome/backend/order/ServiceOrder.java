@@ -76,6 +76,10 @@ public class ServiceOrder {
     @Column(name = "started_at")
     private OffsetDateTime startedAt;
 
+    // Moc tai xe bam "Da den diem don" — don VAN o ACCEPTED, cho khach doi chieu tai xe/xe. NULL = chua den.
+    @Column(name = "arrived_at")
+    private OffsetDateTime arrivedAt;
+
     @Column(name = "completed_at")
     private OffsetDateTime completedAt;
 

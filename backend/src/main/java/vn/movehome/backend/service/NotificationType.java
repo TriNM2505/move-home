@@ -21,6 +21,8 @@ public final class NotificationType {
     public static final String PENALTY_TOP_UP_REQUIRED = "PENALTY_TOP_UP_REQUIRED";
     public static final String PENALTY_ACCOUNT_LOCKED = "PENALTY_ACCOUNT_LOCKED";
     public static final String PENALTY_SETTLED = "PENALTY_SETTLED";
+    public static final String CHAT_MESSAGE = "CHAT_MESSAGE";
+    public static final String DRIVER_ARRIVED = "DRIVER_ARRIVED";
 
     private NotificationType() {
     }

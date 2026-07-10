@@ -29,12 +29,23 @@ public class DriverOrderController {
         return ResponseEntity.ok().build();
     }
 
+    // "Da den diem don": ghi arrived_at, don van ACCEPTED, cho khach doi chieu (khong chuyen IN_PROGRESS)
     @PostMapping("/{id}/start")
-    public ResponseEntity<Void> startOrder(
+    public ResponseEntity<Void> markArrived(
             @AuthenticationPrincipal User currentUser,
             @PathVariable UUID id
     ) {
-        driverOrderService.startOrder(currentUser.getId(), currentUser.getRole().name(), id);
+        driverOrderService.markArrived(currentUser.getId(), currentUser.getRole().name(), id);
+        return ResponseEntity.ok().build();
+    }
+
+    // "Khach khong ra": huy don sau N phut cho o diem don; coc thanh thu nhap tai xe
+    @PostMapping("/{id}/cancel-no-show")
+    public ResponseEntity<Void> cancelNoShow(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable UUID id
+    ) {
+        driverOrderService.cancelNoShow(currentUser.getId(), currentUser.getRole().name(), id);
         return ResponseEntity.ok().build();
     }
 

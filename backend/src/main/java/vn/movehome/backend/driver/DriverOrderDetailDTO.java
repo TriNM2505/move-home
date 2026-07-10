@@ -39,6 +39,8 @@ public record DriverOrderDetailDTO(
         OffsetDateTime completedAt,
         OffsetDateTime cancelledAt,
         String cancellationReason,
-        BigDecimal commissionRateSnapshot
+        BigDecimal commissionRateSnapshot,
+        // Moc tai xe bam "Da den diem don" (van ACCEPTED, cho khach xac thuc). NULL = chua den.
+        OffsetDateTime arrivedAt
 ) {
 }

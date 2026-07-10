@@ -590,11 +590,18 @@ KHI don da CREATED:
 
 ### Chat ho tro
 
+> ⚠️ **CAP NHAT 2026-07 (doc truoc):** Tinh nang chat da duoc mo rong thanh **3 cap** —
+> Customer↔Manager, **Manager↔Driver**, **Customer↔Driver** — tuc **Driver HIEN CO tham gia chat**,
+> gan theo don (kenh ho tro chung Driver↔Manager va Customer↔Manager dung `order_id = NULL`).
+> Day la **CO CHU Y** theo yeu cau leader, **lech voi mo ta cu ben duoi** (va AC-05). **KHONG phai bug,
+> KHONG go bo Driver chat.** Code: package backend `chat`, migration **V36**, FE `pages/messages.html` +
+> `js/chat.js`. Realtime dung WebSocket STOMP+SockJS (dung AC-05), user-destination, co polling luoi an toan.
+
 - Kenh realtime **Khach ↔ Manager**, kenh ho tro chung, khong gan theo don cu the.
 - **1 tai khoan Manager duy nhat** → khong can routing logic.
 - Giao dien Manager: danh sach hoi thoai (moi khach 1 thread), bam vao tung khach de tra loi.
 - Tin nhan luu DB (PostgreSQL) — lich su ben vung, mo lai thay hoi thoai cu.
-- Driver KHONG tham gia chat.
+- Driver KHONG tham gia chat. *(⚠️ LOI THOI 2026-07 — xem ghi chu dau muc: Driver HIEN CO chat.)*
 - Ky thuat: **WebSocket STOMP + SockJS** (Spring built-in), in-memory broker. Tin nhan day WebSocket dong thoi luu DB.
 - **Fallback:** Neu tuan 5 khong kip → ha xuong polling 30s. Khong de chat lam cham CORE.
 

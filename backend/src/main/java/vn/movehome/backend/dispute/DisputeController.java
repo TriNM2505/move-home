@@ -97,6 +97,17 @@ public class DisputeController {
         return disputeService.resolveDeduct(id, actor, request);
     }
 
+    // Khieu nai doi chieu tai xe (DRIVER_MISMATCH): accept = hoan coc + phat 500k / reject = bac (HR-07)
+    @PostMapping("/api/manager/disputes/{id}/resolve-mismatch")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
+    public DisputeActionResponse resolveMismatch(
+            @AuthenticationPrincipal User actor,
+            @PathVariable UUID id,
+            @Valid @RequestBody ResolveMismatchRequest request
+    ) {
+        return disputeService.resolveMismatch(id, actor, request.accept(), request.note());
+    }
+
     // Khoan phat dang cho nop cua tai xe (banner countdown) — null neu khong co
     @GetMapping("/api/driver/penalties/pending")
     @PreAuthorize("hasRole('DRIVER')")

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import vn.movehome.backend.dispute.DisputeService;
 import vn.movehome.backend.entity.DriverProfile;
 import vn.movehome.backend.repository.DriverProfileRepository;
 
@@ -28,11 +29,13 @@ public class CustomerOrderActionService {
             "Tài xế hoặc phương tiện không khớp ảnh xác thực (khách báo cáo).";
     private static final String COMPLETED_STATUS = "COMPLETED";
     private static final String CANCELLED_STATUS = "CANCELLED";
+    private static final String IN_PROGRESS_STATUS = "IN_PROGRESS";
 
     private final OrderRepository orderRepository;
     private final OrderStatusTransitionService orderStatusTransitionService;
     private final OrderRatingRepository orderRatingRepository;
     private final DriverProfileRepository driverProfileRepository;
+    private final DisputeService disputeService;
 
     @Transactional
     public CancelOrderResponse cancelOrder(
@@ -76,6 +79,11 @@ public class CustomerOrderActionService {
             throw new IllegalStateException(
                     "Chỉ có thể báo cáo không khớp khi tài xế vừa nhận đơn và chưa bắt đầu vận chuyển.");
         }
+        // Chi bao khong khop SAU khi tai xe da den diem don (khach doi chieu nguoi/xe thuc te)
+        if (order.getArrivedAt() == null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "NOT_ARRIVED|Chỉ báo cáo không khớp sau khi tài xế đã đến điểm đón.");
+        }
 
         OffsetDateTime cancelledAt = OffsetDateTime.now(ZoneOffset.UTC);
         String previousStatus = order.getStatus();
@@ -86,11 +94,46 @@ public class CustomerOrderActionService {
                 order, CANCELLED_STATUS, customerId, changedByRole, cancelledAt);
         log.info("order_state_audit actor_id={} actor_role=CUSTOMER timestamp={} from_state={} to_state={} entity_id={} reason=DRIVER_MISMATCH",
                 customerId, cancelledAt, previousStatus, CANCELLED_STATUS, savedOrder.getId());
+
+        // Khong tu dong tru tien: dua sang khieu nai cho MANAGER quyet (hoan coc + phat 500k tai xe)
+        disputeService.openMismatchDispute(savedOrder, customerId);
+
         return new CancelOrderResponse(
                 savedOrder.getId(),
                 savedOrder.getStatus(),
                 savedOrder.getCancelledAt(),
-                "Đã hủy chuyến do tài xế/phương tiện không khớp. Chúng tôi sẽ xem xét và hoàn tiền theo chính sách.");
+                "Đã hủy chuyến và gửi khiếu nại cho quản lý xem xét hoàn cọc.");
+    }
+
+    /**
+     * Khach xac nhan tai xe/xe DUNG voi anh (sau khi tai xe da den diem don) → bat dau chuyen.
+     * ACCEPTED (arrived_at != null) → IN_PROGRESS, set started_at.
+     */
+    @Transactional
+    public CancelOrderResponse confirmDriverMatch(UUID customerId, String changedByRole, UUID orderId) {
+        ServiceOrder order = findOwnedOrderForUpdate(customerId, orderId);
+
+        if (!MISMATCH_REPORTABLE_STATUS.equals(order.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "INVALID_STATE|Chỉ xác nhận khi tài xế đang ở trạng thái đã nhận đơn.");
+        }
+        if (order.getArrivedAt() == null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "NOT_ARRIVED|Tài xế chưa đến điểm đón để đối chiếu.");
+        }
+
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        order.setStartedAt(now);
+        ServiceOrder savedOrder = orderStatusTransitionService.transition(
+                order, IN_PROGRESS_STATUS, customerId, changedByRole, now);
+        log.info("order_state_audit actor_id={} actor_role=CUSTOMER timestamp={} from_state=ACCEPTED to_state=IN_PROGRESS entity_id={} reason=DRIVER_MATCH_CONFIRMED",
+                customerId, now, savedOrder.getId());
+
+        return new CancelOrderResponse(
+                savedOrder.getId(),
+                savedOrder.getStatus(),
+                null,
+                "Đã xác nhận đúng tài xế/xe. Chuyến bắt đầu.");
     }
 
     @Transactional

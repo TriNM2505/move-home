@@ -69,6 +69,11 @@ public class DisputeService {
     private static final Duration PENALTY_TOP_UP_WINDOW = Duration.ofMinutes(5);
     // Muc coc chuan cua tai xe (CONTEXT §2 Driver Deposit) — dung de tinh so tien can nap lai khi bi khoa
     private static final BigDecimal DEPOSIT_TARGET = new BigDecimal("3000000");
+    // Khieu nai DRIVER_MISMATCH (tai xe/xe khong khop tai diem don): coc 30% + phat 500k
+    private static final BigDecimal DEFAULT_COMMISSION_RATE = new BigDecimal("0.3000");
+    private static final String CLAIM_DRIVER_MISMATCH = "DRIVER_MISMATCH";
+    private static final BigDecimal MISMATCH_PENALTY = new BigDecimal("500000");
+    private static final String ORDER_CANCELLED = "CANCELLED";
 
     private final DisputeRepository disputeRepository;
     private final OrderRepository orderRepository;
@@ -301,6 +306,137 @@ public class DisputeService {
                 "Khieu nai don " + order.getOrderCode() + " da dong: " + note);
 
         return toActionResponse(dispute, order, "Da tu choi khieu nai.");
+    }
+
+    // ===================== KHIEU NAI DOI CHIEU TAI XE (DRIVER_MISMATCH) =====================
+
+    /** Coc = 30% total (commission snapshot), VND nguyen dong lam tron xuong (AC-08). */
+    private BigDecimal depositOf(ServiceOrder order) {
+        BigDecimal total = order.getTotalQuote() != null ? order.getTotalQuote() : BigDecimal.ZERO;
+        BigDecimal rate = order.getCommissionRateSnapshot() != null
+                ? order.getCommissionRateSnapshot() : DEFAULT_COMMISSION_RATE;
+        return total.multiply(rate).setScale(0, RoundingMode.FLOOR);
+    }
+
+    /**
+     * Tao khieu nai DRIVER_MISMATCH khi khach bao tai xe/xe khong khop tai diem don.
+     * Goi tu CustomerOrderActionService SAU khi don da huy. Manager quyet o resolveMismatch.
+     * claim_amount = coc 30% (so tien tranh chap). Idempotent theo don (unique khieu nai mo).
+     */
+    @Transactional
+    public void openMismatchDispute(ServiceOrder order, UUID customerId) {
+        if (order.getDriverId() == null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "ORDER_DRIVER_REQUIRED|Don khong co tai xe de mo khieu nai.");
+        }
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        BigDecimal deposit = depositOf(order);
+        Dispute dispute = Dispute.builder()
+                .orderId(order.getId())
+                .customerId(order.getCustomerId())
+                .driverId(order.getDriverId())
+                .claimType(CLAIM_DRIVER_MISMATCH)
+                .claimAmount(deposit)
+                .customerStatement("Khách báo tài xế/phương tiện không khớp ảnh xác thực tại điểm đón.")
+                .status(DisputeStatus.OPEN)
+                .deadline(now.plusDays(3))
+                .build();
+        try {
+            dispute = disputeRepository.saveAndFlush(dispute);
+        } catch (DataIntegrityViolationException ex) {
+            log.warn("openMismatchDispute: don {} da co khieu nai mo — bo qua", order.getId());
+            return;
+        }
+
+        auditService.log(customerId, null, "MISMATCH_DISPUTE_OPENED", "DISPUTE",
+                dispute.getId().toString(),
+                serialize(Map.of("order_id", order.getId(), "order_code", order.getOrderCode(),
+                        "deposit", deposit)));
+        notifyOperations(NotificationType.DISPUTE_OPENED, "Khiếu nại đối chiếu tài xế",
+                "Đơn " + order.getOrderCode() + " bị khách báo tài xế/xe không khớp — cần xử lý hoàn cọc.");
+        safeNotify(order.getDriverId(), NotificationType.DISPUTE_OPENED, "Khiếu nại đối chiếu",
+                "Khách đơn " + order.getOrderCode() + " báo bạn/xe không khớp ảnh. Quản lý đang xem xét.");
+    }
+
+    /**
+     * Manager xu ly khieu nai DRIVER_MISMATCH:
+     * - accept=true : cong ty HOAN COC 30% cho khach + PHAT 500k tai xe (chuyen cho khach).
+     *   Phat tru ngay: vi → coc → khoa tai khoan neu thieu (giong nhanh khau tru khieu nai).
+     * - accept=false: bac (khong hoan, khong phat). Don van CANCELLED.
+     * KHONG dua don ve COMPLETED, KHONG release earning (chuyen chua tung dien ra).
+     * HR-18 vi khong am; AC-13 moi buoc tien ghi transaction.
+     */
+    @Transactional
+    public DisputeActionResponse resolveMismatch(UUID disputeId, User actor, boolean accept, String rawNote) {
+        requireUser(actor);
+        String note = normalizeText(rawNote, "INVALID_RESOLUTION_NOTE", 10, 1000);
+
+        Dispute dispute = findOpenForUpdate(disputeId);
+        if (!CLAIM_DRIVER_MISMATCH.equals(dispute.getClaimType())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "NOT_MISMATCH_DISPUTE|Khieu nai nay khong phai loai doi chieu tai xe.");
+        }
+        ServiceOrder order = orderRepository.findByIdForUpdate(dispute.getOrderId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "ORDER_NOT_FOUND|Khong tim thay don hang."));
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+
+        if (!accept) {
+            dispute.setStatus(DisputeStatus.CLOSED_NO_FAULT);
+            dispute.setResolutionNote(note);
+            dispute.setResolvedBy(actor.getId());
+            dispute.setResolvedAt(now);
+            dispute = disputeRepository.saveAndFlush(dispute);
+            auditService.log(actor.getId(), actor.getEmail(), "MISMATCH_DISPUTE_REJECTED", "DISPUTE",
+                    dispute.getId().toString(), serialize(Map.of("order_code", order.getOrderCode())));
+            notifyDecision(dispute, order, NotificationType.DISPUTE_REJECTED,
+                    "Khiếu nại đối chiếu bị từ chối",
+                    "Khiếu nại đơn " + order.getOrderCode() + " đã đóng: " + note);
+            return toActionResponse(dispute, order, "Đã từ chối khiếu nại đối chiếu.");
+        }
+
+        // ACCEPT
+        BigDecimal deposit = depositOf(order);
+
+        // 1) Phat 500k tai xe → tru ngay: vi → coc → khoa neu thieu (giong nhanh khau tru khieu nai)
+        BigDecimal walletPart = deductFromDriverWallet(dispute, order, MISMATCH_PENALTY, " (phạt không khớp)");
+        BigDecimal remaining = MISMATCH_PENALTY.subtract(walletPart).setScale(0);
+        BigDecimal depositPart = BigDecimal.ZERO.setScale(0);
+        if (remaining.signum() > 0) {
+            depositPart = deductFromDriverDeposit(dispute, order, remaining);
+            BigDecimal uncovered = remaining.subtract(depositPart).setScale(0);
+            if (uncovered.signum() > 0) {
+                suspendDriverForPenalty(dispute.getDriverId(), order.getOrderCode(), uncovered);
+            }
+        }
+        BigDecimal penaltyCollected = walletPart.add(depositPart).setScale(0);
+
+        // 2) Hoan cho khach = coc (cong ty) + phan phat thu duoc tu tai xe.
+        // GHI 1 GIAO DICH REFUND DUY NHAT: unique uq_dispute_customer_refund chi cho 1 REFUND/dispute/khach
+        // (khong duoc goi refundForDispute 2 lan cho cung dispute+khach → se vi pham unique index).
+        BigDecimal totalRefunded = deposit.add(penaltyCollected).setScale(0);
+        customerRefundService.refundForDispute(dispute.getCustomerId(), order.getId(), dispute.getId(),
+                totalRefunded, "Hoàn cọc + bồi thường tài xế không khớp đơn " + order.getOrderCode());
+        dispute.setStatus(DisputeStatus.RESOLVED_REFUND);
+        dispute.setResolutionAmount(totalRefunded);
+        dispute.setResolutionNote(note);
+        dispute.setResolvedBy(actor.getId());
+        dispute.setResolvedAt(now);
+        dispute = disputeRepository.saveAndFlush(dispute);
+
+        auditService.log(actor.getId(), actor.getEmail(), "MISMATCH_DISPUTE_RESOLVED", "DISPUTE",
+                dispute.getId().toString(),
+                serialize(Map.of("order_code", order.getOrderCode(), "deposit_refund", deposit,
+                        "penalty_collected", penaltyCollected, "total_refunded", totalRefunded)));
+        safeNotify(dispute.getCustomerId(), NotificationType.DISPUTE_RESOLVED,
+                "Khiếu nại đối chiếu đã xử lý",
+                "Đơn " + order.getOrderCode() + ": bạn được hoàn " + totalRefunded.toPlainString() + " VND.");
+        safeNotify(dispute.getDriverId(), NotificationType.PENALTY_WALLET_DEDUCTED,
+                "Bị phạt do không khớp đối chiếu",
+                "Đơn " + order.getOrderCode() + ": bạn bị phạt " + penaltyCollected.toPlainString()
+                        + " VND do khách báo không khớp.");
+
+        return toActionResponse(dispute, order, "Đã hoàn cọc khách và phạt tài xế do không khớp.");
     }
 
     /**
@@ -655,6 +791,10 @@ public class DisputeService {
      * qua notifyDecision. Thay doi state da duoc audit trong log DISPUTE_* kem order_code (HR-13).
      */
     private void returnOrderToCompleted(ServiceOrder order) {
+        // Don da huy (vd khieu nai doi chieu tien-chuyen) → KHONG dua ve COMPLETED
+        if (ORDER_CANCELLED.equals(order.getStatus())) {
+            return;
+        }
         if (!ORDER_COMPLETED.equals(order.getStatus())) {
             order.setStatus(ORDER_COMPLETED);
             orderRepository.save(order);

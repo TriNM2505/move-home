@@ -111,6 +111,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/vnpay/**").permitAll()
+                // WebSocket handshake (SockJS) — xac thuc JWT tai STOMP CONNECT (WebSocketAuthChannelInterceptor)
+                .requestMatchers("/ws/**").permitAll()
                 // OPTIONS request (preflight CORS) — luon cho phep
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
@@ -136,6 +138,10 @@ public class SecurityConfig {
                     // Notification: dung chung cho moi user da dang nhap (customer/driver/manager/admin).
                     // Quyen so huu (chi xem noti CUA MINH) do service loc theo userId tu JWT.
                     .requestMatchers("/api/notifications/**").authenticated()
+
+                    // Chat: dung chung cho moi user da dang nhap. Quyen participant (chi xem hoi thoai
+                    // CUA MINH) do ChatService kiem tra theo userId tu JWT (HR-10).
+                    .requestMatchers("/api/chat/**").authenticated()
 
                     // Mac dinh: moi request con lai phai xac thuc (HR-17 default deny)
                     .anyRequest().authenticated()

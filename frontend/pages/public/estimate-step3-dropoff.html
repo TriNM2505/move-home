@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Điểm trả — MoveHome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <style>
+    /* Centering dashboard main */
+    .dashboard-main {
+      margin: 0 auto;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .customer-nav {
+      display: flex;
+      gap: var(--spacing-lg);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .customer-nav a {
+      color: var(--color-ink);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      padding: var(--spacing-xs) 0;
+      transition: color var(--transition-fast);
+    }
+    .customer-nav a:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+    .customer-nav a.active {
+      color: var(--color-primary);
+      border-bottom: 3px solid var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .booking-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--spacing-2xl);
+    }
+    
+    /* Progress Timeline style */
+    .progress-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      padding: var(--spacing-md) 0;
+      position: relative;
+    }
+    .progress-timeline::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: var(--spacing-xl);
+      bottom: var(--spacing-xl);
+      width: 2px;
+      background: var(--color-surface-pressed);
+      z-index: 1;
+    }
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      position: relative;
+      z-index: 2;
+    }
+    .timeline-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--rounded-full);
+      background: var(--color-canvas);
+      border: 2px solid var(--color-surface-pressed);
+      color: var(--color-body);
+      display: grid;
+      place-items: center;
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-body-sm);
+      transition: all var(--transition-fast);
+    }
+    .timeline-item.active .timeline-badge {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-on-primary);
+      box-shadow: 0 0 0 4px rgba(27, 77, 62, 0.12);
+    }
+    .timeline-item.completed .timeline-badge {
+      background: var(--color-success-bg);
+      border-color: var(--color-success);
+      color: var(--color-success-text);
+    }
+    .timeline-text {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-body);
+      font-size: var(--font-size-body-md);
+      transition: color var(--transition-fast);
+    }
+    .timeline-item.active .timeline-text {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    .timeline-item.completed .timeline-text {
+      color: var(--color-success-text);
+    }
+
+    /* Form Grid layout */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
+    }
+    .field-span {
+      grid-column: 1 / -1;
+    }
+    .choice-row {
+      display: flex;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+    .choice-pill {
+      padding: var(--spacing-md) var(--spacing-xl);
+      border-radius: var(--rounded-pill);
+      background: var(--color-canvas-soft);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-body);
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: all var(--transition-fast);
+      user-select: none;
+    }
+    .choice-pill:hover {
+      background: var(--color-surface-pressed);
+      color: var(--color-ink);
+    }
+    .choice-pill.active {
+      background: var(--color-success-bg);
+      color: var(--color-success-text);
+      border-color: rgba(6, 95, 70, 0.2);
+    }
+    
+    .eyebrow {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent-strong);
+      margin-bottom: var(--spacing-xxs);
+    }
+    
+    @media (max-width: 800px) {
+      .booking-shell, .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .site-header-actions {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="spinner-page" style="display: none;">
+    <div class="spinner spinner-md"></div>
+    <p>Đang tải thông tin...</p>
+  </div>
+
+  <!-- HEADER (marketing — cho khách chưa đăng nhập) -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+      </a>
+      <div class="site-header-actions">
+        <a href="../login.html" class="btn-subtle btn-sm">Đăng nhập</a>
+        <a href="../register.html" class="btn-primary btn-sm">Đăng ký</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="site-main">
+    <div class="dashboard-main">
+      <!-- ERROR BANNER -->
+      <div class="alert alert-danger" id="error-banner" style="display:none; margin-bottom: 24px;" role="alert"></div>
+
+      <header class="page-header">
+        <div class="eyebrow">DÙNG THỬ MIỄN PHÍ · BƯỚC 3 / 5</div>
+        <h1 class="page-title">Nhập điểm trả</h1>
+        <p class="page-subtitle">Cung cấp địa chỉ chi tiết và các thông tin phụ trợ tại nơi chuyển đồ đến.</p>
+      </header>
+
+      <div class="booking-shell">
+        <!-- SIDEBAR progress -->
+        <aside>
+          <div class="card-content">
+            <div class="progress-timeline">
+              <div class="timeline-item completed">
+                <div class="timeline-badge">✓</div>
+                <div class="timeline-text">Chọn xe</div>
+              </div>
+              <div class="timeline-item completed">
+                <div class="timeline-badge">✓</div>
+                <div class="timeline-text">Điểm đón</div>
+              </div>
+              <div class="timeline-item active">
+                <div class="timeline-badge">3</div>
+                <div class="timeline-text">Điểm trả</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">4</div>
+                <div class="timeline-text">Chi tiết</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-badge">5</div>
+                <div class="timeline-text">Báo giá</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editorial Trust Card -->
+          <div class="card-soft-tinted mt-8 text-center" style="background-color: #E6EDE9; border: 1px solid rgba(27, 77, 62, 0.15); margin-top: var(--spacing-2xl);">
+            <!-- SVG Illustration -->
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; display: block;">
+              <circle cx="60" cy="60" r="45" fill="#1B4D3E" fill-opacity="0.08"/>
+              <!-- Building Outline -->
+              <rect x="45" y="25" width="30" height="70" rx="4" fill="#D29B52" stroke="#1B4D3E" stroke-width="3"/>
+              <!-- Building Windows -->
+              <rect x="52" y="33" width="6" height="6" rx="1" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="1.5"/>
+              <rect x="62" y="33" width="6" height="6" rx="1" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="1.5"/>
+              <rect x="52" y="47" width="6" height="6" rx="1" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="1.5"/>
+              <rect x="62" y="47" width="6" height="6" rx="1" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="1.5"/>
+              <rect x="52" y="61" width="6" height="6" rx="1" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="1.5"/>
+              <rect x="62" y="61" width="6" height="6" rx="1" fill="#FFFFFF" stroke="#1B4D3E" stroke-width="1.5"/>
+              <!-- Elevator Indicator / Arrow Up -->
+              <circle cx="60" cy="83" r="10" fill="#F5A623" stroke="#1B4D3E" stroke-width="2"/>
+              <path d="M60 78L56 83H59V87H61V83H64L60 78Z" fill="#1B4D3E"/>
+            </svg>
+            <h4 style="color: var(--color-primary); font-size: var(--font-size-body-md); font-weight: var(--font-weight-bold); margin-top: var(--spacing-sm); margin-bottom: 0;">Khảo sát tầng cao</h4>
+            <p style="font-size: var(--font-size-caption); color: var(--color-body); margin-top: var(--spacing-xs); line-height: 1.4; margin-bottom: 0;">
+              Lựa chọn đúng tình trạng thang máy giúp chuẩn bị xe đẩy và dụng cụ hỗ trợ nâng chuyển phù hợp, tránh phát sinh phí ngoài ý muốn.
+            </p>
+          </div>
+        </aside>
+
+        <!-- INPUT FORM CONTAINER -->
+        <section class="card-elevated">
+          <div class="form-grid">
+            <!-- District -->
+            <div class="form-group">
+              <label class="form-label" for="district">Quận điểm trả</label>
+              <select class="text-input" id="district">
+                <option>Quận Cầu Giấy</option>
+                <option>Quận Ba Đình</option>
+                <option>Quận Hoàn Kiếm</option>
+                <option>Quận Hai Bà Trưng</option>
+                <option>Quận Đống Đa</option>
+                <option>Quận Tây Hồ</option>
+                <option>Quận Thanh Xuân</option>
+                <option>Quận Long Biên</option>
+                <option>Quận Hà Đông</option>
+                <option>Quận Hoàng Mai</option>
+                <option>Quận Bắc Từ Liêm</option>
+                <option>Quận Nam Từ Liêm</option>
+              </select>
+            </div>
+
+            <!-- Floor -->
+            <div class="form-group">
+              <label class="form-label" for="floor">Số tầng</label>
+              <input type="number" class="text-input" id="floor" min="0" value="5">
+            </div>
+
+            <!-- Address detail -->
+            <div class="form-group field-span">
+              <label class="form-label" for="address">Địa chỉ chi tiết</label>
+              <input type="text" class="text-input" id="address" placeholder="Số nhà, tên ngõ, tên đường...">
+            </div>
+
+            <!-- Precise dropoff location on map -->
+            <div class="form-group field-span">
+              <label class="form-label">Ghim vị trí chính xác điểm trả trên bản đồ</label>
+              <div id="dropoff-map" style="height:280px;border-radius:12px;overflow:hidden;border:1px solid var(--color-surface-pressed);margin-top:8px;"></div>
+              <p class="text-muted" id="coords-hint" style="font-size:var(--font-size-caption);margin-top:6px;">Kéo ghim hoặc bấm lên bản đồ để chọn đúng nơi trả đồ.</p>
+            </div>
+
+            <!-- Elevator availability -->
+            <div class="form-group">
+              <label class="form-label">Thang máy</label>
+              <div class="choice-row" id="elevator-choices">
+                <span class="choice-pill" data-value="true">Có thang máy</span>
+                <span class="choice-pill active" data-value="false">Không có thang máy</span>
+              </div>
+            </div>
+
+            <!-- Alley access -->
+            <div class="form-group">
+              <label class="form-label">Lối vào</label>
+              <div class="choice-row" id="alley-choices">
+                <span class="choice-pill active" data-value="true">Có ngõ nhỏ</span>
+                <span class="choice-pill" data-value="false">Xe vào tận cửa</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="mt-md" style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-2xl);">
+            <a href="estimate-step2-pickup.html" class="btn-secondary" id="back-btn">Quay lại</a>
+            <button class="btn-primary" id="continue-btn" style="min-width: 140px;">Tiếp tục</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // central coordinate mapping for Hanoi districts to feed route API
+  const districtCoords = {
+    "Quận Ba Đình": { lat: 21.0362, lng: 105.8277 },
+    "Quận Hoàn Kiếm": { lat: 21.0285, lng: 105.8542 },
+    "Quận Hai Bà Trưng": { lat: 21.0125, lng: 105.8501 },
+    "Quận Đống Đa": { lat: 21.0185, lng: 105.8293 },
+    "Quận Tây Hồ": { lat: 21.0592, lng: 105.8252 },
+    "Quận Cầu Giấy": { lat: 21.0357, lng: 105.7958 },
+    "Quận Thanh Xuân": { lat: 20.9984, lng: 105.8115 },
+    "Quận Long Biên": { lat: 21.0381, lng: 105.8895 },
+    "Quận Hà Đông": { lat: 20.9702, lng: 105.7744 },
+    "Quận Hoàng Mai": { lat: 20.9806, lng: 105.8431 },
+    "Quận Bắc Từ Liêm": { lat: 21.0664, lng: 105.7628 },
+    "Quận Nam Từ Liêm": { lat: 21.0135, lng: 105.7667 }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Guest — KHONG auth. Can co xe da chon o buoc 1.
+    const vehicleType = localStorage.getItem('guest_estimate_vehicleType');
+    if (!vehicleType) {
+      window.location.href = 'estimate-step1-vehicle.html';
+      return;
+    }
+    const errorBanner = document.getElementById('error-banner');
+    if (errorBanner) errorBanner.style.display = 'none';
+
+    // 3. Interactive choice pill toggling
+    function setupChoices(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const pills = container.querySelectorAll('.choice-pill');
+      pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          pills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+        });
+      });
+    }
+    setupChoices('elevator-choices');
+    setupChoices('alley-choices');
+
+    // 4. Restore state from localStorage if it exists
+    const districtSelect = document.getElementById('district');
+    const floorInput = document.getElementById('floor');
+    const addressInput = document.getElementById('address');
+    const elevatorContainer = document.getElementById('elevator-choices');
+    const alleyContainer = document.getElementById('alley-choices');
+
+    const savedDistrict = localStorage.getItem('guest_estimate_dropoffDistrict');
+    const savedFloor = localStorage.getItem('guest_estimate_dropoffFloor');
+    const savedAddress = localStorage.getItem('guest_estimate_dropoffAddress');
+    const savedHasElevator = localStorage.getItem('guest_estimate_dropoffHasElevator');
+    const savedHasAlley = localStorage.getItem('guest_estimate_dropoffHasAlley');
+
+    if (savedDistrict && districtSelect) districtSelect.value = savedDistrict;
+    if (savedFloor && floorInput) floorInput.value = savedFloor;
+    if (savedAddress && addressInput) addressInput.value = savedAddress;
+    
+    if (savedHasElevator !== null && elevatorContainer) {
+      elevatorContainer.querySelectorAll('.choice-pill').forEach(p => {
+        if (p.dataset.value === savedHasElevator) p.classList.add('active');
+        else p.classList.remove('active');
+      });
+    }
+
+    if (savedHasAlley !== null && alleyContainer) {
+      alleyContainer.querySelectorAll('.choice-pill').forEach(p => {
+        if (p.dataset.value === savedHasAlley) p.classList.add('active');
+        else p.classList.remove('active');
+      });
+    }
+
+    // 4.5 Bản đồ ghim vị trí chính xác điểm trả
+    const savedLat = parseFloat(localStorage.getItem('guest_estimate_dropoffLat'));
+    const savedLng = parseFloat(localStorage.getItem('guest_estimate_dropoffLng'));
+    const startCoords = (!isNaN(savedLat) && !isNaN(savedLng))
+      ? { lat: savedLat, lng: savedLng }
+      : (districtCoords[districtSelect.value] || { lat: 21.0357, lng: 105.7958 });
+
+    let dropoffMarker = null;
+    const coordsHint = document.getElementById('coords-hint');
+    const updateHint = (ll) => {
+      if (coordsHint) coordsHint.textContent = `Vị trí đã chọn: ${ll.lat.toFixed(6)}, ${ll.lng.toFixed(6)}`;
+    };
+
+    if (window.L) {
+      const map = window.L.map('dropoff-map').setView([startCoords.lat, startCoords.lng], 15);
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+      dropoffMarker = window.L.marker([startCoords.lat, startCoords.lng], { draggable: true }).addTo(map);
+      updateHint(dropoffMarker.getLatLng());
+      dropoffMarker.on('dragend', () => updateHint(dropoffMarker.getLatLng()));
+      map.on('click', (e) => { dropoffMarker.setLatLng(e.latlng); updateHint(e.latlng); });
+
+      districtSelect.addEventListener('change', () => {
+        const c = districtCoords[districtSelect.value];
+        if (c) map.setView([c.lat, c.lng], 15);
+      });
+    }
+
+    // 5. Submit validation & navigation logic
+    const continueBtn = document.getElementById('continue-btn');
+    if (continueBtn) {
+      continueBtn.addEventListener('click', () => {
+        if (errorBanner) errorBanner.style.display = 'none';
+
+        const district = districtSelect.value;
+        const floorText = floorInput.value.trim();
+        const address = addressInput.value.trim();
+
+        const activeElevatorPill = elevatorContainer ? elevatorContainer.querySelector('.choice-pill.active') : null;
+        const hasElevator = activeElevatorPill ? activeElevatorPill.dataset.value === 'true' : false;
+
+        const activeAlleyPill = alleyContainer ? alleyContainer.querySelector('.choice-pill.active') : null;
+        const hasAlley = activeAlleyPill ? activeAlleyPill.dataset.value === 'true' : false;
+
+        // Validation
+        if (!address) {
+          if (errorBanner) {
+            errorBanner.textContent = '⚠️ Vui lòng nhập địa chỉ chi tiết để tài xế có thể tìm thấy nơi trả đồ.';
+            errorBanner.style.display = 'flex';
+          }
+          addressInput.focus();
+          return;
+        }
+
+        if (address.length < 10) {
+          if (errorBanner) {
+            errorBanner.textContent = '⚠️ Địa chỉ phải có ít nhất 10 ký tự — nhập đầy đủ số nhà, tên đường, phường.';
+            errorBanner.style.display = 'flex';
+          }
+          addressInput.focus();
+          return;
+        }
+
+        const floor = parseInt(floorText, 10);
+        if (isNaN(floor) || floor < 0) {
+          if (errorBanner) {
+            errorBanner.textContent = '⚠️ Số tầng không hợp lệ. Vui lòng nhập số lớn hơn hoặc bằng 0.';
+            errorBanner.style.display = 'flex';
+          }
+          floorInput.focus();
+          return;
+        }
+
+        // Toạ độ CHÍNH XÁC từ ghim trên bản đồ (không dùng toạ độ trung tâm quận nữa)
+        const coords = dropoffMarker
+          ? { lat: dropoffMarker.getLatLng().lat, lng: dropoffMarker.getLatLng().lng }
+          : (districtCoords[district] || { lat: 21.0357, lng: 105.7958 });
+
+        // Save to localStorage
+        localStorage.setItem('guest_estimate_dropoffDistrict', district);
+        localStorage.setItem('guest_estimate_dropoffFloor', floor);
+        localStorage.setItem('guest_estimate_dropoffAddress', address);
+        localStorage.setItem('guest_estimate_dropoffHasElevator', hasElevator);
+        localStorage.setItem('guest_estimate_dropoffHasAlley', hasAlley);
+        localStorage.setItem('guest_estimate_dropoffLat', coords.lat);
+        localStorage.setItem('guest_estimate_dropoffLng', coords.lng);
+
+        // Navigate to Step 4
+        window.location.href = 'estimate-step4-details.html';
+      });
+    }
+  });
+</script>
+</body>
+</html>
