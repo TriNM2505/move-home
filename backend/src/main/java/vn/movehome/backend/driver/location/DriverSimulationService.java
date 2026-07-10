@@ -89,7 +89,7 @@ public class DriverSimulationService {
             }
         }
         if (!activeIds.isEmpty()) {
-            log.info("Mo phong tai xe: da cap nhat vi tri cho {} don dang giao.", activeIds.size());
+            log.debug("Mo phong tai xe: da cap nhat vi tri cho {} don dang giao.", activeIds.size());
         }
         // Don da xong → bo trang thai mo phong
         sims.keySet().retainAll(activeIds);
@@ -126,7 +126,7 @@ public class DriverSimulationService {
                     order.getDriverId(), order.getId(),
                     scale7(lat), scale7(lng), null,
                     BigDecimal.valueOf(SPEED_KMH).setScale(2, RoundingMode.HALF_UP));
-            log.info("Seed vi tri: don={} tai_xe={} affected={}",
+            log.debug("Seed vi tri: don={} tai_xe={} affected={}",
                     order.getId(), order.getDriverId(), affected);
         } catch (RuntimeException ex) {
             log.error("Seed vi tri tai xe LOI cho don {}: {}", order.getId(), ex.getMessage(), ex);
@@ -151,7 +151,7 @@ public class DriverSimulationService {
                 scale7(pos[1]),
                 null,
                 BigDecimal.valueOf(SPEED_KMH).setScale(2, RoundingMode.HALF_UP));
-        log.info("Mo phong GHI: don={} tai_xe={} pos=({},{}) affected={}",
+        log.debug("Mo phong GHI: don={} tai_xe={} pos=({},{}) affected={}",
                 order.getId(), order.getDriverId(), pos[0], pos[1], affected);
     }
 

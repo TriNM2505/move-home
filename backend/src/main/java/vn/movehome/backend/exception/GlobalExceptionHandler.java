@@ -11,6 +11,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -94,6 +95,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
         return build(HttpStatus.CONFLICT, "CONFLICT",
                 ex.getMessage() != null ? ex.getMessage() : "Trạng thái hiện tại không hợp lệ.", List.of());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
+        return build(HttpStatus.UNPROCESSABLE_ENTITY, "INVALID_FILE",
+                "Ảnh vượt quá dung lượng cho phép. Vui lòng chọn ảnh dưới 1.5 MB.", List.of());
     }
 
     @ExceptionHandler(Exception.class)

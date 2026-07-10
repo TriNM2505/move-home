@@ -12,9 +12,7 @@
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
     .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
-    .bar-chart { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--spacing-md); align-items: end; height: 220px; padding-top: var(--spacing-xl); }
-    .bar { background: var(--color-primary); border-radius: var(--rounded-md) var(--rounded-md) 0 0; min-height: 32px; }
-    .bar-label { text-align: center; color: var(--color-body); font-size: var(--font-size-caption); margin-top: var(--spacing-sm); }
+    .state-cell { text-align: center; padding: 40px 16px; color: var(--color-body); }
     @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
   </style>
 </head>
@@ -33,9 +31,9 @@
         <a href="withdrawal-request.html" class="nav-link">Rút tiền</a>
       </nav>
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Lê Văn Cường</span>
-        <div class="avatar avatar-sm avatar-initials">LC</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Tài xế</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">TX</div>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
     </div>
   </header>
@@ -45,34 +43,15 @@
       <header class="page-header flex-between">
         <div>
           <h1 class="page-title">Thu nhập</h1>
-          <p class="page-subtitle">Tổng hợp doanh thu, hoa hồng và giao dịch nhận tiền.</p>
+          <p class="page-subtitle">Tổng hợp thu nhập và các giao dịch nhận tiền của bạn.</p>
         </div>
         <a href="withdrawal-request.html" class="btn-primary">Yêu cầu rút tiền</a>
       </header>
 
       <section class="grid-3 mb-8">
-        <div class="kpi kpi-success"><div class="kpi-body"><span class="kpi-label">Tổng thu nhập</span><span class="kpi-value num-money">28,4tr</span></div></div>
-        <div class="kpi kpi-warning"><div class="kpi-body"><span class="kpi-label">Hoa hồng đã trả</span><span class="kpi-value num-money">12,1tr</span></div></div>
-        <div class="kpi kpi-primary"><div class="kpi-body"><span class="kpi-label">Số đơn</span><span class="kpi-value">23</span></div></div>
-      </section>
-
-      <section class="card-elevated mb-8">
-        <div class="card-header" style="margin: calc(var(--spacing-2xl) * -1) calc(var(--spacing-2xl) * -1) var(--spacing-xl);">
-          <h2 class="card-title">Thu nhập 7 ngày gần đây</h2>
-          <select class="filter-select" aria-label="Chọn tháng">
-            <option>Tháng 06/2026</option>
-            <option>Tháng 05/2026</option>
-          </select>
-        </div>
-        <div class="bar-chart" aria-label="Biểu đồ thu nhập">
-          <div><div class="bar" style="height:45%;"></div><div class="bar-label">T2</div></div>
-          <div><div class="bar" style="height:70%;"></div><div class="bar-label">T3</div></div>
-          <div><div class="bar" style="height:55%;"></div><div class="bar-label">T4</div></div>
-          <div><div class="bar" style="height:88%;"></div><div class="bar-label">T5</div></div>
-          <div><div class="bar" style="height:64%;"></div><div class="bar-label">T6</div></div>
-          <div><div class="bar" style="height:92%;"></div><div class="bar-label">T7</div></div>
-          <div><div class="bar" style="height:50%;"></div><div class="bar-label">CN</div></div>
-        </div>
+        <div class="kpi kpi-success"><div class="kpi-body"><span class="kpi-label">Tổng thu nhập</span><span class="kpi-value num-money" id="kpi-total">—</span></div></div>
+        <div class="kpi kpi-primary"><div class="kpi-body"><span class="kpi-label">Số dư ví</span><span class="kpi-value num-money" id="kpi-balance">—</span></div></div>
+        <div class="kpi kpi-warning"><div class="kpi-body"><span class="kpi-label">Số đơn có thu nhập</span><span class="kpi-value" id="kpi-count">—</span></div></div>
       </section>
 
       <section class="card">
@@ -85,10 +64,8 @@
             <thead>
               <tr><th>Mã đơn</th><th>Loại giao dịch</th><th>Ngày</th><th class="text-right">Số tiền</th></tr>
             </thead>
-            <tbody>
-              <tr><td>MH2026060001</td><td>Thu nhập tài xế</td><td>05/06/2026</td><td class="text-right num-money">1.050.000 VND</td></tr>
-              <tr><td>MH2026050028</td><td>Thu nhập tài xế</td><td>31/05/2026</td><td class="text-right num-money">686.000 VND</td></tr>
-              <tr><td>MH2026050024</td><td>Thu nhập tài xế</td><td>30/05/2026</td><td class="text-right num-money">910.000 VND</td></tr>
+            <tbody id="earnings-tbody">
+              <tr><td colspan="4" class="state-cell">Đang tải...</td></tr>
             </tbody>
           </table>
         </div>
@@ -96,5 +73,63 @@
     </div>
   </main>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  const $ = (id) => document.getElementById(id);
+  const vnd = (v) => (v === null || v === undefined ? '0' : Number(v).toLocaleString('vi-VN')) + ' đ';
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtDate = (iso) => !iso ? '—' : new Date(iso).toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Asia/Ho_Chi_Minh' });
+  const stateRow = (msg) => `<tr><td colspan="4" class="state-cell">${esc(msg)}</td></tr>`;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const user = getCurrentUser();
+    if (user?.role !== 'DRIVER') { logout('../login.html'); return; }
+    $('header-user-name').textContent = user.fullName || 'Tài xế';
+    $('header-user-avatar').textContent = (user.fullName || 'TX').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    $('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+    load();
+  });
+
+  async function load() {
+    // Ví: tổng thu nhập + số dư
+    try {
+      const w = await getAuthenticated('/api/driver/wallet');
+      $('kpi-total').textContent = vnd(w?.totalEarned);
+      $('kpi-balance').textContent = vnd(w?.balance);
+    } catch (e) {
+      $('kpi-total').textContent = '0 đ';
+      $('kpi-balance').textContent = '0 đ';
+    }
+
+    // Danh sách giao dịch thu nhập thật
+    const tbody = $('earnings-tbody');
+    try {
+      const data = await getAuthenticated('/api/driver/earnings?page=0&size=50');
+      const items = (data && data.content) || [];
+      $('kpi-count').textContent = data?.totalElements ?? items.length;
+      if (!items.length) {
+        tbody.innerHTML = stateRow('Chưa có giao dịch thu nhập nào. Hoàn thành đơn để bắt đầu nhận tiền.');
+        return;
+      }
+      tbody.innerHTML = items.map(t => `
+        <tr>
+          <td>${esc(t.orderCode || '—')}</td>
+          <td>${esc(t.description || 'Thu nhập tài xế')}</td>
+          <td>${fmtDate(t.createdAt)}</td>
+          <td class="text-right num-money">${vnd(t.amount)}</td>
+        </tr>`).join('');
+    } catch (e) {
+      console.error(e);
+      $('kpi-count').textContent = '0';
+      tbody.innerHTML = stateRow('Không tải được giao dịch thu nhập. Vui lòng thử lại.');
+    }
+  }
+</script>
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/driver-common.js"></script>
 </body>
 </html>

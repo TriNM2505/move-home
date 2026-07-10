@@ -14,7 +14,7 @@
 <body>
 
 <div class="site-layout">
-  
+
   <!-- HEADER -->
   <header class="site-header">
     <div class="container site-header-inner">
@@ -32,7 +32,7 @@
   </header>
 
   <div class="site-body">
-    
+
     <!-- SIDEBAR -->
     <aside class="sidebar" aria-label="Menu quản lý">
       <nav class="sidebar-nav">
@@ -54,9 +54,9 @@
     <!-- MAIN -->
     <main class="site-main" id="main-content">
       <div class="dashboard-main">
-        
+
         <div class="notif-page-container">
-          
+
           <!-- TIÊU ĐỀ TRANG -->
           <div class="notif-page-header">
             <div>
@@ -68,34 +68,32 @@
             </div>
           </div>
 
-          <!-- MÀN HÌNH LOADING (Ẩn mặc định) -->
+          <!-- LOADING -->
           <div id="notifLoading" class="notif-state-card">
             <div class="btn-spinner notif-state-icon" style="border-top-color: var(--color-primary); width: 36px; height: 36px;"></div>
             <h2 class="notif-state-title">Đang tải thông báo...</h2>
             <p class="notif-state-desc">Vui lòng chờ trong giây lát trong khi hệ thống lấy dữ liệu mới nhất.</p>
           </div>
 
-          <!-- MÀN HÌNH ERROR (Ẩn mặc định) -->
+          <!-- ERROR -->
           <div id="notifError" class="notif-state-card style-error" style="display: none;">
             <div class="notif-state-icon">⚠️</div>
             <h2 class="notif-state-title">Không thể tải dữ liệu</h2>
-            <p class="notif-state-desc">Đã xảy ra lỗi kết nối mạng. Vui lòng kiểm tra lại đường truyền và thử lại.</p>
+            <p class="notif-state-desc">Đã xảy ra lỗi kết nối. Vui lòng kiểm tra đường truyền và thử lại.</p>
             <div class="notif-state-action">
               <button id="retryBtn" class="btn-primary">Thử lại</button>
             </div>
           </div>
 
-          <!-- MÀN HÌNH EMPTY (Ẩn mặc định) -->
+          <!-- EMPTY -->
           <div id="notifEmpty" class="notif-state-card" style="display: none;">
             <div class="notif-state-icon">🔔</div>
             <h2 class="notif-state-title">Chưa có thông báo</h2>
-            <p class="notif-state-desc">Hiện tại không có thông báo mới nào dành cho tài khoản Quản lý của bạn.</p>
+            <p class="notif-state-desc">Hiện tại không có thông báo nào dành cho tài khoản Quản lý của bạn.</p>
           </div>
 
-          <!-- DANH SÁCH THÔNG BÁO -->
-          <div class="notif-list" id="notifList" style="display: none;">
-            <!-- Render items dynamic -->
-          </div>
+          <!-- DANH SÁCH -->
+          <div class="notif-list" id="notifList" style="display: none;"></div>
 
         </div>
 
@@ -110,92 +108,67 @@
 
 <script type="module">
   import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
 
-  const initialMockNotifications = [
-    { id: "1", type: "INFO", title: "Yêu cầu rút tiền mới", message: "Tài xế Nguyễn Văn Hùng đã gửi yêu cầu rút 4.500.000 đ.", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
-    { id: "2", type: "WARNING", title: "Hồ sơ tài xế chờ duyệt", message: "Hồ sơ tài xế Trần Minh Đức đang chờ được phê duyệt.", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
-    { id: "3", type: "DANGER", title: "Khiếu nại từ khách hàng", message: "Khách hàng Phạm Minh Tuấn gửi khiếu nại về đơn hàng MH12345.", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 360).toISOString() },
-    { id: "4", type: "SUCCESS", title: "Rút tiền thành công", message: "Yêu cầu rút tiền của tài xế Lê Hoàng Nam đã được xử lý xong.", isRead: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() },
-    { id: "5", type: "INFO", title: "Đăng ký tài xế mới", message: "Tài xế Vũ Quốc Đạt đã hoàn thành bước gửi hồ sơ đăng ký.", isRead: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString() }
-  ];
+  const BASE_URL = 'http://localhost:8080';
 
-  /* MOCK - thay bằng API sau */
-  function getNotifications() {
-    const stored = localStorage.getItem('mockNotifications');
-    if (!stored) {
-      localStorage.setItem('mockNotifications', JSON.stringify(initialMockNotifications));
-      return initialMockNotifications;
-    }
-    return JSON.parse(stored);
-  }
-
-  function saveNotifications(notifs) {
-    localStorage.setItem('mockNotifications', JSON.stringify(notifs));
-    if (window.updateBellNotificationState) {
-      window.updateBellNotificationState();
-    }
+  function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/[&<>'"]/g, t => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[t] || t));
   }
 
   function formatTimeVN(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    
-    if (diffMins < 1) {
-      return 'Vừa xong';
-    } else if (diffMins < 60) {
-      return `${diffMins} phút trước`;
-    } else if (diffHours < 24) {
-      return `${diffHours} giờ trước`;
-    } else {
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const mins = String(date.getMinutes()).padStart(2, '0');
-      return `${day}/${month} ${hours}:${mins}`;
-    }
+    const diffMins = Math.floor((new Date() - date) / 60000);
+    const diffHours = Math.floor((new Date() - date) / 3600000);
+    if (diffMins < 1) return 'Vừa xong';
+    if (diffMins < 60) return `${diffMins} phút trước`;
+    if (diffHours < 24) return `${diffHours} giờ trước`;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const mins = String(date.getMinutes()).padStart(2, '0');
+    return `${day}/${month} ${hours}:${mins}`;
   }
 
-  function escapeHTML(str) {
-    if (!str) return '';
-    return str.replace(/[&<>'"]/g, 
-      tag => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        "'": '&#39;',
-        '"': '&quot;'
-      }[tag] || tag)
-    );
+  // Map loại thông báo → màu icon. Backend dùng nhiều loại (DRIVER_APPROVED, DISPUTE_OPENED...);
+  // gom về 4 nhóm hiển thị, mặc định info.
+  function getIconClass(type) {
+    const t = (type || '').toUpperCase();
+    if (t.includes('REJECT') || t.includes('CANCEL') || t.includes('DISPUTE') || t.includes('DANGER')) return 'danger';
+    if (t.includes('APPROV') || t.includes('SUCCESS') || t.includes('COMPLETE') || t.includes('PAID')) return 'success';
+    if (t.includes('PENDING') || t.includes('WARNING') || t.includes('WAIT')) return 'warning';
+    return 'info';
+  }
+
+  function getIconSvg(type) {
+    const cls = getIconClass(type);
+    if (cls === 'warning') return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+    if (cls === 'success') return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    if (cls === 'danger') return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+  }
+
+  async function markRead(id) {
+    const token = localStorage.getItem('accessToken');
+    try {
+      const res = await fetch(`${BASE_URL}/api/notifications/${encodeURIComponent(id)}/read`, {
+        method: 'PATCH', headers: { Authorization: `Bearer ${token}` }
+      });
+      return res.ok;
+    } catch { return false; }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Auth Check
-    if (!isLoggedIn()) {
-      window.location.href = '../login.html';
-      return;
-    }
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
     const user = getCurrentUser();
-    if (user?.role === 'ADMIN') {
-      window.location.href = '../admin/dashboard.html';
-      return;
-    }
-    if (user?.role !== 'MANAGER') {
-      logout('../login.html');
-      return;
-    }
+    if (user?.role !== 'MANAGER') { logout('../login.html'); return; }
 
-    // Render User Info
     const nameEl = document.getElementById('userName');
     if (nameEl) nameEl.textContent = user.fullName || 'Quản lý';
     const avatarEl = document.getElementById('userAvatar');
-    if (avatarEl && user.fullName) {
-      avatarEl.textContent = user.fullName
-        .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-    }
+    if (avatarEl && user.fullName) avatarEl.textContent = user.fullName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
     document.getElementById('logoutBtn')?.addEventListener('click', () => logout('../login.html'));
 
     const listEl = document.getElementById('notifList');
@@ -204,6 +177,7 @@
     const emptyEl = document.getElementById('notifEmpty');
     const markAllReadBtn = document.getElementById('markAllReadBtn');
     const retryBtn = document.getElementById('retryBtn');
+    let items = [];
 
     function setViewState(state) {
       listEl.style.display = state === 'content' ? 'flex' : 'none';
@@ -213,133 +187,58 @@
     }
 
     function renderPageList() {
-      const notifs = getNotifications();
-      if (notifs.length === 0) {
-        setViewState('empty');
-        return;
-      }
-
+      if (!items.length) { setViewState('empty'); return; }
       setViewState('content');
-      listEl.innerHTML = notifs.map(item => {
-        const iconClass = getIconClass(item.type);
-        const iconSvg = getIconSvg(item.type);
-        const unreadClass = item.isRead ? '' : 'unread';
-        const dotMarkup = item.isRead ? '' : '<span class="notif-dot-amber"></span>';
-        const timeFormatted = formatTimeVN(item.createdAt);
-
-        return `
-          <div class="notif-item ${unreadClass}" data-id="${item.id}" data-type="${item.type}">
-            <div class="notif-dot-col">
-              ${dotMarkup}
-            </div>
-            <div class="notif-icon-col">
-              <div class="notif-icon-wrapper ${iconClass}">
-                ${iconSvg}
-              </div>
-            </div>
-            <div class="notif-body-col">
-              <h4 class="notif-item-title">${escapeHTML(item.title)}</h4>
-              <p class="notif-item-message">${escapeHTML(item.message)}</p>
-              <span class="notif-item-time">${timeFormatted}</span>
-            </div>
+      listEl.innerHTML = items.map(item => `
+        <div class="notif-item ${item.isRead ? '' : 'unread'}" data-id="${escapeHTML(item.id)}">
+          <div class="notif-dot-col">${item.isRead ? '' : '<span class="notif-dot-amber"></span>'}</div>
+          <div class="notif-icon-col"><div class="notif-icon-wrapper ${getIconClass(item.type)}">${getIconSvg(item.type)}</div></div>
+          <div class="notif-body-col">
+            <h4 class="notif-item-title">${escapeHTML(item.title)}</h4>
+            <p class="notif-item-message">${escapeHTML(item.message)}</p>
+            <span class="notif-item-time">${formatTimeVN(item.createdAt)}</span>
           </div>
-        `;
-      }).join('');
-    }
-
-    function getIconClass(type) {
-      switch (type) {
-        case 'INFO': return 'info';
-        case 'WARNING': return 'warning';
-        case 'SUCCESS': return 'success';
-        case 'DANGER': return 'danger';
-        default: return 'info';
-      }
-    }
-
-    function getIconSvg(type) {
-      switch (type) {
-        case 'INFO':
-          return `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-          `;
-        case 'WARNING':
-          return `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-              <line x1="12" y1="9" x2="12" y2="13"></line>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-          `;
-        case 'SUCCESS':
-          return `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          `;
-        case 'DANGER':
-          return `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="15" y1="9" x2="9" y2="15"></line>
-              <line x1="9" y1="9" x2="15" y2="15"></line>
-            </svg>
-          `;
-        default:
-          return `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-          `;
-      }
+        </div>`).join('');
     }
 
     async function loadNotifications() {
       setViewState('loading');
-      setTimeout(() => {
-        try {
-          renderPageList();
-        } catch (err) {
-          setViewState('error');
-        }
-      }, 500);
+      try {
+        const data = await getAuthenticated('/api/notifications?page=0&size=50');
+        items = (data && data.content) || [];
+        renderPageList();
+      } catch (err) {
+        console.error(err);
+        setViewState('error');
+      }
     }
 
-    // Đánh dấu tất cả đã đọc
-    markAllReadBtn.addEventListener('click', () => {
-      const notifs = getNotifications();
-      const updated = notifs.map(n => ({ ...n, isRead: true }));
-      saveNotifications(updated);
-      renderPageList();
-    });
-
-    // Đánh dấu đã đọc khi nhấp vào thông báo cụ thể
-    listEl.addEventListener('click', (e) => {
+    listEl.addEventListener('click', async (e) => {
       const itemEl = e.target.closest('.notif-item');
       if (!itemEl) return;
       const id = itemEl.dataset.id;
-      const notifs = getNotifications();
-      const matched = notifs.find(n => n.id === id);
+      const matched = items.find(n => String(n.id) === String(id));
       if (matched && !matched.isRead) {
-        matched.isRead = true;
-        saveNotifications(notifs);
-        renderPageList();
+        if (await markRead(id)) {
+          matched.isRead = true;
+          renderPageList();
+          window.refreshNotifBell?.();
+        }
       }
     });
 
-    retryBtn.addEventListener('click', loadNotifications);
-
-    // Lắng nghe sự kiện storage để cập nhật đồng bộ các tab
-    window.addEventListener('storage', () => {
+    markAllReadBtn.addEventListener('click', async () => {
+      const unread = items.filter(n => !n.isRead);
+      if (!unread.length) return;
+      markAllReadBtn.disabled = true;
+      await Promise.all(unread.map(n => markRead(n.id)));
+      unread.forEach(n => n.isRead = true);
+      markAllReadBtn.disabled = false;
       renderPageList();
+      window.refreshNotifBell?.();
     });
 
+    retryBtn.addEventListener('click', loadNotifications);
     loadNotifications();
   });
 </script>

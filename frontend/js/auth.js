@@ -41,6 +41,16 @@ export async function register(registerData) {
 }
 
 /**
+ * Đăng ký tài khoản Tài xế mới (Onboarding Bước 1).
+ * Backend: POST /api/auth/register/driver
+ * @param {object} registerData - { email, password, fullName, phone?, termsAccepted }
+ * @returns {Promise<object>} { userId, message }
+ */
+export async function registerDriver(registerData) {
+  return await post('/api/auth/register/driver', registerData);
+}
+
+/**
  * Yêu cầu gửi email đặt lại mật khẩu. Backend luôn trả phản hồi trung lập.
  */
 export async function forgotPassword(email) {
@@ -111,7 +121,20 @@ export function hasRole(role) {
  * @param {object} user - UserInfo { role, ... }
  * @param {string} fallback - URL khi role không xác định (mặc định: login.html)
  */
+// Tai xe chua hoan tat onboarding → dua ve dung buoc theo status (URL tuong doi tu pages/)
+const DRIVER_ONBOARDING_URL = {
+  PENDING_DOCUMENTS: 'driver/register-step2.html',
+  PENDING_DEPOSIT:   'driver/register-step3-deposit.html',
+  PENDING_APPROVAL:  'driver/pending-approval.html',
+  REJECTED:          'driver/pending-approval.html',
+};
+
 export function redirectAfterLogin(user, fallback = 'login.html') {
+  // Tai xe dang onboarding (chua ACTIVE) → dan toi dung buoc con dang do
+  if (user?.role === 'DRIVER' && DRIVER_ONBOARDING_URL[user?.status]) {
+    window.location.href = DRIVER_ONBOARDING_URL[user.status];
+    return;
+  }
   const url = ROLE_HOME_URL[user?.role] || fallback;
   window.location.href = url;
 }

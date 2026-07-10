@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chờ duyệt — Move_home</title>
+  <title>Trạng thái hồ sơ tài xế — Move_home</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,50 +11,91 @@
 
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
     .approval-page { min-height: 100vh; background: var(--color-canvas-soft); padding: var(--spacing-4xl) var(--spacing-lg); display: flex; align-items: center; }
     .approval-card { max-width: 700px; margin: 0 auto; text-align: center; }
-    .approval-icon { width: 120px; height: 120px; margin: 0 auto var(--spacing-xl); border-radius: var(--rounded-full); background: var(--color-warning-bg); color: var(--color-warning-text); display: flex; align-items: center; justify-content: center; font-size: 56px; }
+    .approval-icon { width: 110px; height: 110px; margin: 0 auto var(--spacing-xl); border-radius: var(--rounded-full); display: flex; align-items: center; justify-content: center; font-size: 52px; }
+    .approval-icon.wait { background: var(--color-warning-bg, #FEF3C7); color: var(--color-warning-text, #B45309); }
+    .approval-icon.ok { background: var(--color-success-bg, #D1FAE5); color: var(--color-success-text, #157347); }
+    .approval-icon.bad { background: var(--color-danger-bg, #FEE2E2); color: var(--color-danger-text, #B91C1C); }
     .next-steps { text-align: left; max-width: 520px; margin: var(--spacing-2xl) auto 0; }
     .next-steps li { padding: var(--spacing-md) 0; border-bottom: 1px solid var(--color-surface-pressed); }
-    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
   </style>
 </head>
 <body>
 <header class="site-header">
   <div class="container site-header-inner">
     <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
-    <nav class="driver-nav" aria-label="Điều hướng tài xế">
-      <a href="register-step1.html" class="nav-link active">Đăng ký</a>
-      <a href="home.html" class="nav-link">Trang chủ</a>
-      <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
-      <a href="in-progress.html" class="nav-link">Đang giao</a>
-      <a href="history.html" class="nav-link">Lịch sử</a>
-      <a href="profile.html" class="nav-link">Hồ sơ</a>
-      <a href="earnings.html" class="nav-link">Thu nhập</a>
-    </nav>
     <div class="site-header-actions">
-      <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+      <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
     </div>
   </div>
 </header>
 <main class="approval-page">
   <section class="card-elevated approval-card">
     <a href="../../index.html" class="auth-logo">Move_home</a>
-    <div class="approval-icon" aria-hidden="true">✓</div>
-    <h1 class="page-title">Đang chờ duyệt</h1>
-    <p class="page-subtitle mt-md">Đơn đăng ký của bạn đã được gửi đến đội ngũ quản lý. Thời gian xét duyệt: 1-2 ngày làm việc.</p>
-
-    <ul class="next-steps">
-      <li><strong>1. Kiểm tra hồ sơ:</strong> quản lý xác minh giấy phép, xe và thông tin cá nhân.</li>
-      <li><strong>2. Xác nhận đặt cọc:</strong> giao dịch đặt cọc được đối soát trong hệ thống.</li>
-      <li><strong>3. Kích hoạt tài khoản:</strong> bạn có thể nhận đơn sau khi hồ sơ được duyệt.</li>
-    </ul>
-
-    <div class="mt-8">
-      <a href="../login.html" class="btn-secondary">Đăng xuất</a>
+    <div id="content">
+      <div class="approval-icon wait" aria-hidden="true">⏳</div>
+      <h1 class="page-title">Đang tải trạng thái...</h1>
     </div>
   </section>
 </main>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  const $ = (id) => document.getElementById(id);
+  document.getElementById('logout-btn').addEventListener('click', () => logout('../login.html'));
+
+  document.addEventListener('DOMContentLoaded', init);
+  async function init() {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const user = getCurrentUser();
+    if (user?.role !== 'DRIVER') { logout('../login.html'); return; }
+    // Chua toi buoc nay → dua ve dung cho
+    if (user.status === 'PENDING_DOCUMENTS') { window.location.href = 'register-step2.html'; return; }
+    if (user.status === 'PENDING_DEPOSIT') { window.location.href = 'register-step3-deposit.html'; return; }
+
+    let profile = null;
+    try { profile = await getAuthenticated('/api/driver/profile'); } catch (err) { /* van hien theo status */ }
+    render(user, profile);
+  }
+
+  function render(user, profile) {
+    const status = profile?.onboardingStatus;
+    // Da duyet (ACTIVE) hoac profile.approvedAt co
+    if (user.status === 'ACTIVE' || status === 'DA_DUYET') {
+      $('content').innerHTML = `
+        <div class="approval-icon ok">✓</div>
+        <h1 class="page-title">Hồ sơ đã được duyệt!</h1>
+        <p class="page-subtitle mt-md">Chúc mừng! Bạn đã có thể nhận đơn trên Move_home.</p>
+        <div class="mt-8"><a href="home.html" class="btn-primary">Vào trang chủ tài xế</a></div>`;
+      return;
+    }
+    // Bi tu choi
+    if (user.status === 'REJECTED') {
+      $('content').innerHTML = `
+        <div class="approval-icon bad">✕</div>
+        <h1 class="page-title">Hồ sơ bị từ chối</h1>
+        <p class="page-subtitle mt-md">Hồ sơ chưa đạt yêu cầu. Bạn có thể chỉnh sửa giấy tờ và nộp lại.</p>
+        <div class="mt-8"><a href="register-step2.html" class="btn-primary">Chỉnh sửa & nộp lại</a></div>`;
+      return;
+    }
+    // Mac dinh: dang cho duyet (PENDING_APPROVAL / CHO_DUYET)
+    $('content').innerHTML = `
+      <div class="approval-icon wait">⏳</div>
+      <h1 class="page-title">Đang chờ duyệt</h1>
+      <p class="page-subtitle mt-md">Hồ sơ và khoản cọc của bạn đã được ghi nhận. Đội ngũ quản lý sẽ xét duyệt trong 1-2 ngày làm việc.</p>
+      <ul class="next-steps">
+        <li><strong>1. Kiểm tra hồ sơ:</strong> quản lý xác minh giấy phép, xe và giấy tờ.</li>
+        <li><strong>2. Xác nhận đặt cọc:</strong> khoản cọc 3.000.000đ đã được đối soát.</li>
+        <li><strong>3. Kích hoạt tài khoản:</strong> bạn có thể nhận đơn sau khi được duyệt.</li>
+      </ul>
+      <div class="mt-8"><button id="refresh-btn" class="btn-secondary">Tải lại trạng thái</button></div>`;
+    const rb = $('refresh-btn'); if (rb) rb.addEventListener('click', () => window.location.reload());
+  }
+</script>
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/driver-common.js"></script>
 </body>
 </html>

@@ -82,6 +82,37 @@
           <div class="card-elevated">
             <h2>Tài xế</h2>
             <p id="d-driver" class="text-muted">Chưa có tài xế nhận đơn.</p>
+
+            <div id="verify-block" style="display:none;margin-top:12px;">
+              <p class="text-muted" style="font-size:var(--font-size-body-sm);margin-bottom:10px;">
+                🔒 <strong>Xác thực trước khi lên xe:</strong> đối chiếu người &amp; xe thực tế với ảnh dưới. Chỉ giao hàng khi khớp.
+              </p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <figure style="margin:0;text-align:center;">
+                  <a id="verify-face-link" href="#" target="_blank" rel="noopener">
+                    <img id="verify-face" alt="Ảnh chân dung tài xế" style="width:100%;height:160px;object-fit:cover;border-radius:10px;border:1px solid var(--color-surface-pressed);background:var(--color-canvas-soft);">
+                  </a>
+                  <figcaption class="text-muted" style="font-size:12px;margin-top:4px;">Chân dung tài xế</figcaption>
+                </figure>
+                <figure style="margin:0;text-align:center;">
+                  <a id="verify-vehicle-link" href="#" target="_blank" rel="noopener">
+                    <img id="verify-vehicle" alt="Ảnh xe" style="width:100%;height:160px;object-fit:cover;border-radius:10px;border:1px solid var(--color-surface-pressed);background:var(--color-canvas-soft);">
+                  </a>
+                  <figcaption class="text-muted" style="font-size:12px;margin-top:4px;">Xe · <span id="verify-plate">—</span></figcaption>
+                </figure>
+              </div>
+              <div id="verify-error" style="color:var(--color-danger);display:none;margin:8px 0;font-size:var(--font-size-body-sm);"></div>
+              <div id="verify-actions" style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+                <button id="verify-ok-btn" class="btn-primary" style="flex:1;justify-content:center;">✓ Đúng người/xe</button>
+                <button id="verify-mismatch-btn" class="btn-danger" style="flex:1;justify-content:center;">✕ Không đúng</button>
+              </div>
+              <p id="verify-ok-msg" style="display:none;color:var(--color-success-text,#157347);font-size:var(--font-size-body-sm);margin-top:10px;">✓ Đã xác nhận đúng người/xe. Bạn có thể yên tâm giao hàng.</p>
+              <div id="mismatch-confirm" style="display:none;border:1px solid var(--color-danger);border-radius:12px;padding:12px;margin-top:10px;">
+                <p style="margin:0 0 10px;color:var(--color-danger);font-size:var(--font-size-body-sm);">Xác nhận hủy chuyến vì tài xế/xe <strong>không khớp</strong> ảnh xác thực? Đơn sẽ bị hủy và chúng tôi xem xét hoàn tiền theo chính sách.</p>
+                <button id="mismatch-confirm-btn" class="btn-danger" style="width:100%;justify-content:center;">Xác nhận hủy chuyến</button>
+                <button id="mismatch-back-btn" class="btn-secondary" style="width:100%;justify-content:center;margin-top:8px;">Quay lại</button>
+              </div>
+            </div>
           </div>
         </div>
         <aside class="info-list">
@@ -289,6 +320,56 @@
     });
   }
 
+  // Tai anh xac thuc tai xe (chan dung + xe) khi don da ACCEPTED, de khach doi chieu
+  async function loadVerification(id) {
+    try {
+      const v = await getAuthenticated(`/api/customer/orders/${id}/driver-verification`);
+      const face = document.getElementById('verify-face');
+      const veh = document.getElementById('verify-vehicle');
+      if (v.face_photo_url) { face.src = v.face_photo_url; document.getElementById('verify-face-link').href = v.face_photo_url; }
+      else { face.alt = 'Tài xế chưa có ảnh chân dung'; }
+      if (v.vehicle_photo_url) { veh.src = v.vehicle_photo_url; document.getElementById('verify-vehicle-link').href = v.vehicle_photo_url; }
+      else { veh.alt = 'Chưa có ảnh xe'; }
+      document.getElementById('verify-plate').textContent = v.vehicle_plate || '—';
+      if (!v.cancellable) document.getElementById('verify-actions').style.display = 'none';
+      document.getElementById('verify-block').style.display = 'block';
+    } catch (e) {
+      console.error('Không tải được ảnh xác thực tài xế:', e);
+    }
+  }
+
+  function setupVerify(id) {
+    const actions = document.getElementById('verify-actions');
+    const okMsg = document.getElementById('verify-ok-msg');
+    const confirmBox = document.getElementById('mismatch-confirm');
+    const confirmBtn = document.getElementById('mismatch-confirm-btn');
+    const errEl = document.getElementById('verify-error');
+
+    document.getElementById('verify-ok-btn')?.addEventListener('click', () => {
+      actions.style.display = 'none';
+      if (okMsg) okMsg.style.display = 'block';
+    });
+    document.getElementById('verify-mismatch-btn')?.addEventListener('click', () => {
+      actions.style.display = 'none';
+      if (confirmBox) confirmBox.style.display = 'block';
+    });
+    document.getElementById('mismatch-back-btn')?.addEventListener('click', () => {
+      if (confirmBox) confirmBox.style.display = 'none';
+      actions.style.display = 'flex';
+    });
+    confirmBtn?.addEventListener('click', async () => {
+      confirmBtn.disabled = true;
+      if (errEl) errEl.style.display = 'none';
+      try {
+        await putAuthenticated(`/api/customer/orders/${id}/report-mismatch`, null);
+        window.location.href = 'my-orders-pending.html';
+      } catch (e) {
+        confirmBtn.disabled = false;
+        if (errEl) { errEl.textContent = e.message || 'Không thể hủy chuyến. Vui lòng thử lại.'; errEl.style.display = 'block'; }
+      }
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
     const user = getCurrentUser();
@@ -311,6 +392,8 @@
       render(order);
       setupFinalPayment(id);
       setupCancel(id);
+      setupVerify(id);
+      if (order.status === 'ACCEPTED') loadVerification(id);
       show('detail-content');
     } catch (err) {
       console.error(err);
@@ -320,5 +403,7 @@
     }
   });
 </script>
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/customer-common.js"></script>
 </body>
 </html>

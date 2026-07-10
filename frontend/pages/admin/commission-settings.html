@@ -60,7 +60,7 @@
         <a href="settings.html" class="btn-subtle">Cấu hình</a>
         <a href="transactions.html" class="btn-subtle">Giao dịch</a>
         <a href="reports.html" class="btn-subtle">Báo cáo</a>
-        <a href="../login.html" class="btn-secondary">Đăng xuất</a>
+        <button id="logout-btn" class="btn-secondary">Đăng xuất</button>
       </div>
     </div>
   </header>
@@ -148,44 +148,48 @@
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label" for="commission">Tỷ lệ hoa hồng</label>
-                  <input class="text-input" id="commission" value="30%">
+                  <input class="text-input" id="commission" value="—">
+                  <span class="form-error" id="commission-error" hidden></span>
+                  <small class="text-muted">Nhập phần trăm, ví dụ <strong>30</strong>. Chỉ trường này lưu được ở màn hình này.</small>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="peak">Phụ phí giờ cao điểm</label>
-                  <input class="text-input" id="peak" value="30%">
+                  <input class="text-input" id="peak" value="30%" readonly>
                 </div>
               </div>
               
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label" for="morning">Khung giờ cao điểm sáng</label>
-                  <input class="text-input" id="morning" value="07:00 - 09:00">
+                  <input class="text-input" id="morning" value="07:00 - 09:00" readonly>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="evening">Khung giờ cao điểm chiều</label>
-                  <input class="text-input" id="evening" value="17:00 - 19:00">
+                  <input class="text-input" id="evening" value="17:00 - 19:00" readonly>
                 </div>
               </div>
               
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label" for="alley">Phụ phí ngõ nhỏ</label>
-                  <input class="text-input" id="alley" value="200.000 đ">
+                  <input class="text-input" id="alley" value="200.000 đ" readonly>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="floor">Phụ phí mỗi tầng</label>
-                  <input class="text-input" id="floor" value="50.000 đ">
+                  <input class="text-input" id="floor" value="50.000 đ" readonly>
                 </div>
               </div>
-              
+
               <div class="form-group">
                 <label class="form-label" for="porter">Phí bốc xếp</label>
-                <input class="text-input" id="porter" value="300.000 đ">
+                <input class="text-input" id="porter" value="300.000 đ" readonly>
               </div>
-              
+
+              <div id="settings-msg" class="success-alert" hidden role="status" style="margin-bottom:12px;"></div>
+
               <div class="flex flex-wrap gap-sm">
-                <a href="settings.html" class="btn-secondary">Hủy</a>
-                <a href="reports.html" class="btn-primary">Lưu cấu hình</a>
+                <a href="dashboard.html" class="btn-secondary">Hủy</a>
+                <button type="button" id="save-btn" class="btn-primary">Lưu cấu hình</button>
               </div>
             </div>
           </form>
@@ -213,12 +217,12 @@
                 </div>
               </div>
               <div class="card-body">
-                <p class="text-muted">Đơn 1.000.000 đ sẽ tạo hoa hồng nền tảng 300.000 đ và thu nhập tài xế 700.000 đ.</p>
+                <p class="text-muted" id="fee-example">Đơn 1.000.000 đ sẽ tạo hoa hồng nền tảng — và thu nhập tài xế —.</p>
               </div>
             </div>
-            
+
           </aside>
-          
+
         </div>
       </div>
     </main>
@@ -226,5 +230,80 @@
   </div>
 </div>
 
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, putAuthenticated } from '../../js/api.js';
+
+  const $ = (id) => document.getElementById(id);
+  const vnd = (v) => Number(v).toLocaleString('vi-VN') + ' đ';
+  let currentVersion = null;
+
+  function showMsg(text, ok = true) {
+    const el = $('settings-msg');
+    el.textContent = text;
+    el.className = ok ? 'success-alert' : 'error-alert';
+    el.hidden = false;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function renderExample(pct) {
+    const rate = pct / 100;
+    const fee = Math.floor(1000000 * rate);
+    $('fee-example').textContent =
+      `Đơn 1.000.000 đ sẽ tạo hoa hồng nền tảng ${vnd(fee)} và thu nhập tài xế ${vnd(1000000 - fee)}.`;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const user = getCurrentUser();
+    if (user?.role !== 'ADMIN') { logout('../login.html'); return; }
+    $('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+    $('save-btn')?.addEventListener('click', save);
+    load();
+  });
+
+  async function load() {
+    try {
+      const s = await getAuthenticated('/api/admin/settings/commission');
+      currentVersion = s?.version ?? null;
+      const pct = s?.commissionRate != null ? Number(s.commissionRate) * 100 : null;
+      if (pct != null) {
+        // Bo so 0 thua: 30.00 -> 30
+        $('commission').value = (Math.round(pct * 100) / 100) + '%';
+        renderExample(pct);
+      }
+    } catch (e) {
+      showMsg('Không tải được cấu hình. Vui lòng đăng nhập bằng tài khoản quản trị.', false);
+    }
+  }
+
+  async function save() {
+    $('commission-error').hidden = true;
+    $('settings-msg').hidden = true;
+    const raw = ($('commission').value || '').replace('%', '').trim().replace(',', '.');
+    const pct = Number(raw);
+    if (!Number.isFinite(pct) || pct < 5 || pct > 50) {
+      $('commission-error').textContent = 'Tỷ lệ hoa hồng phải từ 5% đến 50%.';
+      $('commission-error').hidden = false;
+      return;
+    }
+    const rate = Number((pct / 100).toFixed(4)); // 30 -> 0.3000
+    const btn = $('save-btn'); btn.disabled = true;
+    try {
+      const res = await putAuthenticated('/api/admin/settings/commission', {
+        version: currentVersion, commissionRate: rate,
+      });
+      currentVersion = res?.newSettings?.version ?? res?.version ?? currentVersion;
+      renderExample(pct);
+      showMsg(`Đã lưu tỷ lệ hoa hồng ${pct}%. Áp dụng cho đơn tạo mới.`, true);
+    } catch (e) {
+      if (e.status === 409) { showMsg('Cấu hình vừa thay đổi ở nơi khác, đang tải lại...', false); setTimeout(load, 800); }
+      else showMsg(e.message || 'Lưu thất bại. Vui lòng thử lại.', false);
+    } finally { btn.disabled = false; }
+  }
+</script>
+
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/notifications-bell.js"></script>
 </body>
 </html>

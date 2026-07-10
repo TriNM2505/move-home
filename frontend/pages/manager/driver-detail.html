@@ -10,6 +10,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .doc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-lg); }
+    .doc-tile { border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-lg); overflow: hidden; background: var(--color-canvas); }
+    .doc-tile img { width: 100%; height: 180px; object-fit: cover; display: block; background: var(--color-canvas-soft); cursor: zoom-in; }
+    .doc-tile .doc-cap { padding: var(--spacing-sm) var(--spacing-md); font-size: var(--font-size-body-sm); font-weight: 600; }
+    .reject-box { margin-top: var(--spacing-md); }
+    @media (max-width: 800px) { .doc-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
 
@@ -20,11 +28,10 @@
         <span class="site-logo-text">Move_home</span>
         <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản lý</span>
       </a>
-
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Quản lý</span>
+        <span class="user-menu-name">Xin chào, <span id="mgr-name">Quản lý</span></span>
         <div class="avatar avatar-sm avatar-initials">QL</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
     </div>
   </header>
@@ -34,29 +41,19 @@
       <nav class="sidebar-nav">
         <a href="driver-approvals.html" class="sidebar-item sidebar-item--active">
           <span class="sidebar-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
           </span>
           <span>Duyệt tài xế</span>
         </a>
         <a href="withdrawal-pending.html" class="sidebar-item">
           <span class="sidebar-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
           </span>
           <span>Rút tiền</span>
         </a>
         <a href="disputes.html" class="sidebar-item">
           <span class="sidebar-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
           </span>
           <span>Khiếu nại</span>
         </a>
@@ -66,108 +63,257 @@
     <main class="site-main" id="main-content">
       <div class="dashboard-main">
         <header class="page-header">
+          <a href="driver-approvals.html" class="link-primary" style="font-size:var(--font-size-body-sm);">&larr; Về danh sách</a>
           <h1 class="page-title">Chi tiết tài xế</h1>
-          <p class="page-subtitle">Hồ sơ đăng ký của Nguyễn Văn Hùng đang chờ quản lý xét duyệt.</p>
+          <p class="page-subtitle" id="page-sub">Đang tải hồ sơ...</p>
         </header>
 
-        <section class="grid-2 mb-8" aria-label="Thông tin hồ sơ tài xế">
-          <div class="card">
+        <div id="errorMessage" class="error-alert" hidden role="alert"></div>
+        <div id="successMessage" class="success-alert" hidden role="status"></div>
+
+        <div id="detailArea" hidden>
+          <section class="grid-2 mb-8">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Thông tin cá nhân</h2>
+                <span id="status-badge" class="badge badge-sm badge-pending-approval status-badge status-badge--pending">Chờ duyệt</span>
+              </div>
+              <div class="card-body">
+                <div class="welcome-info">
+                  <div class="info-row"><span>Họ tên</span><strong id="d-name">—</strong></div>
+                  <div class="info-row"><span>Email</span><strong id="d-email">—</strong></div>
+                  <div class="info-row"><span>Số điện thoại</span><strong id="d-phone">—</strong></div>
+                  <div class="info-row"><span>Ngày gửi hồ sơ</span><strong id="d-submitted">—</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Phương tiện & bằng lái</h2>
+              </div>
+              <div class="card-body">
+                <div class="welcome-info">
+                  <div class="info-row"><span>Loại xe</span><strong id="d-vehicle">—</strong></div>
+                  <div class="info-row"><span>Biển số</span><strong id="d-plate">—</strong></div>
+                  <div class="info-row"><span>Tải trọng</span><strong id="d-capacity">—</strong></div>
+                  <div class="info-row"><span>Hạng bằng</span><strong id="d-class">—</strong></div>
+                  <div class="info-row"><span>Số bằng lái</span><strong id="d-license">—</strong></div>
+                  <div class="info-row"><span>Hạn bằng lái</span><strong id="d-license-exp">—</strong></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card mb-8">
             <div class="card-header">
-              <h2 class="card-title">Thông tin cá nhân</h2>
-              <span class="badge badge-sm badge-pending-approval status-badge status-badge--pending">Chờ duyệt</span>
+              <h2 class="card-title">Khoản cọc</h2>
             </div>
             <div class="card-body">
               <div class="welcome-info">
-                <div class="info-row"><span>Họ tên</span><strong>Nguyễn Văn Hùng</strong></div>
-                <div class="info-row"><span>Email</span><strong>hung.nguyen@example.com</strong></div>
-                <div class="info-row"><span>Số điện thoại</span><strong>0912 345 678</strong></div>
-                <div class="info-row"><span>Ngày sinh</span><strong>12/08/1994</strong></div>
-                <div class="info-row"><span>Ngày gửi hồ sơ</span><strong>04/06/2026</strong></div>
+                <div class="info-row"><span>Số tiền cọc</span><strong id="d-deposit">—</strong></div>
+                <div class="info-row"><span>Thời điểm đóng cọc</span><strong id="d-deposit-at">—</strong></div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div class="card">
+          <section class="card mb-8">
             <div class="card-header">
-              <h2 class="card-title">Thông tin phương tiện</h2>
-              <span class="card-meta">Đã đối chiếu biển số</span>
+              <h2 class="card-title">Giấy tờ xác minh</h2>
+              <span class="card-meta" id="doc-count">—</span>
             </div>
             <div class="card-body">
-              <div class="welcome-info">
-                <div class="info-row"><span>Loại xe</span><strong>Xe tải 1 tấn</strong></div>
-                <div class="info-row"><span>Biển số</span><strong>30H-456.78</strong></div>
-                <div class="info-row"><span>Năm sản xuất</span><strong>2021</strong></div>
-                <div class="info-row"><span>Bằng lái</span><strong>Hạng C</strong></div>
-                <div class="info-row"><span>Số bằng lái</span><strong>790123456789</strong></div>
+              <p class="text-muted" style="margin:0 0 12px; font-size:14px;">
+                ⚠️ Đối chiếu <strong>Ảnh chân dung</strong> với ảnh trong <strong>Giấy phép lái xe</strong> — đảm bảo cùng một người trước khi duyệt.
+              </p>
+              <div class="doc-grid" id="doc-grid">
+                <p class="text-muted">Đang tải giấy tờ...</p>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section class="card mb-8" aria-label="Giấy tờ đã tải lên">
-          <div class="card-header">
-            <h2 class="card-title">Giấy tờ xác minh</h2>
-            <span class="card-meta">Ảnh minh họa trong dữ liệu mẫu</span>
-          </div>
-          <div class="card-body">
-            <div class="grid-3">
-              <div class="card-soft-tinted text-center" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:var(--spacing-xl);">
-                <div class="empty-state-icon" aria-hidden="true" style="color:var(--color-primary); margin-bottom:var(--spacing-md); display:flex; justify-content:center;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect>
-                    <circle cx="9" cy="10" r="2"></circle>
-                    <line x1="15" y1="9" x2="19" y2="9"></line>
-                    <line x1="15" y1="13" x2="19" y2="13"></line>
-                    <line x1="15" y1="17" x2="19" y2="17"></line>
-                  </svg>
-                </div>
-                <h3 class="empty-state-title" style="font-size:var(--font-size-body-md); font-weight:var(--font-weight-bold); color:var(--color-ink); margin:0 0 var(--spacing-xs) 0;">Giấy phép lái xe</h3>
-                <p class="empty-state-desc" style="font-size:var(--font-size-body-sm); color:var(--color-body); margin:0;">Ảnh rõ số bằng, họ tên và ngày cấp.</p>
-              </div>
-              <div class="card-soft-tinted text-center" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:var(--spacing-xl);">
-                <div class="empty-state-icon" aria-hidden="true" style="color:var(--color-primary); margin-bottom:var(--spacing-md); display:flex; justify-content:center;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="1" y="3" width="15" height="13"></rect>
-                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                  </svg>
-                </div>
-                <h3 class="empty-state-title" style="font-size:var(--font-size-body-md); font-weight:var(--font-weight-bold); color:var(--color-ink); margin:0 0 var(--spacing-xs) 0;">Ảnh xe phía trước</h3>
-                <p class="empty-state-desc" style="font-size:var(--font-size-body-sm); color:var(--color-body); margin:0;">Biển số trùng với thông tin đăng ký.</p>
-              </div>
-              <div class="card-soft-tinted text-center" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:var(--spacing-xl);">
-                <div class="empty-state-icon" aria-hidden="true" style="color:var(--color-primary); margin-bottom:var(--spacing-md); display:flex; justify-content:center;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="21 8 21 21 3 21 3 8"></polyline>
-                    <rect x="1" y="3" width="22" height="5"></rect>
-                    <line x1="10" y1="12" x2="14" y2="12"></line>
-                  </svg>
-                </div>
-                <h3 class="empty-state-title" style="font-size:var(--font-size-body-md); font-weight:var(--font-weight-bold); color:var(--color-ink); margin:0 0 var(--spacing-xs) 0;">Ảnh thùng xe</h3>
-                <p class="empty-state-desc" style="font-size:var(--font-size-body-sm); color:var(--color-body); margin:0;">Khoang chở hàng sạch và còn sử dụng tốt.</p>
+          <section class="card" id="decision-card">
+            <div class="card-header">
+              <h2 class="card-title">Quyết định xét duyệt</h2>
+            </div>
+            <div class="card-body">
+              <p class="text-muted" id="decision-hint">Kiểm tra giấy tờ và thông tin trước khi duyệt hoặc từ chối.</p>
+              <div class="reject-box" id="reject-box" hidden>
+                <label class="form-label" for="reject-reason">Lý do từ chối (20–500 ký tự) <span class="form-required">*</span></label>
+                <textarea class="text-input" id="reject-reason" rows="3" placeholder="Nêu rõ lý do để tài xế chỉnh sửa và nộp lại..."></textarea>
+                <span class="form-error" id="reject-error" hidden></span>
               </div>
             </div>
-          </div>
-        </section>
-
-        <section class="card" aria-label="Ghi chú xét duyệt">
-          <div class="card-header">
-            <h2 class="card-title">Kết luận kiểm tra</h2>
-            <span class="badge badge-sm badge-success status-badge status-badge--active">Đủ điều kiện</span>
-          </div>
-          <div class="card-body">
-            <p class="text-muted">Hồ sơ có đầy đủ giấy phép, thông tin xe và ảnh xác minh. Không phát hiện thông tin mâu thuẫn trong dữ liệu mẫu.</p>
-          </div>
-          <div class="card-footer">
-            <a href="driver-rejected.html" class="btn btn-danger btn-md">Từ chối</a>
-            <a href="driver-approvals.html" class="btn btn-primary btn-md">Duyệt hồ sơ</a>
-          </div>
-        </section>
+            <div class="card-footer" id="decision-actions">
+              <button id="reject-btn" class="btn btn-danger btn-md">Từ chối</button>
+              <button id="approve-btn" class="btn btn-primary btn-md">Duyệt hồ sơ</button>
+            </div>
+          </section>
+        </div>
       </div>
     </main>
   </div>
 </div>
 
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, postAuthenticated } from '../../js/api.js';
+
+  const VEHICLE_VN = { TRUCK_500KG:'Xe tải 500kg', TRUCK_1T:'Xe tải 1 tấn', TRUCK_15T:'Xe tải 1.5 tấn' };
+  const DOC_VN = {
+    DRIVING_LICENSE_FRONT:'GPLX mặt trước', DRIVING_LICENSE_BACK:'GPLX mặt sau',
+    VEHICLE_REGISTRATION_FRONT:'Đăng ký xe mặt trước', VEHICLE_REGISTRATION_BACK:'Đăng ký xe mặt sau',
+    VEHICLE_PHOTO_FRONT:'Ảnh xe đằng trước', VEHICLE_PHOTO_REAR:'Ảnh xe đằng sau', VEHICLE_PHOTO_SIDE:'Ảnh xe ngang',
+    FACE_PHOTO:'Ảnh chân dung',
+    // Nhan cu cho tai xe da duyet truoc khi doi sang 8 loai
+    DRIVING_LICENSE:'Giấy phép lái xe', VEHICLE_REGISTRATION:'Đăng ký xe', VEHICLE_PHOTO:'Ảnh xe'
+  };
+  const STATUS_VN = {
+    PENDING_APPROVAL: { t:'Chờ duyệt', c:'badge-pending-approval status-badge status-badge--pending' },
+    ACTIVE:           { t:'Đã duyệt',  c:'badge-success status-badge status-badge--active' },
+    REJECTED:         { t:'Đã từ chối', c:'badge-danger status-badge status-badge--disputed' },
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtDate = (iso) => !iso ? '—' : new Date(iso).toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', timeZone:'Asia/Ho_Chi_Minh' });
+  const fmtDay = (iso) => !iso ? '—' : new Date(iso + 'T00:00:00').toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric' });
+  const vnd = (v) => (v === null || v === undefined) ? '—' : Number(v).toLocaleString('vi-VN') + ' đ';
+  const showError = (m) => { const e = $('errorMessage'); e.textContent = m; e.hidden = false; e.scrollIntoView({behavior:'smooth',block:'center'}); };
+  const showSuccess = (m) => { const e = $('successMessage'); e.textContent = m; e.hidden = false; e.scrollIntoView({behavior:'smooth',block:'center'}); };
+
+  let driverId = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const u = getCurrentUser();
+    if (u?.role !== 'MANAGER') { logout('../login.html'); return; }
+    if (u.fullName) $('mgr-name').textContent = u.fullName;
+    $('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+
+    driverId = new URLSearchParams(location.search).get('id');
+    if (!driverId) { showError('Thiếu mã tài xế. Vui lòng quay lại danh sách và chọn lại.'); return; }
+
+    $('approve-btn').addEventListener('click', approve);
+    $('reject-btn').addEventListener('click', onRejectClick);
+    load();
+  });
+
+  async function load() {
+    try {
+      const [d, docs] = await Promise.all([
+        getAuthenticated(`/api/manager/drivers/${encodeURIComponent(driverId)}`),
+        getAuthenticated(`/api/manager/drivers/${encodeURIComponent(driverId)}/documents`).catch(() => []),
+      ]);
+      render(d, docs || []);
+      $('detailArea').hidden = false;
+    } catch (err) {
+      console.error(err);
+      showError(err.status === 404 ? 'Không tìm thấy tài xế này.' : (err.message || 'Không tải được hồ sơ tài xế.'));
+    }
+  }
+
+  function render(d, docs) {
+    $('page-sub').textContent = `Hồ sơ đăng ký của ${d.full_name || 'tài xế'}.`;
+    $('d-name').textContent = d.full_name || '—';
+    $('d-email').textContent = d.email || '—';
+    $('d-phone').textContent = d.phone || '—';
+    $('d-submitted').textContent = fmtDate(d.onboarding_completed_at);
+    $('d-vehicle').textContent = VEHICLE_VN[d.vehicle_type] || d.vehicle_type || '—';
+    $('d-plate').textContent = d.vehicle_plate || '—';
+    $('d-capacity').textContent = d.vehicle_capacity_kg ? d.vehicle_capacity_kg + ' kg' : '—';
+    $('d-class').textContent = d.license_class || '—';
+    $('d-license').textContent = d.license_number || '—';
+    $('d-license-exp').textContent = fmtDay(d.license_expiry_date);
+    $('d-deposit').textContent = vnd(d.deposit_amount);
+    $('d-deposit-at').textContent = fmtDate(d.deposit_paid_at);
+
+    const st = STATUS_VN[d.status] || { t: d.status, c: 'badge-neutral' };
+    const badge = $('status-badge');
+    badge.className = 'badge badge-sm ' + st.c;
+    badge.textContent = st.t;
+
+    // Giay to — moi loai chi hien 1 ban moi nhat (backend tra desc theo uploadedAt).
+    // Loc trung phong khi du lieu cu co nhieu ban cung loai (upload lai nhieu lan).
+    const seenTypes = new Set();
+    const uniqueDocs = [];
+    for (const doc of docs) {
+      if (seenTypes.has(doc.doc_type)) continue;
+      seenTypes.add(doc.doc_type);
+      uniqueDocs.push(doc);
+    }
+    $('doc-count').textContent = `${uniqueDocs.length} tài liệu`;
+    if (!uniqueDocs.length) {
+      $('doc-grid').innerHTML = '<p class="text-muted">Chưa có giấy tờ nào.</p>';
+    } else {
+      $('doc-grid').innerHTML = uniqueDocs.map(doc => `
+        <div class="doc-tile">
+          <a href="${esc(doc.url)}" target="_blank" rel="noopener">
+            <img src="${esc(doc.url)}" alt="${esc(DOC_VN[doc.doc_type] || doc.doc_type)}" loading="lazy"
+                 onerror="this.style.opacity=0.4;this.alt='Không tải được ảnh';">
+          </a>
+          <div class="doc-cap">${esc(DOC_VN[doc.doc_type] || doc.doc_type)}</div>
+        </div>`).join('');
+    }
+
+    // Chi cho duyet/tu choi khi dang PENDING_APPROVAL
+    if (d.status !== 'PENDING_APPROVAL') {
+      $('decision-actions').hidden = true;
+      $('reject-box').hidden = true;
+      $('decision-hint').textContent = d.status === 'ACTIVE'
+        ? 'Tài xế đã được duyệt và đang hoạt động.'
+        : (d.status === 'REJECTED'
+            ? ('Hồ sơ đã bị từ chối' + (d.rejection_reason ? ('. Lý do: ' + d.rejection_reason) : '') + '.')
+            : 'Hồ sơ không ở trạng thái chờ duyệt.');
+    }
+  }
+
+  async function approve() {
+    if (!confirm('Duyệt hồ sơ tài xế này? Tài khoản sẽ được kích hoạt để nhận đơn.')) return;
+    const btn = $('approve-btn'); btn.disabled = true; $('reject-btn').disabled = true;
+    try {
+      await postAuthenticated(`/api/manager/drivers/${encodeURIComponent(driverId)}/approve`, {});
+      showSuccess('Đã duyệt hồ sơ. Tài khoản tài xế đã được kích hoạt. Đang quay lại danh sách...');
+      setTimeout(() => window.location.href = 'driver-approvals.html', 1500);
+    } catch (err) {
+      btn.disabled = false; $('reject-btn').disabled = false;
+      showError(err.message || 'Duyệt hồ sơ thất bại. Vui lòng thử lại.');
+    }
+  }
+
+  function onRejectClick() {
+    const box = $('reject-box');
+    // Lan 1: hien o nhap ly do; lan 2 (da hien): thuc su gui
+    if (box.hidden) {
+      box.hidden = false;
+      $('reject-btn').textContent = 'Xác nhận từ chối';
+      $('reject-reason').focus();
+      return;
+    }
+    doReject();
+  }
+
+  async function doReject() {
+    const reason = $('reject-reason').value.trim();
+    $('reject-error').hidden = true;
+    if (reason.length < 20 || reason.length > 500) {
+      $('reject-error').textContent = 'Lý do phải từ 20 đến 500 ký tự.';
+      $('reject-error').hidden = false;
+      return;
+    }
+    const btn = $('reject-btn'); btn.disabled = true; $('approve-btn').disabled = true;
+    try {
+      await postAuthenticated(`/api/manager/drivers/${encodeURIComponent(driverId)}/reject`, { reason });
+      showSuccess('Đã từ chối hồ sơ. Đang quay lại danh sách...');
+      setTimeout(() => window.location.href = 'driver-approvals.html', 1500);
+    } catch (err) {
+      btn.disabled = false; $('approve-btn').disabled = false;
+      showError(err.message || 'Từ chối hồ sơ thất bại. Vui lòng thử lại.');
+    }
+  }
+</script>
+
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/notifications-bell.js"></script>
 </body>
 </html>

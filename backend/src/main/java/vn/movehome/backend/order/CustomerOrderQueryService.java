@@ -2,6 +2,7 @@ package vn.movehome.backend.order;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,8 +16,11 @@ import org.springframework.web.server.ResponseStatusException;
 import lombok.RequiredArgsConstructor;
 import vn.movehome.backend.client.OsrmClient;
 import vn.movehome.backend.dto.admin.detail.CustomerOrderItem;
+import vn.movehome.backend.entity.DriverProfile;
 import vn.movehome.backend.entity.User;
+import vn.movehome.backend.repository.DriverProfileRepository;
 import vn.movehome.backend.repository.UserRepository;
+import vn.movehome.backend.service.DriverDocumentService;
 
 /**
  * Truy van danh sach + chi tiet don cua chinh Customer dang dang nhap.
@@ -35,6 +39,8 @@ public class CustomerOrderQueryService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final OsrmClient osrmClient;
+    private final DriverProfileRepository driverProfileRepository;
+    private final DriverDocumentService driverDocumentService;
 
     /**
      * Lay don cua Customer theo scope.
@@ -100,6 +106,38 @@ public class CustomerOrderQueryService {
                 order.getCreatedAt(),
                 order.getCompletedAt(),
                 order.getCancelledAt());
+    }
+
+    /**
+     * Thong tin doi chieu tai xe/xe cho khach (anh chan dung + anh xe cua tai xe da nhan don).
+     * Chi tra khi don da co tai xe. cancellable=true khi don dang ACCEPTED (con huy duoc neu khong khop).
+     */
+    public CustomerDriverVerificationResponse getDriverVerification(UUID customerId, UUID orderId) {
+        ServiceOrder order = orderRepository.findByIdAndCustomerIdAndDeletedAtIsNull(orderId, customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "ORDER_NOT_FOUND|Không tìm thấy đơn hàng."));
+
+        if (order.getDriverId() == null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "NO_DRIVER_ASSIGNED|Đơn chưa có tài xế nhận nên chưa có ảnh xác thực.");
+        }
+
+        UUID driverId = order.getDriverId();
+        User driver = userRepository.findById(driverId).orElse(null);
+        DriverProfile profile = driverProfileRepository.findByUserId(driverId).orElse(null);
+        // Anh xe cho khach doi chieu: uu tien anh dang truoc (bien so ro); fallback anh xe kieu cu.
+        Map<String, String> photos = driverDocumentService.latestSignedUrlsByType(
+                driverId, Set.of("FACE_PHOTO", "VEHICLE_PHOTO_FRONT", "VEHICLE_PHOTO"));
+        String vehiclePhotoUrl = photos.getOrDefault("VEHICLE_PHOTO_FRONT", photos.get("VEHICLE_PHOTO"));
+
+        return new CustomerDriverVerificationResponse(
+                driver != null ? driver.getFullName() : null,
+                driver != null ? driver.getPhone() : null,
+                profile != null ? profile.getVehicleType() : order.getVehicleType(),
+                profile != null ? profile.getVehiclePlate() : null,
+                photos.get("FACE_PHOTO"),
+                vehiclePhotoUrl,
+                "ACCEPTED".equals(order.getStatus()));
     }
 
     /**

@@ -29,18 +29,28 @@ import vn.movehome.backend.repository.DriverDocumentRepository;
 public class DriverDocumentService {
 
     static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of(
-            "DRIVING_LICENSE",
-            "VEHICLE_REGISTRATION",
-            "VEHICLE_PHOTO");
+            "DRIVING_LICENSE_FRONT",
+            "DRIVING_LICENSE_BACK",
+            "VEHICLE_REGISTRATION_FRONT",
+            "VEHICLE_REGISTRATION_BACK",
+            "VEHICLE_PHOTO_FRONT",
+            "VEHICLE_PHOTO_REAR",
+            "VEHICLE_PHOTO_SIDE",
+            "FACE_PHOTO");
     static final long MAX_FILE_SIZE = 1_572_864L;
 
     private final DriverDocumentRepository driverDocumentRepository;
     private final Cloudinary cloudinary;
 
+    @Transactional
     public DriverDocumentResponse upload(UUID driverId, String requestedDocType, MultipartFile file) {
         String docType = validateDocumentType(requestedDocType);
         byte[] content = validateAndReadImage(file);
         CloudinaryUploadResult uploadResult = uploadToCloudinary(driverId, docType, content);
+
+        // Moi loai giay to chi giu 1 ban moi nhat: xoa cac ban cu cung loai truoc khi luu ban moi.
+        // Tranh cong don khi tai xe upload lai nhieu lan (hien trung anh o trang duyet).
+        driverDocumentRepository.deleteByDriverIdAndDocType(driverId, docType);
 
         DriverDocument saved = driverDocumentRepository.save(DriverDocument.builder()
                 .driverId(driverId)
@@ -59,6 +69,29 @@ public class DriverDocumentService {
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    /**
+     * Tra ve signed URL moi nhat cho tung loai giay to yeu cau (map docType -> url).
+     * Dung cho khach xem anh chan dung + anh xe cua tai xe da nhan don de doi chieu.
+     */
+    @Transactional(readOnly = true)
+    public java.util.Map<String, String> latestSignedUrlsByType(UUID driverId, Set<String> docTypes) {
+        java.util.Map<String, String> result = new java.util.HashMap<>();
+        for (DriverDocument doc : driverDocumentRepository.findByDriverIdOrderByUploadedAtDesc(driverId)) {
+            if (docTypes.contains(doc.getDocType()) && !result.containsKey(doc.getDocType())) {
+                result.put(doc.getDocType(), resolveSignedUrl(doc));
+            }
+        }
+        return result;
+    }
+
+    /** Signed URL neu co public_id (data moi), nguoc lai tra URL tho (data cu). */
+    private String resolveSignedUrl(DriverDocument document) {
+        if (document.getPublicId() != null && !document.getPublicId().isBlank()) {
+            return signUrl(document.getPublicId());
+        }
+        return document.getUrl();
     }
 
     private String validateDocumentType(String requestedDocType) {

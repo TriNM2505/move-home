@@ -86,6 +86,29 @@
       const refEl = document.getElementById(isSuccess ? 'txn-ref-success' : 'txn-ref-failed');
       if (refEl) refEl.textContent = 'Mã giao dịch: ' + txnRef;
     }
+
+    // Coc tai xe (txnRef prefix "DDP") → noi dung + dieu huong rieng cho tai xe
+    const isDriverDeposit = txnRef && txnRef.startsWith('DDP');
+    if (isDriverDeposit) {
+      const title = stateEl.querySelector('.page-title');
+      const body = stateEl.querySelector('.text-body');
+      const btns = stateEl.querySelector('.btn-group');
+      if (isSuccess) {
+        if (title) title.textContent = 'Đặt cọc thành công';
+        if (body) body.textContent = 'Khoản cọc 3.000.000đ đã được ghi nhận. Hồ sơ của bạn đang chờ đội ngũ quản lý duyệt.';
+        if (btns) btns.innerHTML = '<a href="driver/pending-approval.html" class="btn-primary btn-full">Xem trạng thái hồ sơ</a>'
+          + '<a href="../index.html" class="btn-secondary btn-full">Về trang chủ</a>';
+        // Cap nhat status trong localStorage (IPN da chuyen PENDING_DEPOSIT → PENDING_APPROVAL)
+        try {
+          const u = JSON.parse(localStorage.getItem('userInfo') || 'null');
+          if (u && u.role === 'DRIVER') { u.status = 'PENDING_APPROVAL'; localStorage.setItem('userInfo', JSON.stringify(u)); }
+        } catch (e) { /* bo qua */ }
+      } else {
+        if (body) body.textContent = 'Giao dịch đặt cọc chưa hoàn tất hoặc đã bị hủy. Bạn có thể thử đặt cọc lại.';
+        if (btns) btns.innerHTML = '<a href="driver/register-step3-deposit.html" class="btn-primary btn-full">Thử đặt cọc lại</a>'
+          + '<a href="../index.html" class="btn-secondary btn-full">Về trang chủ</a>';
+      }
+    }
   })();
 </script>
 </body>

@@ -31,8 +31,11 @@ import vn.movehome.backend.dto.driver.onboarding.DriverProfileResponse;
 import vn.movehome.backend.dto.driver.onboarding.UpdateDriverProfileRequest;
 import vn.movehome.backend.entity.DriverDocument;
 import vn.movehome.backend.entity.DriverProfile;
+import vn.movehome.backend.entity.User;
+import vn.movehome.backend.entity.UserStatus;
 import vn.movehome.backend.repository.DriverDocumentRepository;
 import vn.movehome.backend.repository.DriverProfileRepository;
+import vn.movehome.backend.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class DriverProfileServiceTest {
@@ -49,6 +52,9 @@ class DriverProfileServiceTest {
 
     @Mock
     private DriverDocumentRepository driverDocumentRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private DriverProfileService driverProfileService;
@@ -220,13 +226,16 @@ class DriverProfileServiceTest {
                 buildDocument("VEHICLE_REGISTRATION"),
                 buildDocument("VEHICLE_PHOTO"));
 
+        User driver = User.builder().id(driverId).status(UserStatus.PENDING_DOCUMENTS).build();
         when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
         when(driverDocumentRepository.findByDriverIdOrderByUploadedAtDesc(driverId)).thenReturn(documents);
+        when(userRepository.findById(driverId)).thenReturn(Optional.of(driver));
         when(driverProfileRepository.saveAndFlush(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         DriverProfileResponse response = driverProfileService.submitProfile(driverId);
 
         assertThat(response.onboardingStatus()).isEqualTo("CHO_DUYET");
+        assertThat(driver.getStatus()).isEqualTo(UserStatus.PENDING_DEPOSIT);
         verify(driverProfileRepository, times(1)).saveAndFlush(profile);
     }
 

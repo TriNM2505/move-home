@@ -244,6 +244,10 @@
 
       <!-- CONTENT STATE -->
       <div id="content-state" class="detail-grid" style="display: none;">
+        <!-- Banner ly do huy (chi hien khi don CANCELLED) -->
+        <div id="cancel-reason-banner" style="display:none; grid-column:1 / -1; background:var(--color-danger-bg,#FEE2E2); border:1px solid var(--color-danger,#B91C1C); color:var(--color-danger-text,#B91C1C); border-radius:12px; padding:14px 16px;">
+          <strong>⚠️ Đơn đã bị hủy.</strong> <span id="cancel-reason-text">Không có lý do cụ thể.</span>
+        </div>
         <div class="flex-col gap-lg">
           <!-- Customer Card -->
           <section class="card">
@@ -319,12 +323,12 @@
               <strong id="floor-surcharge">—</strong>
             </div>
             <div class="price-row">
-              <span>Phí hoa hồng hệ thống (30%)</span>
+              <span>Phí hoa hồng hệ thống (<span id="commission-pct">—</span>%)</span>
               <strong id="commission-fee" style="color: var(--color-danger);">—</strong>
             </div>
-            
+
             <div class="price-row highlight-row" style="background: var(--color-canvas-soft); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--rounded-md); margin-top: var(--spacing-sm);">
-              <span style="font-weight: 500; color: var(--color-primary);">Thu nhập thực lĩnh (70%)</span>
+              <span style="font-weight: 500; color: var(--color-primary);">Thu nhập thực lĩnh (<span id="earning-pct">—</span>%)</span>
               <strong id="driver-earning" style="color: var(--color-primary); font-size: var(--font-size-body-lg); font-weight: 700;">—</strong>
             </div>
             
@@ -500,6 +504,20 @@
       badgeEl.className = info.class;
     }
 
+    // Banner ly do huy — chi hien khi don da huy
+    const cancelBanner = document.getElementById('cancel-reason-banner');
+    if (cancelBanner) {
+      if (order.status === 'CANCELLED') {
+        const reasonEl = document.getElementById('cancel-reason-text');
+        if (reasonEl) reasonEl.textContent = order.cancellationReason
+          ? ('Lý do: ' + order.cancellationReason)
+          : 'Không có lý do cụ thể.';
+        cancelBanner.style.display = 'block';
+      } else {
+        cancelBanner.style.display = 'none';
+      }
+    }
+
     // Thông tin khách hàng THẬT (từ backend)
     const nameEl = document.getElementById('cust-name');
     if (nameEl) nameEl.textContent = order.customerName || 'Khách hàng';
@@ -533,12 +551,15 @@
     togglePriceRow('row-alley', 'alley-surcharge', alley);
     togglePriceRow('row-floor', 'floor-surcharge', floor);
 
-    // Calculate Platform Commission (30% of totalQuote)
-    const commission = total * 0.3;
+    // Tỷ lệ hoa hồng THẬT của đơn (snapshot lúc tạo); fallback 30% cho đơn cũ thiếu dữ liệu
+    const rate = order.commissionRateSnapshot != null ? Number(order.commissionRateSnapshot) : 0.30;
+    // Khớp backend: thu nhập = round(total × (1-rate)); hoa hồng = phần còn lại
+    const earning = Math.round(total * (1 - rate));
+    const commission = total - earning;
+    const commissionPct = Math.round(rate * 100);
+    document.getElementById('commission-pct').textContent = commissionPct;
+    document.getElementById('earning-pct').textContent = 100 - commissionPct;
     document.getElementById('commission-fee').textContent = formatVnd(commission);
-
-    // Driver's actual earnings (70% of totalQuote)
-    const earning = total * 0.7;
     document.getElementById('driver-earning').textContent = formatVnd(earning);
 
     // Total Quote
@@ -710,5 +731,7 @@
     }
   }
 </script>
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/driver-common.js"></script>
 </body>
 </html>

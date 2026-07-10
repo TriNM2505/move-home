@@ -42,6 +42,9 @@ public class DriverEarningService {
     private static final int MAX_PAGE_SIZE = 100;
     private static final String COMPLETED_STATUS = "COMPLETED";
     private static final String PENDING_STATUS = "PENDING";
+    // Ghi thu nhap hop le cho don da giao xong: COMPLETED (release escrow sau 2h) hoac
+    // DISPUTED (release khi Manager dong khieu nai). Chuyen giao da hoan tat, chi khac ve dong tien.
+    private static final Set<String> EARNING_ELIGIBLE_STATUSES = Set.of(COMPLETED_STATUS, "DISPUTED");
     private static final BigDecimal MIN_WITHDRAWAL_AMOUNT = new BigDecimal("100000");
     private static final BigDecimal DEFAULT_COMMISSION_RATE = new BigDecimal("0.3000");
 
@@ -198,7 +201,7 @@ public class DriverEarningService {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "VALIDATION_ERROR|Đơn hàng không hợp lệ.");
         }
-        if (!COMPLETED_STATUS.equals(order.getStatus())) {
+        if (!EARNING_ELIGIBLE_STATUSES.contains(order.getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "INVALID_ORDER_STATUS|Chỉ ghi thu nhập cho đơn đã hoàn thành.");
         }

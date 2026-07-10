@@ -14,6 +14,7 @@ public record DriverOrderListItemDTO(
         OffsetDateTime scheduledAt,
         BigDecimal distanceKm,
         BigDecimal totalQuote,
-        OffsetDateTime createdAt
+        OffsetDateTime createdAt,
+        BigDecimal commissionRateSnapshot
 ) {
 }

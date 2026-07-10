@@ -11,8 +11,11 @@ import vn.movehome.backend.dto.driver.onboarding.DriverProfileResponse;
 import vn.movehome.backend.dto.driver.onboarding.UpdateDriverProfileRequest;
 import vn.movehome.backend.entity.DriverDocument;
 import vn.movehome.backend.entity.DriverProfile;
+import vn.movehome.backend.entity.User;
+import vn.movehome.backend.entity.UserStatus;
 import vn.movehome.backend.repository.DriverDocumentRepository;
 import vn.movehome.backend.repository.DriverProfileRepository;
+import vn.movehome.backend.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -36,14 +39,20 @@ public class DriverProfileService {
     private static final Set<String> LICENSE_CLASSES = Set.of("B1", "B2", "C", "D");
     private static final Set<String> VEHICLE_TYPES = Set.of("TRUCK_500KG", "TRUCK_1T", "TRUCK_15T");
     private static final List<String> REQUIRED_DOCUMENT_TYPES = List.of(
-            "DRIVING_LICENSE",
-            "VEHICLE_REGISTRATION",
-            "VEHICLE_PHOTO"
+            "DRIVING_LICENSE_FRONT",
+            "DRIVING_LICENSE_BACK",
+            "VEHICLE_REGISTRATION_FRONT",
+            "VEHICLE_REGISTRATION_BACK",
+            "VEHICLE_PHOTO_FRONT",
+            "VEHICLE_PHOTO_REAR",
+            "VEHICLE_PHOTO_SIDE",
+            "FACE_PHOTO"
     );
     private static final String VEHICLE_PLATE_UNIQUE_CONSTRAINT = "uq_driver_profile_vehicle_plate";
 
     private final DriverProfileRepository driverProfileRepository;
     private final DriverDocumentRepository driverDocumentRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public DriverProfileResponse getProfile(UUID driverId) {
@@ -96,6 +105,16 @@ public class DriverProfileService {
         validateProfileCompleteForSubmit(profile);
         validateRequiredDocuments(driverId);
         profile.setOnboardingCompletedAt(OffsetDateTime.now(ZoneOffset.UTC));
+
+        // Buoc 2 → Buoc 3: du giay to roi thi chuyen sang cho dong coc (FR-056).
+        // Chi nhac status khi dang o PENDING_DOCUMENTS de tranh keo lui trang thai da di xa hon.
+        User driver = userRepository.findById(driverId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "NOT_FOUND|Tai khoan tai xe khong ton tai."));
+        if (driver.getStatus() == UserStatus.PENDING_DOCUMENTS) {
+            driver.setStatus(UserStatus.PENDING_DEPOSIT);
+            userRepository.save(driver);
+        }
 
         try {
             return toResponse(driverProfileRepository.saveAndFlush(profile));

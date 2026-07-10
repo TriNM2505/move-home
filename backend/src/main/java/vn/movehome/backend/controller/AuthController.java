@@ -35,6 +35,17 @@ public class AuthController {
     }
 
     /**
+     * Dang ky tai khoan Driver moi (CONTEXT §2 Onboarding Buoc 1).
+     * Tao User role=DRIVER + driver_profile rong. Sau xac thuc email → PENDING_DOCUMENTS.
+     * Token trong response chi hoat dong sau khi xac thuc email.
+     */
+    @PostMapping("/register/driver")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthResponse registerDriver(@Valid @RequestBody RegisterDriverRequest req) {
+        return authService.registerDriver(req);
+    }
+
+    /**
      * Xac thuc email bang token tu link (FR-011).
      * Tra HTTP 200 voi message xac nhan.
      * Customer: status → ACTIVE. Driver: status → PENDING_DOCUMENTS.

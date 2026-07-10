@@ -8,6 +8,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
+import vn.movehome.backend.driver.finance.DriverEarningService;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.entity.UserRole;
 import vn.movehome.backend.entity.UserStatus;
@@ -60,6 +61,9 @@ class DisputeServiceTest {
     @Mock
     private NotificationService notificationService;
 
+    @Mock
+    private DriverEarningService driverEarningService;
+
     private DisputeService service;
 
     @BeforeEach
@@ -72,7 +76,8 @@ class DisputeServiceTest {
                 customerRefundService,
                 auditService,
                 notificationService,
-                new ObjectMapper());
+                new ObjectMapper(),
+                driverEarningService);
     }
 
     @Test
