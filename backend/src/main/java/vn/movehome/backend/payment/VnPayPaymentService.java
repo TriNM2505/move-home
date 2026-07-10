@@ -7,14 +7,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import vn.movehome.backend.entity.CustomerWallet;
+import vn.movehome.backend.entity.DriverProfile;
 import vn.movehome.backend.entity.Transaction;
 import vn.movehome.backend.entity.TransactionType;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.entity.UserRole;
+import vn.movehome.backend.entity.UserStatus;
 import vn.movehome.backend.order.OrderDepositCalculator;
 import vn.movehome.backend.order.OrderRepository;
 import vn.movehome.backend.order.OrderStatusTransitionService;
 import vn.movehome.backend.order.ServiceOrder;
+import vn.movehome.backend.repository.DriverProfileRepository;
 import vn.movehome.backend.repository.UserRepository;
 import vn.movehome.backend.repository.WalletRepository;
 import vn.movehome.backend.service.PaymentIdempotencyService;
@@ -46,15 +49,19 @@ public class VnPayPaymentService {
     private static final String ORDER_PREFIX = "ORD";
     private static final String FINAL_PREFIX = "OFP";
     private static final String WALLET_PREFIX = "WAL";
+    private static final String DRIVER_DEPOSIT_PREFIX = "DDP";
     private static final String CONFIRMED_STATUS = "CONFIRMED";
     private static final String AWAITING_FINAL_PAYMENT_STATUS = "AWAITING_FINAL_PAYMENT";
     private static final Set<String> ORDER_PAYABLE_STATUSES = Set.of("PENDING", "PENDING_PAYMENT");
+    // Coc tai xe co dinh 3.000.000 VND (CONTEXT §2 — collateral cho DamageReport)
+    private static final BigDecimal DRIVER_DEPOSIT_AMOUNT = new BigDecimal("3000000");
 
     private final VnPayProperties properties;
     private final VnPaySigner signer;
     private final OrderRepository orderRepository;
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
+    private final DriverProfileRepository driverProfileRepository;
     private final PaymentIdempotencyService paymentIdempotencyService;
     private final OrderStatusTransitionService orderStatusTransitionService;
 
@@ -113,6 +120,31 @@ public class VnPayPaymentService {
                 txnRef,
                 normalizedAmount,
                 "MoveHome wallet topup " + compactUuid(customerId),
+                ipAddress);
+    }
+
+    /**
+     * Tao URL VNPay cho tai xe dong coc 3.000.000 VND (Onboarding Buoc 3).
+     * Chi cho phep khi tai xe dang o trang thai PENDING_DEPOSIT (da nop du giay to).
+     */
+    @Transactional(readOnly = true)
+    public VnPayPaymentUrlResponse createDriverDepositUrl(UUID driverId, String ipAddress) {
+        User driver = userRepository.findById(driverId)
+                .filter(user -> user.getRole() == UserRole.DRIVER)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "DRIVER_NOT_FOUND|Khong tim thay tai xe."));
+
+        if (driver.getStatus() != UserStatus.PENDING_DEPOSIT) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "INVALID_ONBOARDING_STEP|Chi co the dong coc sau khi da nop du giay to va truoc khi duoc duyet.");
+        }
+
+        BigDecimal amount = normalizeApiMoney(DRIVER_DEPOSIT_AMOUNT, "So tien coc khong hop le.");
+        String txnRef = newTxnRef(DRIVER_DEPOSIT_PREFIX, driverId);
+        return buildPaymentUrl(
+                txnRef,
+                amount,
+                "MoveHome driver deposit " + compactUuid(driverId),
                 ipAddress);
     }
 
@@ -228,6 +260,7 @@ public class VnPayPaymentService {
             case ORDER -> processOrderPayment(parsedTxnRef.entityId(), txnRef, paidAmount);
             case ORDER_FINAL -> processOrderFinalPayment(parsedTxnRef.entityId(), txnRef, paidAmount);
             case WALLET -> processWalletTopUp(parsedTxnRef.entityId(), txnRef, paidAmount);
+            case DRIVER_DEPOSIT -> processDriverDeposit(parsedTxnRef.entityId(), txnRef, paidAmount);
         };
     }
 
@@ -323,6 +356,46 @@ public class VnPayPaymentService {
         });
     }
 
+    /**
+     * Xu ly IPN coc tai xe: cong coc 3M vao driver_profile, chuyen PENDING_DEPOSIT → PENDING_APPROVAL
+     * (FR-061). Idempotent qua PaymentIdempotencyService (HR-15).
+     */
+    private PaymentProcessingResult processDriverDeposit(UUID driverId, String txnRef, BigDecimal paidAmount) {
+        return paymentIdempotencyService.process(txnRef, () -> {
+            User driver = userRepository.findById(driverId)
+                    .filter(user -> user.getRole() == UserRole.DRIVER)
+                    .orElseThrow(() -> new VnPayPaymentException("01", "Driver not found"));
+
+            // Coc phai dung 3.000.000 VND
+            BigDecimal expectedAmount = normalizeCallbackMoney(DRIVER_DEPOSIT_AMOUNT);
+            if (expectedAmount.compareTo(paidAmount) != 0) {
+                throw new VnPayPaymentException("04", "Invalid amount");
+            }
+
+            if (driver.getStatus() != UserStatus.PENDING_DEPOSIT) {
+                throw new VnPayPaymentException("02", "Driver deposit already processed");
+            }
+
+            DriverProfile profile = driverProfileRepository.findByUserId(driverId)
+                    .orElseThrow(() -> new VnPayPaymentException("01", "Driver profile not found"));
+
+            // Ghi coc vao ho so + chuyen sang cho Manager duyet
+            profile.setDepositAmount(paidAmount);
+            profile.setDepositPaidAt(OffsetDateTime.now(ZoneOffset.UTC));
+            driverProfileRepository.save(profile);
+
+            driver.setStatus(UserStatus.PENDING_APPROVAL);
+            userRepository.save(driver);
+
+            return Transaction.builder()
+                    .userId(driver.getId())
+                    .type(TransactionType.DEPOSIT_TOP_UP)
+                    .amount(paidAmount)
+                    .description("Tai xe dong coc 3.000.000 VND qua VNPay")
+                    .build();
+        });
+    }
+
     private boolean verifySignature(Map<String, String> params) {
         if (!hasText(properties.getHashSecret())) {
             log.error("vnpay_hash_secret_missing");
@@ -367,6 +440,7 @@ public class VnPayPaymentService {
             case ORDER_PREFIX -> CallbackTarget.ORDER;
             case FINAL_PREFIX -> CallbackTarget.ORDER_FINAL;
             case WALLET_PREFIX -> CallbackTarget.WALLET;
+            case DRIVER_DEPOSIT_PREFIX -> CallbackTarget.DRIVER_DEPOSIT;
             default -> throw new VnPayPaymentException("01", "Order not found");
         };
 
@@ -487,7 +561,8 @@ public class VnPayPaymentService {
     private enum CallbackTarget {
         ORDER,
         ORDER_FINAL,
-        WALLET
+        WALLET,
+        DRIVER_DEPOSIT
     }
 
     private record ParsedTxnRef(CallbackTarget target, UUID entityId) {

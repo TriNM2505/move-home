@@ -44,7 +44,7 @@
         <div class="kpi kpi-warning">
           <div class="kpi-icon">👤</div>
           <div class="kpi-body">
-            <div class="kpi-value">0</div>
+            <div class="kpi-value" id="kpiPendingDrivers">—</div>
             <div class="kpi-label">Tài xế chờ duyệt</div>
             <div class="kpi-sub">Cần xử lý hôm nay</div>
           </div>
@@ -66,7 +66,7 @@
           <h3>Duyệt tài xế</h3>
           <p class="text-muted mt-sm">Xem xét hồ sơ đăng ký của tài xế mới. Kiểm tra giấy phép lái xe và phương tiện.</p>
           <div class="mt-md">
-            <a href="#" class="btn-primary">Xem danh sách</a>
+            <a href="driver-approvals.html" class="btn-primary">Xem danh sách</a>
           </div>
         </div>
         <div class="card-elevated">
@@ -74,7 +74,7 @@
           <h3>Xử lý rút tiền</h3>
           <p class="text-muted mt-sm">Phê duyệt yêu cầu rút tiền từ ví của tài xế. Xác minh số tài khoản ngân hàng.</p>
           <div class="mt-md">
-            <a href="#" class="btn-primary">Xem yêu cầu</a>
+            <a href="withdrawal-pending.html" class="btn-primary">Xem yêu cầu</a>
           </div>
         </div>
       </div>
@@ -103,6 +103,7 @@
 
 <script type="module">
   import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
 
   document.addEventListener('DOMContentLoaded', () => {
     if (!isLoggedIn()) {
@@ -122,7 +123,18 @@
     renderUserInfo(user);
     document.getElementById('logoutBtn')
       ?.addEventListener('click', () => logout('../login.html'));
+    loadPendingCount();
   });
+
+  async function loadPendingCount() {
+    const el = document.getElementById('kpiPendingDrivers');
+    try {
+      const data = await getAuthenticated('/api/manager/drivers/pending-approval?page=0&size=1');
+      if (el) el.textContent = data?.totalElements ?? 0;
+    } catch (err) {
+      if (el) el.textContent = '0';
+    }
+  }
 
   function renderUserInfo(user) {
     const nameEl = document.getElementById('userName');
@@ -150,5 +162,7 @@
   }
 </script>
 
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/notifications-bell.js"></script>
 </body>
 </html>

@@ -22,6 +22,10 @@ import java.util.UUID;
 public class CustomerOrderActionService {
 
     private static final Set<String> CUSTOMER_CANCELLABLE_STATUSES = Set.of("PENDING", "PENDING_PAYMENT", "CONFIRMED");
+    // Bao cao tai xe/xe khong khop chi khi tai xe vua nhan don (ACCEPTED), truoc khi van chuyen
+    private static final String MISMATCH_REPORTABLE_STATUS = "ACCEPTED";
+    private static final String MISMATCH_REASON =
+            "Tài xế hoặc phương tiện không khớp ảnh xác thực (khách báo cáo).";
     private static final String COMPLETED_STATUS = "COMPLETED";
     private static final String CANCELLED_STATUS = "CANCELLED";
 
@@ -58,6 +62,35 @@ public class CustomerOrderActionService {
                 savedOrder.getStatus(),
                 savedOrder.getCancelledAt(),
                 "Đơn hàng đã được hủy.");
+    }
+
+    /**
+     * Khach bao cao tai xe/xe khong khop anh xac thuc → huy chuyen ngay (chi khi don dang ACCEPTED).
+     * Giai phong tai xe (don sang CANCELLED). Hoan tien coc xu ly thu cong theo chinh sach (CONTEXT).
+     */
+    @Transactional
+    public CancelOrderResponse reportDriverMismatch(UUID customerId, String changedByRole, UUID orderId) {
+        ServiceOrder order = findOwnedOrderForUpdate(customerId, orderId);
+
+        if (!MISMATCH_REPORTABLE_STATUS.equals(order.getStatus())) {
+            throw new IllegalStateException(
+                    "Chỉ có thể báo cáo không khớp khi tài xế vừa nhận đơn và chưa bắt đầu vận chuyển.");
+        }
+
+        OffsetDateTime cancelledAt = OffsetDateTime.now(ZoneOffset.UTC);
+        String previousStatus = order.getStatus();
+        order.setCancelledAt(cancelledAt);
+        order.setCancellationReason(MISMATCH_REASON);
+
+        ServiceOrder savedOrder = orderStatusTransitionService.transition(
+                order, CANCELLED_STATUS, customerId, changedByRole, cancelledAt);
+        log.info("order_state_audit actor_id={} actor_role=CUSTOMER timestamp={} from_state={} to_state={} entity_id={} reason=DRIVER_MISMATCH",
+                customerId, cancelledAt, previousStatus, CANCELLED_STATUS, savedOrder.getId());
+        return new CancelOrderResponse(
+                savedOrder.getId(),
+                savedOrder.getStatus(),
+                savedOrder.getCancelledAt(),
+                "Đã hủy chuyến do tài xế/phương tiện không khớp. Chúng tôi sẽ xem xét và hoàn tiền theo chính sách.");
     }
 
     @Transactional

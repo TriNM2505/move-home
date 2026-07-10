@@ -31,6 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -104,17 +105,14 @@ class OrderStatusEventTransactionTest {
         ServiceOrder order = order(orderId, customerId, driverId, "AWAITING_FINAL_PAYMENT");
         order.setFinalPaidAt(java.time.OffsetDateTime.now());
         when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
-        doAnswer(invocation -> {
-            assertThat(eventCollector.events()).isEmpty();
-            return null;
-        }).when(driverEarningService).creditEarning(order);
 
         driverOrderService.completeOrder(driverId, "DRIVER", orderId);
 
+        // Escrow: hoan thanh KHONG cong tien ngay (EscrowReleaseService release sau 2h)
         assertThat(order.getCompletedAt()).isNotNull();
         assertEvent(orderId, customerId, driverId, "AWAITING_FINAL_PAYMENT", "COMPLETED", driverId, "DRIVER");
         verify(orderRepository).save(order);
-        verify(driverEarningService).creditEarning(order);
+        verify(driverEarningService, never()).creditEarning(any());
     }
 
     @Test
@@ -144,12 +142,12 @@ class OrderStatusEventTransactionTest {
         ServiceOrder order = order(orderId, customerId, driverId, "AWAITING_FINAL_PAYMENT");
         order.setFinalPaidAt(java.time.OffsetDateTime.now());
         when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
-        doThrow(new IllegalStateException("credit failed"))
-                .when(driverEarningService).creditEarning(order);
+        // Loi khi luu (trong transition) → completeOrder rollback → AFTER_COMMIT listener khong chay
+        when(orderRepository.save(order)).thenThrow(new IllegalStateException("save failed"));
 
         assertThatThrownBy(() -> driverOrderService.completeOrder(driverId, "DRIVER", orderId))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("credit failed");
+                .hasMessage("save failed");
 
         assertThat(eventCollector.events()).isEmpty();
     }

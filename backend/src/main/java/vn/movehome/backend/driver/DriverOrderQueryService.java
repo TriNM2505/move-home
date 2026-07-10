@@ -120,7 +120,8 @@ public class DriverOrderQueryService {
                 order.getScheduledAt(),
                 order.getDistanceKm(),
                 order.getTotalQuote(),
-                order.getCreatedAt()
+                order.getCreatedAt(),
+                order.getCommissionRateSnapshot()
         );
     }
 
@@ -164,7 +165,9 @@ public class DriverOrderQueryService {
                 order.getCreatedAt(),
                 order.getUpdatedAt(),
                 order.getCompletedAt(),
-                order.getCancelledAt()
+                order.getCancelledAt(),
+                order.getCancellationReason(),
+                order.getCommissionRateSnapshot()
         );
     }
 }

@@ -79,6 +79,16 @@ public class VnPayController {
                 clientIp(request));
     }
 
+    /** Tao URL VNPay cho tai xe dong coc 3.000.000 VND (Onboarding Buoc 3, status PENDING_DEPOSIT). */
+    @PostMapping("/api/driver/onboarding/deposit/vnpay")
+    @PreAuthorize("hasRole('DRIVER')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public VnPayPaymentUrlResponse createDriverDepositUrl(
+            @AuthenticationPrincipal User driver,
+            HttpServletRequest request) {
+        return vnpayPaymentService.createDriverDepositUrl(driver.getId(), clientIp(request));
+    }
+
     /**
      * VNPay redirect trinh duyet khach ve day sau khi thanh toan.
      * Xu ly callback (verify + cap nhat don) roi REDIRECT sang trang ket qua FE thay vi tra JSON tho.

@@ -48,6 +48,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final LoginEventRecorder loginEventRecorder;
     private final EmailService emailService;
+    private final DriverProfileRepository driverProfileRepository;
     // URL trang FE xac thuc email; production tro toi domain that qua bien moi truong (HR-01)
     private final String verifyEmailUrl;
 
@@ -59,6 +60,7 @@ public class AuthService {
             PasswordEncoder passwordEncoder,
             LoginEventRecorder loginEventRecorder,
             EmailService emailService,
+            DriverProfileRepository driverProfileRepository,
             @Value("${app.frontend.verify-email-url:http://localhost:5500/frontend/pages/verify-email-success.html}")
             String verifyEmailUrl) {
         this.userRepository = userRepository;
@@ -68,6 +70,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.loginEventRecorder = loginEventRecorder;
         this.emailService = emailService;
+        this.driverProfileRepository = driverProfileRepository;
         this.verifyEmailUrl = verifyEmailUrl;
     }
 
@@ -105,6 +108,48 @@ public class AuthService {
         sendVerificationEmailAfterCommit(user.getEmail(), rawToken);
 
         // Tao tokens va tra response (Round 2 demo: token trong body)
+        return buildAuthResponse(user, req.email());
+    }
+
+    // ===== DANG KY DRIVER =====
+
+    /**
+     * Dang ky tai khoan Driver moi (CONTEXT §2 Driver Onboarding Buoc 1).
+     * Khac Customer: role=DRIVER, va tao san 1 dong driver_profile RONG de cac buoc sau
+     * (nhap ho so xe, upload giay to, dong coc) co cho ghi du lieu.
+     * Sau khi xac thuc email, status chuyen PENDING_VERIFY → PENDING_DOCUMENTS (xem verifyEmail).
+     */
+    public AuthResponse registerDriver(RegisterDriverRequest req) {
+        // Kiem tra email chua ton tai
+        if (userRepository.existsByEmail(req.email().toLowerCase())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "CONFLICT|Email nay da duoc su dung. Vui long dung email khac.");
+        }
+
+        // Tao user DRIVER (PENDING_VERIFY cho toi khi xac thuc email)
+        User user = User.builder()
+                .email(req.email().toLowerCase().strip())
+                .passwordHash(passwordEncoder.encode(req.password())) // BCrypt cost 12
+                .fullName(req.fullName().strip())
+                .phone(normalizePhone(req.phone()))
+                .role(UserRole.DRIVER)
+                .status(UserStatus.PENDING_VERIFY)
+                .emailVerified(false)
+                .mustChangePassword(false)
+                .failedLoginCount(0)
+                .build();
+        userRepository.save(user);
+
+        // Tao san ho so tai xe rong (deposit=0, chua co giay to) de Buoc 2/3 ghi vao
+        driverProfileRepository.save(DriverProfile.builder()
+                .userId(user.getId())
+                .build());
+        log.info("Tai khoan Driver moi: userId={}, email={}", user.getId(), user.getEmail());
+
+        // Tao email verification token va gui email xac thuc that (HR-11)
+        String rawToken = createVerificationToken(user);
+        sendVerificationEmailAfterCommit(user.getEmail(), rawToken);
+
         return buildAuthResponse(user, req.email());
     }
 

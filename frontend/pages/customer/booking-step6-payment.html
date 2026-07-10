@@ -502,9 +502,7 @@
             notes: finalNotes || null
           };
 
-          console.log('Submitting order payload:', payload);
           const orderRes = await postAuthenticated('/api/customer/orders', payload);
-          console.log('Order created successfully:', orderRes);
 
           // Clear local booking storage keys
           const keysToRemove = [
@@ -548,5 +546,7 @@
     }
   });
 </script>
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/customer-common.js"></script>
 </body>
 </html>

@@ -83,11 +83,13 @@ public class DriverLocationService {
                         .orElse(null);
 
         if (location == null) {
-            DriverLocation raw = driverId == null ? null
-                    : driverLocationRepository.findById(driverId).orElse(null);
-            log.warn("Vi tri 404: order={} driver={} co_dong_vi_tri={} current_order_id_cua_dong={}",
-                    orderId, driverId, raw != null,
-                    raw != null ? raw.getCurrentOrderId() : null);
+            if (log.isDebugEnabled()) {
+                DriverLocation raw = driverId == null ? null
+                        : driverLocationRepository.findById(driverId).orElse(null);
+                log.debug("Vi tri 404: order={} driver={} co_dong_vi_tri={} current_order_id_cua_dong={}",
+                        orderId, driverId, raw != null,
+                        raw != null ? raw.getCurrentOrderId() : null);
+            }
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     "DRIVER_LOCATION_NOT_FOUND|Tài xế chưa cập nhật vị trí.");

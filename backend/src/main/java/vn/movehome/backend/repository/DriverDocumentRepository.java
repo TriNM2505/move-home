@@ -18,6 +18,9 @@ public interface DriverDocumentRepository extends JpaRepository<DriverDocument, 
 
     long countByDriverId(UUID driverId);
 
+    // Xoa moi ban ghi giay to cua 1 tai xe theo loai (dung khi upload lai de thay the, moi loai chi giu 1 ban)
+    void deleteByDriverIdAndDocType(UUID driverId, String docType);
+
     @org.springframework.data.jpa.repository.Query("""
             select d.docType as docType, count(d) as count
             from DriverDocument d

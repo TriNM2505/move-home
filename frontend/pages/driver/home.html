@@ -63,17 +63,17 @@
       <!-- 2 KPI cards -->
       <div class="grid-2 mt-8">
         <div class="card-elevated text-center">
-          <p class="text-muted">Đơn đang chờ</p>
-          <div class="kpi-value mt-sm">0</div>
+          <p class="text-muted">Đơn có sẵn</p>
+          <div class="kpi-value mt-sm" id="kpi-available">—</div>
           <div class="mt-md">
-            <a href="#" class="btn-primary">Xem đơn có sẵn</a>
+            <a href="available-orders.html" class="btn-primary">Xem đơn có sẵn</a>
           </div>
         </div>
         <div class="card-elevated text-center">
-          <p class="text-muted">Thu nhập hôm nay</p>
-          <div class="kpi-value mt-sm num-money">0 đ</div>
+          <p class="text-muted">Số dư ví</p>
+          <div class="kpi-value mt-sm num-money" id="kpi-balance">—</div>
           <div class="mt-md">
-            <button class="btn-subtle">Xem chi tiết</button>
+            <a href="earnings.html" class="btn-subtle">Xem chi tiết</a>
           </div>
         </div>
       </div>
@@ -121,6 +121,7 @@
 
 <script type="module">
   import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
 
   document.addEventListener('DOMContentLoaded', () => {
     if (!isLoggedIn()) {
@@ -135,7 +136,27 @@
     renderUserInfo(user);
     document.getElementById('logoutBtn')
       ?.addEventListener('click', () => logout('../login.html'));
+    loadStats();
   });
+
+  // Nap so lieu that: so don co san + so du vi
+  async function loadStats() {
+    const availEl = document.getElementById('kpi-available');
+    try {
+      const orders = await getAuthenticated('/api/driver/orders/available?page=0&size=1');
+      if (availEl) availEl.textContent = orders?.totalElements ?? 0;
+    } catch (e) {
+      if (availEl) availEl.textContent = '0';
+    }
+
+    const balEl = document.getElementById('kpi-balance');
+    try {
+      const wallet = await getAuthenticated('/api/driver/wallet');
+      if (balEl) balEl.textContent = Number(wallet?.balance ?? 0).toLocaleString('vi-VN') + ' đ';
+    } catch (e) {
+      if (balEl) balEl.textContent = '0 đ';
+    }
+  }
 
   function renderUserInfo(user) {
     const nameEl = document.getElementById('userName');
@@ -168,5 +189,7 @@
   }
 </script>
 
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/driver-common.js"></script>
 </body>
 </html>

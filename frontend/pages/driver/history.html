@@ -159,7 +159,8 @@
     } else {
       tbody.innerHTML = items.map(o => {
         const st = STATUS_VN[o.status] || { t: o.status, c: 'badge-neutral' };
-        const earning = o.status === 'COMPLETED' ? Math.floor(Number(o.totalQuote || 0) * 0.7) : 0;
+        const rate = o.commissionRateSnapshot != null ? Number(o.commissionRateSnapshot) : 0.30;
+        const earning = o.status === 'COMPLETED' ? Math.floor(Number(o.totalQuote || 0) * (1 - rate)) : 0;
         return `<tr data-id="${esc(o.id)}" style="cursor:pointer;">
           <td>${esc(o.orderCode)}</td>
           <td>${fmtDate(o.createdAt)}</td>
@@ -206,5 +207,7 @@
     });
   }
 </script>
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/driver-common.js"></script>
 </body>
 </html>

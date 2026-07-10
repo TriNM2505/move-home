@@ -303,10 +303,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 3. Inject Bell Icon & Dropdown HTML inside .site-header-actions
   const headerActions = document.querySelector('.site-header-actions');
-  if (headerActions) {
+  if (headerActions && !document.getElementById('notif-bell-container')) {
     // Create the container element for bell
     const bellContainer = document.createElement('div');
     bellContainer.className = 'notif-bell-container';
+    bellContainer.id = 'notif-bell-container';
     bellContainer.innerHTML = `
       <button class="notif-bell-btn" id="notifBellBtn" aria-label="Thông báo">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

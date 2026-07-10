@@ -17,6 +17,7 @@ import vn.movehome.backend.email.notification.EmailService;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.entity.UserRole;
 import vn.movehome.backend.entity.UserStatus;
+import vn.movehome.backend.repository.DriverProfileRepository;
 import vn.movehome.backend.repository.EmailVerificationTokenRepository;
 import vn.movehome.backend.repository.RefreshTokenRepository;
 import vn.movehome.backend.repository.UserRepository;
@@ -62,6 +63,9 @@ class AuthServiceTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+    private DriverProfileRepository driverProfileRepository;
+
     private static final String VERIFY_EMAIL_URL =
             "http://localhost:5500/frontend/pages/verify-email-success.html";
 
@@ -77,6 +81,7 @@ class AuthServiceTest {
                 passwordEncoder,
                 loginEventRecorder,
                 emailService,
+                driverProfileRepository,
                 VERIFY_EMAIL_URL);
     }
 

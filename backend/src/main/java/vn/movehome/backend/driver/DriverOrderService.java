@@ -109,11 +109,12 @@ public class DriverOrderService {
 
         OffsetDateTime completedAt = OffsetDateTime.now(ZoneOffset.UTC);
         order.setCompletedAt(completedAt);
-        ServiceOrder completedOrder = orderStatusTransitionService.transition(
+        orderStatusTransitionService.transition(
                 order, COMPLETED, driverId, changedByRole, completedAt);
 
-        // Phase 3: cong tien ngay khi hoan thanh. Phase 5 se thay bang escrow 2h.
-        driverEarningService.creditEarning(completedOrder);
+        // Escrow 2h (CONTEXT): KHONG cong tien ngay. Sau 2h khong khieu nai, EscrowReleaseService
+        // (scheduled) se cong 70% vao vi tai xe va set earning_released_at. Neu khach khieu nai
+        // trong thoi gian escrow, tien duoc giai phong khi Manager dong khieu nai (DisputeService).
         logStateChange(driverId, orderId, AWAITING_FINAL_PAYMENT, COMPLETED, completedAt);
     }
 

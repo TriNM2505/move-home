@@ -37,6 +37,8 @@ public record DriverOrderDetailDTO(
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt,
         OffsetDateTime completedAt,
-        OffsetDateTime cancelledAt
+        OffsetDateTime cancelledAt,
+        String cancellationReason,
+        BigDecimal commissionRateSnapshot
 ) {
 }

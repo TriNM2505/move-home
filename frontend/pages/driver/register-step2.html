@@ -3,109 +3,287 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đăng ký Bước 2 — Move_home</title>
-
+  <title>Đăng ký Tài xế Bước 2 — Move_home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
-
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
     .step-shell { min-height: 100vh; background: var(--color-canvas-soft); padding: var(--spacing-3xl) var(--spacing-lg); }
-    .step-card { max-width: 820px; margin: 0 auto; }
+    .step-card { max-width: 760px; margin: 0 auto; }
     .step-progress { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm); margin: var(--spacing-2xl) 0; }
     .step-progress span { height: 8px; border-radius: var(--rounded-pill); background: var(--color-surface-pressed); }
     .step-progress span:nth-child(-n+2) { background: var(--color-primary); }
-    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-xl); }
-    .full { grid-column: 1 / -1; }
-    .upload-box { border: 2px dashed var(--color-surface-pressed); border-radius: var(--rounded-xl); padding: var(--spacing-2xl); background: var(--color-canvas-softer); }
-    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-lg) var(--spacing-xl); }
+    .form-grid .full { grid-column: 1 / -1; }
+    .section-title { margin: var(--spacing-2xl) 0 var(--spacing-md); }
+    .doc-row { display: flex; align-items: center; gap: var(--spacing-lg); padding: var(--spacing-md) 0; border-bottom: 1px solid var(--color-surface-pressed); flex-wrap: wrap; }
+    .doc-row .doc-name { flex: 1; min-width: 160px; font-weight: 500; }
+    .doc-status { font-size: var(--font-size-caption); font-weight: 600; }
+    .doc-status.ok { color: var(--color-success-text, #157347); }
+    .doc-status.pending { color: var(--color-body); }
+    .doc-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid var(--color-surface-pressed); }
     @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-<header class="site-header">
-  <div class="container site-header-inner">
-    <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
-    <nav class="driver-nav" aria-label="Điều hướng tài xế">
-      <a href="register-step1.html" class="nav-link active">Đăng ký</a>
-      <a href="home.html" class="nav-link">Trang chủ</a>
-      <a href="available-orders.html" class="nav-link">Đơn có sẵn</a>
-      <a href="in-progress.html" class="nav-link">Đang giao</a>
-      <a href="history.html" class="nav-link">Lịch sử</a>
-      <a href="profile.html" class="nav-link">Hồ sơ</a>
-      <a href="earnings.html" class="nav-link">Thu nhập</a>
-    </nav>
-    <div class="site-header-actions">
-      <a href="../login.html" class="btn-subtle">Đăng nhập</a>
-    </div>
-  </div>
-</header>
 <main class="step-shell">
   <section class="card-elevated step-card">
     <a href="../../index.html" class="auth-logo">Move_home</a>
-    <p class="auth-tagline">Hoàn thiện hồ sơ phương tiện để đội ngũ quản lý xét duyệt.</p>
+    <p class="auth-tagline">Nhập hồ sơ xe và tải giấy tờ để được duyệt</p>
 
     <div class="step-progress" aria-label="Tiến độ đăng ký">
       <span></span><span></span><span></span>
     </div>
 
     <header class="page-header">
-      <p class="text-muted">Bước 2/3</p>
-      <h1 class="page-title">Giấy phép và xe</h1>
-      <p class="page-subtitle">Thông tin mẫu được điền sẵn để phục vụ demo.</p>
+      <p class="text-muted">Bước 2/3 · Hồ sơ & giấy tờ</p>
+      <h1 class="page-title">Thông tin xe và giấy tờ</h1>
+      <p class="page-subtitle">Điền thông tin bằng lái & xe, tải đủ 3 loại giấy tờ, sau đó nộp hồ sơ.</p>
     </header>
 
-    <form>
-      <div class="form-grid">
-        <div class="form-group upload-box">
-          <label class="form-label" for="licensePhoto">Ảnh giấy phép lái xe</label>
-          <input id="licensePhoto" class="text-input" type="file">
-          <p class="text-muted mt-sm">Tệp mẫu: giay-phep-le-van-cuong.jpg</p>
+    <div id="errorMessage" class="error-alert" hidden role="alert"></div>
+    <div id="successMessage" class="success-alert" hidden role="status"></div>
+
+    <div id="loadingState" class="text-center text-muted" style="padding:24px;">Đang tải hồ sơ...</div>
+
+    <div id="formArea" hidden>
+      <!-- Thong tin bang lai + xe -->
+      <form id="profileForm" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="licenseNumber">Số giấy phép lái xe <span class="form-required">*</span></label>
+            <input class="text-input" id="licenseNumber" placeholder="VD: B123456789" required>
+            <span class="form-error" id="licenseNumber-error" hidden></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="licenseClass">Hạng bằng lái <span class="form-required">*</span></label>
+            <select class="text-input" id="licenseClass" required>
+              <option value="">-- Chọn hạng --</option>
+              <option value="B1">B1</option><option value="B2">B2</option>
+              <option value="C">C</option><option value="D">D</option>
+            </select>
+            <span class="form-error" id="licenseClass-error" hidden></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="licenseExpiryDate">Ngày hết hạn bằng lái <span class="form-required">*</span></label>
+            <input class="text-input" type="date" id="licenseExpiryDate" required>
+            <span class="form-error" id="licenseExpiryDate-error" hidden></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vehiclePlate">Biển số xe <span class="form-required">*</span></label>
+            <input class="text-input" id="vehiclePlate" placeholder="VD: 30E-56789" required>
+            <span class="form-error" id="vehiclePlate-error" hidden></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vehicleType">Loại xe <span class="form-required">*</span></label>
+            <select class="text-input" id="vehicleType" required>
+              <option value="">-- Chọn loại xe --</option>
+              <option value="TRUCK_500KG">Xe tải 500kg</option>
+              <option value="TRUCK_1T">Xe tải 1 tấn</option>
+              <option value="TRUCK_15T">Xe tải 1.5 tấn</option>
+            </select>
+            <span class="form-error" id="vehicleType-error" hidden></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vehicleCapacityKg">Tải trọng (kg) <span class="form-required">*</span></label>
+            <input class="text-input" type="number" id="vehicleCapacityKg" min="1" placeholder="VD: 500" required>
+            <span class="form-error" id="vehicleCapacityKg-error" hidden></span>
+          </div>
         </div>
-        <div class="form-group upload-box">
-          <label class="form-label" for="vehiclePhoto">Ảnh xe và biển số</label>
-          <input id="vehiclePhoto" class="text-input" type="file">
-          <p class="text-muted mt-sm">Tệp mẫu: xe-tai-30e-56789.jpg</p>
+        <div class="mt-4" style="text-align:right;">
+          <button type="submit" id="saveBtn" class="btn-secondary">Lưu hồ sơ</button>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="licenseNumber">Số bằng lái</label>
-          <input id="licenseNumber" class="text-input" value="790123456789">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="licenseClass">Hạng bằng</label>
-          <select id="licenseClass" class="text-input">
-            <option>B2</option>
-            <option>C</option>
-            <option>D</option>
-            <option>B1</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="plate">Biển số xe</label>
-          <input id="plate" class="text-input" value="30E-56789">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="vehicleType">Loại xe</label>
-          <select id="vehicleType" class="text-input">
-            <option>Xe tải 1 tấn</option>
-            <option>Xe tải 500kg</option>
-            <option>Xe tải 1.5 tấn</option>
-          </select>
-        </div>
-        <div class="form-group full">
-          <label class="form-label" for="year">Năm sản xuất</label>
-          <input id="year" class="text-input" value="2021">
-        </div>
-      </div>
+      </form>
+
+      <!-- Upload 3 loai giay to -->
+      <h2 class="section-title">Giấy tờ bắt buộc (ảnh JPG/PNG/WebP, tối đa 1.5 MB)</h2>
+      <p class="text-muted" style="margin:-8px 0 12px; font-size:14px;">
+        Ảnh chân dung dùng để xác minh danh tính: chụp chính diện, áo trắng, nền sáng như ảnh thẻ 3x4.
+        Quản lý sẽ đối chiếu với giấy phép lái xe; khách hàng cũng thấy ảnh này khi bạn nhận đơn.
+      </p>
+      <div id="docList"></div>
 
       <div class="flex-between mt-8">
-        <a href="register-step1.html" class="btn-secondary">Quay lại</a>
-        <a href="register-step3-deposit.html" class="btn-primary">Tiếp tục</a>
+        <a href="../login.html" class="btn-subtle">Đăng xuất / Để sau</a>
+        <button type="button" id="submitBtn" class="btn-primary">Nộp hồ sơ & tiếp tục</button>
       </div>
-    </form>
+    </div>
   </section>
 </main>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, putAuthenticated, postAuthenticated } from '../../js/api.js';
+
+  const BASE_URL = 'http://localhost:8080';
+  const $ = (id) => document.getElementById(id);
+  const DOC_TYPES = [
+    { key: 'DRIVING_LICENSE_FRONT', label: 'GPLX — mặt trước' },
+    { key: 'DRIVING_LICENSE_BACK', label: 'GPLX — mặt sau' },
+    { key: 'VEHICLE_REGISTRATION_FRONT', label: 'Đăng ký xe — mặt trước' },
+    { key: 'VEHICLE_REGISTRATION_BACK', label: 'Đăng ký xe — mặt sau' },
+    { key: 'VEHICLE_PHOTO_FRONT', label: 'Ảnh xe — đằng trước' },
+    { key: 'VEHICLE_PHOTO_REAR', label: 'Ảnh xe — đằng sau' },
+    { key: 'VEHICLE_PHOTO_SIDE', label: 'Ảnh xe — chụp ngang' },
+    { key: 'FACE_PHOTO', label: 'Ảnh chân dung (3x4, áo trắng, chính diện)' },
+  ];
+  const uploaded = new Set();
+
+  function showError(msg) { const el = $('errorMessage'); el.innerHTML = msg; el.hidden = false; el.scrollIntoView({ behavior:'smooth', block:'center' }); }
+  function showSuccess(msg) { const el = $('successMessage'); el.innerHTML = msg; el.hidden = false; }
+  function clearField(id) { const el = $(id + '-error'); if (el) { el.hidden = true; el.textContent = ''; } }
+  function showField(id, msg) { const el = $(id + '-error'); if (el) { el.textContent = msg; el.hidden = false; } }
+
+  document.addEventListener('DOMContentLoaded', init);
+  async function init() {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const user = getCurrentUser();
+    if (user?.role !== 'DRIVER') { logout('../login.html'); return; }
+    // Neu da qua buoc nay thi chuyen tiep
+    if (user.status === 'PENDING_DEPOSIT') { window.location.href = 'register-step3-deposit.html'; return; }
+    if (user.status === 'PENDING_APPROVAL' || user.status === 'REJECTED') { window.location.href = 'pending-approval.html'; return; }
+
+    // Ngay het han bang lai toi thieu = hom nay + 90 ngay
+    const min = new Date(); min.setDate(min.getDate() + 90);
+    $('licenseExpiryDate').min = min.toISOString().slice(0, 10);
+
+    renderDocs();
+    await Promise.all([loadProfile(), loadDocuments()]);
+    $('loadingState').hidden = true;
+    $('formArea').hidden = false;
+  }
+
+  async function loadProfile() {
+    try {
+      const p = await getAuthenticated('/api/driver/profile');
+      if (p.licenseNumber) $('licenseNumber').value = p.licenseNumber;
+      if (p.licenseClass) $('licenseClass').value = p.licenseClass;
+      if (p.licenseExpiryDate) $('licenseExpiryDate').value = p.licenseExpiryDate;
+      if (p.vehiclePlate) $('vehiclePlate').value = p.vehiclePlate;
+      if (p.vehicleType) $('vehicleType').value = p.vehicleType;
+      if (p.vehicleCapacityKg) $('vehicleCapacityKg').value = p.vehicleCapacityKg;
+    } catch (err) { /* ho so rong la binh thuong voi tai xe moi */ }
+  }
+
+  async function loadDocuments() {
+    try {
+      const docs = await getAuthenticated('/api/driver/documents');
+      (docs || []).forEach(d => { uploaded.add(d.docType); markDoc(d.docType, d.url); });
+    } catch (err) { /* chua co giay to */ }
+  }
+
+  function renderDocs() {
+    $('docList').innerHTML = DOC_TYPES.map(t => `
+      <div class="doc-row" data-type="${t.key}">
+        <img class="doc-thumb" id="thumb-${t.key}" hidden alt="">
+        <span class="doc-name">${t.label}</span>
+        <span class="doc-status pending" id="status-${t.key}">Chưa tải</span>
+        <label class="btn-secondary" style="cursor:pointer; margin:0;">
+          Chọn ảnh
+          <input type="file" accept="image/jpeg,image/png,image/webp" hidden data-type="${t.key}">
+        </label>
+      </div>`).join('');
+    $('docList').querySelectorAll('input[type=file]').forEach(inp =>
+      inp.addEventListener('change', (e) => onPickFile(e.target.dataset.type, e.target.files[0], e.target)));
+  }
+
+  function markDoc(type, url) {
+    const st = $('status-' + type);
+    if (st) { st.textContent = 'Đã tải ✓'; st.className = 'doc-status ok'; }
+    const th = $('thumb-' + type);
+    if (th && url) { th.src = url; th.hidden = false; }
+  }
+
+  async function onPickFile(type, file, inputEl) {
+    if (!file) return;
+    if (file.size > 1_572_864) { showError('Ảnh vượt quá 1.5 MB. Vui lòng chọn ảnh nhỏ hơn.'); inputEl.value = ''; return; }
+    const st = $('status-' + type);
+    st.textContent = 'Đang tải lên...'; st.className = 'doc-status pending';
+    try {
+      const res = await uploadDocument(type, file);
+      uploaded.add(type);
+      markDoc(type, res.url);
+    } catch (err) {
+      st.textContent = 'Tải thất bại'; st.className = 'doc-status pending';
+      showError(err.message || 'Tải giấy tờ thất bại. Vui lòng thử lại.');
+    } finally { inputEl.value = ''; }
+  }
+
+  // Upload multipart (api.js chi ho tro JSON nen goi fetch truc tiep, kem Bearer token)
+  async function uploadDocument(docType, file) {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('doc_type', docType);
+    const token = localStorage.getItem('accessToken');
+    const resp = await fetch(BASE_URL + '/api/driver/documents', {
+      method: 'POST',
+      headers: token ? { Authorization: 'Bearer ' + token } : {},
+      body: fd, // KHONG set Content-Type — trinh duyet tu them boundary multipart
+    });
+    if (!resp.ok) {
+      let data = {}; try { data = await resp.json(); } catch {}
+      const e = new Error(data.message || ('Lỗi ' + resp.status)); e.status = resp.status; throw e;
+    }
+    return resp.json();
+  }
+
+  // Luu ho so (PUT profile)
+  $('profileForm').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const ok = await saveProfile();
+    if (ok) showSuccess('Đã lưu hồ sơ. Tiếp tục tải giấy tờ rồi nộp hồ sơ.');
+  });
+
+  async function saveProfile() {
+    ['licenseNumber','licenseClass','licenseExpiryDate','vehiclePlate','vehicleType','vehicleCapacityKg'].forEach(clearField);
+    $('errorMessage').hidden = true;
+    const body = {
+      licenseNumber: $('licenseNumber').value.trim(),
+      licenseClass: $('licenseClass').value,
+      licenseExpiryDate: $('licenseExpiryDate').value,
+      vehiclePlate: $('vehiclePlate').value.trim(),
+      vehicleType: $('vehicleType').value,
+      vehicleCapacityKg: parseInt($('vehicleCapacityKg').value, 10) || null,
+    };
+    const btn = $('saveBtn'); btn.disabled = true;
+    try {
+      await putAuthenticated('/api/driver/profile', body);
+      return true;
+    } catch (err) {
+      // Loi validate co danh sach field (bean validation) → gan tung o
+      if (err.status === 422 && err.data?.details?.length) {
+        err.data.details.forEach(d => showField(d.field, d.message));
+        showError('Vui lòng kiểm tra lại các trường được đánh dấu.');
+      } else {
+        // Loi validate cap service (details rong) hoac loi khac → hien thong bao chung
+        showError(err.message || 'Lưu hồ sơ thất bại. Kiểm tra lại thông tin.');
+      }
+      return false;
+    } finally { btn.disabled = false; }
+  }
+
+  // Nop ho so: luu profile truoc, kiem tra du 3 giay to, roi POST submit
+  $('submitBtn').addEventListener('click', async () => {
+    $('errorMessage').hidden = true;
+    const saved = await saveProfile();
+    if (!saved) return;
+    const missing = DOC_TYPES.filter(t => !uploaded.has(t.key));
+    if (missing.length) { showError('Còn thiếu giấy tờ: ' + missing.map(m => m.label).join(', ') + '.'); return; }
+
+    const btn = $('submitBtn'); btn.disabled = true; btn.classList.add('btn-loading'); btn.textContent = 'Đang nộp...';
+    try {
+      await postAuthenticated('/api/driver/profile/submit', {});
+      // Cap nhat status trong localStorage → sang buoc coc
+      const u = getCurrentUser(); if (u) { u.status = 'PENDING_DEPOSIT'; localStorage.setItem('userInfo', JSON.stringify(u)); }
+      window.location.href = 'register-step3-deposit.html';
+    } catch (err) {
+      btn.disabled = false; btn.classList.remove('btn-loading'); btn.textContent = 'Nộp hồ sơ & tiếp tục';
+      showError(err.message || 'Nộp hồ sơ thất bại. Vui lòng kiểm tra lại.');
+    }
+  });
+</script>
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/driver-common.js"></script>
 </body>
 </html>

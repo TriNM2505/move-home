@@ -519,9 +519,7 @@
         porterCount: parseInt(porterCountStr, 10)
       };
 
-      console.log('Sending quote payload:', payload);
       const quoteRes = await postAuthenticated('/api/customer/quote', payload);
-      console.log('Received quote response:', quoteRes);
 
       // Populate UI with response pricing details
       document.getElementById('distance-display').textContent = `${quoteRes.distanceKm.toFixed(1)} km`;
@@ -560,5 +558,7 @@
     }
   });
 </script>
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/customer-common.js"></script>
 </body>
 </html>

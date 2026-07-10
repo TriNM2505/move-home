@@ -34,7 +34,9 @@ import java.util.UUID;
 @Slf4j
 public class ManagerDriverDecisionService {
 
-    private static final int REQUIRED_DOCUMENT_COUNT = 6;
+    // Onboarding thu 1 anh/loai cho 8 loai bat buoc (khop DriverProfileService.REQUIRED_DOCUMENT_TYPES):
+    // GPLX truoc/sau, dang ky xe truoc/sau, anh xe truoc/sau/ngang, anh chan dung.
+    private static final int REQUIRED_DOCUMENT_COUNT = 8;
     private static final int REASON_MIN_LENGTH = 20;
     private static final int REASON_MAX_LENGTH = 500;
 

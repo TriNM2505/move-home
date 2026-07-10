@@ -22,9 +22,9 @@
       </a>
 
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Quản lý</span>
+        <span class="user-menu-name">Xin chào, <span id="mgr-name">Quản lý</span></span>
         <div class="avatar avatar-sm avatar-initials">QL</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
     </div>
   </header>
@@ -83,7 +83,7 @@
                 </svg>
               </div>
               <div class="kpi-body">
-                <div class="kpi-value">3</div>
+                <div class="kpi-value" id="kpi-pending">—</div>
                 <div class="kpi-label">Hồ sơ chờ duyệt</div>
                 <div class="kpi-sub">Cần xử lý trong hôm nay</div>
               </div>
@@ -97,7 +97,7 @@
                 </svg>
               </div>
               <div class="kpi-body">
-                <div class="kpi-value">2</div>
+                <div class="kpi-value" id="kpi-docs-ok">—</div>
                 <div class="kpi-label">Hồ sơ đủ giấy tờ</div>
                 <div class="kpi-sub">Có thể duyệt ngay</div>
               </div>
@@ -112,9 +112,9 @@
                 </svg>
               </div>
               <div class="kpi-body">
-                <div class="kpi-value">1</div>
+                <div class="kpi-value" id="kpi-docs-missing">—</div>
                 <div class="kpi-label">Cần kiểm tra thêm</div>
-                <div class="kpi-sub">Thiếu ảnh phương tiện rõ nét</div>
+                <div class="kpi-sub">Chưa đủ 3 giấy tờ</div>
               </div>
             </div>
           </div>
@@ -138,34 +138,8 @@
                   <th class="table-th-eyebrow table-col-action">Thao tác</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr class="row-warning">
-                  <td>Nguyễn Văn Hùng</td>
-                  <td>hung.nguyen@example.com</td>
-                  <td>Xe tải 1 tấn</td>
-                  <td>30H-456.78</td>
-                  <td>04/06/2026</td>
-                  <td><span class="badge badge-sm badge-pending-approval status-badge status-badge--pending">Chờ duyệt</span></td>
-                  <td class="table-col-action"><a href="driver-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
-                </tr>
-                <tr>
-                  <td>Trần Minh Đức</td>
-                  <td>duc.tran@example.com</td>
-                  <td>Xe tải 500kg</td>
-                  <td>29C-123.45</td>
-                  <td>04/06/2026</td>
-                  <td><span class="badge badge-sm badge-pending-approval status-badge status-badge--pending">Chờ duyệt</span></td>
-                  <td class="table-col-action"><a href="driver-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
-                </tr>
-                <tr>
-                  <td>Phạm Quốc Bảo</td>
-                  <td>bao.pham@example.com</td>
-                  <td>Xe tải 1.5 tấn</td>
-                  <td>30G-888.12</td>
-                  <td>03/06/2026</td>
-                  <td><span class="badge badge-sm badge-warning status-badge status-badge--disputed">Cần kiểm tra</span></td>
-                  <td class="table-col-action"><a href="driver-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
-                </tr>
+              <tbody id="approval-tbody">
+                <tr><td colspan="7" style="text-align:center;padding:24px;">Đang tải...</td></tr>
               </tbody>
             </table>
           </div>
@@ -175,5 +149,56 @@
   </div>
 </div>
 
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  const VEHICLE_VN = { TRUCK_500KG:'Xe tải 500kg', TRUCK_1T:'Xe tải 1 tấn', TRUCK_15T:'Xe tải 1.5 tấn' };
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtDate = (iso) => !iso ? '—' : new Date(iso).toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Asia/Ho_Chi_Minh' });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const u = getCurrentUser();
+    if (u?.role !== 'MANAGER') { logout('../login.html'); return; }
+    if (u.fullName) $('mgr-name').textContent = u.fullName;
+    $('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+    load();
+  });
+
+  async function load() {
+    const tbody = $('approval-tbody');
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;">Đang tải...</td></tr>`;
+    try {
+      const data = await getAuthenticated('/api/manager/drivers/pending-approval?page=0&size=50');
+      const items = (data && data.content) || [];
+      $('kpi-pending').textContent = data?.totalElements ?? items.length;
+      $('kpi-docs-ok').textContent = items.filter(d => (d.document_count ?? 0) >= 3).length;
+      $('kpi-docs-missing').textContent = items.filter(d => (d.document_count ?? 0) < 3).length;
+
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--color-mute)">Chưa có hồ sơ tài xế nào chờ duyệt.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map(d => `
+        <tr>
+          <td>${esc(d.full_name)}</td>
+          <td>${esc(d.email)}</td>
+          <td>${esc(VEHICLE_VN[d.vehicle_type] || d.vehicle_type || '—')}</td>
+          <td>${esc(d.vehicle_plate || '—')}</td>
+          <td>${fmtDate(d.onboarding_completed_at)}</td>
+          <td><span class="badge badge-sm badge-pending-approval status-badge status-badge--pending">Chờ duyệt</span></td>
+          <td class="table-col-action"><a href="driver-detail.html?id=${encodeURIComponent(d.driver_id)}" class="btn btn-primary btn-sm">Xem</a></td>
+        </tr>`).join('');
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--color-danger)">Không tải được danh sách. Vui lòng đăng nhập lại bằng tài khoản quản lý.</td></tr>`;
+    }
+  }
+</script>
+
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/notifications-bell.js"></script>
 </body>
 </html>

@@ -13,6 +13,7 @@ import vn.movehome.backend.entity.UserRole;
 import vn.movehome.backend.order.OrderRepository;
 import vn.movehome.backend.order.OrderStatusTransitionService;
 import vn.movehome.backend.order.ServiceOrder;
+import vn.movehome.backend.repository.DriverProfileRepository;
 import vn.movehome.backend.repository.UserRepository;
 import vn.movehome.backend.repository.WalletRepository;
 import vn.movehome.backend.service.PaymentIdempotencyService;
@@ -47,6 +48,9 @@ class VnPayPaymentServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private DriverProfileRepository driverProfileRepository;
+
+    @Mock
     private PaymentIdempotencyService paymentIdempotencyService;
 
     @Mock
@@ -71,6 +75,7 @@ class VnPayPaymentServiceTest {
                 orderRepository,
                 walletRepository,
                 userRepository,
+                driverProfileRepository,
                 paymentIdempotencyService,
                 orderStatusTransitionService);
     }

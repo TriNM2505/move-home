@@ -85,6 +85,29 @@ public class OrderController {
                 customer.getId(), customer.getRole().name(), id, request);
     }
 
+    /**
+     * Anh xac thuc tai xe (chan dung + anh xe) cua don da co tai xe nhan — de khach doi chieu.
+     */
+    @GetMapping("/api/customer/orders/{id}/driver-verification")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public CustomerDriverVerificationResponse getDriverVerification(
+            @AuthenticationPrincipal User customer,
+            @PathVariable UUID id) {
+        return customerOrderQueryService.getDriverVerification(customer.getId(), id);
+    }
+
+    /**
+     * Khach bao cao tai xe/xe khong khop anh xac thuc → huy chuyen (chi khi don dang ACCEPTED).
+     */
+    @PutMapping("/api/customer/orders/{id}/report-mismatch")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public CancelOrderResponse reportDriverMismatch(
+            @AuthenticationPrincipal User customer,
+            @PathVariable UUID id) {
+        return customerOrderActionService.reportDriverMismatch(
+                customer.getId(), customer.getRole().name(), id);
+    }
+
     @PostMapping("/api/customer/orders/{id}/rating")
     @PreAuthorize("hasRole('CUSTOMER')")
     @ResponseStatus(HttpStatus.CREATED)

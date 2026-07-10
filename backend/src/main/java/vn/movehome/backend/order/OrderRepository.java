@@ -107,6 +107,10 @@ public interface OrderRepository extends JpaRepository<ServiceOrder, UUID> {
         // Don dang giao (dung cho service mo phong di chuyen tai xe)
         List<ServiceOrder> findByStatusInAndDeletedAtIsNull(Collection<String> statuses);
 
+        // Escrow: don da COMPLETED, chua release thu nhap, hoan thanh truoc moc cutoff (het 2h).
+        List<ServiceOrder> findByStatusAndEarningReleasedAtIsNullAndCompletedAtBeforeAndDeletedAtIsNull(
+                        String status, OffsetDateTime cutoff);
+
         // Tai xe co dang ban 1 don nao khong (chan nhan >1 don cung luc)
         boolean existsByDriverIdAndStatusInAndDeletedAtIsNull(UUID driverId, Collection<String> statuses);
 

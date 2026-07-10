@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import vn.movehome.backend.driver.finance.DriverEarningService;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.entity.UserRole;
 import vn.movehome.backend.entity.UserStatus;
@@ -63,6 +64,7 @@ public class DisputeService {
     private final AuditService auditService;
     private final NotificationService notificationService;
     private final ObjectMapper objectMapper;
+    private final DriverEarningService driverEarningService;
 
     @Transactional
     public DisputeActionResponse create(UUID orderId, User customer, CreateDisputeRequest request) {
@@ -203,6 +205,9 @@ public class DisputeService {
         dispute.setResolvedAt(now);
         dispute = disputeRepository.saveAndFlush(dispute);
 
+        // Escrow: khieu nai da dong → giai phong 70% cho tai xe (neu chua release)
+        releaseDriverEarningIfNeeded(order);
+
         auditService.log(
                 actor.getId(),
                 actor.getEmail(),
@@ -237,6 +242,9 @@ public class DisputeService {
         dispute.setResolvedBy(actor.getId());
         dispute.setResolvedAt(now);
         dispute = disputeRepository.saveAndFlush(dispute);
+
+        // Escrow: khieu nai bi tu choi (tai xe khong co loi) → giai phong 70% cho tai xe
+        releaseDriverEarningIfNeeded(order);
 
         auditService.log(
                 actor.getId(),
@@ -280,6 +288,20 @@ public class DisputeService {
                     "INVALID_ORDER_DISPUTE_STATE|Trang thai don khong hop le.");
         }
         return order;
+    }
+
+    /**
+     * Giai phong thu nhap escrow cho tai xe khi khieu nai da dong (resolve/reject).
+     * Idempotent: bo qua neu da release (earning_released_at) — tranh cong tien 2 lan.
+     * Giu hanh vi cu (tai xe nhan du 70%); hoan tien khach neu co lay tu quy cong ty (refund service).
+     */
+    private void releaseDriverEarningIfNeeded(ServiceOrder order) {
+        if (order.getDriverId() == null || order.getEarningReleasedAt() != null) {
+            return;
+        }
+        driverEarningService.creditEarning(order);
+        order.setEarningReleasedAt(OffsetDateTime.now(ZoneOffset.UTC));
+        orderRepository.save(order);
     }
 
     private void validatePage(int page, int size) {
