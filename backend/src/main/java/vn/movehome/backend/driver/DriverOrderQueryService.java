@@ -167,7 +167,8 @@ public class DriverOrderQueryService {
                 order.getCompletedAt(),
                 order.getCancelledAt(),
                 order.getCancellationReason(),
-                order.getCommissionRateSnapshot()
+                order.getCommissionRateSnapshot(),
+                order.getArrivedAt()
         );
     }
 }

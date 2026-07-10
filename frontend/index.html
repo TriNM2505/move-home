@@ -36,7 +36,8 @@
     try { role = JSON.parse(localStorage.getItem('userInfo'))?.role; } catch {}
     window.location.replace(ROLE_HOME[role] || 'pages/login.html');
   } else {
-    window.location.replace('pages/login.html');
+    // Khách chưa đăng nhập → trang quảng bá công khai (không ép đăng nhập ngay)
+    window.location.replace('pages/public/index.html');
   }
 </script>
 

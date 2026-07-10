@@ -108,6 +108,18 @@ public class OrderController {
                 customer.getId(), customer.getRole().name(), id);
     }
 
+    /**
+     * Khach xac nhan tai xe/xe DUNG voi anh (sau khi tai xe da den diem don) → bat dau chuyen (IN_PROGRESS).
+     */
+    @PutMapping("/api/customer/orders/{id}/confirm-driver")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public CancelOrderResponse confirmDriverMatch(
+            @AuthenticationPrincipal User customer,
+            @PathVariable UUID id) {
+        return customerOrderActionService.confirmDriverMatch(
+                customer.getId(), customer.getRole().name(), id);
+    }
+
     @PostMapping("/api/customer/orders/{id}/rating")
     @PreAuthorize("hasRole('CUSTOMER')")
     @ResponseStatus(HttpStatus.CREATED)

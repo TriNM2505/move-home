@@ -961,7 +961,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .sidebar-divider { height: 1px; background: var(--color-surface-pressed); margin: var(--spacing-md) 0; }
 
 .site-main    { flex: 1; overflow-y: auto; }
-.dashboard-main { padding: var(--spacing-3xl); max-width: 1200px; }
+.dashboard-main { padding: var(--spacing-3xl); max-width: 1200px; margin: 0 auto; }
 .page-title {
   font-size: var(--font-size-display-sm);
   font-weight: var(--font-weight-bold);

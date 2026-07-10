@@ -108,6 +108,11 @@ Truoc khi viet hoac sua bat ky code/spec moi, AI assistant PHAI doc theo thu tu 
 | 5 | `specs/028-admin-dashboard/spec.md` | Khi lam Admin Dashboard |
 | 6 | `DESIGN.md` (root, UPPERCASE) | Khi lam frontend — brand identity (color palette, typography, shadow, components). Chi tiet: §5.5 |
 
+> 📌 **CHAT (cap nhat 2026-07):** Tinh nang chat da mo rong **3 cap** Customer/Manager/Driver —
+> **Driver CO tham gia chat**, dung WebSocket STOMP+SockJS. Day la **CO CHU Y**, lech voi
+> `CONTEXT.md §Chat` ("Driver KHONG chat") va AC-05 — **KHONG phai bug, KHONG "sua" bang cach go Driver chat.**
+> Chi tiet: package backend `chat`, migration V36, FE `pages/messages.html`.
+>
 > ⛔ `spec_v1_archived.md` va `CONTEXT_v1.5_archived.md` — chi doc khi can tham chieu
 > lich su. TUYET DOI KHONG dung lam source cho code moi.
 > 📝 `DESIGN.md` (root, UPPERCASE) — brand spec Stripi/Stripe inspired. Cung cap color palette (#533afd, #061b31), typography Inter weight 300, OpenType ss01+tnum, shadow blue-tinted. KHONG sua file nay tru khi thay doi brand identity.

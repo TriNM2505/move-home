@@ -11,6 +11,79 @@
 
   <link rel="stylesheet" href="../css/styles.css">
   <style>
+    /* Modal điều khoản / chính sách — hiển thị trực tiếp, không rời trang */
+    .legal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 27, 49, 0.55);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .legal-overlay.open { display: flex; }
+    .legal-modal {
+      width: 100%;
+      max-width: 640px;
+      max-height: 88vh;
+      background: var(--color-canvas);
+      border-radius: var(--rounded-xl, 16px);
+      box-shadow: var(--shadow-level-3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .legal-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: var(--spacing-lg) var(--spacing-2xl);
+      border-bottom: 1px solid var(--color-surface-pressed);
+    }
+    .legal-modal-header h2 {
+      margin: 0;
+      font-size: var(--font-size-body-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-ink);
+    }
+    .legal-close {
+      background: none;
+      border: none;
+      font-size: 26px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--color-mute);
+      padding: 4px;
+    }
+    .legal-modal-body {
+      padding: var(--spacing-xl) var(--spacing-2xl);
+      overflow-y: auto;
+      color: var(--color-body);
+      font-size: var(--font-size-body-sm);
+      line-height: 1.7;
+    }
+    .legal-modal-body h3 {
+      color: var(--color-primary);
+      font-size: var(--font-size-body-md);
+      font-weight: var(--font-weight-bold);
+      margin: var(--spacing-lg) 0 var(--spacing-xs);
+    }
+    .legal-modal-body h3:first-child { margin-top: 0; }
+    .legal-modal-body p, .legal-modal-body li { margin: 0 0 var(--spacing-sm); }
+    .legal-modal-body ul { margin: 0 0 var(--spacing-sm); padding-left: 20px; }
+    .legal-modal-body .legal-updated {
+      color: var(--color-mute);
+      font-size: var(--font-size-caption);
+      margin-bottom: var(--spacing-lg);
+    }
+    .legal-modal-footer {
+      padding: var(--spacing-md) var(--spacing-2xl);
+      border-top: 1px solid var(--color-surface-pressed);
+      text-align: right;
+    }
+
     /* Scoped styles for register page success alert */
     .success-alert {
       background-color: var(--color-success-bg);
@@ -128,9 +201,9 @@
             <span class="form-check-box" aria-hidden="true"></span>
             <span class="form-check-label">
               Tôi đồng ý với
-              <a href="#" class="link-primary">điều khoản sử dụng</a>
+              <a href="#" class="link-primary" id="open-terms">điều khoản sử dụng</a>
               và
-              <a href="#" class="link-primary">chính sách bảo mật</a>
+              <a href="#" class="link-primary" id="open-privacy">chính sách bảo mật</a>
             </span>
           </label>
           <span class="form-error" id="terms-error" role="alert" hidden></span>
@@ -159,6 +232,141 @@
     </div>
   </div>
 </main>
+
+<!-- MODAL: Điều khoản sử dụng -->
+<div class="legal-overlay" id="terms-overlay" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+  <div class="legal-modal">
+    <div class="legal-modal-header">
+      <h2 id="terms-title">Điều khoản sử dụng</h2>
+      <button type="button" class="legal-close" data-close-legal aria-label="Đóng">&times;</button>
+    </div>
+    <div class="legal-modal-body">
+      <p class="legal-updated">Cập nhật lần cuối: 11/07/2026</p>
+
+      <h3>1. Về dịch vụ Move_home</h3>
+      <p>Move_home là nền tảng trực tuyến kết nối khách hàng có nhu cầu chuyển nhà với các tài xế đối tác sở hữu xe tải, hoạt động trong phạm vi nội thành Hà Nội. Công ty đóng vai trò điều phối và thu phí dịch vụ (hoa hồng) trên mỗi đơn hàng hoàn thành.</p>
+
+      <h3>2. Tài khoản</h3>
+      <ul>
+        <li>Bạn cần cung cấp thông tin chính xác (họ tên, email, số điện thoại) và xác thực email trước khi sử dụng đầy đủ tính năng.</li>
+        <li>Bạn chịu trách nhiệm bảo mật mật khẩu và mọi hoạt động phát sinh từ tài khoản của mình.</li>
+        <li>Tài khoản có thể bị tạm khóa nếu vi phạm điều khoản hoặc có dấu hiệu gian lận.</li>
+      </ul>
+
+      <h3>3. Đặt đơn và báo giá</h3>
+      <p>Giá dịch vụ được tính tự động dựa trên quãng đường, loại xe, giờ cao điểm, phụ phí ngõ nhỏ, phụ phí tầng và phí bốc xếp. Báo giá ước tính hiển thị trước khi đặt đơn có thể chênh lệch nhẹ so với giá cuối tùy điều kiện thực tế.</p>
+
+      <h3>4. Thanh toán</h3>
+      <ul>
+        <li>Mọi khoản thanh toán được thực hiện <strong>100% qua cổng VNPay</strong> (không thu tiền mặt).</li>
+        <li>Khi đặt đơn, khách đặt <strong>cọc 30%</strong> tổng báo giá. Phần <strong>70% còn lại</strong> thanh toán tại chỗ trước khi tài xế xác nhận hoàn thành.</li>
+        <li>Khoản cọc 30% đồng thời là phí dịch vụ công ty giữ lại.</li>
+      </ul>
+
+      <h3>5. Hủy đơn và hoàn tiền</h3>
+      <ul>
+        <li>Hủy đơn <strong>trước khi thanh toán cọc</strong>: không mất phí.</li>
+        <li>Hủy đơn <strong>sau khi đã cọc</strong>: khoản cọc thuộc về công ty và không được hoàn.</li>
+        <li>Trường hợp công ty/tài xế hủy do lỗi từ phía nền tảng: khách được hoàn cọc theo quy trình xử lý thủ công.</li>
+      </ul>
+
+      <h3>6. Trách nhiệm và khiếu nại</h3>
+      <p>Khách hàng nên kiểm tra đồ đạc ngay khi nhận. Nếu phát hiện hư hỏng hoặc thất lạc, khách có thể gửi khiếu nại kèm ảnh bằng chứng trong <strong>khoảng thời gian bảo lưu (escrow) sau khi đơn hoàn thành</strong>. Quản lý sẽ xem xét và quyết định mức bồi thường; tài xế chịu trách nhiệm bồi thường phần thiệt hại được kết luận.</p>
+
+      <h3>7. Hành vi bị cấm</h3>
+      <p>Nghiêm cấm sử dụng nền tảng cho mục đích trái pháp luật, gian lận thanh toán, quấy rối tài xế/khách hàng, hoặc vận chuyển hàng hóa bị cấm.</p>
+
+      <h3>8. Giới hạn trách nhiệm</h3>
+      <p>Move_home nỗ lực đảm bảo chất lượng dịch vụ nhưng không chịu trách nhiệm cho các tổn thất gián tiếp nằm ngoài phạm vi vận chuyển. Đây là sản phẩm được xây dựng trong khuôn khổ đồ án học tập (SWP – FPT University) nhằm mục đích trình diễn; các luồng thanh toán sử dụng môi trường thử nghiệm (VNPay Sandbox).</p>
+
+      <h3>9. Thay đổi điều khoản</h3>
+      <p>Chúng tôi có thể cập nhật điều khoản theo thời gian. Việc tiếp tục sử dụng dịch vụ đồng nghĩa bạn chấp nhận các thay đổi.</p>
+
+      <h3>10. Liên hệ</h3>
+      <p>Mọi thắc mắc vui lòng liên hệ qua email hỗ trợ của Move_home.</p>
+    </div>
+    <div class="legal-modal-footer">
+      <button type="button" class="btn-primary" data-close-legal>Đã hiểu</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Chính sách bảo mật -->
+<div class="legal-overlay" id="privacy-overlay" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+  <div class="legal-modal">
+    <div class="legal-modal-header">
+      <h2 id="privacy-title">Chính sách bảo mật</h2>
+      <button type="button" class="legal-close" data-close-legal aria-label="Đóng">&times;</button>
+    </div>
+    <div class="legal-modal-body">
+      <p class="legal-updated">Cập nhật lần cuối: 11/07/2026</p>
+
+      <h3>1. Thông tin chúng tôi thu thập</h3>
+      <ul>
+        <li><strong>Thông tin tài khoản:</strong> họ tên, email, số điện thoại, ảnh đại diện.</li>
+        <li><strong>Thông tin đơn hàng:</strong> địa chỉ điểm đón/điểm trả, thời gian hẹn, ghi chú.</li>
+        <li><strong>Thông tin thanh toán:</strong> xử lý qua VNPay; chúng tôi <strong>không lưu số thẻ/tài khoản ngân hàng</strong> của bạn.</li>
+        <li><strong>Ảnh bằng chứng khiếu nại</strong> (nếu bạn gửi khiếu nại).</li>
+      </ul>
+
+      <h3>2. Mục đích sử dụng</h3>
+      <p>Dữ liệu được dùng để cung cấp dịch vụ, tính báo giá, kết nối bạn với tài xế phù hợp, xử lý thanh toán, liên lạc về đơn hàng và giải quyết khiếu nại.</p>
+
+      <h3>3. Lưu trữ và bảo mật</h3>
+      <ul>
+        <li>Mật khẩu được <strong>mã hóa một chiều bằng BCrypt</strong> — chúng tôi không lưu và không thể xem mật khẩu gốc của bạn.</li>
+        <li>Dữ liệu được lưu trên hạ tầng đám mây (cơ sở dữ liệu PostgreSQL); hình ảnh lưu trên dịch vụ Cloudinary với đường dẫn có chữ ký bảo mật.</li>
+        <li>Kết nối giữa trình duyệt và máy chủ được khuyến nghị mã hóa qua HTTPS.</li>
+      </ul>
+
+      <h3>4. Chia sẻ thông tin</h3>
+      <p>Khi một đơn được phân công, tài xế nhận đơn có thể thấy thông tin liên hệ cần thiết (tên, số điện thoại, địa chỉ) để thực hiện chuyến. Thông tin thanh toán được chia sẻ với VNPay để xử lý giao dịch. Chúng tôi <strong>không bán</strong> dữ liệu cá nhân của bạn cho bên thứ ba vì mục đích quảng cáo.</p>
+
+      <h3>5. Lưu trữ cục bộ (localStorage)</h3>
+      <p>Sau khi đăng nhập, trình duyệt lưu mã phiên (token) trong localStorage để duy trì đăng nhập. Bạn có thể đăng xuất để xóa các mã này.</p>
+
+      <h3>6. Quyền của bạn</h3>
+      <p>Bạn có thể xem và chỉnh sửa thông tin hồ sơ trong trang tài khoản, hoặc yêu cầu hỗ trợ để cập nhật/xóa dữ liệu.</p>
+
+      <h3>7. Thời gian lưu trữ</h3>
+      <p>Dữ liệu giao dịch được lưu để phục vụ đối soát và tra cứu lịch sử. Một số bản ghi áp dụng cơ chế xóa mềm nhằm giữ toàn vẹn lịch sử đơn hàng.</p>
+
+      <h3>8. Bối cảnh học thuật</h3>
+      <p>Đây là sản phẩm đồ án môn học (SWP – FPT University) phục vụ mục đích trình diễn; vui lòng không nhập thông tin nhạy cảm thật.</p>
+
+      <h3>9. Liên hệ</h3>
+      <p>Mọi thắc mắc về quyền riêng tư vui lòng liên hệ qua email hỗ trợ của Move_home.</p>
+    </div>
+    <div class="legal-modal-footer">
+      <button type="button" class="btn-primary" data-close-legal>Đã hiểu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mở/đóng modal điều khoản & chính sách (không rời trang) -->
+<script>
+  (function () {
+    const termsOverlay = document.getElementById('terms-overlay');
+    const privacyOverlay = document.getElementById('privacy-overlay');
+
+    function openLegal(overlay) {
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeAll() {
+      termsOverlay.classList.remove('open');
+      privacyOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('open-terms')?.addEventListener('click', (e) => { e.preventDefault(); openLegal(termsOverlay); });
+    document.getElementById('open-privacy')?.addEventListener('click', (e) => { e.preventDefault(); openLegal(privacyOverlay); });
+
+    document.querySelectorAll('[data-close-legal]').forEach(btn => btn.addEventListener('click', closeAll));
+    [termsOverlay, privacyOverlay].forEach(ov => ov.addEventListener('click', (e) => { if (e.target === ov) closeAll(); }));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAll(); });
+  })();
+</script>
 
 <!-- auth.js và api.js là ES modules — load qua type="module" import -->
 <script type="module">

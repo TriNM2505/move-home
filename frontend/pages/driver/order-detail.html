@@ -322,6 +322,10 @@
                 <strong id="cust-rating">4,8/5</strong>
               </div>
             </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;">
+              <a id="chat-cust-btn" class="btn-secondary" style="padding:8px 14px;font-size:var(--font-size-body-sm);">💬 Nhắn tin khách hàng</a>
+              <a id="chat-mgr-btn" class="btn-subtle" style="padding:8px 14px;font-size:var(--font-size-body-sm);">Nhắn tin quản lý</a>
+            </div>
           </section>
 
           <!-- Address Route Card -->
@@ -786,5 +790,17 @@
 </script>
 <!-- JS Common + Bell Dropdown -->
 <script type="module" src="../../js/driver-common.js"></script>
+<!-- Chat: badge tin nhan + nut nhan tin khach/quan ly theo don -->
+<script>
+  (function () {
+    var id = new URLSearchParams(window.location.search).get('id');
+    if (!id) return;
+    var c = document.getElementById('chat-cust-btn');
+    var m = document.getElementById('chat-mgr-btn');
+    if (c) c.href = '../messages.html?open=1&type=CUSTOMER_DRIVER&orderId=' + encodeURIComponent(id);
+    if (m) m.href = '../messages.html?open=1&type=MANAGER_DRIVER&orderId=' + encodeURIComponent(id);
+  })();
+</script>
+<script src="../../js/chat-badge.js"></script>
 </body>
 </html>

@@ -14,10 +14,12 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.SmartTransactionObject;
+import vn.movehome.backend.dispute.DisputeService;
 import vn.movehome.backend.driver.DriverOrderService;
 import vn.movehome.backend.driver.finance.DriverEarningService;
 import vn.movehome.backend.order.event.OrderStatusChangedEvent;
 import vn.movehome.backend.repository.DriverProfileRepository;
+import vn.movehome.backend.service.NotificationService;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -79,21 +81,19 @@ class OrderStatusEventTransactionTest {
     }
 
     @Test
-    void startPublishesOneCompleteEventAfterCommit() {
+    void markArrivedSetsArrivedAtWithoutPublishingEvent() {
         UUID orderId = UUID.randomUUID();
         UUID customerId = UUID.randomUUID();
         UUID driverId = UUID.randomUUID();
         ServiceOrder order = order(orderId, customerId, driverId, "ACCEPTED");
         when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
 
-        driverOrderService.startOrder(driverId, "DRIVER", orderId);
+        driverOrderService.markArrived(driverId, "DRIVER", orderId);
 
-        assertThat(order.getStatus()).isEqualTo("IN_PROGRESS");
-        assertThat(order.getStartedAt()).isNotNull();
-        assertEvent(orderId, customerId, driverId, "ACCEPTED", "IN_PROGRESS", driverId, "DRIVER");
-        assertThat(eventCollector.events())
-                .singleElement()
-                .satisfies(event -> assertThat(order.getStartedAt()).isEqualTo(event.changedAt()));
+        // "Da den diem don" chi ghi arrived_at — KHONG doi status, KHONG ban event
+        assertThat(order.getStatus()).isEqualTo("ACCEPTED");
+        assertThat(order.getArrivedAt()).isNotNull();
+        assertThat(eventCollector.events()).isEmpty();
         verify(orderRepository).save(order);
     }
 
@@ -216,6 +216,16 @@ class OrderStatusEventTransactionTest {
         }
 
         @Bean
+        NotificationService notificationService() {
+            return mock(NotificationService.class);
+        }
+
+        @Bean
+        DisputeService disputeService() {
+            return mock(DisputeService.class);
+        }
+
+        @Bean
         OrderStatusTransitionService orderStatusTransitionService(
                 OrderRepository orderRepository,
                 ApplicationEventPublisher eventPublisher
@@ -227,9 +237,11 @@ class OrderStatusEventTransactionTest {
         DriverOrderService driverOrderService(
                 OrderRepository orderRepository,
                 OrderStatusTransitionService transitionService,
-                DriverEarningService driverEarningService
+                DriverEarningService driverEarningService,
+                NotificationService notificationService
         ) {
-            return new DriverOrderService(orderRepository, transitionService, driverEarningService);
+            return new DriverOrderService(
+                    orderRepository, transitionService, driverEarningService, notificationService);
         }
 
         @Bean
@@ -237,13 +249,15 @@ class OrderStatusEventTransactionTest {
                 OrderRepository orderRepository,
                 OrderStatusTransitionService transitionService,
                 OrderRatingRepository orderRatingRepository,
-                DriverProfileRepository driverProfileRepository
+                DriverProfileRepository driverProfileRepository,
+                DisputeService disputeService
         ) {
             return new CustomerOrderActionService(
                     orderRepository,
                     transitionService,
                     orderRatingRepository,
-                    driverProfileRepository);
+                    driverProfileRepository,
+                    disputeService);
         }
 
         @Bean

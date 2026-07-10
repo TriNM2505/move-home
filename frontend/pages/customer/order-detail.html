@@ -131,6 +131,10 @@
           <div class="card-elevated">
             <h2>Tài xế</h2>
             <p id="d-driver" class="text-muted">Chưa có tài xế nhận đơn.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+              <a id="chat-driver-btn" class="btn-secondary" style="padding:8px 14px;font-size:var(--font-size-body-sm);">💬 Nhắn tin tài xế</a>
+              <a href="../messages.html?open=1&amp;type=CUSTOMER_MANAGER" class="btn-subtle" style="padding:8px 14px;font-size:var(--font-size-body-sm);">Liên hệ hỗ trợ</a>
+            </div>
 
             <div id="verify-block" style="display:none;margin-top:12px;">
               <p class="text-muted" style="font-size:var(--font-size-body-sm);margin-bottom:10px;">
@@ -151,6 +155,7 @@
                 </figure>
               </div>
               <div id="verify-error" style="color:var(--color-danger);display:none;margin:8px 0;font-size:var(--font-size-body-sm);"></div>
+              <p id="verify-hint" style="margin:8px 0 0;font-size:var(--font-size-body-sm);color:var(--color-body);"></p>
               <div id="verify-actions" style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
                 <button id="verify-ok-btn" class="btn-primary" style="flex:1;justify-content:center;">✓ Đúng người/xe</button>
                 <button id="verify-mismatch-btn" class="btn-danger" style="flex:1;justify-content:center;">✕ Không đúng</button>
@@ -424,6 +429,11 @@
   }
 
   // Tai anh xac thuc tai xe (chan dung + xe) khi don da ACCEPTED, de khach doi chieu
+  let verifyPollTimer = null;
+  function stopVerifyPoll() {
+    if (verifyPollTimer) { clearInterval(verifyPollTimer); verifyPollTimer = null; }
+  }
+
   async function loadVerification(id) {
     try {
       const v = await getAuthenticated(`/api/customer/orders/${id}/driver-verification`);
@@ -434,7 +444,20 @@
       if (v.vehicle_photo_url) { veh.src = v.vehicle_photo_url; document.getElementById('verify-vehicle-link').href = v.vehicle_photo_url; }
       else { veh.alt = 'Chưa có ảnh xe'; }
       document.getElementById('verify-plate').textContent = v.vehicle_plate || '—';
-      if (!v.cancellable) document.getElementById('verify-actions').style.display = 'none';
+
+      // Backend: cancellable = (ACCEPTED && tài xế ĐÃ đến điểm đón). Chỉ khi đó mới cho xác nhận/báo sai.
+      const canVerify = !!v.cancellable;
+      const actions = document.getElementById('verify-actions');
+      const hint = document.getElementById('verify-hint');
+      if (canVerify) {
+        if (actions) actions.style.display = 'flex';
+        if (hint) hint.textContent = 'Tài xế đã đến điểm đón. Hãy đối chiếu người/xe với ảnh rồi xác nhận.';
+        stopVerifyPoll();
+      } else {
+        if (actions) actions.style.display = 'none';
+        if (hint) hint.textContent = 'Tài xế đang trên đường đến. Bạn xem trước ảnh; nút xác nhận sẽ mở khi tài xế đến nơi.';
+        if (!verifyPollTimer) verifyPollTimer = setInterval(() => loadVerification(id), 8000);
+      }
       document.getElementById('verify-block').style.display = 'block';
     } catch (e) {
       console.error('Không tải được ảnh xác thực tài xế:', e);
@@ -448,9 +471,21 @@
     const confirmBtn = document.getElementById('mismatch-confirm-btn');
     const errEl = document.getElementById('verify-error');
 
-    document.getElementById('verify-ok-btn')?.addEventListener('click', () => {
-      actions.style.display = 'none';
-      if (okMsg) okMsg.style.display = 'block';
+    document.getElementById('verify-ok-btn')?.addEventListener('click', async () => {
+      const okBtn = document.getElementById('verify-ok-btn');
+      okBtn.disabled = true;
+      if (errEl) errEl.style.display = 'none';
+      try {
+        // Xác nhận đúng tài xế/xe → đơn sang IN_PROGRESS (bắt đầu chuyến)
+        await putAuthenticated(`/api/customer/orders/${id}/confirm-driver`, null);
+        actions.style.display = 'none';
+        if (okMsg) okMsg.style.display = 'block';
+        stopVerifyPoll();
+        setTimeout(() => location.reload(), 1000);
+      } catch (e) {
+        okBtn.disabled = false;
+        if (errEl) { errEl.textContent = e.message || 'Không thể xác nhận. Vui lòng thử lại.'; errEl.style.display = 'block'; }
+      }
     });
     document.getElementById('verify-mismatch-btn')?.addEventListener('click', () => {
       actions.style.display = 'none';
@@ -670,5 +705,14 @@
 </script>
 <!-- JS Common + Bell Dropdown -->
 <script type="module" src="../../js/customer-common.js"></script>
+<!-- Chat: badge tin nhan + nut nhan tin tai xe theo don -->
+<script>
+  (function () {
+    var id = new URLSearchParams(window.location.search).get('id');
+    var b = document.getElementById('chat-driver-btn');
+    if (b && id) b.href = '../messages.html?open=1&type=CUSTOMER_DRIVER&orderId=' + encodeURIComponent(id);
+  })();
+</script>
+<script src="../../js/chat-badge.js"></script>
 </body>
 </html>

@@ -120,6 +120,59 @@ public class DriverEarningService {
                 driverId, OffsetDateTime.now(ZoneOffset.UTC), order.getId(), earning, platformFee);
     }
 
+    /**
+     * Den bu khi khach KHONG co mat tai diem don (no-show): cong toan bo coc (30% total) vao vi tai xe.
+     * Cong ty bo hoa hong chuyen hong (leader chot). Idempotent theo don.
+     * AC-08 BigDecimal scale 0; AC-13 ghi transaction kem balance_after; HR-18 chi cong (khong lam am).
+     */
+    @Transactional
+    public void creditNoShowCompensation(ServiceOrder order) {
+        validateNoShowOrder(order);
+        UUID driverId = order.getDriverId();
+        driverWalletRepository.insertIfMissing(driverId);
+        DriverWallet wallet = findWalletForUpdate(driverId);
+
+        if (transactionRepository.existsByTypeAndRelatedOrderId(TransactionType.DRIVER_EARNING, order.getId())) {
+            log.info("no_show_compensation_idempotent_skip order_id={} driver_id={}", order.getId(), driverId);
+            return;
+        }
+
+        BigDecimal deposit = money(order.getTotalQuote())
+                .multiply(normalizeCommissionRate(order.getCommissionRateSnapshot()))
+                .setScale(0, RoundingMode.FLOOR);
+
+        BigDecimal after = money(wallet.getBalance()).add(deposit).setScale(0);
+        wallet.setBalance(after);
+        wallet.setTotalEarned(money(wallet.getTotalEarned()).add(deposit));
+        driverWalletRepository.save(wallet);
+
+        transactionRepository.saveAndFlush(Transaction.builder()
+                .userId(driverId)
+                .type(TransactionType.DRIVER_EARNING)
+                .amount(deposit)
+                .relatedOrderId(order.getId())
+                .balanceAfter(after)
+                .description("Đền bù khách không có mặt tại điểm đón (giữ cọc) đơn " + order.getOrderCode())
+                .build());
+
+        log.info("no_show_compensation order_id={} driver_id={} deposit={}", order.getId(), driverId, deposit);
+    }
+
+    private void validateNoShowOrder(ServiceOrder order) {
+        if (order == null || order.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "VALIDATION_ERROR|Đơn hàng không hợp lệ.");
+        }
+        if (order.getDriverId() == null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "ORDER_DRIVER_REQUIRED|Đơn hàng chưa có tài xế nhận.");
+        }
+        if (order.getTotalQuote() == null) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "VALIDATION_ERROR|Đơn hàng chưa có tổng tiền hợp lệ.");
+        }
+    }
+
     @Transactional
     public DriverWalletSummaryResponse getWallet(UUID driverId) {
         driverWalletRepository.insertIfMissing(driverId);
