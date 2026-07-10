@@ -62,6 +62,14 @@ public class User implements UserDetails {
     @Column(length = 20)
     private String phone;
 
+    // Anh dai dien upload qua Cloudinary signed upload server-side (AC-10). NULL = chua co avatar.
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
+
+    // Cloudinary public_id cua avatar — de destroy anh cu khi user thay avatar moi (AC-10 cleanup)
+    @Column(name = "avatar_public_id", length = 255)
+    private String avatarPublicId;
+
     @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
 

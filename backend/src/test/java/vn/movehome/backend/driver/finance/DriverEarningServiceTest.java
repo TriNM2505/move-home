@@ -49,6 +49,9 @@ class DriverEarningServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private vn.movehome.backend.repository.NotificationRepository notificationRepository;
+
     private DriverEarningService service;
 
     @BeforeEach
@@ -58,7 +61,8 @@ class DriverEarningServiceTest {
                 withdrawalRequestRepository,
                 transactionRepository,
                 userRepository,
-                orderRepository);
+                orderRepository,
+                notificationRepository);
     }
 
     @Test
@@ -178,7 +182,7 @@ class DriverEarningServiceTest {
 
         assertThatThrownBy(() -> service.createWithdrawal(
                 driver,
-                new CreateWithdrawalRequest(new BigDecimal("600000"))))
+                new CreateWithdrawalRequest(new BigDecimal("600000"), "VCB", "0123456789")))
                 .isInstanceOfSatisfying(ResponseStatusException.class, ex -> {
                     assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
                     assertThat(ex.getReason()).startsWith("INSUFFICIENT_AVAILABLE_BALANCE|");

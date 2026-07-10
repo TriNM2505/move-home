@@ -10,10 +10,52 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    /* CSS rieng cho trang nay (additive) — khong dung class dung chung */
+    .wd-tabs { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg); flex-wrap: wrap; }
+    .wd-tab {
+      border: 1px solid var(--color-surface-pressed); background: var(--color-canvas);
+      color: var(--color-ink); padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--rounded-pill); font-weight: 500; cursor: pointer;
+      font-size: var(--font-size-body-sm); transition: all 150ms;
+    }
+    .wd-tab.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+    .wd-badge-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 20px; padding: 0 6px; margin-left: 6px;
+      border-radius: 999px; background: var(--color-accent); color: #1A1A1A;
+      font-size: 12px; font-weight: 700;
+    }
+    .wd-table td, .wd-table th { padding: var(--spacing-md) var(--spacing-lg); }
+    .wd-blocking { color: var(--color-danger); font-size: var(--font-size-caption); }
+    .wd-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;
+      display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .wd-modal-overlay.open { display: flex; }
+    .wd-modal {
+      width: 100%; max-width: 480px; background: var(--color-canvas);
+      border-radius: 16px; padding: var(--spacing-2xl); box-shadow: var(--shadow-level-3);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .wd-modal-summary {
+      background: var(--color-canvas-soft); border-radius: 12px;
+      padding: var(--spacing-md) var(--spacing-lg); margin-bottom: var(--spacing-lg);
+      font-size: var(--font-size-body-sm); line-height: 1.7;
+    }
+    .wd-field-error { color: var(--color-danger); font-size: var(--font-size-body-sm); margin-top: 4px; display: none; }
+    .wd-toast {
+      background: var(--color-primary); color: #fff; border-radius: 12px;
+      padding: 12px 20px; margin-top: 8px; box-shadow: var(--shadow-level-2);
+      font-size: var(--font-size-body-sm); animation: wd-toast-in 200ms ease;
+    }
+    @keyframes wd-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
 </head>
 <body>
 
-<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false"></div>
+<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false"
+     style="position: fixed; bottom: 24px; right: 24px; z-index: 1100;"></div>
 
 <div class="site-layout">
 
@@ -99,22 +141,97 @@
         <header class="page-header">
           <span class="eyebrow">Quản trị tài chính</span>
           <h1 class="page-title">Yêu cầu rút tiền</h1>
-          <p class="page-subtitle">Quản lý yêu cầu rút tiền từ tài xế</p>
+          <p class="page-subtitle">Duyệt và theo dõi yêu cầu rút tiền của tài xế. Chuyển khoản thủ công rồi xác nhận tại đây.</p>
         </header>
 
-        <section class="empty-state-card" aria-label="Trạng thái tính năng rút tiền">
-          <div class="empty-state-icon" aria-hidden="true" style="font-size: 0; line-height: 0;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: var(--spacing-lg);">
-              <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
-              <path d="M4 6v12a2 2 0 0 0 2 2h14v-4"></path>
-              <path d="M18 12a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4v-6h-4z"></path>
-            </svg>
+        <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-lg);"></div>
+
+        <!-- KPI ROW -->
+        <section class="grid-3 mb-8" id="kpi-section" style="margin-bottom: var(--spacing-xl);">
+          <div class="kpi kpi-warning">
+            <div class="kpi-body">
+              <div class="kpi-value" id="kpi-pending-count">—</div>
+              <div class="kpi-label">Yêu cầu chờ duyệt</div>
+              <div class="kpi-sub" id="kpi-over-sla">—</div>
+            </div>
           </div>
-          <h2 class="empty-state-headline">Tính năng đang phát triển</h2>
-          <p class="empty-state-body">
-            Tính năng rút tiền sẽ được phát hành trong Sprint 5. Tài xế sẽ có thể yêu cầu rút tiền sau khi tích lũy thu nhập từ các đơn hàng đã hoàn thành.
-          </p>
-          <p class="empty-state-meta">Dự kiến ra mắt: Tuần 4 của dự án</p>
+          <div class="kpi kpi-primary">
+            <div class="kpi-body">
+              <div class="kpi-value" id="kpi-pending-amount">—</div>
+              <div class="kpi-label">Tổng tiền chờ chi</div>
+              <div class="kpi-sub">Cần chuẩn bị để chuyển khoản</div>
+            </div>
+          </div>
+          <div class="kpi kpi-danger">
+            <div class="kpi-body">
+              <div class="kpi-value" id="kpi-oldest-days">—</div>
+              <div class="kpi-label">Chờ lâu nhất (ngày)</div>
+              <div class="kpi-sub">Cam kết xử lý trong 24 giờ</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TABS -->
+        <div class="wd-tabs" role="tablist">
+          <button class="wd-tab active" id="tab-pending" role="tab">Chờ duyệt<span class="wd-badge-count" id="tab-pending-count" style="display:none;">0</span></button>
+          <button class="wd-tab" id="tab-history" role="tab">Lịch sử</button>
+        </div>
+
+        <!-- PENDING PANEL -->
+        <section id="panel-pending" class="card" style="border: none; border-radius: 16px; box-shadow: var(--shadow-level-1); overflow: hidden;">
+          <div class="table-wrapper" style="border: none; box-shadow: none; overflow-x: auto;">
+            <table class="table wd-table" style="min-width: 980px; width: 100%; margin-bottom: 0;">
+              <thead>
+                <tr style="background: var(--color-canvas-soft); text-align: left;">
+                  <th>Tài xế</th>
+                  <th>Số tiền</th>
+                  <th>Ngân hàng nhận</th>
+                  <th>Ngày yêu cầu</th>
+                  <th>Số dư ví</th>
+                  <th style="text-align: right;">Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="pending-table-body"></tbody>
+            </table>
+          </div>
+          <div id="pending-state" style="padding: var(--spacing-lg);"></div>
+          <div class="card-footer" style="border-top: 1px solid var(--color-surface-pressed); padding: var(--spacing-md) var(--spacing-2xl);">
+            <div id="pending-pagination"></div>
+          </div>
+        </section>
+
+        <!-- HISTORY PANEL -->
+        <section id="panel-history" class="card" style="display: none; border: none; border-radius: 16px; box-shadow: var(--shadow-level-1); overflow: hidden;">
+          <div style="padding: var(--spacing-md) var(--spacing-2xl); border-bottom: 1px solid var(--color-surface-pressed); display: flex; gap: var(--spacing-md); align-items: center; flex-wrap: wrap;">
+            <label class="form-label" for="history-status-filter" style="margin: 0;">Trạng thái:</label>
+            <select class="text-input" id="history-status-filter" style="width: auto; min-width: 160px;">
+              <option value="ALL">Tất cả</option>
+              <option value="PENDING">Đang chờ</option>
+              <option value="PROCESSED">Đã chuyển khoản</option>
+              <option value="REJECTED">Đã từ chối</option>
+            </select>
+          </div>
+          <div class="table-wrapper" style="border: none; box-shadow: none; overflow-x: auto;">
+            <table class="table wd-table" style="min-width: 980px; width: 100%; margin-bottom: 0;">
+              <thead>
+                <tr style="background: var(--color-canvas-soft); text-align: left;">
+                  <th>Tài xế</th>
+                  <th>Số tiền</th>
+                  <th>Ngân hàng nhận</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày yêu cầu</th>
+                  <th>Ngày xử lý</th>
+                  <th>Người xử lý</th>
+                  <th>Mã CK</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body"></tbody>
+            </table>
+          </div>
+          <div id="history-state" style="padding: var(--spacing-lg);"></div>
+          <div class="card-footer" style="border-top: 1px solid var(--color-surface-pressed); padding: var(--spacing-md) var(--spacing-2xl);">
+            <div id="history-pagination"></div>
+          </div>
         </section>
 
       </div>
@@ -122,6 +239,376 @@
 
   </div>
 </div>
+
+<!-- MODAL: DUYỆT (xác nhận đã chuyển khoản) -->
+<div class="wd-modal-overlay" id="process-modal">
+  <div class="wd-modal">
+    <h3 style="font-size: var(--font-size-display-sm); font-weight: 700; margin: 0 0 var(--spacing-lg);">Xác nhận đã chuyển khoản</h3>
+    <div class="wd-modal-summary" id="process-summary"></div>
+    <div class="form-group">
+      <label class="form-label" for="process-bank-ref">Mã giao dịch ngân hàng <span style="color: var(--color-danger);">*</span></label>
+      <input class="text-input" id="process-bank-ref" placeholder="VD: FT20260710123456" maxlength="100">
+      <p class="wd-field-error" id="process-bank-ref-error"></p>
+      <p style="color: var(--color-body); font-size: var(--font-size-caption); margin-top: 4px;">Mã tham chiếu trên biên lai chuyển khoản (6–100 ký tự chữ, số, . _ / -).</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="process-note">Ghi chú (không bắt buộc)</label>
+      <input class="text-input" id="process-note" maxlength="500" placeholder="Ghi chú nội bộ...">
+    </div>
+    <div style="display: flex; gap: var(--spacing-md); justify-content: flex-end; margin-top: var(--spacing-lg);">
+      <button class="btn-secondary" id="process-cancel-btn">Hủy</button>
+      <button class="btn-primary" id="process-confirm-btn">Xác nhận đã chuyển</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: TỪ CHỐI -->
+<div class="wd-modal-overlay" id="reject-modal">
+  <div class="wd-modal">
+    <h3 style="font-size: var(--font-size-display-sm); font-weight: 700; margin: 0 0 var(--spacing-lg);">Từ chối yêu cầu rút tiền</h3>
+    <div class="wd-modal-summary" id="reject-summary"></div>
+    <div class="form-group">
+      <label class="form-label" for="reject-reason">Lý do từ chối <span style="color: var(--color-danger);">*</span></label>
+      <textarea class="text-input" id="reject-reason" rows="3" maxlength="500" placeholder="Nhập lý do từ chối (tối thiểu 10 ký tự) — tài xế sẽ nhận được thông báo kèm lý do này."></textarea>
+      <p class="wd-field-error" id="reject-reason-error"></p>
+    </div>
+    <div style="display: flex; gap: var(--spacing-md); justify-content: flex-end; margin-top: var(--spacing-lg);">
+      <button class="btn-secondary" id="reject-cancel-btn">Hủy</button>
+      <button class="btn-primary" id="reject-confirm-btn" style="background: var(--color-danger); border-color: var(--color-danger);">Từ chối yêu cầu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ES Module Script -->
+<script type="module">
+  import { setupAdminPage, formatVnd, formatDateTime, renderPagination, renderEmpty, renderError, renderLoading, esc, showError, hideError } from '../../js/admin-common.js';
+  import { getAuthenticated, postAuthenticated } from '../../js/api.js';
+
+  let pendingPage = 0, pendingSize = 20;
+  let historyPage = 0, historySize = 20, historyStatus = 'ALL';
+  let activeItem = null; // yeu cau dang duoc thao tac trong modal
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!setupAdminPage('../login.html')) return;
+
+    // Tabs
+    document.getElementById('tab-pending').addEventListener('click', () => switchTab('pending'));
+    document.getElementById('tab-history').addEventListener('click', () => switchTab('history'));
+
+    // History filter
+    document.getElementById('history-status-filter').addEventListener('change', (e) => {
+      historyStatus = e.target.value;
+      loadHistory(0, historySize);
+    });
+
+    // Modal buttons
+    document.getElementById('process-cancel-btn').addEventListener('click', () => closeModal('process-modal'));
+    document.getElementById('reject-cancel-btn').addEventListener('click', () => closeModal('reject-modal'));
+    document.getElementById('process-confirm-btn').addEventListener('click', confirmProcess);
+    document.getElementById('reject-confirm-btn').addEventListener('click', confirmReject);
+    for (const id of ['process-modal', 'reject-modal']) {
+      const overlay = document.getElementById(id);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(id); });
+    }
+
+    loadPending(0, pendingSize);
+  });
+
+  function switchTab(tab) {
+    document.getElementById('tab-pending').classList.toggle('active', tab === 'pending');
+    document.getElementById('tab-history').classList.toggle('active', tab === 'history');
+    document.getElementById('panel-pending').style.display = tab === 'pending' ? 'block' : 'none';
+    document.getElementById('panel-history').style.display = tab === 'history' ? 'block' : 'none';
+    if (tab === 'pending') loadPending(pendingPage, pendingSize);
+    else loadHistory(historyPage, historySize);
+  }
+
+  // ===== TAB CHỜ DUYỆT =====
+
+  async function loadPending(page, size) {
+    pendingPage = page; pendingSize = size;
+    hideError();
+    const tbody = document.getElementById('pending-table-body');
+    const stateEl = document.getElementById('pending-state');
+    tbody.innerHTML = '';
+    renderLoading(stateEl, 'Đang tải danh sách chờ duyệt...');
+
+    try {
+      const data = await getAuthenticated(`/api/admin/withdrawals/pending?page=${page}&size=${size}`);
+
+      // KPI
+      document.getElementById('kpi-pending-count').textContent = data.pendingCount ?? 0;
+      document.getElementById('kpi-pending-amount').textContent = formatVnd(data.pendingAmount ?? 0);
+      document.getElementById('kpi-oldest-days').textContent = data.oldestWaitingDays ?? 0;
+      document.getElementById('kpi-over-sla').textContent =
+        (data.overSlaCount ?? 0) > 0 ? `${data.overSlaCount} yêu cầu quá hạn 24 giờ` : 'Không có yêu cầu quá hạn';
+      const countBadge = document.getElementById('tab-pending-count');
+      countBadge.textContent = data.pendingCount ?? 0;
+      countBadge.style.display = (data.pendingCount ?? 0) > 0 ? 'inline-flex' : 'none';
+
+      stateEl.innerHTML = '';
+      if (!data.content || data.content.length === 0) {
+        renderEmpty(stateEl, 'Không có yêu cầu rút tiền nào đang chờ duyệt');
+        document.getElementById('pending-pagination').innerHTML = '';
+        return;
+      }
+
+      for (const item of data.content) {
+        tbody.appendChild(buildPendingRow(item));
+      }
+
+      renderPagination('pending-pagination',
+        { totalElements: data.totalElements, totalPages: data.totalPages, number: data.page, size: data.size },
+        (p) => loadPending(p, pendingSize),
+        (s) => loadPending(0, s),
+        'yêu cầu');
+    } catch (err) {
+      console.error(err);
+      renderError(stateEl, cleanMessage(err.message) || 'Không thể tải danh sách chờ duyệt.');
+    }
+  }
+
+  function buildPendingRow(item) {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid var(--color-surface-pressed)';
+
+    const blocking = (item.blockingReasons || []).map(mapBlockingReason).filter(Boolean);
+    const waitingText = item.daysWaiting > 0 ? `${item.daysWaiting} ngày trước` : 'Hôm nay';
+
+    tr.innerHTML = `
+      <td>
+        <strong>${esc(item.driverName)}</strong>
+        <div style="color: var(--color-body); font-size: var(--font-size-caption);">${esc(item.driverPhone)}</div>
+      </td>
+      <td style="font-weight: 700;">${formatVnd(item.amount)}</td>
+      <td>
+        ${esc(item.bankName)}
+        <div style="color: var(--color-body); font-size: var(--font-size-caption); font-family: monospace;">${esc(item.bankAccountMasked)}</div>
+      </td>
+      <td>
+        ${formatDateTime(item.requestedAt)}
+        <div style="color: ${item.daysWaiting >= 1 ? 'var(--color-danger)' : 'var(--color-body)'}; font-size: var(--font-size-caption);">${waitingText}</div>
+      </td>
+      <td>${formatVnd(item.walletBalance)}</td>
+      <td style="text-align: right; white-space: nowrap;"></td>
+    `;
+
+    const actionCell = tr.lastElementChild;
+    if (item.processReady) {
+      const approveBtn = document.createElement('button');
+      approveBtn.className = 'btn-primary';
+      approveBtn.style.cssText = 'padding: 6px 14px; font-size: var(--font-size-body-sm); margin-right: 8px;';
+      approveBtn.textContent = 'Duyệt';
+      approveBtn.addEventListener('click', () => openProcessModal(item));
+      actionCell.appendChild(approveBtn);
+    } else {
+      const warn = document.createElement('div');
+      warn.className = 'wd-blocking';
+      warn.textContent = blocking.join('; ');
+      actionCell.appendChild(warn);
+    }
+    const rejectBtn = document.createElement('button');
+    rejectBtn.className = 'btn-secondary';
+    rejectBtn.style.cssText = 'padding: 6px 14px; font-size: var(--font-size-body-sm); color: var(--color-danger); border-color: var(--color-danger);';
+    rejectBtn.textContent = 'Từ chối';
+    rejectBtn.addEventListener('click', () => openRejectModal(item));
+    actionCell.appendChild(rejectBtn);
+
+    return tr;
+  }
+
+  function mapBlockingReason(code) {
+    const map = {
+      DRIVER_NOT_FOUND: 'Không tìm thấy tài xế',
+      DRIVER_NOT_ACTIVE: 'Tài xế không còn hoạt động',
+      INSUFFICIENT_CURRENT_BALANCE: 'Số dư ví không đủ',
+      BANK_ACCOUNT_MISSING: 'Thiếu số tài khoản ngân hàng',
+    };
+    return map[code] || code;
+  }
+
+  // ===== MODAL DUYỆT =====
+
+  function openProcessModal(item) {
+    activeItem = item;
+    document.getElementById('process-summary').innerHTML = `
+      Tài xế: <strong>${esc(item.driverName)}</strong> — ${esc(item.driverPhone)}<br>
+      Số tiền: <strong>${formatVnd(item.amount)}</strong><br>
+      Chuyển đến: <strong>${esc(item.bankName)}</strong> — <span style="font-family:monospace;">${esc(item.bankAccountMasked)}</span><br>
+      <span style="color: var(--color-body);">Hãy chuyển khoản trước, sau đó nhập mã giao dịch để xác nhận.</span>
+    `;
+    document.getElementById('process-bank-ref').value = '';
+    document.getElementById('process-note').value = '';
+    hideFieldError('process-bank-ref-error');
+    document.getElementById('process-modal').classList.add('open');
+  }
+
+  async function confirmProcess() {
+    const refInput = document.getElementById('process-bank-ref');
+    const bankTxnRef = refInput.value.trim();
+    hideFieldError('process-bank-ref-error');
+
+    // Validate khop rule backend: 6-100 ky tu [A-Za-z0-9._/-]
+    if (!/^[A-Za-z0-9._\/-]{6,100}$/.test(bankTxnRef)) {
+      showFieldError('process-bank-ref-error', 'Mã giao dịch phải dài 6–100 ký tự, chỉ gồm chữ, số và . _ / -');
+      return;
+    }
+
+    const btn = document.getElementById('process-confirm-btn');
+    btn.disabled = true;
+    btn.textContent = 'Đang xử lý...';
+    try {
+      const note = document.getElementById('process-note').value.trim();
+      await postAuthenticated(`/api/admin/withdrawals/${activeItem.id}/process`, {
+        bankTxnRef,
+        processingNote: note || null,
+      });
+      closeModal('process-modal');
+      showToast(`Đã duyệt yêu cầu rút ${formatVnd(activeItem.amount)} của ${activeItem.driverName}.`);
+      loadPending(pendingPage, pendingSize);
+    } catch (err) {
+      console.error(err);
+      showFieldError('process-bank-ref-error', cleanMessage(err.message) || 'Không thể xử lý yêu cầu. Vui lòng thử lại.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Xác nhận đã chuyển';
+    }
+  }
+
+  // ===== MODAL TỪ CHỐI =====
+
+  function openRejectModal(item) {
+    activeItem = item;
+    document.getElementById('reject-summary').innerHTML = `
+      Tài xế: <strong>${esc(item.driverName)}</strong><br>
+      Số tiền: <strong>${formatVnd(item.amount)}</strong>
+    `;
+    document.getElementById('reject-reason').value = '';
+    hideFieldError('reject-reason-error');
+    document.getElementById('reject-modal').classList.add('open');
+  }
+
+  async function confirmReject() {
+    const reason = document.getElementById('reject-reason').value.trim().replace(/\s+/g, ' ');
+    hideFieldError('reject-reason-error');
+
+    // Validate khop rule backend: 10-500 ky tu, co it nhat 1 chu cai
+    if (reason.length < 10 || reason.length > 500 || !/[a-zA-ZÀ-ỹ]/.test(reason)) {
+      showFieldError('reject-reason-error', 'Lý do phải dài 10–500 ký tự và có nội dung chữ.');
+      return;
+    }
+
+    const btn = document.getElementById('reject-confirm-btn');
+    btn.disabled = true;
+    btn.textContent = 'Đang xử lý...';
+    try {
+      await postAuthenticated(`/api/admin/withdrawals/${activeItem.id}/reject`, { reason });
+      closeModal('reject-modal');
+      showToast(`Đã từ chối yêu cầu rút tiền của ${activeItem.driverName}.`);
+      loadPending(pendingPage, pendingSize);
+    } catch (err) {
+      console.error(err);
+      showFieldError('reject-reason-error', cleanMessage(err.message) || 'Không thể từ chối yêu cầu. Vui lòng thử lại.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Từ chối yêu cầu';
+    }
+  }
+
+  // ===== TAB LỊCH SỬ =====
+
+  async function loadHistory(page, size) {
+    historyPage = page; historySize = size;
+    const tbody = document.getElementById('history-table-body');
+    const stateEl = document.getElementById('history-state');
+    tbody.innerHTML = '';
+    renderLoading(stateEl, 'Đang tải lịch sử rút tiền...');
+
+    try {
+      const data = await getAuthenticated(
+        `/api/admin/withdrawals?page=${page}&size=${size}&status=${encodeURIComponent(historyStatus)}`);
+
+      stateEl.innerHTML = '';
+      if (!data.content || data.content.length === 0) {
+        renderEmpty(stateEl, 'Không có yêu cầu rút tiền nào');
+        document.getElementById('history-pagination').innerHTML = '';
+        return;
+      }
+
+      for (const item of data.content) {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid var(--color-surface-pressed)';
+        tr.innerHTML = `
+          <td><strong>${esc(item.driver_name)}</strong></td>
+          <td style="font-weight: 700;">${formatVnd(item.amount)}</td>
+          <td>
+            ${esc(item.bank_name)}
+            <div style="color: var(--color-body); font-size: var(--font-size-caption); font-family: monospace;">${esc(item.bank_account_masked)}</div>
+          </td>
+          <td>${statusBadge(item.status)}</td>
+          <td>${formatDateTime(item.requested_at)}</td>
+          <td>${item.processed_at ? formatDateTime(item.processed_at) : '—'}</td>
+          <td>${esc(item.processor_name)}</td>
+          <td style="font-family: monospace; font-size: var(--font-size-caption);">${esc(item.bank_txn_ref_masked)}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      renderPagination('history-pagination',
+        { totalElements: data.totalElements, totalPages: data.totalPages, number: data.number, size: data.size },
+        (p) => loadHistory(p, historySize),
+        (s) => loadHistory(0, s),
+        'yêu cầu');
+    } catch (err) {
+      console.error(err);
+      renderError(stateEl, cleanMessage(err.message) || 'Không thể tải lịch sử rút tiền.');
+    }
+  }
+
+  function statusBadge(status) {
+    switch (status) {
+      case 'PENDING': return '<span class="badge-pending">Đang chờ</span>';
+      case 'PROCESSED': return '<span class="badge-completed">Đã chuyển khoản</span>';
+      case 'REJECTED': return '<span class="badge-cancelled">Đã từ chối</span>';
+      case 'CANCELLED': return '<span class="badge-cancelled">Đã hủy</span>';
+      default: return `<span class="badge-pending">${esc(status)}</span>`;
+    }
+  }
+
+  // ===== HELPERS =====
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    activeItem = null;
+  }
+
+  function showFieldError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideFieldError(id) {
+    const el = document.getElementById(id);
+    el.textContent = '';
+    el.style.display = 'none';
+  }
+
+  // Backend tra message dang "CODE|Thong bao" -> chi lay phan thong bao
+  function cleanMessage(raw) {
+    if (!raw) return '';
+    return String(raw).split('|').pop().trim();
+  }
+
+  function showToast(msg) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'wd-toast';
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+</script>
 
 <!-- JS Common + Bell Dropdown -->
 <script type="module" src="../../js/notifications-bell.js"></script>

@@ -2,6 +2,7 @@ package vn.movehome.backend.dispute;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record DisputeDetailResponse(
@@ -18,6 +19,9 @@ public record DisputeDetailResponse(
         OffsetDateTime resolvedAt,
         OffsetDateTime createdAt,
         OffsetDateTime deadline,
+        BigDecimal pendingDeductShortfall,
+        OffsetDateTime deductDeadline,
+        List<String> photoUrls,
         OrderSummary order,
         PartySummary customer,
         PartySummary driver

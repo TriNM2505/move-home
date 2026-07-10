@@ -9,9 +9,57 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-    .customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}
-    .customer-nav a.active{color:var(--color-primary);font-weight:700}
+    /* Navbar dàn trải và chia đều khoảng cách */
+    .customer-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      gap: var(--spacing-md);
+      flex-wrap: nowrap;
+      margin: 0 var(--spacing-xl);
+    }
+
+    /* Bỏ gạch chân cho link và active link */
+    .customer-nav a {
+      color: var(--color-ink);
+      font-weight: 500;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .customer-nav a.active {
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+
+    /* Hỗ trợ responsive để tránh bị dồn ép trên màn hình trung bình/nhỏ */
+    @media (max-width: 1024px) {
+      .site-header {
+        height: auto;
+        min-height: 64px;
+        padding: var(--spacing-sm) 0;
+      }
+      .site-header-inner {
+        height: auto;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+      }
+      .customer-nav {
+        order: 3;
+        width: 100%;
+        flex: none;
+        justify-content: center;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+        margin: var(--spacing-sm) 0 0 0;
+      }
+    }
+
+    /* Căn giữa toàn bộ vùng nội dung chính */
+    .dashboard-main {
+      margin: 0 auto;
+    }
+
     .detail-grid{display:grid;grid-template-columns:1.4fr .9fr;gap:24px}
     .info-list{display:grid;gap:16px}
     .card-elevated h2{font-size:var(--font-size-body-lg);margin:0 0 12px}
@@ -34,6 +82,7 @@
         <a href="home.html">Trang chủ</a>
         <a href="booking-step1-vehicle.html">Đặt đơn</a>
         <a href="my-orders-pending.html" class="active">Đơn hàng</a>
+        <a href="my-wallet.html">Ví của tôi</a>
         <a href="my-profile.html">Tài khoản</a>
       </nav>
       <div class="site-header-actions">
@@ -152,6 +201,54 @@
             <div class="info-row"><span>Phí bốc xếp</span><strong id="d-porterfee">—</strong></div>
             <div class="info-row"><span>Tổng cộng</span><strong id="d-total">—</strong></div>
           </div>
+          <!-- Báo cáo hư hỏng — chỉ hiện khi đơn COMPLETED, chưa có khiếu nại đang mở -->
+          <div class="card-elevated" id="dispute-card" style="display:none;border-color:var(--color-danger);">
+            <h2>Báo cáo hư hỏng</h2>
+            <p class="text-muted" style="margin-bottom:12px;font-size:var(--font-size-body-sm);">
+              Nếu đồ đạc bị hư hỏng hoặc thất lạc trong quá trình vận chuyển, hãy gửi khiếu nại để quản lý xem xét bồi thường.
+            </p>
+            <button id="dispute-open-btn" class="btn-danger" style="width:100%;justify-content:center;">Báo cáo hư hỏng / khiếu nại</button>
+
+            <form id="dispute-form" style="display:none;margin-top:12px;">
+              <div class="form-group">
+                <label class="form-label" for="dispute-type">Loại khiếu nại</label>
+                <select class="text-input" id="dispute-type">
+                  <option value="DAMAGE">Hư hỏng đồ đạc</option>
+                  <option value="MISSING_ITEM">Thiếu / mất đồ</option>
+                  <option value="LATE_DELIVERY">Giao trễ hẹn</option>
+                  <option value="INAPPROPRIATE_BEHAVIOR">Thái độ không phù hợp</option>
+                  <option value="OTHER">Khác</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dispute-amount">Số tiền yêu cầu bồi thường (VND)</label>
+                <input type="number" class="text-input" id="dispute-amount" min="1" step="1" placeholder="Ví dụ: 500000">
+                <p class="text-muted" id="dispute-amount-hint" style="font-size:var(--font-size-caption);margin-top:4px;">Không vượt quá tổng tiền đơn.</p>
+                <p id="dispute-amount-error" style="color:var(--color-danger);display:none;font-size:var(--font-size-body-sm);margin-top:4px;"></p>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dispute-statement">Mô tả chi tiết</label>
+                <textarea class="text-input" id="dispute-statement" rows="3" maxlength="2000" placeholder="Mô tả tình trạng hư hỏng, thời điểm phát hiện... (tối thiểu 10 ký tự)"></textarea>
+                <p id="dispute-statement-error" style="color:var(--color-danger);display:none;font-size:var(--font-size-body-sm);margin-top:4px;"></p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ảnh bằng chứng (tối đa 3 ảnh, không bắt buộc)</label>
+                <div id="dispute-photo-previews" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;"></div>
+                <button type="button" class="btn-secondary" id="dispute-photo-btn">+ Thêm ảnh</button>
+                <input type="file" id="dispute-photo-input" accept="image/jpeg,image/png,image/webp" multiple hidden>
+                <p class="text-muted" style="font-size:var(--font-size-caption);margin-top:4px;">Ảnh JPEG/PNG/WebP, tự thu nhỏ trước khi gửi. Giúp quản lý xem rõ lỗi để xử lý.</p>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button type="submit" class="btn-danger" id="dispute-submit-btn" style="flex:1;justify-content:center;">Gửi khiếu nại</button>
+                <button type="button" class="btn-secondary" id="dispute-cancel-btn" style="flex:1;justify-content:center;">Hủy</button>
+              </div>
+            </form>
+
+            <p id="dispute-success" style="display:none;color:var(--color-success-text,#157347);font-size:var(--font-size-body-sm);margin-top:10px;">
+              ✓ Đã gửi khiếu nại. Quản lý sẽ liên hệ và xử lý. Bạn có thể theo dõi trạng thái đơn tại đây.
+            </p>
+          </div>
+
           <div class="card-elevated">
             <h2>Thao tác</h2>
             <a href="#" id="track-btn" class="btn-primary" style="display:none;margin-bottom:10px;width:100%;justify-content:center;">📍 Theo dõi tài xế trên bản đồ</a>
@@ -268,6 +365,12 @@
       const cancellable = ['PENDING', 'PENDING_PAYMENT', 'CONFIRMED'].includes(o.status);
       cancelBtn.style.display = cancellable ? 'inline-flex' : 'none';
     }
+
+    // Báo cáo hư hỏng — chỉ khi đơn COMPLETED và có tài xế (điều kiện backend tạo khiếu nại)
+    const disputeCard = document.getElementById('dispute-card');
+    if (disputeCard) {
+      disputeCard.style.display = (o.status === 'COMPLETED' && o.driverName) ? 'block' : 'none';
+    }
   }
 
   function setupCancel(id) {
@@ -370,6 +473,167 @@
     });
   }
 
+  const BASE_URL = 'http://localhost:8080';
+  const MAX_DISPUTE_PHOTOS = 3;
+
+  // Form báo cáo hư hỏng → POST /api/customer/orders/{id}/disputes (+ ảnh bằng chứng)
+  function setupDispute(id, order) {
+    const openBtn = document.getElementById('dispute-open-btn');
+    const form = document.getElementById('dispute-form');
+    const cancelBtn = document.getElementById('dispute-cancel-btn');
+    const submitBtn = document.getElementById('dispute-submit-btn');
+    const successEl = document.getElementById('dispute-success');
+    const amountErr = document.getElementById('dispute-amount-error');
+    const stmtErr = document.getElementById('dispute-statement-error');
+    const hint = document.getElementById('dispute-amount-hint');
+    const photoBtn = document.getElementById('dispute-photo-btn');
+    const photoInput = document.getElementById('dispute-photo-input');
+    const photoPreviews = document.getElementById('dispute-photo-previews');
+    const total = Number(order.totalQuote || 0);
+    if (hint && total > 0) hint.textContent = `Không vượt quá tổng tiền đơn (${total.toLocaleString('vi-VN')} VND).`;
+
+    let selectedPhotos = []; // File[] tối đa 3
+
+    openBtn?.addEventListener('click', () => {
+      openBtn.style.display = 'none';
+      form.style.display = 'block';
+    });
+    cancelBtn?.addEventListener('click', () => {
+      form.style.display = 'none';
+      openBtn.style.display = 'inline-flex';
+      amountErr.style.display = 'none';
+      stmtErr.style.display = 'none';
+    });
+
+    // Chọn ảnh bằng chứng
+    photoBtn?.addEventListener('click', () => photoInput.click());
+    photoInput?.addEventListener('change', () => {
+      for (const file of photoInput.files) {
+        if (selectedPhotos.length >= MAX_DISPUTE_PHOTOS) break;
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) continue;
+        selectedPhotos.push(file);
+      }
+      photoInput.value = '';
+      renderPhotoPreviews();
+    });
+
+    function renderPhotoPreviews() {
+      photoPreviews.innerHTML = '';
+      selectedPhotos.forEach((file, idx) => {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'position:relative;width:72px;height:72px;';
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:8px;border:1px solid var(--color-surface-pressed);';
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.textContent = '×';
+        del.style.cssText = 'position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:999px;border:none;background:var(--color-danger);color:#fff;cursor:pointer;line-height:1;';
+        del.addEventListener('click', () => { selectedPhotos.splice(idx, 1); renderPhotoPreviews(); });
+        wrap.appendChild(img);
+        wrap.appendChild(del);
+        photoPreviews.appendChild(wrap);
+      });
+      photoBtn.style.display = selectedPhotos.length >= MAX_DISPUTE_PHOTOS ? 'none' : 'inline-flex';
+    }
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      amountErr.style.display = 'none';
+      stmtErr.style.display = 'none';
+
+      const claimType = document.getElementById('dispute-type').value;
+      const amount = parseInt(document.getElementById('dispute-amount').value, 10);
+      const statement = document.getElementById('dispute-statement').value.trim();
+
+      let ok = true;
+      if (isNaN(amount) || amount <= 0) {
+        amountErr.textContent = 'Vui lòng nhập số tiền hợp lệ (lớn hơn 0).';
+        amountErr.style.display = 'block'; ok = false;
+      } else if (total > 0 && amount > total) {
+        amountErr.textContent = 'Số tiền yêu cầu không được vượt quá tổng tiền đơn.';
+        amountErr.style.display = 'block'; ok = false;
+      }
+      if (statement.length < 10 || statement.length > 2000) {
+        stmtErr.textContent = 'Mô tả phải dài từ 10 đến 2000 ký tự.';
+        stmtErr.style.display = 'block'; ok = false;
+      }
+      if (!ok) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Đang gửi...';
+      try {
+        const created = await postAuthenticated(`/api/customer/orders/${id}/disputes`, {
+          claimType,
+          claimAmount: amount,
+          customerStatement: statement,
+        });
+        // Upload ảnh bằng chứng sau khi khiếu nại đã tạo (ảnh là tùy chọn — lỗi ảnh không hủy khiếu nại)
+        if (created?.id && selectedPhotos.length) {
+          submitBtn.textContent = 'Đang tải ảnh...';
+          for (const file of selectedPhotos) {
+            try {
+              const blob = await compressImage(file);
+              await uploadDisputePhoto(created.id, blob);
+            } catch (photoErr) {
+              console.warn('Không tải được 1 ảnh bằng chứng:', photoErr);
+            }
+          }
+        }
+        form.style.display = 'none';
+        successEl.style.display = 'block';
+        // Tải lại sau 1.5s để cập nhật badge trạng thái đơn sang "Đang khiếu nại"
+        setTimeout(() => window.location.reload(), 1500);
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Gửi khiếu nại';
+        stmtErr.textContent = String(err.message || 'Không thể gửi khiếu nại. Vui lòng thử lại.').split('|').pop().trim();
+        stmtErr.style.display = 'block';
+      }
+    });
+  }
+
+  // Nén ảnh client-side trước khi gửi (AC-10): cạnh dài tối đa 1280px, JPEG 0.8
+  function compressImage(file) {
+    return new Promise((resolve, reject) => {
+      const objectUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        let { width, height } = img;
+        const MAX = 1280;
+        if (Math.max(width, height) > MAX) {
+          const scale = MAX / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Không xử lý được ảnh.')),
+          'image/jpeg', 0.8);
+      };
+      img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Tệp không phải ảnh hợp lệ.')); };
+      img.src = objectUrl;
+    });
+  }
+
+  // Upload 1 ảnh bằng chứng (multipart) — api.js chỉ hỗ trợ JSON nên gọi fetch trực tiếp
+  async function uploadDisputePhoto(disputeId, blob) {
+    const fd = new FormData();
+    fd.append('file', blob, 'evidence.jpg');
+    const token = localStorage.getItem('accessToken');
+    const resp = await fetch(`${BASE_URL}/api/customer/disputes/${encodeURIComponent(disputeId)}/photos`, {
+      method: 'POST',
+      headers: token ? { Authorization: 'Bearer ' + token } : {},
+      body: fd,
+    });
+    if (!resp.ok) {
+      let data = {}; try { data = await resp.json(); } catch {}
+      throw new Error(data.message || ('Lỗi ' + resp.status));
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
     const user = getCurrentUser();
@@ -393,6 +657,7 @@
       setupFinalPayment(id);
       setupCancel(id);
       setupVerify(id);
+      setupDispute(id, order);
       if (order.status === 'ACCEPTED') loadVerification(id);
       show('detail-content');
     } catch (err) {

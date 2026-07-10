@@ -28,6 +28,7 @@ public record AuthResponse(
         String fullName,
         UserRole role,
         UserStatus status,
-        boolean mustChangePassword  // Flag canh bao Staff phai doi password (FR-037)
+        boolean mustChangePassword,  // Flag canh bao Staff phai doi password (FR-037)
+        String avatarUrl             // URL anh dai dien Cloudinary — NULL neu chua upload
     ) {}
 }

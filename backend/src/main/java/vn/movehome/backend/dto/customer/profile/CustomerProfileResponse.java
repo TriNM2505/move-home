@@ -1,5 +1,6 @@
 package vn.movehome.backend.dto.customer.profile;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public record CustomerProfileResponse(
@@ -8,6 +9,8 @@ public record CustomerProfileResponse(
         String email,
         String phone,
         String avatarUrl,
-        String status
+        String status,
+        Instant createdAt,
+        long totalOrders
 ) {
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import vn.movehome.backend.entity.Notification;
 import vn.movehome.backend.entity.Transaction;
 import vn.movehome.backend.entity.TransactionType;
 import vn.movehome.backend.entity.User;
@@ -16,8 +17,10 @@ import vn.movehome.backend.entity.UserRole;
 import vn.movehome.backend.entity.UserStatus;
 import vn.movehome.backend.order.OrderRepository;
 import vn.movehome.backend.order.ServiceOrder;
+import vn.movehome.backend.repository.NotificationRepository;
 import vn.movehome.backend.repository.TransactionRepository;
 import vn.movehome.backend.repository.UserRepository;
+import vn.movehome.backend.service.NotificationType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -48,11 +51,29 @@ public class DriverEarningService {
     private static final BigDecimal MIN_WITHDRAWAL_AMOUNT = new BigDecimal("100000");
     private static final BigDecimal DEFAULT_COMMISSION_RATE = new BigDecimal("0.3000");
 
+    // Cac loai giao dich hien tren trang Thu nhap tai xe: thu nhap (+), khau tru boi thuong (-), nop bo sung (+)
+    private static final java.util.Set<TransactionType> DRIVER_WALLET_TX_TYPES = java.util.EnumSet.of(
+            TransactionType.DRIVER_EARNING,
+            TransactionType.DAMAGE_DEDUCTION,
+            TransactionType.WALLET_TOP_UP);
+
+    // Whitelist ngan hang ho tro: code -> ten hien thi (snapshot vao withdrawal_request)
+    private static final Map<String, String> SUPPORTED_BANKS = Map.of(
+            "VCB", "Vietcombank",
+            "BIDV", "BIDV",
+            "CTG", "VietinBank",
+            "TCB", "Techcombank",
+            "MB", "MB Bank",
+            "ACB", "ACB",
+            "VPB", "VPBank",
+            "AGR", "Agribank");
+
     private final DriverWalletRepository driverWalletRepository;
     private final WithdrawalRequestRepository withdrawalRequestRepository;
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public void creditEarning(ServiceOrder order) {
@@ -123,9 +144,10 @@ public class DriverEarningService {
                 Sort.by(Sort.Direction.DESC, "createdAt")
                         .and(Sort.by(Sort.Direction.DESC, "id"))
         );
-        Page<Transaction> transactions = transactionRepository.findByUserIdAndType(
+        // Hien thi ca thu nhap va khau tru boi thuong + nop bo sung, de tai xe thay khoan bi tru (huong A)
+        Page<Transaction> transactions = transactionRepository.findByUserIdAndTypeIn(
                 driverId,
-                TransactionType.DRIVER_EARNING,
+                DRIVER_WALLET_TX_TYPES,
                 pageable
         );
 
@@ -163,12 +185,16 @@ public class DriverEarningService {
                     "INSUFFICIENT_AVAILABLE_BALANCE|Số tiền rút vượt quá số dư khả dụng.");
         }
 
+        // Thong tin ngan hang nhan tien — bat buoc de Admin biet chuyen khoan di dau
+        String bankCode = validateBankCode(request.bankCode());
+        String bankAccountNumber = validateBankAccountNumber(request.bankAccountNumber());
+
         WithdrawalRequest withdrawal = WithdrawalRequest.builder()
                 .driverId(driverId)
                 .amount(amount)
-                .bankCode("PENDING")
-                .bankNameSnapshot("Chưa cung cấp")
-                .bankAccountNumber("000000000")
+                .bankCode(bankCode)
+                .bankNameSnapshot(SUPPORTED_BANKS.get(bankCode))
+                .bankAccountNumber(bankAccountNumber)
                 .bankAccountHolder(normalizeAccountHolder(driver.getFullName()))
                 .status(PENDING_STATUS)
                 .idempotencyKey(UUID.randomUUID())
@@ -183,6 +209,9 @@ public class DriverEarningService {
                 "withdrawal_state_audit actor_id={} actor_role=DRIVER timestamp={} from_state=null to_state={} entity_id={}",
                 driverId, requestedAt, PENDING_STATUS, saved.getId());
 
+        // Bao cho tat ca Admin dang ACTIVE co yeu cau rut tien moi cho duyet
+        notifyAdminsWithdrawalRequested(driver, amount);
+
         return new WithdrawalRequestResponse(
                 saved.getId(),
                 money(saved.getAmount()),
@@ -190,6 +219,92 @@ public class DriverEarningService {
                 "Yêu cầu rút tiền đã được gửi.",
                 requestedAt
         );
+    }
+
+    /**
+     * Lich su yeu cau rut tien cua tai xe — moi nhat truoc.
+     * FE driver/withdrawal-history.html doc Page.content voi cac field:
+     * id, amount, requestedAt, status, processedAt.
+     */
+    @Transactional(readOnly = true)
+    public Page<DriverWithdrawalItemResponse> getWithdrawals(UUID driverId, int page, int size) {
+        validatePage(page, size);
+        PageRequest pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "requestedAt").and(Sort.by(Sort.Direction.DESC, "id"))
+        );
+        return withdrawalRequestRepository.findByDriverId(driverId, pageable)
+                .map(withdrawal -> new DriverWithdrawalItemResponse(
+                        withdrawal.getId(),
+                        money(withdrawal.getAmount()),
+                        withdrawal.getStatus(),
+                        withdrawal.getBankNameSnapshot(),
+                        maskAccount(withdrawal.getBankAccountNumber()),
+                        withdrawal.getRejectionReason(),
+                        withdrawal.getRequestedAt(),
+                        withdrawal.getProcessedAt()
+                ));
+    }
+
+    // Tao notification in-app cho moi Admin ACTIVE — loi notification khong lam fail viec tao yeu cau
+    private void notifyAdminsWithdrawalRequested(User driver, BigDecimal amount) {
+        try {
+            List<User> admins = userRepository.findByRoleAndStatusAndDeletedAtIsNull(
+                    UserRole.ADMIN, UserStatus.ACTIVE);
+            String driverName = driver.getFullName() != null ? driver.getFullName() : "Tài xế";
+            OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+            List<Notification> notifications = admins.stream()
+                    .map(admin -> Notification.builder()
+                            .userId(admin.getId())
+                            .type(NotificationType.WITHDRAWAL_REQUESTED)
+                            .title("Yêu cầu rút tiền mới")
+                            .message("Tài xế " + driverName + " yêu cầu rút "
+                                    + money(amount).toPlainString() + " VND. Vui lòng xử lý.")
+                            .isRead(false)
+                            .createdAt(now)
+                            .build())
+                    .toList();
+            notificationRepository.saveAll(notifications);
+        } catch (RuntimeException ex) {
+            log.warn("Khong the tao notification WITHDRAWAL_REQUESTED cho admin: {}", ex.getMessage());
+        }
+    }
+
+    private String validateBankCode(String value) {
+        if (value == null || value.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "VALIDATION_ERROR|Vui lòng chọn ngân hàng nhận tiền.");
+        }
+        String normalized = value.trim().toUpperCase(Locale.ROOT);
+        if (!SUPPORTED_BANKS.containsKey(normalized)) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "VALIDATION_ERROR|Ngân hàng không được hỗ trợ.");
+        }
+        return normalized;
+    }
+
+    private String validateBankAccountNumber(String value) {
+        if (value == null || value.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "VALIDATION_ERROR|Vui lòng nhập số tài khoản ngân hàng.");
+        }
+        String normalized = value.trim();
+        if (!normalized.matches("^[0-9]{8,15}$")) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "VALIDATION_ERROR|Số tài khoản không hợp lệ (phải gồm 8 đến 15 chữ số).");
+        }
+        return normalized;
+    }
+
+    // Che so tai khoan khi tra ve FE — chi hien 4 so cuoi (giong AdminWithdrawalService)
+    private String maskAccount(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        String trimmed = value.trim();
+        String last4 = trimmed.length() <= 4 ? trimmed : trimmed.substring(trimmed.length() - 4);
+        return "******" + last4;
     }
 
     public int defaultPageSize() {

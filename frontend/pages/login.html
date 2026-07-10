@@ -215,12 +215,17 @@
 
   // Xử lý lỗi trả về từ backend
   function handleLoginError(err) {
+    const rawMessage = String(err.message || '');
     if (err.isNetworkError) {
       showErrorMessage('Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.');
     } else if (err.status === 401 || err.status === 400) {
       showErrorMessage('Sai email hoặc mật khẩu. Vui lòng kiểm tra lại.');
     } else if (err.status === 423) {
       showErrorMessage('Tài khoản bị khóa do nhập sai mật khẩu nhiều lần. Vui lòng thử lại sau 15 phút.');
+    } else if (err.status === 403 && err.data?.error_code === 'ACCOUNT_SUSPENDED') {
+      // Tài khoản bị đình chỉ — hiện lý do cụ thể từ backend
+      // (vd thiếu tiền đóng phạt + số tiền cần nạp lại cho đủ cọc)
+      showErrorMessage(rawMessage || 'Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.');
     } else if (err.status === 403) {
       showErrorMessage('Vui lòng xác thực email trước khi đăng nhập.');
     } else {

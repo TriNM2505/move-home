@@ -46,4 +46,15 @@ public class DriverWalletController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(driverEarningService.createWithdrawal(currentUser, request));
     }
+
+    // Lich su yeu cau rut tien cua chinh tai xe (FE driver/withdrawal-history.html)
+    @GetMapping("/withdrawals")
+    public Page<DriverWithdrawalItemResponse> getWithdrawals(
+            @AuthenticationPrincipal User currentUser,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size
+    ) {
+        int pageSize = size != null ? size : driverEarningService.defaultPageSize();
+        return driverEarningService.getWithdrawals(currentUser.getId(), page, pageSize);
+    }
 }

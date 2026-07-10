@@ -9,27 +9,383 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
+    /* Centering dashboard main */
+    .dashboard-main {
+      margin: 0 auto;
+      width: 100%;
+      max-width: 1200px;
+    }
+
     .customer-nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.customer-nav a{color:var(--color-ink);font-weight:500;text-decoration:none}.customer-nav a.active{color:var(--color-primary)}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.field-span{grid-column:1/-1}.upload-box{border:2px dashed var(--color-surface-pressed);border-radius:16px;padding:24px;text-align:center;background:var(--color-canvas-soft)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.field-span{grid-column:1/-1}
+    .field-error{color:var(--color-danger);font-size:var(--font-size-body-sm);margin-top:4px;display:none}
+    .field-hint{color:var(--color-body);font-size:var(--font-size-body-sm);margin-top:4px}
+    .avatar-upload{display:flex;align-items:center;gap:20px;border:2px dashed var(--color-surface-pressed);border-radius:16px;padding:20px;background:var(--color-canvas-soft)}
+    .avatar-preview{width:88px;height:88px;border-radius:999px;background:var(--color-primary);color:#fff;display:grid;place-items:center;font-size:28px;font-weight:700;overflow:hidden;flex-shrink:0}
+    .avatar-preview img{width:100%;height:100%;object-fit:cover;display:block}
+    .avatar-upload-info{flex:1;min-width:0}
+    @media (max-width:520px){.avatar-upload{flex-direction:column;text-align:center}}
     @media (max-width:800px){.form-grid{grid-template-columns:1fr}.field-span{grid-column:auto}.site-header-actions{display:none}}
   </style>
 </head>
 <body>
 <div class="site-layout">
-  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html">Đặt đơn</a><a href="my-orders-pending.html">Đơn hàng</a><a href="my-profile.html" class="active">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
-  <main class="site-main"><div class="dashboard-main">
-    <header class="page-header"><h1 class="page-title">Chỉnh sửa thông tin</h1><p class="page-subtitle">Cập nhật họ tên, số điện thoại và ảnh đại diện.</p></header>
-    <section class="card-elevated">
-      <div class="form-grid">
-        <div class="form-group field-span"><label class="form-label">Ảnh đại diện</label><div class="upload-box"><strong>Chọn ảnh đại diện mới</strong><p class="text-muted">Dữ liệu mẫu, chưa tải tệp thật trong bản demo.</p></div></div>
-        <div class="form-group"><label class="form-label" for="name">Họ và tên</label><input class="text-input" id="name" value="Nguyễn Văn An"></div>
-        <div class="form-group"><label class="form-label" for="phone">Số điện thoại</label><input class="text-input" id="phone" value="0901 234 567"></div>
-        <div class="form-group field-span"><label class="form-label" for="email">Email</label><input class="text-input" id="email" value="an.nguyen@example.com" disabled></div>
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html">Đặt đơn</a>
+        <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-wallet.html">Ví của tôi</a>
+        <a href="my-profile.html" class="active">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Khách hàng</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">KH</div>
+        <button id="logout-btn" class="btn-subtle" style="margin-left: 12px; padding: var(--spacing-xs) var(--spacing-md); font-size: var(--font-size-body-sm);">Đăng xuất</button>
       </div>
-      <div class="mt-md"><a href="my-profile.html" class="btn-primary">Lưu</a> <a href="my-profile.html" class="btn-secondary">Hủy</a></div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="site-main"><div class="dashboard-main" style="max-width: 720px; margin: 0 auto; padding: var(--spacing-xl) var(--spacing-lg);">
+
+    <!-- Banner báo lỗi chung -->
+    <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-xl);" aria-live="assertive"></div>
+
+    <header class="page-header">
+      <h1 class="page-title">Chỉnh sửa thông tin</h1>
+      <p class="page-subtitle">Cập nhật họ tên và số điện thoại của bạn.</p>
+    </header>
+
+    <!-- LOADING STATE -->
+    <section id="edit-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--spacing-5xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed); min-height: 240px;" aria-live="polite">
+      <span class="spinner spinner-md" style="margin-bottom: var(--spacing-md);"></span>
+      <span style="color: var(--color-body); font-weight: var(--font-weight-medium);">Đang tải thông tin hồ sơ...</span>
     </section>
+
+    <!-- ERROR STATE -->
+    <section id="edit-error" style="display: none; text-align: center; padding: var(--spacing-4xl) var(--spacing-2xl); background: var(--color-canvas); border-radius: var(--rounded-xl); border: 1px solid var(--color-surface-pressed);" aria-live="assertive">
+      <h2 style="font-size: var(--font-size-display-sm); margin-bottom: var(--spacing-sm); color: var(--color-ink);">Không thể tải thông tin hồ sơ</h2>
+      <p id="edit-error-message" style="color: var(--color-body); margin-bottom: var(--spacing-lg);">Có lỗi xảy ra khi kết nối máy chủ.</p>
+      <button id="edit-retry-btn" class="btn-primary" style="margin: 0 auto;">Thử lại</button>
+    </section>
+
+    <!-- FORM -->
+    <section class="card-elevated" id="edit-content" style="display: none;">
+      <form id="profile-edit-form" novalidate>
+        <div class="form-grid">
+          <div class="form-group field-span">
+            <label class="form-label">Ảnh đại diện</label>
+            <div class="avatar-upload">
+              <div class="avatar-preview" id="avatar-preview">KH</div>
+              <div class="avatar-upload-info">
+                <button type="button" class="btn-secondary" id="avatar-pick-btn">Chọn ảnh mới</button>
+                <p class="field-hint" id="avatar-hint">Ảnh JPEG, PNG hoặc WebP. Ảnh sẽ được thu nhỏ tự động trước khi tải lên.</p>
+                <p class="field-error" id="avatar-error"></p>
+              </div>
+              <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/webp" hidden>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="name">Họ và tên</label>
+            <input class="text-input" id="name" name="fullName" autocomplete="name" maxlength="100">
+            <p class="field-error" id="name-error"></p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="phone">Số điện thoại</label>
+            <input class="text-input" id="phone" name="phone" autocomplete="tel" inputmode="tel">
+            <p class="field-error" id="phone-error"></p>
+            <p class="field-hint">Ví dụ: 0912 345 678</p>
+          </div>
+          <div class="form-group field-span">
+            <label class="form-label" for="email">Email</label>
+            <input class="text-input" id="email" disabled>
+            <p class="field-hint">Email không thể thay đổi.</p>
+          </div>
+        </div>
+        <div class="mt-md">
+          <button type="submit" class="btn-primary" id="save-btn">Lưu</button>
+          <a href="my-profile.html" class="btn-secondary">Hủy</a>
+        </div>
+      </form>
+    </section>
+
   </div></main>
 </div>
+
+<!-- ES Module Script -->
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, putAuthenticated } from '../../js/api.js';
+
+  // Regex khop backend CustomerProfileService.PHONE_PATTERN
+  const PHONE_PATTERN = /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/;
+
+  // api.js chi ho tro JSON nen upload multipart goi fetch truc tiep (cung pattern driver/register-step2)
+  const BASE_URL = 'http://localhost:8080';
+  // Avatar hien thi nho — resize 512px la du, du duoi han cung 1.5MB cua backend
+  const AVATAR_MAX_DIMENSION = 512;
+  const AVATAR_JPEG_QUALITY = 0.8;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Guard: chi CUSTOMER da dang nhap moi vao duoc
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') {
+      logout('../login.html');
+      return;
+    }
+
+    document.getElementById('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+    document.getElementById('edit-retry-btn')?.addEventListener('click', loadProfile);
+    document.getElementById('profile-edit-form')?.addEventListener('submit', handleSave);
+    document.getElementById('avatar-pick-btn')?.addEventListener('click', () => {
+      document.getElementById('avatar-input').click();
+    });
+    document.getElementById('avatar-input')?.addEventListener('change', handleAvatarChange);
+
+    loadProfile();
+  });
+
+  async function loadProfile() {
+    const loadingEl = document.getElementById('edit-loading');
+    const errorEl = document.getElementById('edit-error');
+    const contentEl = document.getElementById('edit-content');
+    const bannerEl = document.getElementById('error-banner');
+
+    loadingEl.style.display = 'flex';
+    errorEl.style.display = 'none';
+    contentEl.style.display = 'none';
+    bannerEl.style.display = 'none';
+
+    try {
+      const profile = await getAuthenticated('/api/customer/profile');
+      if (!profile) throw new Error('Không nhận được dữ liệu hồ sơ từ máy chủ.');
+
+      renderHeader(profile);
+      renderAvatarPreview(profile);
+      document.getElementById('name').value = profile.fullName || '';
+      document.getElementById('phone').value = displayPhone(profile.phone);
+      document.getElementById('email').value = profile.email || '';
+
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'block';
+    } catch (err) {
+      console.error(err);
+      loadingEl.style.display = 'none';
+      errorEl.style.display = 'block';
+      document.getElementById('edit-error-message').textContent = cleanMessage(err.message)
+        || 'Không thể tải thông tin hồ sơ. Vui lòng thử lại.';
+    }
+  }
+
+  async function handleSave(event) {
+    event.preventDefault();
+    clearFieldErrors();
+    const bannerEl = document.getElementById('error-banner');
+    bannerEl.style.display = 'none';
+
+    // Chuan hoa input truoc khi validate
+    const fullName = document.getElementById('name').value.trim().replace(/\s+/g, ' ');
+    const phone = document.getElementById('phone').value.replace(/[\s.-]/g, '');
+
+    // Validate client-side khop rule backend (2-100 ky tu, phone VN)
+    let valid = true;
+    if (fullName.length < 2 || fullName.length > 100) {
+      showFieldError('name-error', 'Họ tên phải có từ 2 đến 100 ký tự.');
+      valid = false;
+    }
+    if (!PHONE_PATTERN.test(phone)) {
+      showFieldError('phone-error', 'Số điện thoại không hợp lệ. Ví dụ: 0912345678.');
+      valid = false;
+    }
+    if (!valid) return;
+
+    const saveBtn = document.getElementById('save-btn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Đang lưu...';
+
+    try {
+      // Backend chi chap nhan dung 2 field nay (field la -> 422 IMMUTABLE_FIELD)
+      const res = await putAuthenticated('/api/customer/profile', { fullName, phone });
+
+      // Dong bo lai userInfo trong localStorage de header cac trang khac hien ten moi
+      const stored = getCurrentUser();
+      if (stored && res?.profile?.fullName) {
+        stored.fullName = res.profile.fullName;
+        localStorage.setItem('userInfo', JSON.stringify(stored));
+      }
+
+      window.location.href = 'my-profile.html';
+    } catch (err) {
+      console.error(err);
+      bannerEl.textContent = cleanMessage(err.message) || 'Không thể lưu thay đổi. Vui lòng thử lại.';
+      bannerEl.style.display = 'block';
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Lưu';
+    }
+  }
+
+  function renderHeader(profile) {
+    const nameEl = document.getElementById('header-user-name');
+    if (nameEl) nameEl.textContent = profile.fullName || 'Khách hàng';
+    const avatarEl = document.getElementById('header-user-avatar');
+    if (avatarEl && profile.fullName) avatarEl.textContent = getInitials(profile.fullName);
+  }
+
+  // Hien anh that neu co avatarUrl, fallback chu cai dau
+  function renderAvatarPreview(profile) {
+    const previewEl = document.getElementById('avatar-preview');
+    if (!previewEl) return;
+    if (profile.avatarUrl) {
+      previewEl.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = profile.avatarUrl;
+      img.alt = 'Ảnh đại diện';
+      previewEl.appendChild(img);
+    } else {
+      previewEl.textContent = getInitials(profile.fullName);
+    }
+  }
+
+  async function handleAvatarChange(event) {
+    const file = event.target.files?.[0];
+    event.target.value = ''; // cho phep chon lai cung 1 file
+    if (!file) return;
+
+    const errorEl = document.getElementById('avatar-error');
+    const hintEl = document.getElementById('avatar-hint');
+    const pickBtn = document.getElementById('avatar-pick-btn');
+    errorEl.textContent = '';
+    errorEl.style.display = 'none';
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      errorEl.textContent = 'Chỉ chấp nhận ảnh JPEG, PNG hoặc WebP.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    pickBtn.disabled = true;
+    hintEl.textContent = 'Đang xử lý và tải ảnh lên...';
+
+    try {
+      // Nen client-side truoc khi gui (AC-10) — resize ve 512px, JPEG 0.8
+      const compressed = await compressImage(file);
+      const profile = await uploadAvatar(compressed);
+
+      renderAvatarPreview(profile);
+      renderHeader(profile);
+
+      // Dong bo avatarUrl vao userInfo de header MOI trang customer hien anh ngay
+      const stored = getCurrentUser();
+      if (stored && profile.avatarUrl) {
+        stored.avatarUrl = profile.avatarUrl;
+        localStorage.setItem('userInfo', JSON.stringify(stored));
+      }
+
+      hintEl.textContent = 'Đã cập nhật ảnh đại diện thành công.';
+    } catch (err) {
+      console.error(err);
+      errorEl.textContent = cleanMessage(err.message) || 'Không thể tải ảnh lên. Vui lòng thử lại.';
+      errorEl.style.display = 'block';
+      hintEl.textContent = 'Ảnh JPEG, PNG hoặc WebP. Ảnh sẽ được thu nhỏ tự động trước khi tải lên.';
+    } finally {
+      pickBtn.disabled = false;
+    }
+  }
+
+  // Resize anh bang canvas: canh dai toi da 512px, xuat JPEG quality 0.8
+  function compressImage(file) {
+    return new Promise((resolve, reject) => {
+      const objectUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        let { width, height } = img;
+        if (Math.max(width, height) > AVATAR_MAX_DIMENSION) {
+          const scale = AVATAR_MAX_DIMENSION / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error('Không thể xử lý ảnh. Vui lòng chọn ảnh khác.'));
+        }, 'image/jpeg', AVATAR_JPEG_QUALITY);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('Tệp không phải ảnh hợp lệ.'));
+      };
+      img.src = objectUrl;
+    });
+  }
+
+  // Upload multipart — tra ve profile moi (co avatarUrl) tu response
+  async function uploadAvatar(blob) {
+    const fd = new FormData();
+    fd.append('file', blob, 'avatar.jpg');
+    const token = localStorage.getItem('accessToken');
+    const resp = await fetch(BASE_URL + '/api/customer/profile/avatar', {
+      method: 'POST',
+      headers: token ? { Authorization: 'Bearer ' + token } : {},
+      body: fd, // KHONG set Content-Type — trinh duyet tu them boundary multipart
+    });
+    if (!resp.ok) {
+      let data = {};
+      try { data = await resp.json(); } catch {}
+      const e = new Error(data.message || ('Lỗi ' + resp.status));
+      e.status = resp.status;
+      throw e;
+    }
+    const result = await resp.json();
+    if (!result?.profile) throw new Error('Không nhận được dữ liệu hồ sơ từ máy chủ.');
+    return result.profile;
+  }
+
+  function showFieldError(id, message) {
+    const el = document.getElementById(id);
+    el.textContent = message;
+    el.style.display = 'block';
+  }
+
+  function clearFieldErrors() {
+    for (const id of ['name-error', 'phone-error']) {
+      const el = document.getElementById(id);
+      el.textContent = '';
+      el.style.display = 'none';
+    }
+  }
+
+  // Backend tra message dang "CODE|Thong bao" -> chi lay phan thong bao
+  function cleanMessage(raw) {
+    if (!raw) return '';
+    return String(raw).split('|').pop().trim();
+  }
+
+  // Hien thi phone dang 0xxx cho de doc (backend luu +84xxx)
+  function displayPhone(phone) {
+    if (!phone) return '';
+    const val = phone.trim();
+    return val.startsWith('+84') ? '0' + val.substring(3) : val;
+  }
+
+  function getInitials(name) {
+    if (!name) return 'KH';
+    const words = name.trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return 'KH';
+    return words.map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  }
+</script>
 <!-- JS Common + Bell Dropdown -->
 <script type="module" src="../../js/customer-common.js"></script>
 </body>

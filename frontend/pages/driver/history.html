@@ -9,7 +9,61 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .driver-nav { display: flex; align-items: center; gap: var(--spacing-lg); flex-wrap: wrap; }
+    /* Navbar dàn trải và chia đều khoảng cách */
+    .driver-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      gap: var(--spacing-md);
+      flex-wrap: nowrap;
+      margin: 0 var(--spacing-xl);
+    }
+
+    /* Bỏ gạch chân cho link và active link */
+    .driver-nav a.nav-link {
+      border-bottom: none !important;
+      text-decoration: none !important;
+      white-space: nowrap;
+    }
+    .driver-nav a.nav-link.active {
+      border-bottom: none !important;
+      color: var(--color-primary) !important;
+      font-weight: 600;
+    }
+    .driver-nav a.nav-link:hover {
+      text-decoration: none !important;
+      color: var(--color-primary) !important;
+    }
+
+    /* Hỗ trợ responsive để tránh bị dồn ép trên màn hình trung bình/nhỏ */
+    @media (max-width: 1024px) {
+      .site-header {
+        height: auto;
+        min-height: 64px;
+        padding: var(--spacing-sm) 0;
+      }
+      .site-header-inner {
+        height: auto;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+      }
+      .driver-nav {
+        order: 3;
+        width: 100%;
+        flex: none;
+        justify-content: center;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+        margin: var(--spacing-sm) 0 0 0;
+      }
+    }
+
+    /* Căn giữa toàn bộ vùng nội dung chính */
+    .dashboard-main {
+      margin: 0 auto;
+    }
+
     .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
     .filter-pill { padding: 8px 18px; border-radius: 999px; border: 1.5px solid var(--color-surface-pressed); background: var(--color-canvas); color: var(--color-body); cursor: pointer; font-weight: 500; }
     .filter-pill.active { background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary); }
@@ -18,7 +72,6 @@
     .pagination-btn-page { min-width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--color-surface-pressed); background: var(--color-canvas); cursor: pointer; }
     .pagination-btn-page.active { background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary); font-weight: 700; }
     .state-cell { text-align: center; padding: 40px 16px; color: var(--color-body); }
-    @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
   </style>
 </head>
 <body>

@@ -10,6 +10,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
 
   <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    /* CSS rieng cho trang nay (additive) */
+    .dsp-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .dsp-pill {
+      border: 1px solid var(--color-surface-pressed); background: var(--color-canvas);
+      color: var(--color-ink); padding: 6px 16px; border-radius: 999px;
+      font-size: var(--font-size-body-sm); font-weight: 500; cursor: pointer; transition: all 150ms;
+    }
+    .dsp-pill.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+  </style>
 </head>
 <body>
 
@@ -22,9 +32,9 @@
       </a>
 
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Quản lý</span>
-        <div class="avatar avatar-sm avatar-initials">QL</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <span class="user-menu-name">Xin chào, <span id="mgr-name">Quản lý</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="mgr-avatar">QL</div>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
     </div>
   </header>
@@ -35,10 +45,6 @@
         <a href="driver-approvals.html" class="sidebar-item">
           <span class="sidebar-icon">✓</span>
           <span>Duyệt tài xế</span>
-        </a>
-        <a href="withdrawal-pending.html" class="sidebar-item">
-          <span class="sidebar-icon">₫</span>
-          <span>Rút tiền</span>
         </a>
         <a href="disputes.html" class="sidebar-item sidebar-item--active">
           <span class="sidebar-icon">!</span>
@@ -54,30 +60,29 @@
           <p class="page-subtitle">Xử lý các đơn hàng có báo cáo hư hỏng hoặc tranh chấp sau khi hoàn thành.</p>
         </header>
 
+        <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-lg);"></div>
+
         <section class="mb-8" aria-label="Chỉ số khiếu nại">
           <div class="grid-3">
             <div class="kpi kpi-danger">
-              <div class="kpi-icon">4</div>
               <div class="kpi-body">
-                <div class="kpi-value">4</div>
-                <div class="kpi-label">Khiếu nại đang mở</div>
-                <div class="kpi-sub">Cần phản hồi trong ngày</div>
+                <div class="kpi-value" id="kpi-open">—</div>
+                <div class="kpi-label">Khiếu nại mới mở</div>
+                <div class="kpi-sub">Cần phản hồi trong 3 ngày</div>
               </div>
             </div>
             <div class="kpi kpi-warning">
-              <div class="kpi-icon">2</div>
               <div class="kpi-body">
-                <div class="kpi-value">2</div>
-                <div class="kpi-label">Chờ tài xế phản hồi</div>
-                <div class="kpi-sub">Đang trong thời gian xác minh</div>
+                <div class="kpi-value" id="kpi-investigating">—</div>
+                <div class="kpi-label">Đang xác minh</div>
+                <div class="kpi-sub">Chờ thu thập thông tin hai bên</div>
               </div>
             </div>
             <div class="kpi kpi-primary">
-              <div class="kpi-icon">₫</div>
               <div class="kpi-body">
-                <div class="kpi-value num-money">7.200.000 đ</div>
-                <div class="kpi-label">Số tiền liên quan</div>
-                <div class="kpi-sub">Tổng giá trị tranh chấp</div>
+                <div class="kpi-value" id="kpi-resolved">—</div>
+                <div class="kpi-label">Đã hoàn tiền</div>
+                <div class="kpi-sub">Khiếu nại giải quyết có bồi hoàn</div>
               </div>
             </div>
           </div>
@@ -88,59 +93,158 @@
             <h2 class="card-title">Danh sách khiếu nại</h2>
             <span class="card-meta">Sắp xếp theo ngày mới nhất</span>
           </div>
-          <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
-            <table class="table table-hover">
+          <div style="padding: var(--spacing-md) var(--spacing-lg) 0;">
+            <div class="dsp-filters" id="filterContainer">
+              <button class="dsp-pill active" data-status="">Tất cả</button>
+              <button class="dsp-pill" data-status="OPEN">Mới mở</button>
+              <button class="dsp-pill" data-status="INVESTIGATING">Đang xác minh</button>
+              <button class="dsp-pill" data-status="RESOLVED_REFUND">Đã hoàn tiền</button>
+              <button class="dsp-pill" data-status="CLOSED_NO_FAULT">Đã đóng</button>
+            </div>
+          </div>
+          <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none; overflow-x:auto;">
+            <table class="table table-hover" style="min-width: 900px;">
               <thead>
                 <tr>
                   <th>Mã đơn</th>
                   <th>Khách hàng</th>
                   <th>Tài xế</th>
-                  <th>Lý do</th>
+                  <th>Loại khiếu nại</th>
                   <th>Ngày gửi</th>
-                  <th>Số tiền</th>
+                  <th>Số tiền yêu cầu</th>
                   <th>Trạng thái</th>
                   <th class="table-col-action">Thao tác</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr class="row-warning">
-                  <td>MH202606050001</td>
-                  <td>Nguyễn Thu Hà</td>
-                  <td>Nguyễn Văn Hùng</td>
-                  <td>Trầy xước tủ gỗ khi vận chuyển</td>
-                  <td>05/06/2026</td>
-                  <td class="col-money">2.400.000 đ</td>
-                  <td><span class="badge badge-sm badge-danger">Khiếu nại</span></td>
-                  <td class="table-col-action"><a href="dispute-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
-                </tr>
-                <tr>
-                  <td>MH202606040018</td>
-                  <td>Trần Quốc Anh</td>
-                  <td>Phạm Quốc Bảo</td>
-                  <td>Thiếu một thùng đồ gia dụng</td>
-                  <td>04/06/2026</td>
-                  <td class="col-money">1.800.000 đ</td>
-                  <td><span class="badge badge-sm badge-warning">Chờ phản hồi</span></td>
-                  <td class="table-col-action"><a href="dispute-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
-                </tr>
-                <tr>
-                  <td>MH202606030012</td>
-                  <td>Lê Minh Châu</td>
-                  <td>Trần Minh Đức</td>
-                  <td>Giao trễ so với thời gian hẹn</td>
-                  <td>03/06/2026</td>
-                  <td class="col-money">3.000.000 đ</td>
-                  <td><span class="badge badge-sm badge-danger">Khiếu nại</span></td>
-                  <td class="table-col-action"><a href="dispute-detail.html" class="btn btn-primary btn-sm">Xem</a></td>
-                </tr>
+              <tbody id="disputes-tbody">
+                <tr><td colspan="8" style="text-align:center;padding:24px;">Đang tải...</td></tr>
               </tbody>
             </table>
+          </div>
+          <div class="card-footer" style="border-top: 1px solid var(--color-surface-pressed);">
+            <div id="disputes-pagination" style="width: 100%;"></div>
           </div>
         </section>
       </div>
     </main>
   </div>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+  import { formatVnd, formatDateTime, renderPagination, esc, showError, hideError } from '../../js/admin-common.js';
+
+  const CLAIM_TYPE_VN = {
+    DAMAGE: 'Hư hỏng đồ đạc',
+    MISSING_ITEM: 'Thiếu / mất đồ',
+    LATE_DELIVERY: 'Giao trễ hẹn',
+    INAPPROPRIATE_BEHAVIOR: 'Thái độ không phù hợp',
+    OTHER: 'Khác',
+  };
+
+  const STATUS_VN = {
+    OPEN: '<span class="badge badge-sm badge-danger">Mới mở</span>',
+    INVESTIGATING: '<span class="badge badge-sm badge-warning">Đang xác minh</span>',
+    RESOLVED_REFUND: '<span class="badge badge-sm badge-success">Đã hoàn tiền</span>',
+    RESOLVED_DEDUCT: '<span class="badge badge-sm badge-success">Đã khấu trừ</span>',
+    CLOSED_NO_FAULT: '<span class="badge badge-sm badge-neutral">Đã đóng</span>',
+  };
+
+  let currentStatus = '';
+  let currentPage = 0;
+  let currentSize = 20;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const u = getCurrentUser();
+    if (u?.role !== 'MANAGER') { logout('../login.html'); return; }
+    if (u.fullName) {
+      document.getElementById('mgr-name').textContent = u.fullName;
+      document.getElementById('mgr-avatar').textContent =
+        u.fullName.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+    document.getElementById('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+
+    // Filter pills
+    document.querySelectorAll('.dsp-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.dsp-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentStatus = pill.dataset.status;
+        loadDisputes(0, currentSize);
+      });
+    });
+
+    loadKpis();
+    loadDisputes(0, currentSize);
+  });
+
+  // 3 fetch size=1 chi lay totalElements — du nhe cho quy mo do an
+  async function loadKpis() {
+    try {
+      const [open, investigating, resolved] = await Promise.all([
+        getAuthenticated('/api/manager/disputes?status=OPEN&page=0&size=1'),
+        getAuthenticated('/api/manager/disputes?status=INVESTIGATING&page=0&size=1'),
+        getAuthenticated('/api/manager/disputes?status=RESOLVED_REFUND&page=0&size=1'),
+      ]);
+      document.getElementById('kpi-open').textContent = open?.totalElements ?? 0;
+      document.getElementById('kpi-investigating').textContent = investigating?.totalElements ?? 0;
+      document.getElementById('kpi-resolved').textContent = resolved?.totalElements ?? 0;
+    } catch (err) {
+      console.warn('Không thể tải chỉ số khiếu nại:', err);
+    }
+  }
+
+  async function loadDisputes(page, size) {
+    currentPage = page;
+    currentSize = size;
+    hideError();
+    const tbody = document.getElementById('disputes-tbody');
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;">Đang tải...</td></tr>`;
+
+    try {
+      const statusParam = currentStatus ? `&status=${encodeURIComponent(currentStatus)}` : '';
+      const data = await getAuthenticated(`/api/manager/disputes?page=${page}&size=${size}${statusParam}`);
+      const items = (data && data.content) || [];
+
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--color-mute)">Không có khiếu nại nào để hiển thị.</td></tr>`;
+        document.getElementById('disputes-pagination').innerHTML = '';
+        return;
+      }
+
+      tbody.innerHTML = items.map(d => `
+        <tr${d.status === 'OPEN' ? ' class="row-warning"' : ''}>
+          <td><strong>${esc(d.orderCode)}</strong></td>
+          <td>${esc(d.customerName)}</td>
+          <td>${esc(d.driverName)}</td>
+          <td>${esc(CLAIM_TYPE_VN[d.claimType] || d.claimType)}</td>
+          <td>${formatDateTime(d.createdAt)}</td>
+          <td class="col-money" style="font-weight:700;">${formatVnd(d.claimAmount)}</td>
+          <td>${STATUS_VN[d.status] || `<span class="badge badge-sm badge-neutral">${esc(d.status)}</span>`}</td>
+          <td class="table-col-action"><a href="dispute-detail.html?id=${encodeURIComponent(d.id)}" class="btn btn-primary btn-sm">Xem</a></td>
+        </tr>
+      `).join('');
+
+      renderPagination('disputes-pagination',
+        { totalElements: data.totalElements, totalPages: data.totalPages, number: data.number, size: data.size },
+        (p) => loadDisputes(p, currentSize),
+        (s) => loadDisputes(0, s),
+        'khiếu nại');
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--color-danger)">Không thể tải danh sách khiếu nại. Vui lòng thử lại.</td></tr>`;
+      showError(cleanMessage(err.message) || 'Không thể tải danh sách khiếu nại.');
+    }
+  }
+
+  // Backend tra message dang "CODE|Thong bao"
+  function cleanMessage(raw) {
+    if (!raw) return '';
+    return String(raw).split('|').pop().trim();
+  }
+</script>
 
 <!-- JS Common + Bell Dropdown -->
 <script type="module" src="../../js/notifications-bell.js"></script>

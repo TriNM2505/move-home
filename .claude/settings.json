@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(cd C:\\\\Users\\\\Admin\\\\Move_home\\\\backend; .\\\\mvnw.cmd -q test-compile -DskipTests; echo \"EXIT: $LASTEXITCODE\")"
+    ]
+  }
+}
