@@ -66,9 +66,17 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID>,
      */
     boolean existsByTypeAndRelatedOrderId(TransactionType type, UUID relatedOrderId);
 
+    // Tat ca giao dich lien quan mot don — dung cho trang chi tiet don cua Admin.
+    List<Transaction> findByRelatedOrderIdOrderByCreatedAtAsc(UUID relatedOrderId);
+
     boolean existsByTypeAndRelatedWithdrawalId(TransactionType type, UUID relatedWithdrawalId);
 
     Optional<Transaction> findByTypeAndRelatedWithdrawalId(TransactionType type, UUID relatedWithdrawalId);
+
+    // Idempotency cho rut tien khach hang: moi yeu cau chi ghi 1 giao dich WITHDRAWAL.
+    boolean existsByTypeAndRelatedCustomerWithdrawalId(TransactionType type, UUID relatedCustomerWithdrawalId);
+
+    Optional<Transaction> findByTypeAndRelatedCustomerWithdrawalId(TransactionType type, UUID relatedCustomerWithdrawalId);
 
     /**
      * Tinh tong so tien cua mot user theo loai giao dich.

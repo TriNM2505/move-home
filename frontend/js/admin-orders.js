@@ -46,12 +46,16 @@ function renderOrdersTable(orders) {
 
   tbody.innerHTML = orders.map(o => {
     const code    = esc(o.orderCode || String(o.orderId || o.id || '').slice(-6).toUpperCase());
+    const orderId = o.orderId || o.id;
+    const codeCell = orderId
+      ? `<a href="order-detail.html?id=${encodeURIComponent(orderId)}" class="link-primary fw-medium">${code}</a>`
+      : `<span class="fw-medium">${code}</span>`;
     const driver  = o.driverName
       ? esc(o.driverName)
       : `<em class="text-muted">Chưa phân công</em>`;
     return `
       <tr>
-        <td><a href="#" class="link-primary fw-medium">${code}</a></td>
+        <td>${codeCell}</td>
         <td>${esc(o.customerName)}</td>
         <td>${driver}</td>
         <td class="text-muted">${esc(o.pickupDistrict) || '—'}</td>

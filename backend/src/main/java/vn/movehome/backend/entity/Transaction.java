@@ -23,7 +23,8 @@ import java.util.UUID;
         @Index(name = "idx_transaction_user",   columnList = "user_id,created_at"),
         @Index(name = "idx_transaction_order",  columnList = "related_order_id"),
         @Index(name = "idx_transaction_vnpay",  columnList = "vnpay_txn_ref"),
-        @Index(name = "idx_transaction_withdrawal", columnList = "related_withdrawal_id")
+        @Index(name = "idx_transaction_withdrawal", columnList = "related_withdrawal_id"),
+        @Index(name = "idx_transaction_customer_withdrawal", columnList = "related_customer_withdrawal_id")
     }
 )
 @Getter
@@ -58,6 +59,10 @@ public class Transaction {
 
     @Column(name = "related_withdrawal_id")
     private UUID relatedWithdrawalId;
+
+    // Yeu cau rut tien cua khach hang (customer_withdrawal_request, V39) — NULL neu khong lien quan
+    @Column(name = "related_customer_withdrawal_id")
+    private UUID relatedCustomerWithdrawalId;
 
     @Column(name = "related_dispute_id")
     private UUID relatedDisputeId;

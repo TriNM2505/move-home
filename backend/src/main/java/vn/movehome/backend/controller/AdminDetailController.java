@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import vn.movehome.backend.dto.admin.detail.AdminOrderDetailResponse;
 import vn.movehome.backend.dto.admin.detail.AuditLogItem;
 import vn.movehome.backend.dto.admin.detail.CustomerDetailResponse;
 import vn.movehome.backend.dto.admin.detail.CustomerOrderItem;
 import vn.movehome.backend.dto.admin.detail.DriverDetailResponse;
 import vn.movehome.backend.dto.admin.detail.DriverOrderItem;
 import vn.movehome.backend.service.AdminDetailService;
+import vn.movehome.backend.service.AdminOrderDetailService;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -26,6 +28,12 @@ import java.util.UUID;
 public class AdminDetailController {
 
     private final AdminDetailService adminDetailService;
+    private final AdminOrderDetailService adminOrderDetailService;
+
+    @GetMapping("/orders/{id}")
+    public AdminOrderDetailResponse orderDetail(@PathVariable("id") UUID id) {
+        return adminOrderDetailService.orderDetail(id);
+    }
 
     @GetMapping("/drivers/{id}")
     public DriverDetailResponse driverDetail(@PathVariable("id") UUID id) {
