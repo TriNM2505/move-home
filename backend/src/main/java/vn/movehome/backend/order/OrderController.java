@@ -130,6 +130,15 @@ public class OrderController {
         return customerOrderActionService.rateOrder(customer.getId(), id, request);
     }
 
+    /** Danh gia da gui cua don (404 RATING_NOT_FOUND neu chua danh gia) — FE hien trang thai nut. */
+    @GetMapping("/api/customer/orders/{id}/rating")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public RatingDetailResponse getOrderRating(
+            @AuthenticationPrincipal User customer,
+            @PathVariable UUID id) {
+        return customerOrderActionService.getOrderRating(customer.getId(), id);
+    }
+
     /**
      * Tra COC 30% cua don bang so du Vi (thay cho VNPay). Thanh cong → don ve CONFIRMED.
      * HR-10: chi tra coc cho don cua chinh minh (kiem tra trong service).

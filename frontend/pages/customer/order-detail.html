@@ -254,6 +254,22 @@
             </p>
           </div>
 
+          <!-- Đánh giá tài xế — chỉ hiện khi đơn COMPLETED và có tài xế -->
+          <div class="card-elevated" id="rating-card" style="display:none;border-color:var(--color-accent);">
+            <h2>Đánh giá tài xế</h2>
+            <div id="rating-done" style="display:none;">
+              <p id="rating-done-stars" style="font-size:22px;color:var(--color-accent);margin:0 0 6px;"></p>
+              <p class="text-muted" id="rating-done-comment" style="font-size:var(--font-size-body-sm);margin:0;white-space:pre-wrap;"></p>
+              <p class="text-muted" style="font-size:var(--font-size-caption);margin-top:6px;">✓ Cảm ơn bạn đã đánh giá.</p>
+            </div>
+            <div id="rating-open" style="display:none;">
+              <p class="text-muted" style="margin-bottom:12px;font-size:var(--font-size-body-sm);">
+                Hãy chấm sao và nhận xét về tài xế trong vòng 24 giờ sau khi hoàn thành để Move_home kiểm soát chất lượng dịch vụ.
+              </p>
+              <a id="rating-go-btn" class="btn-primary" style="width:100%;justify-content:center;">★ Đánh giá tài xế</a>
+            </div>
+          </div>
+
           <div class="card-elevated">
             <h2>Thao tác</h2>
             <a href="#" id="track-btn" class="btn-primary" style="display:none;margin-bottom:10px;width:100%;justify-content:center;">📍 Theo dõi tài xế trên bản đồ</a>
@@ -669,6 +685,28 @@
     }
   }
 
+  // Đánh giá tài xế — chỉ khi đơn COMPLETED có tài xế; đã đánh giá thì hiện lại sao + nhận xét.
+  // Cửa sổ 24h do backend kiểm soát (RATING_WINDOW_CLOSED) — FE không tự chặn để khớp config demo.
+  async function setupRating(id, order) {
+    const card = document.getElementById('rating-card');
+    if (!card) return;
+    if (order.status !== 'COMPLETED' || !order.driverName) { card.style.display = 'none'; return; }
+
+    card.style.display = 'block';
+    try {
+      const r = await getAuthenticated(`/api/customer/orders/${id}/rating`);
+      document.getElementById('rating-done-stars').textContent =
+        '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars) + `  ${r.stars}/5`;
+      document.getElementById('rating-done-comment').textContent = r.comment || '';
+      document.getElementById('rating-done').style.display = 'block';
+    } catch {
+      // 404 RATING_NOT_FOUND → chưa đánh giá, hiện nút dẫn sang trang đánh giá
+      const btn = document.getElementById('rating-go-btn');
+      btn.href = `order-rate.html?id=${encodeURIComponent(id)}`;
+      document.getElementById('rating-open').style.display = 'block';
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
     const user = getCurrentUser();
@@ -693,6 +731,7 @@
       setupCancel(id);
       setupVerify(id);
       setupDispute(id, order);
+      setupRating(id, order);
       if (order.status === 'ACCEPTED') loadVerification(id);
       show('detail-content');
     } catch (err) {

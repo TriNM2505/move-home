@@ -9,7 +9,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    .customer-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.rate-layout{display:grid;grid-template-columns:1fr 360px;gap:24px}.driver-mini{display:flex;gap:16px;align-items:center}.avatar-lg{width:72px;height:72px;border-radius:999px;background:var(--color-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px}.stars{display:flex;gap:8px;font-size:42px;color:var(--color-accent);line-height:1}.tag-list{display:flex;gap:10px;flex-wrap:wrap}.tag{background:var(--color-canvas-soft);border:1px solid var(--color-surface-pressed);border-radius:999px;padding:10px 16px;font-weight:500}.tag.active{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}textarea.text-input{min-height:140px;resize:vertical}@media(max-width:900px){.rate-layout{grid-template-columns:1fr}.site-header-actions{flex-direction:column;align-items:flex-end}}
+    .customer-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .rate-layout{display:grid;grid-template-columns:1fr 360px;gap:24px}
+    .driver-mini{display:flex;gap:16px;align-items:center}
+    .avatar-lg{width:72px;height:72px;border-radius:999px;background:var(--color-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px}
+    .stars{display:flex;gap:8px;font-size:42px;line-height:1;user-select:none}
+    .stars span{cursor:pointer;color:var(--color-surface-pressed);transition:color .12s ease}
+    .stars span.active{color:var(--color-accent)}
+    .tag-list{display:flex;gap:10px;flex-wrap:wrap}
+    .tag{background:var(--color-canvas-soft);border:1px solid var(--color-surface-pressed);border-radius:999px;padding:10px 16px;font-weight:500;cursor:pointer}
+    .tag.active{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
+    textarea.text-input{min-height:140px;resize:vertical}
+    @media(max-width:900px){.rate-layout{grid-template-columns:1fr}.site-header-actions{flex-direction:column;align-items:flex-end}}
   </style>
 </head>
 <body>
@@ -19,9 +30,9 @@
       <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
       <div class="site-header-actions customer-nav">
         <a href="home.html" class="btn-subtle">Trang chủ</a>
-        <a href="home.html" class="btn-subtle">Đơn hàng</a>
+        <a href="my-orders-history.html" class="btn-subtle">Đơn hàng</a>
         <a href="my-wallet.html" class="btn-subtle">Ví của tôi</a>
-        <a href="../login.html" class="btn-secondary">Đăng xuất</a>
+        <button id="logout-btn" class="btn-secondary">Đăng xuất</button>
       </div>
     </div>
   </header>
@@ -29,39 +40,76 @@
     <div class="dashboard-main">
       <header class="page-header">
         <h1 class="page-title">Đánh giá tài xế</h1>
-        <p class="page-subtitle">Chia sẻ trải nghiệm sau đơn MH2026050021 để Move_home cải thiện chất lượng dịch vụ.</p>
+        <p class="page-subtitle" id="page-subtitle">Chia sẻ trải nghiệm của bạn để Move_home cải thiện chất lượng dịch vụ.</p>
       </header>
-      <div class="rate-layout">
-        <form class="card">
+
+      <!-- Loading state (AC-16) -->
+      <div id="rate-loading" class="card" style="padding:32px;text-align:center;">Đang tải thông tin đơn hàng...</div>
+
+      <!-- Error state (AC-16) -->
+      <div id="rate-error" class="card" style="display:none;padding:32px;text-align:center;">
+        <p id="rate-error-message" style="color:var(--color-danger);margin-bottom:16px;">Không thể tải dữ liệu.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <button id="rate-retry-btn" class="btn-secondary">Thử lại</button>
+          <a id="rate-back-btn" class="btn-primary" href="my-orders-history.html">Về danh sách đơn</a>
+        </div>
+      </div>
+
+      <div id="rate-content" class="rate-layout" style="display:none;">
+        <form class="card" id="rate-form">
           <div class="card-header"><h2 class="card-title">Nội dung đánh giá</h2><span class="badge-completed">Hoàn thành</span></div>
           <div class="card-body">
             <div class="form-group">
               <label class="form-label">Mức hài lòng</label>
-              <div class="stars" aria-label="Đánh giá 5 sao"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
-              <p class="text-muted mt-sm">5 sao • Rất hài lòng</p>
+              <div class="stars" id="star-picker" role="radiogroup" aria-label="Đánh giá từ 1 đến 5 sao">
+                <span data-star="1" role="radio" aria-label="1 sao">★</span>
+                <span data-star="2" role="radio" aria-label="2 sao">★</span>
+                <span data-star="3" role="radio" aria-label="3 sao">★</span>
+                <span data-star="4" role="radio" aria-label="4 sao">★</span>
+                <span data-star="5" role="radio" aria-label="5 sao">★</span>
+              </div>
+              <p class="text-muted mt-sm" id="star-label">Chạm vào sao để chấm điểm</p>
             </div>
             <div class="form-group">
-              <label class="form-label">Điểm nổi bật</label>
-              <div class="tag-list"><span class="tag active">Đúng giờ</span><span class="tag active">Lịch sự</span><span class="tag active">Xe sạch</span><span class="tag">Hỗ trợ tốt</span></div>
+              <label class="form-label">Điểm nổi bật (tùy chọn)</label>
+              <div class="tag-list" id="tag-list">
+                <span class="tag" data-tag="Đúng giờ">Đúng giờ</span>
+                <span class="tag" data-tag="Lịch sự">Lịch sự</span>
+                <span class="tag" data-tag="Xe sạch">Xe sạch</span>
+                <span class="tag" data-tag="Hỗ trợ tốt">Hỗ trợ tốt</span>
+              </div>
             </div>
             <div class="form-group">
-              <label class="form-label" for="comment">Nhận xét thêm</label>
-              <textarea id="comment" class="text-input">Tài xế đến đúng giờ, hỗ trợ bốc xếp cẩn thận và giao hàng không trầy xước.</textarea>
+              <label class="form-label" for="comment">Nhận xét thêm (tùy chọn)</label>
+              <textarea id="comment" class="text-input" maxlength="500" placeholder="Chia sẻ trải nghiệm của bạn về tài xế..."></textarea>
+              <p class="text-muted" id="comment-counter" style="font-size:var(--font-size-caption);margin-top:4px;">0/500 ký tự</p>
             </div>
-            <div class="flex flex-wrap gap-sm"><a href="home.html" class="btn-secondary">Hủy</a><a href="my-wallet.html" class="btn-primary">Gửi đánh giá</a></div>
+            <p id="submit-error" style="display:none;color:var(--color-danger);font-size:var(--font-size-body-sm);margin-bottom:12px;"></p>
+            <p id="submit-success" style="display:none;color:var(--color-success-text,#157347);font-size:var(--font-size-body-sm);margin-bottom:12px;">✓ Cảm ơn bạn đã đánh giá. Đang quay lại chi tiết đơn...</p>
+            <div class="flex flex-wrap gap-sm">
+              <a id="cancel-link" href="my-orders-history.html" class="btn-secondary">Hủy</a>
+              <button type="submit" id="submit-btn" class="btn-primary">Gửi đánh giá</button>
+            </div>
           </div>
         </form>
         <aside class="stack">
           <section class="card-soft-tinted">
-            <div class="driver-mini"><div class="avatar-lg">LC</div><div><h2 class="section-title">Lê Văn Cường</h2><p class="text-muted">Xe tải 1 tấn • 30E-56789</p><p class="star-rating mt-sm">★ 4,7/5</p></div></div>
+            <div class="driver-mini">
+              <div class="avatar-lg" id="driver-avatar">TX</div>
+              <div>
+                <h2 class="section-title" id="driver-name">—</h2>
+                <p class="text-muted" id="driver-vehicle">—</p>
+              </div>
+            </div>
           </section>
           <section class="card">
             <div class="card-header"><h2 class="card-title">Tóm tắt đơn</h2></div>
             <div class="card-body">
-              <div class="info-row"><span>Điểm đón</span><strong>25 Kim Mã</strong></div>
-              <div class="info-row"><span>Điểm trả</span><strong>18 Hàng Bài</strong></div>
-              <div class="info-row"><span>Tổng tiền</span><strong>2.300.000 đ</strong></div>
-              <div class="info-row"><span>Ngày hoàn thành</span><strong>05/06/2026</strong></div>
+              <div class="info-row"><span>Mã đơn</span><strong id="sum-code">—</strong></div>
+              <div class="info-row"><span>Điểm đón</span><strong id="sum-pickup">—</strong></div>
+              <div class="info-row"><span>Điểm trả</span><strong id="sum-dropoff">—</strong></div>
+              <div class="info-row"><span>Tổng tiền</span><strong id="sum-total">—</strong></div>
+              <div class="info-row"><span>Ngày hoàn thành</span><strong id="sum-completed">—</strong></div>
             </div>
           </section>
         </aside>
@@ -69,6 +117,163 @@
     </div>
   </main>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, postAuthenticated } from '../../js/api.js';
+
+  const VEHICLE_VN = { TRUCK_500KG:'Xe tải 500kg', TRUCK_1T:'Xe tải 1 tấn', TRUCK_1_5T:'Xe tải 1.5 tấn', TRUCK_2T:'Xe tải 2 tấn' };
+  const STAR_LABELS = { 1:'Rất tệ', 2:'Tệ', 3:'Bình thường', 4:'Hài lòng', 5:'Rất hài lòng' };
+  const $ = (id) => document.getElementById(id);
+  const vnd = (v) => (v === null || v === undefined) ? '—' : Number(v).toLocaleString('vi-VN') + ' đ';
+  const dt = (iso) => !iso ? '—' : new Date(iso).toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Asia/Ho_Chi_Minh' });
+  const initials = (n) => !n ? 'TX' : n.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  // Backend trả reason dạng "CODE|Thông điệp tiếng Việt" → chỉ hiện phần thông điệp
+  const errText = (e, fallback) => String(e?.message || fallback).split('|').pop().trim();
+
+  let selectedStars = 0;
+  let orderId = null;
+
+  function show(id) {
+    ['rate-loading','rate-error','rate-content'].forEach(x =>
+      $(x).style.display = (x === id) ? (id === 'rate-content' ? 'grid' : 'block') : 'none');
+  }
+
+  function setupStarPicker() {
+    const picker = $('star-picker');
+    picker.querySelectorAll('span[data-star]').forEach(el => {
+      el.addEventListener('click', () => {
+        selectedStars = Number(el.dataset.star);
+        picker.querySelectorAll('span[data-star]').forEach(s => {
+          s.classList.toggle('active', Number(s.dataset.star) <= selectedStars);
+          s.setAttribute('aria-checked', Number(s.dataset.star) === selectedStars ? 'true' : 'false');
+        });
+        $('star-label').textContent = `${selectedStars} sao • ${STAR_LABELS[selectedStars]}`;
+      });
+    });
+  }
+
+  function setupTags() {
+    $('tag-list').querySelectorAll('.tag').forEach(el =>
+      el.addEventListener('click', () => el.classList.toggle('active')));
+  }
+
+  function setupCounter() {
+    const ta = $('comment');
+    ta.addEventListener('input', () => {
+      $('comment-counter').textContent = `${ta.value.length}/500 ký tự`;
+    });
+  }
+
+  // Ghép tag đã chọn + nhận xét tự do thành 1 comment, cắt trần 500 ký tự (khớp backend)
+  function buildComment() {
+    const tags = [...$('tag-list').querySelectorAll('.tag.active')].map(t => t.dataset.tag);
+    const free = $('comment').value.trim();
+    const parts = [];
+    if (tags.length) parts.push('[' + tags.join(', ') + ']');
+    if (free) parts.push(free);
+    return parts.join(' ').slice(0, 500) || null;
+  }
+
+  function renderOrder(o) {
+    $('page-subtitle').textContent =
+      `Chia sẻ trải nghiệm sau đơn ${o.orderCode || ''} để Move_home cải thiện chất lượng dịch vụ.`;
+    $('driver-name').textContent = o.driverName || 'Tài xế';
+    $('driver-avatar').textContent = initials(o.driverName);
+    $('driver-vehicle').textContent = VEHICLE_VN[o.vehicleType] || o.vehicleType || '—';
+    $('sum-code').textContent = o.orderCode || '—';
+    $('sum-pickup').textContent = o.pickupAddress || '—';
+    $('sum-dropoff').textContent = o.dropoffAddress || '—';
+    $('sum-total').textContent = vnd(o.totalQuote);
+    $('sum-completed').textContent = dt(o.completedAt);
+    $('cancel-link').href = `order-detail.html?id=${encodeURIComponent(o.id)}`;
+  }
+
+  async function load() {
+    show('rate-loading');
+    try {
+      const order = await getAuthenticated(`/api/customer/orders/${orderId}`);
+
+      if (order.status !== 'COMPLETED') {
+        show('rate-error');
+        $('rate-error-message').textContent = 'Chỉ có thể đánh giá đơn hàng đã hoàn thành.';
+        $('rate-retry-btn').style.display = 'none';
+        return;
+      }
+
+      // Đơn đã được đánh giá rồi → báo và quay về chi tiết đơn
+      try {
+        await getAuthenticated(`/api/customer/orders/${orderId}/rating`);
+        show('rate-error');
+        $('rate-error-message').textContent = 'Đơn hàng này đã được đánh giá. Cảm ơn bạn!';
+        $('rate-retry-btn').style.display = 'none';
+        $('rate-back-btn').href = `order-detail.html?id=${encodeURIComponent(orderId)}`;
+        $('rate-back-btn').textContent = 'Xem chi tiết đơn';
+        return;
+      } catch { /* 404 = chưa đánh giá → tiếp tục */ }
+
+      renderOrder(order);
+      show('rate-content');
+    } catch (err) {
+      console.error(err);
+      show('rate-error');
+      $('rate-error-message').textContent = errText(err, 'Không thể tải thông tin đơn. Vui lòng thử lại.');
+    }
+  }
+
+  async function submitRating(e) {
+    e.preventDefault();
+    const errEl = $('submit-error');
+    errEl.style.display = 'none';
+
+    if (selectedStars < 1) {
+      errEl.textContent = 'Vui lòng chọn số sao từ 1 đến 5.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const btn = $('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Đang gửi...';
+    try {
+      await postAuthenticated(`/api/customer/orders/${orderId}/rating`, {
+        stars: selectedStars,
+        comment: buildComment(),
+      });
+      $('submit-success').style.display = 'block';
+      setTimeout(() => {
+        window.location.href = `order-detail.html?id=${encodeURIComponent(orderId)}`;
+      }, 1500);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Gửi đánh giá';
+      errEl.textContent = errText(err, 'Không thể gửi đánh giá. Vui lòng thử lại.');
+      errEl.style.display = 'block';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') { logout('../login.html'); return; }
+    $('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+
+    orderId = new URLSearchParams(window.location.search).get('id');
+    if (!orderId) {
+      show('rate-error');
+      $('rate-error-message').textContent = 'Thiếu mã đơn hàng.';
+      $('rate-retry-btn').style.display = 'none';
+      return;
+    }
+
+    setupStarPicker();
+    setupTags();
+    setupCounter();
+    $('rate-form').addEventListener('submit', submitRating);
+    $('rate-retry-btn').addEventListener('click', load);
+    load();
+  });
+</script>
 <!-- JS Common + Bell Dropdown -->
 <script type="module" src="../../js/customer-common.js"></script>
 <script src="../../js/chat-badge.js"></script>

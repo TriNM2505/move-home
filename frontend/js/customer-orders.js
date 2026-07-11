@@ -64,16 +64,24 @@ function renderCard(o) {
   const when = formatDateTimeVN(o.scheduled_at);
   const amount = (o.total_quote === null || o.total_quote === undefined)
     ? '—' : formatVnd(o.total_quote);
+  // Đơn COMPLETED → thêm lối tắt đánh giá tài xế (trang đánh giá tự kiểm tra đã đánh giá / quá hạn 2h)
+  const rateLink = o.status === 'COMPLETED'
+    ? `<a href="order-rate.html?id=${encodeURIComponent(o.id)}"
+          style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-weight:600;color:var(--color-primary);font-size:var(--font-size-body-sm);">★ Đánh giá tài xế</a>`
+    : '';
   return `
-    <a class="order-card" href="order-detail.html?id=${encodeURIComponent(o.id)}">
-      <div>
-        <span class="badge ${meta.badge}">${meta.label}</span>
-        <h2>${escapeHTML(o.order_code)}</h2>
-        <p class="route">${route}</p>
-        <p class="text-muted">${when}</p>
-      </div>
-      <strong>${amount}</strong>
-    </a>`;
+    <div>
+      <a class="order-card" href="order-detail.html?id=${encodeURIComponent(o.id)}">
+        <div>
+          <span class="badge ${meta.badge}">${meta.label}</span>
+          <h2>${escapeHTML(o.order_code)}</h2>
+          <p class="route">${route}</p>
+          <p class="text-muted">${when}</p>
+        </div>
+        <strong>${amount}</strong>
+      </a>
+      ${rateLink}
+    </div>`;
 }
 
 async function loadOrders(scope) {
