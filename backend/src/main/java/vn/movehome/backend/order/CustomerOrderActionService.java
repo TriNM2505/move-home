@@ -2,6 +2,7 @@ package vn.movehome.backend.order;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,11 @@ public class CustomerOrderActionService {
     private final OrderRatingRepository orderRatingRepository;
     private final DriverProfileRepository driverProfileRepository;
     private final DisputeService disputeService;
+
+    // Cua so danh gia TACH RIENG khoi escrow (leader chot 2026-07-11: rating 24h ngoai doi that,
+    // escrow tien van 2h theo CONTEXT §2). Field injection de khong doi constructor.
+    @Value("${app.rating.window-minutes:1440}")
+    private long ratingWindowMinutes;
 
     @Transactional
     public CancelOrderResponse cancelOrder(
@@ -145,6 +151,15 @@ public class CustomerOrderActionService {
         if (!COMPLETED_STATUS.equals(order.getStatus())) {
             throw new IllegalStateException("Chỉ có thể đánh giá đơn hàng đã hoàn thành.");
         }
+        // Chi cho danh gia trong cua so rating (mac dinh 24h — doc lap voi escrow 2h).
+        // Bo qua khi windowMinutes<=0 (tat gioi han) hoac completedAt null (du lieu cu).
+        OffsetDateTime completedAt = order.getCompletedAt();
+        if (ratingWindowMinutes > 0 && completedAt != null
+                && OffsetDateTime.now(ZoneOffset.UTC).isAfter(completedAt.plusMinutes(ratingWindowMinutes))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "RATING_WINDOW_CLOSED|Đã quá thời hạn đánh giá. Bạn chỉ có thể đánh giá trong "
+                            + formatWindowLabel(ratingWindowMinutes) + " sau khi đơn hoàn thành.");
+        }
         if (orderRatingRepository.existsByOrderId(order.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "ORDER_ALREADY_RATED|Đơn hàng này đã được đánh giá.");
@@ -166,6 +181,28 @@ public class CustomerOrderActionService {
                 savedRating.getOrderId(),
                 savedRating.getStars(),
                 "Cảm ơn bạn đã đánh giá đơn hàng.");
+    }
+
+    /**
+     * Tra ve danh gia cua don (neu co) de FE hien "Da danh gia ★x" / an nut danh gia.
+     * HR-10: chi chu don xem duoc; don khong ton tai hoac khong thuoc khach → 404.
+     */
+    @Transactional(readOnly = true)
+    public RatingDetailResponse getOrderRating(UUID customerId, UUID orderId) {
+        ServiceOrder order = orderRepository.findByIdAndCustomerIdAndDeletedAtIsNull(orderId, customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "ORDER_NOT_FOUND|Không tìm thấy đơn hàng."));
+
+        OrderRating rating = orderRatingRepository.findByOrderId(order.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "RATING_NOT_FOUND|Đơn hàng này chưa được đánh giá."));
+
+        return new RatingDetailResponse(
+                rating.getId(),
+                rating.getOrderId(),
+                rating.getStars(),
+                rating.getComment(),
+                rating.getCreatedAt());
     }
 
     private ServiceOrder findOwnedOrderForUpdate(UUID customerId, UUID orderId) {
@@ -215,10 +252,22 @@ public class CustomerOrderActionService {
         }
 
         driverProfileRepository.findByUserId(driverId).ifPresent(profile -> {
-            BigDecimal average = orderRatingRepository.calculateAverageStarsByDriverId(driverId)
-                    .setScale(2, RoundingMode.HALF_UP);
-            profile.setAverageRating(average);
+            BigDecimal average = orderRatingRepository.calculateAverageStarsByDriverId(driverId);
+            // Query COALESCE ve 0 khi chua co dong nao → giu mac dinh 5.00 (V40: tai xe moi 5 sao).
+            // Trung binh thuc luon >= 1.00 nen 0 chi xay ra khi khong co danh gia.
+            if (average.compareTo(BigDecimal.ZERO) == 0) {
+                average = new BigDecimal("5.00");
+            }
+            profile.setAverageRating(average.setScale(2, RoundingMode.HALF_UP));
             driverProfileRepository.save(profile);
         });
+    }
+
+    // "120 phut" → "2 giờ"; so le (vd 90 phut) hien thi phut cho chinh xac.
+    private String formatWindowLabel(long minutes) {
+        if (minutes % 60 == 0) {
+            return (minutes / 60) + " giờ";
+        }
+        return minutes + " phút";
     }
 }

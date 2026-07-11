@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đánh giá tài xế — Move_home</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .rating-filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+    .rating-filters .text-input{max-width:240px}
+    .rating-filters select.text-input{max-width:160px}
+    .star-cell{color:var(--color-accent);font-weight:600;white-space:nowrap}
+    .comment-cell{max-width:360px;white-space:pre-wrap;word-break:break-word}
+    .pagination-bar{display:flex;gap:10px;align-items:center;justify-content:flex-end;padding:12px 16px}
+  </style>
+</head>
+<body>
+
+<div class="site-layout">
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo">
+        <span class="site-logo-text">Move_home</span>
+        <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Quản lý</span>
+      </a>
+
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, <span id="mgr-name">Quản lý</span></span>
+        <div class="avatar avatar-sm avatar-initials">QL</div>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="site-body">
+    <aside class="sidebar" aria-label="Menu quản lý">
+      <nav class="sidebar-nav">
+        <a href="home.html" class="sidebar-item">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </span>
+          <span>Tổng quan</span>
+        </a>
+        <a href="driver-approvals.html" class="sidebar-item">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </span>
+          <span>Duyệt tài xế</span>
+        </a>
+        <a href="driver-ratings.html" class="sidebar-item sidebar-item--active">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </span>
+          <span>Đánh giá tài xế</span>
+        </a>
+        <a href="disputes.html" class="sidebar-item">
+          <span class="sidebar-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </span>
+          <span>Khiếu nại</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="site-main" id="main-content">
+      <div class="dashboard-main">
+        <header class="page-header">
+          <h1 class="page-title">Đánh giá tài xế</h1>
+          <p class="page-subtitle">Toàn bộ nhận xét và số sao khách hàng chấm cho tài xế sau mỗi đơn — dùng để kiểm tra chất lượng dịch vụ.</p>
+        </header>
+
+        <section class="card" aria-label="Danh sách đánh giá tài xế">
+          <div class="card-header">
+            <h2 class="card-title">Danh sách đánh giá</h2>
+            <span class="card-meta" id="total-meta">—</span>
+          </div>
+
+          <div class="rating-filters" style="padding:0 16px;">
+            <input type="text" id="filter-keyword" class="text-input" placeholder="Tìm theo tên tài xế...">
+            <select id="filter-stars" class="text-input">
+              <option value="">Tất cả số sao</option>
+              <option value="5">★★★★★ (5 sao)</option>
+              <option value="4">★★★★ (4 sao)</option>
+              <option value="3">★★★ (3 sao)</option>
+              <option value="2">★★ (2 sao)</option>
+              <option value="1">★ (1 sao)</option>
+            </select>
+            <button id="filter-btn" class="btn-primary btn-sm">Lọc</button>
+            <button id="filter-clear-btn" class="btn-subtle btn-sm">Xóa lọc</button>
+          </div>
+
+          <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th class="table-th-eyebrow">Tài xế</th>
+                  <th class="table-th-eyebrow">Khách hàng</th>
+                  <th class="table-th-eyebrow">Mã đơn</th>
+                  <th class="table-th-eyebrow">Số sao</th>
+                  <th class="table-th-eyebrow">Nhận xét</th>
+                  <th class="table-th-eyebrow">Ngày đánh giá</th>
+                </tr>
+              </thead>
+              <tbody id="rating-tbody">
+                <tr><td colspan="6" style="text-align:center;padding:24px;">Đang tải...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination-bar">
+            <span class="text-muted" id="page-info" style="font-size:var(--font-size-body-sm);">—</span>
+            <button id="prev-btn" class="btn-secondary btn-sm" disabled>‹ Trước</button>
+            <button id="next-btn" class="btn-secondary btn-sm" disabled>Sau ›</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  const PAGE_SIZE = 10;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtDate = (iso) => !iso ? '—' : new Date(iso).toLocaleString('vi-VN', {
+    hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Asia/Ho_Chi_Minh' });
+  const starText = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
+
+  let currentPage = 0;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const u = getCurrentUser();
+    if (u?.role !== 'MANAGER') { logout('../login.html'); return; }
+    if (u.fullName) $('mgr-name').textContent = u.fullName;
+    $('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+
+    $('filter-btn').addEventListener('click', () => { currentPage = 0; load(); });
+    $('filter-clear-btn').addEventListener('click', () => {
+      $('filter-keyword').value = '';
+      $('filter-stars').value = '';
+      currentPage = 0;
+      load();
+    });
+    $('filter-keyword').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { currentPage = 0; load(); }
+    });
+    $('prev-btn').addEventListener('click', () => { if (currentPage > 0) { currentPage--; load(); } });
+    $('next-btn').addEventListener('click', () => { currentPage++; load(); });
+
+    load();
+  });
+
+  async function load() {
+    const tbody = $('rating-tbody');
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;">Đang tải...</td></tr>`;
+
+    const params = new URLSearchParams({ page: currentPage, size: PAGE_SIZE });
+    const keyword = $('filter-keyword').value.trim();
+    const stars = $('filter-stars').value;
+    if (keyword) params.set('keyword', keyword);
+    if (stars) params.set('stars', stars);
+
+    try {
+      const data = await getAuthenticated(`/api/manager/driver-ratings?${params.toString()}`);
+      const items = (data && data.content) || [];
+      const total = data?.totalElements ?? items.length;
+      const totalPages = data?.totalPages ?? 1;
+
+      $('total-meta').textContent = `Tổng ${total} đánh giá`;
+
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--color-mute)">Không có đánh giá nào để hiển thị.</td></tr>`;
+        $('page-info').textContent = '—';
+        $('prev-btn').disabled = true;
+        $('next-btn').disabled = true;
+        return;
+      }
+
+      tbody.innerHTML = items.map(r => `
+        <tr>
+          <td><strong>${esc(r.driver_name || 'Chưa gán tài xế')}</strong></td>
+          <td>${esc(r.customer_name || '—')}</td>
+          <td>${esc(r.order_code || '—')}</td>
+          <td class="star-cell" title="${r.stars}/5 sao">${starText(r.stars)} ${r.stars}/5</td>
+          <td class="comment-cell">${r.comment ? esc(r.comment) : '<span class="text-muted">Không có nhận xét</span>'}</td>
+          <td>${fmtDate(r.created_at)}</td>
+        </tr>`).join('');
+
+      const from = currentPage * PAGE_SIZE + 1;
+      const to = Math.min((currentPage + 1) * PAGE_SIZE, total);
+      $('page-info').textContent = `Hiển thị ${from}–${to} trong ${total} đánh giá`;
+      $('prev-btn').disabled = currentPage <= 0;
+      $('next-btn').disabled = currentPage >= totalPages - 1;
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `
+        <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--color-danger)">
+          Không thể tải dữ liệu. <button id="retry-btn" class="btn-secondary btn-sm" style="margin-left:8px;">Thử lại</button>
+        </td></tr>`;
+      document.getElementById('retry-btn')?.addEventListener('click', load);
+      $('page-info').textContent = '—';
+      $('prev-btn').disabled = true;
+      $('next-btn').disabled = true;
+    }
+  }
+</script>
+
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/notifications-bell.js"></script>
+</body>
+</html>

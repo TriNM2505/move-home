@@ -84,9 +84,10 @@ public class DriverProfile {
     @Builder.Default
     private BigDecimal totalRevenue = BigDecimal.ZERO;
 
+    // Tài xế mới mặc định 5.00 sao cho đến khi có đánh giá đầu tiên (V40)
     @Column(name = "average_rating", precision = 3, scale = 2, nullable = false)
     @Builder.Default
-    private BigDecimal averageRating = new BigDecimal("0.00");
+    private BigDecimal averageRating = new BigDecimal("5.00");
 
     @Column(name = "onboarding_completed_at")
     private OffsetDateTime onboardingCompletedAt;
