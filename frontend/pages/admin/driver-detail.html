@@ -58,7 +58,6 @@
       <div class="site-header-actions quick-nav">
         <a href="drivers.html" class="btn-subtle" style="font-weight: 500;">Tài xế</a>
         <a href="transactions.html" class="btn-subtle" style="font-weight: 500;">Giao dịch</a>
-        <a href="reports.html" class="btn-subtle" style="font-weight: 500;">Báo cáo</a>
         <a href="../login.html" class="btn-secondary" id="logout-btn" style="font-weight: 500;">Đăng xuất</a>
       </div>
     </div>
@@ -102,12 +101,6 @@
           </span>
           <span>Giao dịch</span>
         </a>
-        <a href="reports.html" class="sidebar-item">
-          <span class="sidebar-icon" style="display: inline-flex; align-items: center;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-          </span>
-          <span>Báo cáo</span>
-        </a>
         <div class="sidebar-divider"></div>
         <a href="settings.html" class="sidebar-item">
           <span class="sidebar-icon" style="display: inline-flex; align-items: center;">
@@ -124,13 +117,15 @@
           <p class="page-subtitle" style="font-size: var(--font-size-body-sm); color: var(--color-body);">Hồ sơ, phương tiện, hiệu suất và lịch sử hoạt động.</p>
         </header>
 
+        <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-lg);"></div>
+
         <section class="card mb-8" style="background-color: var(--color-canvas); border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-xl);">
           <div class="card-body profile-head" style="padding: var(--spacing-xl);">
-            <div class="avatar-lg">LC</div>
+            <div class="avatar-lg" id="dd-avatar">—</div>
             <div>
-              <h2 style="font-size: var(--font-size-display-sm); font-weight: 700; color: var(--color-ink); margin-bottom: 4px;">Lê Văn Cường</h2>
-              <p class="text-muted" style="font-size: var(--font-size-body-sm); margin-bottom: 8px;">Tài xế đang hoạt động • Xe tải 1 tấn • Biển số 30E-56789</p>
-              <span class="badge-active">Đang hoạt động</span>
+              <h2 id="dd-name" style="font-size: var(--font-size-display-sm); font-weight: 700; color: var(--color-ink); margin-bottom: 4px;">Đang tải...</h2>
+              <p class="text-muted" id="dd-subtitle" style="font-size: var(--font-size-body-sm); margin-bottom: 8px;">—</p>
+              <span id="dd-status-badge" class="badge-pending">—</span>
             </div>
           </div>
         </section>
@@ -138,25 +133,25 @@
         <section class="grid-4 mb-8">
           <div class="kpi kpi-primary">
             <div class="kpi-body">
-              <div class="kpi-value">23</div>
+              <div class="kpi-value" id="dd-kpi-completed">—</div>
               <div class="kpi-label">Đơn đã giao</div>
             </div>
           </div>
           <div class="kpi kpi-success">
             <div class="kpi-body">
-              <div class="kpi-value">31,2tr</div>
-              <div class="kpi-label">Doanh thu tháng</div>
+              <div class="kpi-value" id="dd-kpi-earned">—</div>
+              <div class="kpi-label">Tổng thu nhập</div>
             </div>
           </div>
           <div class="kpi kpi-warning">
             <div class="kpi-body">
-              <div class="kpi-value">4,7</div>
+              <div class="kpi-value" id="dd-kpi-rating">—</div>
               <div class="kpi-label">Đánh giá trung bình</div>
             </div>
           </div>
           <div class="kpi kpi-info">
             <div class="kpi-body">
-              <div class="kpi-value">96%</div>
+              <div class="kpi-value" id="dd-kpi-completion">—</div>
               <div class="kpi-label">Tỷ lệ hoàn thành</div>
             </div>
           </div>
@@ -168,36 +163,24 @@
               <h2 class="card-title" style="font-size: var(--font-size-body-md); font-weight: 700;">Giấy phép và xe</h2>
             </div>
             <div class="card-body" style="padding: var(--spacing-xl);">
-              <div class="info-row"><span>Số bằng lái</span><strong>GPLX-C-029384</strong></div>
-              <div class="info-row"><span>Hạng bằng</span><strong>C</strong></div>
-              <div class="info-row"><span>Loại xe</span><strong>Xe tải 1 tấn</strong></div>
-              <div class="info-row"><span>Năm sản xuất</span><strong>2021</strong></div>
-              <div class="info-row"><span>Trạng thái hồ sơ</span><strong>Đã xác minh</strong></div>
+              <div class="info-row"><span>Số bằng lái</span><strong id="dd-license-number">—</strong></div>
+              <div class="info-row"><span>Hạng bằng</span><strong id="dd-license-class">—</strong></div>
+              <div class="info-row"><span>Loại xe</span><strong id="dd-vehicle-type">—</strong></div>
+              <div class="info-row"><span>Biển số</span><strong id="dd-vehicle-plate">—</strong></div>
+              <div class="info-row"><span>Trạng thái hồ sơ</span><strong id="dd-profile-status">—</strong></div>
             </div>
           </section>
 
           <section class="card" style="background-color: var(--color-canvas); border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-xl); overflow: hidden;">
             <div class="card-header" style="background-color: var(--color-canvas-soft); padding: var(--spacing-md) var(--spacing-xl);">
-              <h2 class="card-title" style="font-size: var(--font-size-body-md); font-weight: 700;">Thu nhập 30 ngày</h2>
+              <h2 class="card-title" style="font-size: var(--font-size-body-md); font-weight: 700;">Ví &amp; cọc</h2>
             </div>
             <div class="card-body" style="padding: var(--spacing-xl);">
-              <p class="text-muted mb-md" style="font-size: var(--font-size-body-sm); margin-bottom: 16px;">Mô phỏng biểu đồ doanh thu theo tuần.</p>
-              <div class="mb-md" style="margin-bottom: 12px;">
-                <strong style="font-size: var(--font-size-body-sm);">Tuần 1</strong>
-                <div class="bar mt-sm" style="margin-top: 6px;"><span style="width:72%"></span></div>
-              </div>
-              <div class="mb-md" style="margin-bottom: 12px;">
-                <strong style="font-size: var(--font-size-body-sm);">Tuần 2</strong>
-                <div class="bar mt-sm" style="margin-top: 6px;"><span style="width:88%"></span></div>
-              </div>
-              <div class="mb-md" style="margin-bottom: 12px;">
-                <strong style="font-size: var(--font-size-body-sm);">Tuần 3</strong>
-                <div class="bar mt-sm" style="margin-top: 6px;"><span style="width:63%"></span></div>
-              </div>
-              <div>
-                <strong style="font-size: var(--font-size-body-sm);">Tuần 4</strong>
-                <div class="bar mt-sm" style="margin-top: 6px;"><span style="width:94%"></span></div>
-              </div>
+              <div class="info-row"><span>Số dư ví</span><strong id="dd-wallet-balance">—</strong></div>
+              <div class="info-row"><span>Tổng đã nhận</span><strong id="dd-wallet-earned">—</strong></div>
+              <div class="info-row"><span>Tổng đã rút</span><strong id="dd-wallet-withdrawn">—</strong></div>
+              <div class="info-row"><span>Tiền cọc</span><strong id="dd-deposit-amount">—</strong></div>
+              <div class="info-row"><span>Trạng thái cọc</span><strong id="dd-deposit-status">—</strong></div>
             </div>
           </section>
         </div>
@@ -205,31 +188,19 @@
         <section class="card mb-8" style="background-color: var(--color-canvas); border: 1px solid var(--color-surface-pressed); border-radius: var(--rounded-xl); overflow: hidden;">
           <div class="card-header" style="background-color: var(--color-canvas-soft); padding: var(--spacing-md) var(--spacing-xl); display: flex; align-items: center; justify-content: space-between;">
             <h2 class="card-title" style="font-size: var(--font-size-body-md); font-weight: 700;">Lịch sử đơn gần đây</h2>
-            <a href="order-detail.html" class="link-primary" style="font-size: var(--font-size-body-sm); font-weight: 500;">Xem chi tiết đơn</a>
           </div>
           <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
             <table class="table">
               <thead>
                 <tr>
                   <th class="table-th-eyebrow">Mã đơn</th>
-                  <th class="table-th-eyebrow">Khách hàng</th>
+                  <th class="table-th-eyebrow">Tuyến</th>
                   <th class="table-th-eyebrow">Trạng thái</th>
-                  <th class="table-th-eyebrow text-right">Thu nhập</th>
+                  <th class="table-th-eyebrow text-right">Giá trị</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>MH2026060001</td>
-                  <td>Nguyễn Văn An</td>
-                  <td><span class="badge-in-progress">Đang giao</span></td>
-                  <td class="text-right num-money" style="font-weight: 500;">1.050.000 đ</td>
-                </tr>
-                <tr>
-                  <td>MH2026060002</td>
-                  <td>Trần Thị Bình</td>
-                  <td><span class="badge-completed">Hoàn thành</span></td>
-                  <td class="text-right num-money" style="font-weight: 500;">1.610.000 đ</td>
-                </tr>
+              <tbody id="dd-orders-body">
+                <tr><td colspan="4" class="table-empty-row"><span class="spinner spinner-sm"></span> Đang tải...</td></tr>
               </tbody>
             </table>
           </div>
@@ -238,12 +209,12 @@
         <div class="flex flex-wrap gap-sm" style="gap: var(--spacing-md); margin-top: var(--spacing-xl);">
           <a href="drivers.html" class="btn-secondary" style="font-weight: 500;">Quay lại</a>
           <a href="drivers.html" class="btn-danger">Khóa tài khoản</a>
-          <a href="drivers.html" class="btn-primary" style="font-weight: 500;">Duyệt lại hồ sơ</a>
         </div>
       </div>
     </main>
   </div>
 </div>
+<script type="module" src="../../js/admin-driver-detail.js"></script>
 <script type="module" src="../../js/admin-user-account.js"></script>
 <!-- JS Common + Bell Dropdown -->
 <script type="module" src="../../js/notifications-bell.js"></script>

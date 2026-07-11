@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -146,8 +147,9 @@ public class AdminTransactionService {
     }
 
     private Map<UUID, User> loadUsers(Collection<UUID> ids) {
+        // HashMap thay vi Map.of(): cho phep .get(null) tra null (giao dich khong gan user/don/rut tien)
         if (ids == null || ids.isEmpty()) {
-            return Map.of();
+            return new HashMap<>();
         }
         return userRepository.findAllById(ids)
                 .stream()
@@ -156,7 +158,7 @@ public class AdminTransactionService {
 
     private Map<UUID, ServiceOrder> loadOrders(Set<UUID> ids) {
         if (ids == null || ids.isEmpty()) {
-            return Map.of();
+            return new HashMap<>();
         }
         return orderRepository.findAllById(ids)
                 .stream()
@@ -165,7 +167,7 @@ public class AdminTransactionService {
 
     private Map<UUID, WithdrawalRequest> loadWithdrawals(Set<UUID> ids) {
         if (ids == null || ids.isEmpty()) {
-            return Map.of();
+            return new HashMap<>();
         }
         return withdrawalRequestRepository.findAllById(ids)
                 .stream()

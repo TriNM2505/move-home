@@ -47,9 +47,12 @@ function renderDriversTable(drivers) {
   tbody.innerHTML = drivers.map(d => {
     const rowClass = d.status === 'PENDING_APPROVAL' ? 'row-warning' : '';
     const stars    = parseFloat(d.averageRating || 0).toFixed(1);
+    const nameCell = d.userId
+      ? `<a href="driver-detail.html?id=${encodeURIComponent(d.userId)}" class="link-primary"><strong>${esc(d.fullName)}</strong></a>`
+      : `<strong>${esc(d.fullName)}</strong>`;
     return `
       <tr class="${rowClass}">
-        <td><strong>${esc(d.fullName)}</strong></td>
+        <td>${nameCell}</td>
         <td class="text-muted">${esc(d.email)}</td>
         <td>${esc(d.phone) || '—'}</td>
         <td>${esc(d.licenseNumber) || '—'}</td>

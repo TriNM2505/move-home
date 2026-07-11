@@ -8,12 +8,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import vn.movehome.backend.entity.CustomerWallet;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface WalletRepository extends JpaRepository<CustomerWallet, UUID> {
 
     Optional<CustomerWallet> findByCustomerId(UUID customerId);
+
+    // Load nhieu vi theo danh sach customer — dung cho hang doi Admin duyet rut tien.
+    List<CustomerWallet> findByCustomerIdIn(Collection<UUID> customerIds);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select w from CustomerWallet w where w.customerId = :customerId")

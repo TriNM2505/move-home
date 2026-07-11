@@ -183,10 +183,12 @@
           <div class="eyebrow-tag" style="color: rgba(255,255,255,0.8);">TÀI KHOẢN VÍ</div>
           <div class="balance" id="wallet-balance-val" style="font-size: var(--font-size-display-xl); font-weight: var(--font-weight-bold); line-height: 1.1; color: var(--color-on-primary);">0 đ</div>
           <p class="mt-sm" id="wallet-updated-at" style="font-size: var(--font-size-caption); color: rgba(255,255,255,0.7); margin-top: var(--spacing-sm); margin-bottom: 0;">Đang cập nhật...</p>
+          <p style="font-size: var(--font-size-caption); color: rgba(255,255,255,0.7); margin-top: var(--spacing-xxs); margin-bottom: 0;">Đã rút tích lũy: <span id="wallet-withdrawn-val" style="font-weight: var(--font-weight-semibold); color: var(--color-on-primary);">0 đ</span></p>
         </div>
         <div class="wallet-actions" style="position: relative; z-index: 1; display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
           <button id="open-topup-btn" class="btn-primary-amber">Nạp tiền</button>
-          <a href="home.html" class="btn-secondary" style="color: var(--color-on-primary); border-color: rgba(255, 255, 255, 0.6); background: transparent;">Đặt đơn mới</a>
+          <a href="withdrawal-request.html" class="btn-secondary" style="color: var(--color-on-primary); border-color: rgba(255, 255, 255, 0.6); background: transparent;">Rút tiền</a>
+          <a href="withdrawal-history.html" class="btn-secondary" style="color: var(--color-on-primary); border-color: rgba(255, 255, 255, 0.6); background: transparent;">Lịch sử rút</a>
         </div>
       </section>
 
@@ -453,6 +455,10 @@
       document.getElementById('kpi-topped-up').textContent = formatVnd(wallet.totalToppedUp);
       document.getElementById('kpi-spent').textContent = formatVnd(wallet.totalSpent);
       document.getElementById('kpi-balance').textContent = formatVnd(wallet.balance);
+
+      // Tong da rut tich luy (V39 — total_withdrawn)
+      const withdrawnEl = document.getElementById('wallet-withdrawn-val');
+      if (withdrawnEl) withdrawnEl.textContent = formatVnd(wallet.totalWithdrawn);
     } catch (err) {
       console.error(err);
       const banner = document.getElementById('error-banner');
@@ -626,7 +632,8 @@
       DEPOSIT_REFUND: 'Hoàn đặt cọc',
       DRIVER_EARNING: 'Thu nhập tài xế',
       PLATFORM_FEE: 'Phí nền tảng',
-      DAMAGE_DEDUCTION: 'Khấu trừ đền bù'
+      DAMAGE_DEDUCTION: 'Khấu trừ đền bù',
+      WITHDRAWAL: 'Rút tiền'
     };
     return types[type] || type;
   }

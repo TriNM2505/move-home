@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public record WalletSummaryDTO(
         BigDecimal balance,
         BigDecimal totalToppedUp,
-        BigDecimal totalSpent
+        BigDecimal totalSpent,
+        BigDecimal totalWithdrawn
 ) {
 }

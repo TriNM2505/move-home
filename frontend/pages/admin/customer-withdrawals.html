@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rút tiền — Move_home Admin</title>
+  <title>Rút tiền khách hàng — Move_home Admin</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,21 +11,6 @@
 
   <link rel="stylesheet" href="../../css/styles.css">
   <style>
-    /* CSS rieng cho trang nay (additive) — khong dung class dung chung */
-    .wd-tabs { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg); flex-wrap: wrap; }
-    .wd-tab {
-      border: 1px solid var(--color-surface-pressed); background: var(--color-canvas);
-      color: var(--color-ink); padding: var(--spacing-sm) var(--spacing-lg);
-      border-radius: var(--rounded-pill); font-weight: 500; cursor: pointer;
-      font-size: var(--font-size-body-sm); transition: all 150ms;
-    }
-    .wd-tab.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
-    .wd-badge-count {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 20px; height: 20px; padding: 0 6px; margin-left: 6px;
-      border-radius: 999px; background: var(--color-accent); color: #1A1A1A;
-      font-size: 12px; font-weight: 700;
-    }
     .wd-table td, .wd-table th { padding: var(--spacing-md) var(--spacing-lg); }
     .wd-blocking { color: var(--color-danger); font-size: var(--font-size-caption); }
     .wd-modal-overlay {
@@ -62,18 +47,15 @@
   <!-- HEADER -->
   <header class="site-header">
     <div class="container site-header-inner">
-
       <a href="../../index.html" class="site-logo">
         <span class="site-logo-text">Move_home</span>
         <span class="user-menu-name" style="color:var(--color-mute); font-weight:400; margin-left:8px;">Admin</span>
       </a>
-
       <div class="site-header-actions">
         <span class="user-menu-name">Xin chào, <span id="header-user-name">Admin</span></span>
         <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">AD</div>
         <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
-
     </div>
   </header>
 
@@ -106,13 +88,13 @@
           </span>
           <span>Khách hàng</span>
         </a>
-        <a href="withdrawals.html" class="sidebar-item sidebar-item--active">
+        <a href="withdrawals.html" class="sidebar-item">
           <span class="sidebar-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
           </span>
           <span>Rút tiền (tài xế)</span>
         </a>
-        <a href="customer-withdrawals.html" class="sidebar-item">
+        <a href="customer-withdrawals.html" class="sidebar-item sidebar-item--active">
           <span class="sidebar-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v-2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
           </span>
@@ -140,8 +122,8 @@
 
         <header class="page-header">
           <span class="eyebrow">Quản trị tài chính</span>
-          <h1 class="page-title">Yêu cầu rút tiền</h1>
-          <p class="page-subtitle">Duyệt và theo dõi yêu cầu rút tiền của tài xế. Chuyển khoản thủ công rồi xác nhận tại đây.</p>
+          <h1 class="page-title">Yêu cầu rút tiền của khách hàng</h1>
+          <p class="page-subtitle">Duyệt yêu cầu rút tiền từ ví khách hàng (tiền hoàn từ đơn bị hủy). Chuyển khoản thủ công rồi xác nhận tại đây.</p>
         </header>
 
         <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-lg);"></div>
@@ -171,19 +153,13 @@
           </div>
         </section>
 
-        <!-- TABS -->
-        <div class="wd-tabs" role="tablist">
-          <button class="wd-tab active" id="tab-pending" role="tab">Chờ duyệt<span class="wd-badge-count" id="tab-pending-count" style="display:none;">0</span></button>
-          <button class="wd-tab" id="tab-history" role="tab">Lịch sử</button>
-        </div>
-
         <!-- PENDING PANEL -->
         <section id="panel-pending" class="card" style="border: none; border-radius: 16px; box-shadow: var(--shadow-level-1); overflow: hidden;">
           <div class="table-wrapper" style="border: none; box-shadow: none; overflow-x: auto;">
             <table class="table wd-table" style="min-width: 980px; width: 100%; margin-bottom: 0;">
               <thead>
                 <tr style="background: var(--color-canvas-soft); text-align: left;">
-                  <th>Tài xế</th>
+                  <th>Khách hàng</th>
                   <th>Số tiền</th>
                   <th>Ngân hàng nhận</th>
                   <th>Ngày yêu cầu</th>
@@ -200,40 +176,6 @@
           </div>
         </section>
 
-        <!-- HISTORY PANEL -->
-        <section id="panel-history" class="card" style="display: none; border: none; border-radius: 16px; box-shadow: var(--shadow-level-1); overflow: hidden;">
-          <div style="padding: var(--spacing-md) var(--spacing-2xl); border-bottom: 1px solid var(--color-surface-pressed); display: flex; gap: var(--spacing-md); align-items: center; flex-wrap: wrap;">
-            <label class="form-label" for="history-status-filter" style="margin: 0;">Trạng thái:</label>
-            <select class="text-input" id="history-status-filter" style="width: auto; min-width: 160px;">
-              <option value="ALL">Tất cả</option>
-              <option value="PENDING">Đang chờ</option>
-              <option value="PROCESSED">Đã chuyển khoản</option>
-              <option value="REJECTED">Đã từ chối</option>
-            </select>
-          </div>
-          <div class="table-wrapper" style="border: none; box-shadow: none; overflow-x: auto;">
-            <table class="table wd-table" style="min-width: 980px; width: 100%; margin-bottom: 0;">
-              <thead>
-                <tr style="background: var(--color-canvas-soft); text-align: left;">
-                  <th>Tài xế</th>
-                  <th>Số tiền</th>
-                  <th>Ngân hàng nhận</th>
-                  <th>Trạng thái</th>
-                  <th>Ngày yêu cầu</th>
-                  <th>Ngày xử lý</th>
-                  <th>Người xử lý</th>
-                  <th>Mã CK</th>
-                </tr>
-              </thead>
-              <tbody id="history-table-body"></tbody>
-            </table>
-          </div>
-          <div id="history-state" style="padding: var(--spacing-lg);"></div>
-          <div class="card-footer" style="border-top: 1px solid var(--color-surface-pressed); padding: var(--spacing-md) var(--spacing-2xl);">
-            <div id="history-pagination"></div>
-          </div>
-        </section>
-
       </div>
     </main>
 
@@ -247,7 +189,7 @@
     <div class="wd-modal-summary" id="process-summary"></div>
     <div class="form-group">
       <label class="form-label" for="process-bank-ref">Mã giao dịch ngân hàng <span style="color: var(--color-danger);">*</span></label>
-      <input class="text-input" id="process-bank-ref" placeholder="VD: FT20260710123456" maxlength="100">
+      <input class="text-input" id="process-bank-ref" placeholder="VD: FT20260711123456" maxlength="100">
       <p class="wd-field-error" id="process-bank-ref-error"></p>
       <p style="color: var(--color-body); font-size: var(--font-size-caption); margin-top: 4px;">Mã tham chiếu trên biên lai chuyển khoản (6–100 ký tự chữ, số, . _ / -).</p>
     </div>
@@ -269,7 +211,7 @@
     <div class="wd-modal-summary" id="reject-summary"></div>
     <div class="form-group">
       <label class="form-label" for="reject-reason">Lý do từ chối <span style="color: var(--color-danger);">*</span></label>
-      <textarea class="text-input" id="reject-reason" rows="3" maxlength="500" placeholder="Nhập lý do từ chối (tối thiểu 10 ký tự) — tài xế sẽ nhận được thông báo kèm lý do này."></textarea>
+      <textarea class="text-input" id="reject-reason" rows="3" maxlength="500" placeholder="Nhập lý do từ chối (tối thiểu 10 ký tự) — khách hàng sẽ nhận được thông báo kèm lý do này."></textarea>
       <p class="wd-field-error" id="reject-reason-error"></p>
     </div>
     <div style="display: flex; gap: var(--spacing-md); justify-content: flex-end; margin-top: var(--spacing-lg);">
@@ -281,27 +223,15 @@
 
 <!-- ES Module Script -->
 <script type="module">
-  import { setupAdminPage, formatVnd, formatDateTime, renderPagination, renderEmpty, renderError, renderLoading, esc, showError, hideError } from '../../js/admin-common.js';
+  import { setupAdminPage, formatVnd, formatDateTime, renderPagination, renderEmpty, renderError, renderLoading, esc, hideError } from '../../js/admin-common.js';
   import { getAuthenticated, postAuthenticated } from '../../js/api.js';
 
   let pendingPage = 0, pendingSize = 20;
-  let historyPage = 0, historySize = 20, historyStatus = 'ALL';
   let activeItem = null; // yeu cau dang duoc thao tac trong modal
 
   document.addEventListener('DOMContentLoaded', () => {
     if (!setupAdminPage('../login.html')) return;
 
-    // Tabs
-    document.getElementById('tab-pending').addEventListener('click', () => switchTab('pending'));
-    document.getElementById('tab-history').addEventListener('click', () => switchTab('history'));
-
-    // History filter
-    document.getElementById('history-status-filter').addEventListener('change', (e) => {
-      historyStatus = e.target.value;
-      loadHistory(0, historySize);
-    });
-
-    // Modal buttons
     document.getElementById('process-cancel-btn').addEventListener('click', () => closeModal('process-modal'));
     document.getElementById('reject-cancel-btn').addEventListener('click', () => closeModal('reject-modal'));
     document.getElementById('process-confirm-btn').addEventListener('click', confirmProcess);
@@ -314,17 +244,6 @@
     loadPending(0, pendingSize);
   });
 
-  function switchTab(tab) {
-    document.getElementById('tab-pending').classList.toggle('active', tab === 'pending');
-    document.getElementById('tab-history').classList.toggle('active', tab === 'history');
-    document.getElementById('panel-pending').style.display = tab === 'pending' ? 'block' : 'none';
-    document.getElementById('panel-history').style.display = tab === 'history' ? 'block' : 'none';
-    if (tab === 'pending') loadPending(pendingPage, pendingSize);
-    else loadHistory(historyPage, historySize);
-  }
-
-  // ===== TAB CHỜ DUYỆT =====
-
   async function loadPending(page, size) {
     pendingPage = page; pendingSize = size;
     hideError();
@@ -334,17 +253,13 @@
     renderLoading(stateEl, 'Đang tải danh sách chờ duyệt...');
 
     try {
-      const data = await getAuthenticated(`/api/admin/withdrawals/pending?page=${page}&size=${size}`);
+      const data = await getAuthenticated(`/api/admin/customer-withdrawals/pending?page=${page}&size=${size}`);
 
-      // KPI
       document.getElementById('kpi-pending-count').textContent = data.pendingCount ?? 0;
       document.getElementById('kpi-pending-amount').textContent = formatVnd(data.pendingAmount ?? 0);
       document.getElementById('kpi-oldest-days').textContent = data.oldestWaitingDays ?? 0;
       document.getElementById('kpi-over-sla').textContent =
         (data.overSlaCount ?? 0) > 0 ? `${data.overSlaCount} yêu cầu quá hạn 24 giờ` : 'Không có yêu cầu quá hạn';
-      const countBadge = document.getElementById('tab-pending-count');
-      countBadge.textContent = data.pendingCount ?? 0;
-      countBadge.style.display = (data.pendingCount ?? 0) > 0 ? 'inline-flex' : 'none';
 
       stateEl.innerHTML = '';
       if (!data.content || data.content.length === 0) {
@@ -377,8 +292,8 @@
 
     tr.innerHTML = `
       <td>
-        <strong>${esc(item.driverName)}</strong>
-        <div style="color: var(--color-body); font-size: var(--font-size-caption);">${esc(item.driverPhone)}</div>
+        <strong>${esc(item.customerName)}</strong>
+        <div style="color: var(--color-body); font-size: var(--font-size-caption);">${esc(item.customerPhone)}</div>
       </td>
       <td style="font-weight: 700;">${formatVnd(item.amount)}</td>
       <td>
@@ -419,20 +334,17 @@
 
   function mapBlockingReason(code) {
     const map = {
-      DRIVER_NOT_FOUND: 'Không tìm thấy tài xế',
-      DRIVER_NOT_ACTIVE: 'Tài xế không còn hoạt động',
+      CUSTOMER_NOT_FOUND: 'Không tìm thấy khách hàng',
       INSUFFICIENT_CURRENT_BALANCE: 'Số dư ví không đủ',
       BANK_ACCOUNT_MISSING: 'Thiếu số tài khoản ngân hàng',
     };
     return map[code] || code;
   }
 
-  // ===== MODAL DUYỆT =====
-
   function openProcessModal(item) {
     activeItem = item;
     document.getElementById('process-summary').innerHTML = `
-      Tài xế: <strong>${esc(item.driverName)}</strong> — ${esc(item.driverPhone)}<br>
+      Khách hàng: <strong>${esc(item.customerName)}</strong> — ${esc(item.customerPhone)}<br>
       Số tiền: <strong>${formatVnd(item.amount)}</strong><br>
       Chuyển đến: <strong>${esc(item.bankName)}</strong> — <span style="font-family:monospace;">${esc(item.bankAccountMasked)}</span><br>
       <span style="color: var(--color-body);">Hãy chuyển khoản trước, sau đó nhập mã giao dịch để xác nhận.</span>
@@ -444,11 +356,9 @@
   }
 
   async function confirmProcess() {
-    const refInput = document.getElementById('process-bank-ref');
-    const bankTxnRef = refInput.value.trim();
+    const bankTxnRef = document.getElementById('process-bank-ref').value.trim();
     hideFieldError('process-bank-ref-error');
 
-    // Validate khop rule backend: 6-100 ky tu [A-Za-z0-9._/-]
     if (!/^[A-Za-z0-9._\/-]{6,100}$/.test(bankTxnRef)) {
       showFieldError('process-bank-ref-error', 'Mã giao dịch phải dài 6–100 ký tự, chỉ gồm chữ, số và . _ / -');
       return;
@@ -459,12 +369,12 @@
     btn.textContent = 'Đang xử lý...';
     try {
       const note = document.getElementById('process-note').value.trim();
-      await postAuthenticated(`/api/admin/withdrawals/${activeItem.id}/process`, {
+      await postAuthenticated(`/api/admin/customer-withdrawals/${activeItem.id}/process`, {
         bankTxnRef,
         processingNote: note || null,
       });
       closeModal('process-modal');
-      showToast(`Đã duyệt yêu cầu rút ${formatVnd(activeItem.amount)} của ${activeItem.driverName}.`);
+      showToast(`Đã duyệt yêu cầu rút ${formatVnd(activeItem.amount)} của ${activeItem.customerName}.`);
       loadPending(pendingPage, pendingSize);
     } catch (err) {
       console.error(err);
@@ -475,12 +385,10 @@
     }
   }
 
-  // ===== MODAL TỪ CHỐI =====
-
   function openRejectModal(item) {
     activeItem = item;
     document.getElementById('reject-summary').innerHTML = `
-      Tài xế: <strong>${esc(item.driverName)}</strong><br>
+      Khách hàng: <strong>${esc(item.customerName)}</strong><br>
       Số tiền: <strong>${formatVnd(item.amount)}</strong>
     `;
     document.getElementById('reject-reason').value = '';
@@ -492,7 +400,6 @@
     const reason = document.getElementById('reject-reason').value.trim().replace(/\s+/g, ' ');
     hideFieldError('reject-reason-error');
 
-    // Validate khop rule backend: 10-500 ky tu, co it nhat 1 chu cai
     if (reason.length < 10 || reason.length > 500 || !/[a-zA-ZÀ-ỹ]/.test(reason)) {
       showFieldError('reject-reason-error', 'Lý do phải dài 10–500 ký tự và có nội dung chữ.');
       return;
@@ -502,9 +409,9 @@
     btn.disabled = true;
     btn.textContent = 'Đang xử lý...';
     try {
-      await postAuthenticated(`/api/admin/withdrawals/${activeItem.id}/reject`, { reason });
+      await postAuthenticated(`/api/admin/customer-withdrawals/${activeItem.id}/reject`, { reason });
       closeModal('reject-modal');
-      showToast(`Đã từ chối yêu cầu rút tiền của ${activeItem.driverName}.`);
+      showToast(`Đã từ chối yêu cầu rút tiền của ${activeItem.customerName}.`);
       loadPending(pendingPage, pendingSize);
     } catch (err) {
       console.error(err);
@@ -514,68 +421,6 @@
       btn.textContent = 'Từ chối yêu cầu';
     }
   }
-
-  // ===== TAB LỊCH SỬ =====
-
-  async function loadHistory(page, size) {
-    historyPage = page; historySize = size;
-    const tbody = document.getElementById('history-table-body');
-    const stateEl = document.getElementById('history-state');
-    tbody.innerHTML = '';
-    renderLoading(stateEl, 'Đang tải lịch sử rút tiền...');
-
-    try {
-      const data = await getAuthenticated(
-        `/api/admin/withdrawals?page=${page}&size=${size}&status=${encodeURIComponent(historyStatus)}`);
-
-      stateEl.innerHTML = '';
-      if (!data.content || data.content.length === 0) {
-        renderEmpty(stateEl, 'Không có yêu cầu rút tiền nào');
-        document.getElementById('history-pagination').innerHTML = '';
-        return;
-      }
-
-      for (const item of data.content) {
-        const tr = document.createElement('tr');
-        tr.style.borderBottom = '1px solid var(--color-surface-pressed)';
-        tr.innerHTML = `
-          <td><strong>${esc(item.driver_name)}</strong></td>
-          <td style="font-weight: 700;">${formatVnd(item.amount)}</td>
-          <td>
-            ${esc(item.bank_name)}
-            <div style="color: var(--color-body); font-size: var(--font-size-caption); font-family: monospace;">${esc(item.bank_account_masked)}</div>
-          </td>
-          <td>${statusBadge(item.status)}</td>
-          <td>${formatDateTime(item.requested_at)}</td>
-          <td>${item.processed_at ? formatDateTime(item.processed_at) : '—'}</td>
-          <td>${esc(item.processor_name)}</td>
-          <td style="font-family: monospace; font-size: var(--font-size-caption);">${esc(item.bank_txn_ref_masked)}</td>
-        `;
-        tbody.appendChild(tr);
-      }
-
-      renderPagination('history-pagination',
-        { totalElements: data.totalElements, totalPages: data.totalPages, number: data.number, size: data.size },
-        (p) => loadHistory(p, historySize),
-        (s) => loadHistory(0, s),
-        'yêu cầu');
-    } catch (err) {
-      console.error(err);
-      renderError(stateEl, cleanMessage(err.message) || 'Không thể tải lịch sử rút tiền.');
-    }
-  }
-
-  function statusBadge(status) {
-    switch (status) {
-      case 'PENDING': return '<span class="badge-pending">Đang chờ</span>';
-      case 'PROCESSED': return '<span class="badge-completed">Đã chuyển khoản</span>';
-      case 'REJECTED': return '<span class="badge-cancelled">Đã từ chối</span>';
-      case 'CANCELLED': return '<span class="badge-cancelled">Đã hủy</span>';
-      default: return `<span class="badge-pending">${esc(status)}</span>`;
-    }
-  }
-
-  // ===== HELPERS =====
 
   function closeModal(id) {
     document.getElementById(id).classList.remove('open');

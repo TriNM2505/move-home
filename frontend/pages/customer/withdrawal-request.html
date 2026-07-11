@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yêu cầu rút tiền — Move_home</title>
+
+  <!-- Google Fonts for Be Vietnam Pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .customer-nav { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .customer-nav a { color: var(--color-ink); font-weight: var(--font-weight-medium); text-decoration: none; transition: color var(--transition-fast); }
+    .customer-nav a:hover { color: var(--color-primary-soft); }
+    .customer-nav a.active { color: var(--color-primary); font-weight: var(--font-weight-bold); }
+
+    .dashboard-main { margin: 0 auto; width: 100%; max-width: 1100px; }
+
+    .withdraw-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: var(--spacing-2xl); }
+    @media (max-width: 800px) { .withdraw-grid { grid-template-columns: 1fr; } }
+
+    /* Bank dropdown arrow custom styling */
+    select.text-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231A1A1A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+
+    .page-eyebrow {
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-accent);
+      margin-bottom: var(--spacing-xxs);
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<div class="site-layout">
+  <!-- SITE HEADER -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a>
+      <nav class="customer-nav" aria-label="Điều hướng khách hàng">
+        <a href="home.html">Trang chủ</a>
+        <a href="booking-step1-vehicle.html">Đặt đơn</a>
+        <a href="my-orders-pending.html">Đơn hàng</a>
+        <a href="my-wallet.html" class="active">Ví của tôi</a>
+        <a href="my-profile.html">Tài khoản</a>
+      </nav>
+      <div class="site-header-actions">
+        <span class="user-menu-name">Xin chào, <span id="header-user-name">Khách hàng</span></span>
+        <div class="avatar avatar-sm avatar-initials" id="header-user-avatar">KH</div>
+        <button id="logout-btn" class="btn-subtle" style="margin-left: 12px; border:none; cursor:pointer;">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="site-main">
+    <div class="dashboard-main">
+
+      <!-- Error Banner -->
+      <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-xl); justify-content: space-between; align-items: center;">
+        <span id="error-message-text"></span>
+        <button type="button" onclick="document.getElementById('error-banner').style.display='none'" style="background: none; border: none; color: inherit; cursor: pointer; display: flex; align-items: center; padding: 0;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <!-- Page Header -->
+      <header class="page-header" style="margin-bottom: var(--spacing-xl);">
+        <span class="page-eyebrow">Khách hàng</span>
+        <h1 class="page-title" style="margin-bottom: 2px;">Yêu cầu rút tiền</h1>
+        <p class="page-subtitle">Rút số dư trong ví (ví dụ tiền hoàn từ đơn bị hủy) về tài khoản ngân hàng của bạn.</p>
+      </header>
+
+      <div class="withdraw-grid">
+        <!-- Balance Card -->
+        <aside class="balance-card flex flex-col justify-between" style="background: var(--color-primary); color: var(--color-on-primary); border-radius: var(--rounded-xl); padding: var(--spacing-3xl); min-height: 240px; box-shadow: var(--shadow-level-1); position: relative; overflow: hidden;">
+          <div style="position: absolute; right: -20px; bottom: -20px; opacity: 0.08; color: var(--color-canvas); pointer-events: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+          </div>
+
+          <div class="flex-col gap-sm">
+            <div class="flex items-center gap-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+              <span class="balance-overview-label" style="opacity: 0.85; font-size: var(--font-size-body-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Số dư khả dụng</span>
+            </div>
+
+            <div id="balance-value-container" class="mt-sm">
+              <div class="balance-value" id="balance-value" style="font-size: var(--font-size-display-xl); font-weight: 700; line-height: 1.2;">
+                <span class="spinner spinner-sm" style="border-top-color: var(--color-accent); width: 24px; height: 24px; border-width: 3px;"></span>
+              </div>
+            </div>
+
+            <div id="balance-error-container" style="display: none; margin-top: var(--spacing-sm);">
+              <p style="font-size: var(--font-size-body-sm); opacity: 0.9; color: #FEE2E2;">Không thể kết nối tải dữ liệu số dư.</p>
+              <button type="button" id="balance-retry-btn" class="btn btn-secondary btn-sm mt-sm" style="border-color: rgba(255,255,255,0.4); color: #fff; background: rgba(255,255,255,0.1);">Thử lại</button>
+            </div>
+          </div>
+
+          <div class="mt-xl" style="font-size: var(--font-size-body-sm); line-height: 1.6; border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: var(--spacing-md); position: relative; z-index: 1;">
+            Số tiền rút phải <strong style="color: var(--color-accent);">lớn hơn 0</strong> và không vượt quá số dư khả dụng. Yêu cầu sẽ được duyệt và chuyển khoản thủ công trong vòng 24 giờ.
+          </div>
+        </aside>
+
+        <!-- Request Form Card -->
+        <section class="card-content" style="border: 1px solid var(--color-surface-pressed); box-shadow: var(--shadow-level-1);">
+          <form id="withdrawal-form" novalidate>
+            <!-- Empty Balance Alert Banner -->
+            <div id="empty-balance-notice" style="display: none; border-radius: var(--rounded-md); padding: var(--spacing-md) var(--spacing-lg); font-size: var(--font-size-body-sm); margin-bottom: var(--spacing-xl); border: 1px solid #FCD34D; background: var(--color-warning-bg); color: var(--color-warning-text); align-items: flex-start; gap: var(--spacing-md);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span id="empty-balance-text">Số dư ví của bạn không đủ để thực hiện giao dịch này.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="amount">Số tiền muốn rút (VND) <span class="form-required" aria-hidden="true">*</span></label>
+              <input type="number" class="text-input" id="amount" name="amount" placeholder="Nhập số tiền muốn rút, ví dụ: 500000" required>
+              <span class="form-error" id="amount-error" style="display: none; color: var(--color-danger); font-size: var(--font-size-body-sm); margin-top: var(--spacing-xxs);"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="bank">Ngân hàng nhận tiền <span class="form-required" aria-hidden="true">*</span></label>
+              <div style="position: relative;">
+                <select class="text-input" id="bank" name="bank">
+                  <option value="VCB">Vietcombank</option>
+                  <option value="BIDV">BIDV</option>
+                  <option value="CTG">VietinBank</option>
+                  <option value="TCB">Techcombank</option>
+                  <option value="MB">MB Bank</option>
+                  <option value="ACB">ACB</option>
+                  <option value="VPB">VPBank</option>
+                  <option value="AGR">Agribank</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="accountNumber">Số tài khoản ngân hàng <span class="form-required" aria-hidden="true">*</span></label>
+              <input type="text" class="text-input" id="accountNumber" placeholder="Nhập số tài khoản nhận tiền" inputmode="numeric" required>
+              <span class="form-error" id="accountNumber-error" style="display: none; color: var(--color-danger); font-size: var(--font-size-body-sm); margin-top: var(--spacing-xxs);"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="accountName">Tên chủ tài khoản (In hoa)</label>
+              <input type="text" class="text-input" id="accountName" value="—" required readonly style="background-color: var(--color-canvas-soft); color: var(--color-body); border-color: transparent;">
+            </div>
+
+            <div class="flex-between mt-8">
+              <a href="withdrawal-history.html" id="back-link" class="btn btn-secondary">Quay lại lịch sử</a>
+              <button type="submit" id="submit-btn" class="btn btn-primary">Gửi yêu cầu</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- SCRIPT LOGIC (ES Module) -->
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated, postAuthenticated } from '../../js/api.js';
+
+  let walletBalance = 0;
+  let userDetails = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) {
+      window.location.href = '../login.html';
+      return;
+    }
+    userDetails = getCurrentUser();
+    if (userDetails?.role !== 'CUSTOMER') {
+      logout('../login.html');
+      return;
+    }
+
+    setupUserIdentityHeader(userDetails);
+
+    // Prefill account name in uppercase
+    const accountNameInput = document.getElementById('accountName');
+    if (accountNameInput && userDetails.fullName) {
+      accountNameInput.value = userDetails.fullName.toUpperCase();
+    }
+
+    setupEventListeners();
+    loadWalletData();
+  });
+
+  function setupUserIdentityHeader(user) {
+    const nameEl = document.getElementById('header-user-name');
+    if (nameEl) nameEl.textContent = user.fullName || 'Khách hàng';
+
+    const avatarEl = document.getElementById('header-user-avatar');
+    if (avatarEl && user.fullName) {
+      const words = user.fullName.trim().split(/\s+/).filter(Boolean);
+      avatarEl.textContent = words.map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+  }
+
+  function setupEventListeners() {
+    document.getElementById('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+
+    const form = document.getElementById('withdrawal-form');
+    if (form) form.addEventListener('submit', handleFormSubmit);
+
+    document.getElementById('balance-retry-btn')?.addEventListener('click', () => {
+      showBalanceLoading(true);
+      loadWalletData();
+    });
+
+    document.getElementById('amount')?.addEventListener('input', () => clearFieldError('amount-error'));
+    document.getElementById('accountNumber')?.addEventListener('input', () => clearFieldError('accountNumber-error'));
+  }
+
+  function showBalanceLoading(isLoading) {
+    const valueEl = document.getElementById('balance-value');
+    const errContainer = document.getElementById('balance-error-container');
+    if (isLoading) {
+      if (valueEl) {
+        valueEl.innerHTML = '<span class="spinner spinner-sm" style="border-top-color: var(--color-accent); width: 24px; height: 24px; border-width: 3px;"></span>';
+        valueEl.style.display = 'block';
+      }
+      if (errContainer) errContainer.style.display = 'none';
+    }
+  }
+
+  async function loadWalletData() {
+    try {
+      showBalanceLoading(true);
+      const wallet = await getAuthenticated('/api/customer/wallet');
+
+      const valueEl = document.getElementById('balance-value');
+      const errContainer = document.getElementById('balance-error-container');
+      const emptyNotice = document.getElementById('empty-balance-notice');
+      const emptyText = document.getElementById('empty-balance-text');
+
+      if (wallet) {
+        walletBalance = wallet.balance || 0;
+        if (valueEl) {
+          valueEl.textContent = formatVnd(walletBalance);
+          valueEl.style.display = 'block';
+        }
+        if (errContainer) errContainer.style.display = 'none';
+
+        // Chi chan khi so du = 0 (khong co muc toi thieu)
+        if (walletBalance <= 0) {
+          if (emptyNotice && emptyText) {
+            emptyText.textContent = 'Số dư khả dụng của bạn là 0 VND. Bạn không thể tạo yêu cầu rút tiền.';
+            emptyNotice.style.display = 'flex';
+          }
+          toggleFormInputs(true);
+        } else {
+          if (emptyNotice) emptyNotice.style.display = 'none';
+          toggleFormInputs(false);
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load wallet balance:', err);
+      const valueEl = document.getElementById('balance-value');
+      const errContainer = document.getElementById('balance-error-container');
+      if (valueEl) valueEl.style.display = 'none';
+      if (errContainer) errContainer.style.display = 'block';
+      showError('Không thể tải số dư ví. Vui lòng kết nối mạng và thử lại.');
+    }
+  }
+
+  function toggleFormInputs(isDisabled) {
+    ['amount', 'bank', 'accountNumber'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.disabled = isDisabled;
+    });
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) submitBtn.disabled = isDisabled;
+  }
+
+  async function handleFormSubmit(e) {
+    e.preventDefault();
+    hideErrorBanner();
+    clearFieldError('amount-error');
+    clearFieldError('accountNumber-error');
+
+    const amountVal = parseFloat(document.getElementById('amount').value);
+    const accountNumberVal = document.getElementById('accountNumber').value.trim();
+
+    let hasError = false;
+
+    if (isNaN(amountVal) || amountVal <= 0) {
+      showFieldError('amount-error', 'Vui lòng nhập số tiền lớn hơn 0.');
+      hasError = true;
+    } else if (!Number.isInteger(amountVal)) {
+      showFieldError('amount-error', 'Số tiền rút phải là VND nguyên đồng.');
+      hasError = true;
+    } else if (amountVal > walletBalance) {
+      showFieldError('amount-error', 'Số tiền rút vượt quá số dư khả dụng.');
+      hasError = true;
+    }
+
+    if (!accountNumberVal) {
+      showFieldError('accountNumber-error', 'Vui lòng nhập số tài khoản ngân hàng.');
+      hasError = true;
+    } else if (!/^[0-9]{8,15}$/.test(accountNumberVal)) {
+      showFieldError('accountNumber-error', 'Số tài khoản không hợp lệ (phải gồm 8 đến 15 chữ số).');
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    const inputsToLock = ['amount', 'bank', 'accountNumber', 'submit-btn', 'back-link'];
+    inputsToLock.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (id === 'back-link') { el.style.pointerEvents = 'none'; el.style.opacity = '0.5'; }
+        else el.disabled = true;
+      }
+    });
+
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.classList.add('btn-loading');
+    submitBtn.innerHTML = '<span class="btn-spinner"></span> Đang gửi...';
+
+    try {
+      const bankSelect = document.getElementById('bank');
+      await postAuthenticated('/api/customer/wallet/withdrawals', {
+        amount: amountVal,
+        bankCode: bankSelect.value,
+        bankAccountNumber: accountNumberVal,
+      });
+
+      window.location.href = 'withdrawal-history.html';
+    } catch (err) {
+      console.error('Error creating withdrawal request:', err);
+      showError(cleanMessage(err.message) || 'Đã xảy ra lỗi khi gửi yêu cầu rút tiền. Vui lòng thử lại sau.');
+
+      inputsToLock.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (id === 'back-link') { el.style.pointerEvents = 'auto'; el.style.opacity = '1'; }
+          else el.disabled = false;
+        }
+      });
+      submitBtn.classList.remove('btn-loading');
+      submitBtn.textContent = 'Gửi yêu cầu';
+    }
+  }
+
+  function showFieldError(id, msg) {
+    const errorEl = document.getElementById(id);
+    if (errorEl) { errorEl.textContent = msg; errorEl.style.display = 'block'; }
+  }
+
+  function clearFieldError(id) {
+    const errorEl = document.getElementById(id);
+    if (errorEl) { errorEl.textContent = ''; errorEl.style.display = 'none'; }
+  }
+
+  function showError(msg) {
+    const banner = document.getElementById('error-banner');
+    const textEl = document.getElementById('error-message-text');
+    if (banner && textEl) {
+      textEl.textContent = msg;
+      banner.style.display = 'flex';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function hideErrorBanner() {
+    const banner = document.getElementById('error-banner');
+    if (banner) banner.style.display = 'none';
+  }
+
+  // Backend tra message dang "CODE|Thong bao" -> chi lay phan thong bao
+  function cleanMessage(raw) {
+    if (!raw) return '';
+    return String(raw).split('|').pop().trim();
+  }
+
+  function formatVnd(val) {
+    if (val === null || val === undefined) return '0 VND';
+    return Number(val).toLocaleString('vi-VN') + ' VND';
+  }
+</script>
+<!-- JS Common + Bell Dropdown -->
+<script type="module" src="../../js/customer-common.js"></script>
+<script src="../../js/chat-badge.js"></script>
+</body>
+</html>

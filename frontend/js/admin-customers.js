@@ -48,9 +48,12 @@ function renderCustomersTable(customers) {
     const emailVerified = c.emailVerified
       ? `<span class="verified-yes" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-success);"><polyline points="20 6 9 17 4 12"></polyline></svg> Đã xác thực</span>`
       : `<span class="verified-no" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-danger);"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Chưa xác thực</span>`;
+    const nameCell = c.id
+      ? `<a href="customer-detail.html?id=${encodeURIComponent(c.id)}" class="link-primary"><strong>${esc(c.fullName)}</strong></a>`
+      : `<strong>${esc(c.fullName)}</strong>`;
     return `
       <tr>
-        <td><strong>${esc(c.fullName)}</strong></td>
+        <td>${nameCell}</td>
         <td class="text-muted">${esc(c.email)}</td>
         <td>${esc(c.phone) || '—'}</td>
         <td>${emailVerified}</td>

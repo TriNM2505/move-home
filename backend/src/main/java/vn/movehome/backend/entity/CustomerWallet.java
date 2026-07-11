@@ -44,6 +44,11 @@ public class CustomerWallet {
     @Builder.Default
     private BigDecimal totalSpent = BigDecimal.ZERO;
 
+    // Tong tien khach hang da rut thanh cong khoi vi (V39). Chi tang khi Admin PROCESSED.
+    @Column(name = "total_withdrawn", nullable = false, precision = 15, scale = 0)
+    @Builder.Default
+    private BigDecimal totalWithdrawn = BigDecimal.ZERO;
+
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private OffsetDateTime createdAt;
 

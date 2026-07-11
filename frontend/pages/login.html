@@ -223,9 +223,8 @@
     } else if (err.status === 423) {
       showErrorMessage('Tài khoản bị khóa do nhập sai mật khẩu nhiều lần. Vui lòng thử lại sau 15 phút.');
     } else if (err.status === 403 && err.data?.error_code === 'ACCOUNT_SUSPENDED') {
-      // Tài khoản bị đình chỉ — hiện lý do cụ thể từ backend
-      // (vd thiếu tiền đóng phạt + số tiền cần nạp lại cho đủ cọc)
-      showErrorMessage(rawMessage || 'Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.');
+      // Tài khoản bị khóa bởi Admin — hiện bảng thông báo kèm lý do + liên hệ
+      showSuspendedPanel(rawMessage);
     } else if (err.status === 403) {
       showErrorMessage('Vui lòng xác thực email trước khi đăng nhập.');
     } else {
@@ -235,8 +234,45 @@
 
   function showErrorMessage(msg) {
     const el = document.getElementById('errorMessage');
+    el.style.textAlign = '';
     el.textContent = msg;
     el.style.display = 'block';
+  }
+
+  // Bảng thông báo tài khoản bị khóa: tiêu đề + lý do + liên hệ Admin.
+  function showSuspendedPanel(rawMessage) {
+    const el = document.getElementById('errorMessage');
+    el.innerHTML = '';
+    el.style.display = 'block';
+    el.style.textAlign = 'left';
+
+    // Backend trả "Tài khoản đã bị khóa. <lý do>" — tách lấy phần lý do
+    let reason = String(rawMessage || '').replace(/^Tài khoản đã bị khóa\.\s*/, '').trim();
+    if (!reason) reason = 'Vui lòng liên hệ quản trị viên.';
+
+    const title = document.createElement('div');
+    title.style.cssText = 'font-weight:700; margin-bottom:6px;';
+    title.textContent = '🔒 Tài khoản của bạn đã bị khóa';
+
+    const body = document.createElement('div');
+    body.style.cssText = 'font-size: var(--font-size-body-sm); margin-bottom:8px; line-height:1.5;';
+    const reasonLabel = document.createElement('strong');
+    reasonLabel.textContent = 'Lý do: ';
+    body.appendChild(reasonLabel);
+    body.appendChild(document.createTextNode(reason));
+
+    const contact = document.createElement('div');
+    contact.style.cssText = 'font-size: var(--font-size-caption); line-height:1.5;';
+    contact.appendChild(document.createTextNode('Nếu có thắc mắc, vui lòng liên hệ: '));
+    const mail = document.createElement('a');
+    mail.href = 'mailto:Admin2026@movehome.vn';
+    mail.textContent = 'Admin2026@movehome.vn';
+    mail.style.cssText = 'font-weight:600; text-decoration:underline;';
+    contact.appendChild(mail);
+
+    el.appendChild(title);
+    el.appendChild(body);
+    el.appendChild(contact);
   }
 
   function showFieldError(id, msg) {
