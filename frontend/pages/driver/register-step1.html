@@ -21,6 +21,28 @@
     .form-grid .full { grid-column: 1 / -1; }
     @media (max-width: 900px) { .driver-nav { order: 3; width: 100%; justify-content: center; } }
     @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
+    .success-alert {
+      background: var(--color-success-bg); color: var(--color-success-text);
+      padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--rounded-md);
+      margin-bottom: var(--spacing-lg); font-size: var(--font-size-body-sm); line-height: 1.5;
+    }
+    #errorMessage { margin-bottom: var(--spacing-lg); }
+    .form-error { color: var(--color-danger); font-size: var(--font-size-body-sm); margin-top: var(--spacing-xxs); }
+
+    /* Modal điều khoản — hiển thị ô vuông ngay trên trang, không rời trang */
+    .legal-overlay { position: fixed; inset: 0; background: rgba(6, 27, 49, 0.55); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .legal-overlay.open { display: flex; }
+    .legal-modal { width: 100%; max-width: 640px; max-height: 88vh; background: var(--color-canvas); border-radius: var(--rounded-xl, 16px); box-shadow: var(--shadow-level-3); display: flex; flex-direction: column; overflow: hidden; }
+    .legal-modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: var(--spacing-lg) var(--spacing-2xl); border-bottom: 1px solid var(--color-surface-pressed); }
+    .legal-modal-header h2 { margin: 0; font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); color: var(--color-ink); }
+    .legal-close { background: none; border: none; font-size: 26px; line-height: 1; cursor: pointer; color: var(--color-mute); padding: 4px; }
+    .legal-modal-body { padding: var(--spacing-xl) var(--spacing-2xl); overflow-y: auto; color: var(--color-body); font-size: var(--font-size-body-sm); line-height: 1.7; }
+    .legal-modal-body h3 { color: var(--color-primary); font-size: var(--font-size-body-md); font-weight: var(--font-weight-bold); margin: var(--spacing-lg) 0 var(--spacing-xs); }
+    .legal-modal-body h3:first-child { margin-top: 0; }
+    .legal-modal-body p, .legal-modal-body li { margin: 0 0 var(--spacing-sm); }
+    .legal-modal-body ul { margin: 0 0 var(--spacing-sm); padding-left: 20px; }
+    .legal-modal-body .legal-updated { color: var(--color-mute); font-size: var(--font-size-caption); margin-bottom: var(--spacing-lg); }
+    .legal-modal-footer { padding: var(--spacing-md) var(--spacing-2xl); border-top: 1px solid var(--color-surface-pressed); text-align: right; }
   </style>
 </head>
 <body>
@@ -56,45 +78,255 @@
       <p class="page-subtitle">Nhập thông tin cơ bản để tạo tài khoản tài xế.</p>
     </header>
 
-    <form>
+    <div id="errorMessage" class="error-alert" hidden role="alert"></div>
+    <div id="successMessage" class="success-alert" hidden role="status"></div>
+
+    <form id="driverRegisterForm" novalidate>
       <div class="form-grid">
         <div class="form-group full">
-          <label class="form-label" for="fullName">Họ và tên</label>
-          <input class="text-input" id="fullName" name="fullName" value="Lê Văn Cường" required>
+          <label class="form-label" for="fullName">Họ và tên <span class="form-required" aria-hidden="true">*</span></label>
+          <input class="text-input" id="fullName" name="fullName" placeholder="Nguyễn Văn A" autocomplete="name" required>
+          <span class="form-error" id="fullName-error" hidden></span>
         </div>
         <div class="form-group">
-          <label class="form-label" for="email">Email</label>
-          <input class="text-input" type="email" id="email" name="email" value="cuong.taixe@example.com" required>
+          <label class="form-label" for="email">Email <span class="form-required" aria-hidden="true">*</span></label>
+          <input class="text-input" type="email" id="email" name="email" placeholder="email@example.com" autocomplete="email" required>
+          <span class="form-error" id="email-error" hidden></span>
         </div>
         <div class="form-group">
           <label class="form-label" for="phone">Số điện thoại</label>
-          <input class="text-input" id="phone" name="phone" value="0912 345 678" required>
+          <input class="text-input" id="phone" name="phone" placeholder="0912345678" autocomplete="tel">
+          <span class="form-error" id="phone-error" hidden></span>
         </div>
         <div class="form-group">
-          <label class="form-label" for="password">Mật khẩu</label>
-          <input class="text-input" type="password" id="password" name="password" value="movehome123" required>
+          <label class="form-label" for="password">Mật khẩu <span class="form-required" aria-hidden="true">*</span></label>
+          <input class="text-input" type="password" id="password" name="password" placeholder="Ít nhất 8 ký tự" autocomplete="new-password" required>
+          <span class="form-error" id="password-error" hidden></span>
         </div>
         <div class="form-group">
-          <label class="form-label" for="birthDate">Ngày sinh</label>
-          <input class="text-input" type="date" id="birthDate" name="birthDate" value="1992-08-16" required>
+          <label class="form-label" for="passwordConfirm">Xác nhận mật khẩu <span class="form-required" aria-hidden="true">*</span></label>
+          <input class="text-input" type="password" id="passwordConfirm" name="passwordConfirm" placeholder="Nhập lại mật khẩu" autocomplete="new-password" required>
+          <span class="form-error" id="passwordConfirm-error" hidden></span>
         </div>
         <div class="form-group full">
-          <label class="form-label" for="gender">Giới tính</label>
-          <select class="text-input" id="gender" name="gender" required>
-            <option>Nam</option>
-            <option>Nữ</option>
-            <option>Không muốn nêu</option>
-          </select>
+          <p class="text-muted" style="font-size: var(--font-size-caption); margin: 0;">Mật khẩu cần có chữ hoa, chữ thường, số và ký tự đặc biệt (vd: Move@home1).</p>
+        </div>
+        <div class="form-group full">
+          <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="termsAccepted" name="termsAccepted" required style="margin-top:3px;">
+            <span>Tôi đồng ý với <a href="#" class="link-primary" id="open-driver-terms">Điều khoản dành cho tài xế</a> và Chính sách bảo mật.</span>
+          </label>
+          <span class="form-error" id="terms-error" hidden></span>
         </div>
       </div>
 
       <div class="flex-between mt-8">
         <a href="../login.html" class="btn-secondary">Quay lại</a>
-        <a href="register-step2.html" class="btn-primary">Tiếp tục</a>
+        <button type="submit" class="btn-primary" id="registerBtn">Tiếp tục</button>
       </div>
     </form>
   </section>
 </main>
+<script type="module">
+  import { registerDriver } from '../../js/auth.js';
+
+  function validate(data) {
+    const errors = {};
+    if (!data.fullName || data.fullName.trim().length < 2) {
+      errors.fullName = 'Họ và tên phải có ít nhất 2 ký tự.';
+    }
+    if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      errors.email = 'Email không hợp lệ.';
+    }
+    if (data.phone && !/^(\+84|0)[0-9]{9,10}$/.test(data.phone.replace(/\s/g, ''))) {
+      errors.phone = 'Số điện thoại không đúng định dạng (vd: 0912345678).';
+    }
+    if (!data.password || data.password.length < 8) {
+      errors.password = 'Mật khẩu phải có ít nhất 8 ký tự.';
+    } else if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_.#^()\-]).{8,}$/.test(data.password)) {
+      errors.password = 'Mật khẩu phải có chữ hoa, chữ thường, số và ký tự đặc biệt.';
+    }
+    if (data.password !== data.passwordConfirm) {
+      errors.passwordConfirm = 'Mật khẩu xác nhận không khớp.';
+    }
+    if (!data.termsAccepted) {
+      errors.terms = 'Vui lòng đồng ý với điều khoản để tạo tài khoản tài xế.';
+    }
+    return errors;
+  }
+
+  document.getElementById('driverRegisterForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearErrors();
+
+    const data = {
+      fullName:        document.getElementById('fullName').value.trim(),
+      email:           document.getElementById('email').value.trim().toLowerCase(),
+      phone:           document.getElementById('phone').value.trim() || null,
+      password:        document.getElementById('password').value,
+      passwordConfirm: document.getElementById('passwordConfirm').value,
+      termsAccepted:   document.getElementById('termsAccepted').checked,
+    };
+
+    const errors = validate(data);
+    if (Object.keys(errors).length) {
+      const map = {
+        fullName: 'fullName-error', email: 'email-error', phone: 'phone-error',
+        password: 'password-error', passwordConfirm: 'passwordConfirm-error', terms: 'terms-error',
+      };
+      Object.entries(errors).forEach(([k, msg]) => showFieldError(map[k], msg));
+      return;
+    }
+
+    const btn = document.getElementById('registerBtn');
+    const inputs = ['fullName', 'email', 'phone', 'password', 'passwordConfirm', 'termsAccepted']
+      .map(id => document.getElementById(id));
+    inputs.forEach(input => { if (input) input.disabled = true; });
+    setLoading(btn, true);
+
+    try {
+      // Backend chi can email/password/fullName/phone/termsAccepted (RegisterDriverRequest)
+      const payload = { fullName: data.fullName, email: data.email, password: data.password, termsAccepted: true };
+      if (data.phone) payload.phone = data.phone;
+      await registerDriver(payload);
+      showSuccess('🎉 Đăng ký tài xế thành công! Đang chuyển đến trang xác thực email...');
+      // Ve trang "doi xac thuc email" (verify-email-success.html trang thai empty khi khong co token)
+      setTimeout(() => { window.location.href = '../verify-email-success.html'; }, 1800);
+    } catch (err) {
+      handleError(err);
+      inputs.forEach(input => { if (input) input.disabled = false; });
+    } finally {
+      setLoading(btn, false);
+    }
+  });
+
+  function handleError(err) {
+    if (err.isNetworkError) {
+      showError('Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.');
+      return;
+    }
+    if (err.status === 409) {
+      const msg = err.message || '';
+      if (msg.toLowerCase().includes('email')) {
+        showFieldError('email-error', 'Email này đã được sử dụng. Vui lòng dùng email khác.');
+      } else {
+        showError(msg || 'Thông tin đã tồn tại. Vui lòng kiểm tra lại.');
+      }
+      return;
+    }
+    if (err.status === 422 && err.data?.details) {
+      const map = {
+        fullName: 'fullName-error', email: 'email-error', phone: 'phone-error',
+        password: 'password-error', termsAccepted: 'terms-error',
+      };
+      err.data.details.forEach(d => { if (map[d.field]) showFieldError(map[d.field], d.message); });
+      return;
+    }
+    showError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMessage');
+    el.textContent = msg;
+    el.removeAttribute('hidden');
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function showSuccess(msg) {
+    const el = document.getElementById('successMessage');
+    el.textContent = msg;
+    el.removeAttribute('hidden');
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function showFieldError(id, msg) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.removeAttribute('hidden'); }
+  }
+
+  function clearErrors() {
+    ['errorMessage', 'successMessage', 'fullName-error', 'email-error', 'phone-error',
+     'password-error', 'passwordConfirm-error', 'terms-error'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.setAttribute('hidden', ''); el.textContent = ''; }
+    });
+  }
+
+  function setLoading(btn, loading) {
+    if (!btn) return;
+    btn.disabled = loading;
+    btn.classList.toggle('btn-loading', loading);
+    btn.innerHTML = loading ? '<span class="btn-spinner"></span> Đang đăng ký...' : 'Tiếp tục';
+  }
+</script>
+<!-- MODAL: Điều khoản dành cho tài xế (hiện ô vuông, không rời trang) -->
+<div class="legal-overlay" id="driver-terms-overlay" role="dialog" aria-modal="true" aria-labelledby="driver-terms-title">
+  <div class="legal-modal">
+    <div class="legal-modal-header">
+      <h2 id="driver-terms-title">Điều khoản dịch vụ dành cho tài xế</h2>
+      <button type="button" class="legal-close" data-close-legal aria-label="Đóng">&times;</button>
+    </div>
+    <div class="legal-modal-body">
+      <p class="legal-updated">Cập nhật: 2026 · Áp dụng cho tài xế đối tác của Move_home tại Hà Nội.</p>
+
+      <h3>1. Điều kiện tham gia</h3>
+      <ul>
+        <li>Đủ 18 tuổi trở lên, có giấy phép lái xe hạng B1/B2/C/D còn hiệu lực ít nhất 90 ngày.</li>
+        <li>Sở hữu xe tải (500kg / 1 tấn / 1.5 tấn) có giấy đăng ký xe hợp lệ.</li>
+        <li>Cung cấp đầy đủ và trung thực giấy tờ: GPLX, đăng ký xe và ảnh xe.</li>
+      </ul>
+
+      <h3>2. Quy trình duyệt hồ sơ</h3>
+      <p>Tài xế tạo tài khoản, xác thực email, nộp hồ sơ và giấy tờ, đặt cọc bảo đảm, sau đó chờ đội ngũ quản lý xét duyệt (thường 1-2 ngày làm việc). Move_home có quyền từ chối hồ sơ không đạt yêu cầu và tài xế được phép chỉnh sửa, nộp lại.</p>
+
+      <h3>3. Hoa hồng nền tảng</h3>
+      <p>Với mỗi đơn hoàn thành, Move_home thu <strong>30% hoa hồng</strong> trên tổng giá đơn. Tài xế nhận <strong>70%</strong> còn lại, được ghi vào ví nội bộ sau khi đơn hoàn tất.</p>
+
+      <h3>4. Khoản cọc bảo đảm</h3>
+      <ul>
+        <li>Tài xế đặt cọc <strong>3.000.000đ</strong> qua VNPay để hoàn tất đăng ký.</li>
+        <li>Khoản cọc là tiền bảo đảm (collateral) dùng để xử lý khiếu nại hư hỏng, không phải phí đăng ký.</li>
+        <li>Cọc được hoàn lại khi tài xế ngừng hợp tác, sau khi trừ các nghĩa vụ tồn đọng (nếu có).</li>
+      </ul>
+
+      <h3>5. Thanh toán &amp; rút tiền</h3>
+      <p>Mọi giao dịch thực hiện qua VNPay và ví nội bộ. Khách đặt cọc 30% khi đặt đơn và trả nốt 70% trước khi tài xế hoàn thành. Tài xế có thể tạo yêu cầu rút tiền từ ví về tài khoản ngân hàng theo quy trình của hệ thống.</p>
+
+      <h3>6. Khiếu nại &amp; bồi thường (escrow 2 giờ)</h3>
+      <p>Sau khi đơn hoàn thành, khách có <strong>2 giờ</strong> để gửi khiếu nại hư hỏng. Nếu khiếu nại được giải quyết có lỗi thuộc tài xế, chi phí bồi thường sẽ được trừ theo thứ tự: khoản cọc → ví tài xế. Nếu trừ hết mà chưa đủ, tài khoản có thể bị tạm khóa cho đến khi nạp lại cọc.</p>
+
+      <h3>7. Nghĩa vụ của tài xế</h3>
+      <ul>
+        <li>Vận chuyển an toàn, đúng hẹn, giữ thái độ chuyên nghiệp với khách hàng.</li>
+        <li>Chỉ nhận một đơn tại một thời điểm cho đến khi hoàn thành.</li>
+        <li>Không gian lận, không thu thêm phí ngoài hệ thống, không chia sẻ tài khoản.</li>
+      </ul>
+
+      <h3>8. Bảo mật thông tin</h3>
+      <p>Giấy tờ tài xế được lưu trữ bảo mật và chỉ đội ngũ quản lý/quản trị truy cập được để duyệt hồ sơ. Ảnh giấy tờ chỉ mở được qua liên kết có chữ ký; khách hàng và bên thứ ba không xem được.</p>
+
+      <h3>9. Tạm khóa &amp; chấm dứt</h3>
+      <p>Move_home có quyền tạm khóa hoặc chấm dứt hợp tác với tài xế vi phạm điều khoản, gian lận, hoặc bị khiếu nại nghiêm trọng. Tài xế có thể ngừng hợp tác bất cứ lúc nào và yêu cầu hoàn cọc theo chính sách.</p>
+    </div>
+    <div class="legal-modal-footer">
+      <button type="button" class="btn-primary" data-close-legal>Đã hiểu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mở/đóng modal điều khoản (không rời trang) -->
+<script>
+  (function () {
+    const overlay = document.getElementById('driver-terms-overlay');
+    if (!overlay) return;
+    function openLegal() { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeLegal() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+    document.getElementById('open-driver-terms')?.addEventListener('click', (e) => { e.preventDefault(); openLegal(); });
+    document.querySelectorAll('[data-close-legal]').forEach(btn => btn.addEventListener('click', closeLegal));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLegal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLegal(); });
+  })();
+</script>
 <script src="../../js/chat-badge.js"></script>
 </body>
 </html>

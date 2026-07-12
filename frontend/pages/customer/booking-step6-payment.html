@@ -535,7 +535,7 @@
           if (selectedMethod === 'wallet') {
             // Trừ cọc 30% trực tiếp từ số dư ví → đơn về CONFIRMED
             await postAuthenticated(`/api/customer/orders/${orderRes.id}/wallet-payment`, null);
-            window.location.href = 'booking-success.html';
+            window.location.href = `booking-success.html?id=${encodeURIComponent(orderRes.id)}`;
           } else {
             // Mặc định VNPay: chuyển sang cổng VNPay để trả cọc 30%.
             // Backend trả field JSON "payment_url" (snake_case) — phải đọc đúng tên này.

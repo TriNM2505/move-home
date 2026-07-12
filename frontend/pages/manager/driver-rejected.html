@@ -22,9 +22,9 @@
       </a>
 
       <div class="site-header-actions">
-        <span class="user-menu-name">Xin chào, Quản lý</span>
+        <span class="user-menu-name">Xin chào, <span id="mgr-name">Quản lý</span></span>
         <div class="avatar avatar-sm avatar-initials">QL</div>
-        <a href="../login.html" class="btn-subtle">Đăng xuất</a>
+        <button id="logout-btn" class="btn-subtle">Đăng xuất</button>
       </div>
     </div>
   </header>
@@ -78,39 +78,13 @@
           <p class="page-subtitle">Theo dõi các hồ sơ tài xế không đạt yêu cầu và lý do xử lý.</p>
         </header>
 
-        <section class="mb-8" aria-label="Tóm tắt lịch sử từ chối">
-          <div class="grid-3">
-            <div class="kpi kpi-danger">
-              <div class="kpi-icon">4</div>
-              <div class="kpi-body">
-                <div class="kpi-value">4</div>
-                <div class="kpi-label">Hồ sơ bị từ chối</div>
-                <div class="kpi-sub">Trong tháng này</div>
-              </div>
-            </div>
-            <div class="kpi kpi-warning">
-              <div class="kpi-icon">2</div>
-              <div class="kpi-body">
-                <div class="kpi-value">2</div>
-                <div class="kpi-label">Thiếu giấy tờ</div>
-                <div class="kpi-sub">Lý do phổ biến nhất</div>
-              </div>
-            </div>
-            <div class="kpi kpi-primary">
-              <div class="kpi-icon">1</div>
-              <div class="kpi-body">
-                <div class="kpi-value">1</div>
-                <div class="kpi-label">Biển số không khớp</div>
-                <div class="kpi-sub">Cần đăng ký lại</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section class="card" aria-label="Bảng lịch sử từ chối tài xế">
           <div class="card-header">
             <h2 class="card-title">Hồ sơ đã xử lý</h2>
-            <a href="driver-approvals.html" class="link-primary">Quay lại danh sách chờ duyệt</a>
+            <span class="card-meta" id="total-meta">—</span>
+          </div>
+          <div style="padding:0 16px 8px;">
+            <a href="driver-approvals.html" class="link-primary">← Quay lại danh sách chờ duyệt</a>
           </div>
           <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none;">
             <table class="table table-hover">
@@ -118,45 +92,94 @@
                 <tr>
                   <th>Họ tên</th>
                   <th>Email</th>
+                  <th>SĐT</th>
                   <th>Ngày từ chối</th>
-                  <th>Người xử lý</th>
                   <th>Lý do</th>
                   <th>Trạng thái</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>Lê Văn Nam</td>
-                  <td>nam.le@example.com</td>
-                  <td>04/06/2026</td>
-                  <td>Quản lý An</td>
-                  <td>Ảnh giấy phép lái xe bị mờ, không đọc được số bằng.</td>
-                  <td><span class="badge badge-sm badge-rejected">Bị từ chối</span></td>
-                </tr>
-                <tr>
-                  <td>Đỗ Minh Quân</td>
-                  <td>quan.do@example.com</td>
-                  <td>03/06/2026</td>
-                  <td>Quản lý An</td>
-                  <td>Biển số xe trong ảnh không khớp với thông tin đăng ký.</td>
-                  <td><span class="badge badge-sm badge-rejected">Bị từ chối</span></td>
-                </tr>
-                <tr>
-                  <td>Vũ Thành Long</td>
-                  <td>long.vu@example.com</td>
-                  <td>02/06/2026</td>
-                  <td>Quản lý Bình</td>
-                  <td>Thiếu ảnh phương tiện phía trước và ảnh thùng xe.</td>
-                  <td><span class="badge badge-sm badge-rejected">Bị từ chối</span></td>
-                </tr>
+              <tbody id="rejected-tbody">
+                <tr><td colspan="6" style="text-align:center;padding:24px;">Đang tải...</td></tr>
               </tbody>
             </table>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;justify-content:flex-end;padding:12px 16px;">
+            <span class="text-muted" id="page-info" style="font-size:var(--font-size-body-sm);">—</span>
+            <button id="prev-btn" class="btn-secondary btn-sm" disabled>‹ Trước</button>
+            <button id="next-btn" class="btn-secondary btn-sm" disabled>Sau ›</button>
           </div>
         </section>
       </div>
     </main>
   </div>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  const PAGE_SIZE = 10;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtDate = (iso) => !iso ? '—' : new Date(iso).toLocaleString('vi-VN', {
+    hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Asia/Ho_Chi_Minh' });
+
+  let currentPage = 0;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const u = getCurrentUser();
+    if (u?.role !== 'MANAGER') { logout('../login.html'); return; }
+    if (u.fullName) { const n = $('mgr-name'); if (n) n.textContent = u.fullName; }
+    $('logout-btn')?.addEventListener('click', () => logout('../login.html'));
+    $('prev-btn').addEventListener('click', () => { if (currentPage > 0) { currentPage--; load(); } });
+    $('next-btn').addEventListener('click', () => { currentPage++; load(); });
+    load();
+  });
+
+  async function load() {
+    const tbody = $('rejected-tbody');
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;">Đang tải...</td></tr>`;
+    try {
+      const data = await getAuthenticated(`/api/manager/drivers/rejected?page=${currentPage}&size=${PAGE_SIZE}`);
+      const items = (data && data.content) || [];
+      const total = data?.totalElements ?? items.length;
+      const totalPages = data?.totalPages ?? 1;
+      $('total-meta').textContent = `Tổng ${total} hồ sơ bị từ chối`;
+
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--color-mute)">Không có hồ sơ bị từ chối nào để hiển thị.</td></tr>`;
+        $('page-info').textContent = '—';
+        $('prev-btn').disabled = true;
+        $('next-btn').disabled = true;
+        return;
+      }
+
+      tbody.innerHTML = items.map(d => `
+        <tr>
+          <td><a href="driver-detail.html?id=${encodeURIComponent(d.driver_id)}" class="link-primary"><strong>${esc(d.full_name)}</strong></a></td>
+          <td>${esc(d.email)}</td>
+          <td>${esc(d.phone || '—')}</td>
+          <td>${fmtDate(d.updated_at)}</td>
+          <td style="max-width:320px;white-space:pre-wrap;word-break:break-word;">${esc(d.rejection_reason || '—')}</td>
+          <td><span class="badge badge-sm badge-rejected">Bị từ chối</span></td>
+        </tr>`).join('');
+
+      const from = currentPage * PAGE_SIZE + 1;
+      const to = Math.min((currentPage + 1) * PAGE_SIZE, total);
+      $('page-info').textContent = `Hiển thị ${from}–${to} trong ${total} hồ sơ`;
+      $('prev-btn').disabled = currentPage <= 0;
+      $('next-btn').disabled = currentPage >= totalPages - 1;
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `
+        <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--color-danger)">
+          Không thể tải dữ liệu. <button id="retry-btn" class="btn-secondary btn-sm" style="margin-left:8px;">Thử lại</button>
+        </td></tr>`;
+      document.getElementById('retry-btn')?.addEventListener('click', load);
+    }
+  }
+</script>
 
 <!-- JS Common + Bell Dropdown -->
 <script type="module" src="../../js/notifications-bell.js"></script>
