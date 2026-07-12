@@ -222,7 +222,7 @@
                 </svg>
               </div>
               <div class="kpi-body">
-                <div class="kpi-value">—</div>
+                <div class="kpi-value" id="kpiOpenDisputes">—</div>
                 <div class="kpi-label">Khiếu nại đang mở</div>
                 <div class="kpi-sub">Cần xác minh thông tin</div>
               </div>
@@ -310,7 +310,25 @@
     document.getElementById('logoutBtn')
       ?.addEventListener('click', () => logout('../login.html'));
     loadPendingCount();
+    loadOpenDisputesCount();
   });
+
+  // Khiếu nại "đang mở" = OPEN (mới) + INVESTIGATING (đang xác minh) — chưa xử lý xong.
+  // Gọi size=1 mỗi status, chỉ lấy totalElements để đếm (giống pattern trong disputes.html).
+  async function loadOpenDisputesCount() {
+    const el = document.getElementById('kpiOpenDisputes');
+    try {
+      const [open, investigating] = await Promise.all([
+        getAuthenticated('/api/manager/disputes?status=OPEN&page=0&size=1'),
+        getAuthenticated('/api/manager/disputes?status=INVESTIGATING&page=0&size=1'),
+      ]);
+      const total = (open?.totalElements ?? 0) + (investigating?.totalElements ?? 0);
+      if (el) el.textContent = total;
+    } catch (err) {
+      console.error('Không tải được số khiếu nại đang mở:', err);
+      if (el) el.textContent = '0';
+    }
+  }
 
   async function loadPendingCount() {
     const el = document.getElementById('kpiPendingDrivers');

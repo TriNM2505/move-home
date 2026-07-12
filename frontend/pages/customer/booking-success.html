@@ -16,23 +16,86 @@
 </head>
 <body>
 <div class="site-layout">
-  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html" class="active">Đặt đơn</a><a href="my-orders-pending.html">Đơn hàng</a><a href="my-wallet.html">Ví của tôi</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, Nguyễn Văn An</span><div class="avatar avatar-sm avatar-initials">AN</div></div></div></header>
+  <header class="site-header"><div class="container site-header-inner"><a href="../../index.html" class="site-logo"><span class="site-logo-text">Move_home</span></a><nav class="customer-nav"><a href="home.html">Trang chủ</a><a href="booking-step1-vehicle.html" class="active">Đặt đơn</a><a href="my-orders-pending.html">Đơn hàng</a><a href="my-wallet.html">Ví của tôi</a><a href="my-profile.html">Tài khoản</a></nav><div class="site-header-actions"><span class="user-menu-name">Xin chào, <span id="header-user-name">Khách hàng</span></span><div class="avatar avatar-sm avatar-initials" id="header-user-avatar">KH</div></div></div></header>
   <main class="site-main"><div class="dashboard-main">
     <section class="success-hero">
       <div class="success-icon">✓</div>
       <h1 class="page-title">Đặt đơn thành công</h1>
-      <p class="page-subtitle">Mã đơn MH2026060001 đã được tạo. Move_home sẽ thông báo khi có tài xế nhận đơn.</p>
-      <div class="card-elevated mt-8">
-        <div class="summary-line"><span>Mã đơn</span><strong>MH2026060001</strong></div>
-        <div class="summary-line"><span>Điểm đón</span><strong>Số 25 ngõ 68 phố Đội Cấn, Quận Ba Đình</strong></div>
-        <div class="summary-line"><span>Điểm trả</span><strong>Tòa A2, phố Duy Tân, Quận Cầu Giấy</strong></div>
-        <div class="summary-line"><span>Thời gian</span><strong>08:30, 06/06/2026</strong></div>
-        <div class="summary-line"><span>Tổng tiền</span><strong>1.602.000 VND</strong></div>
+      <p class="page-subtitle" id="success-subtitle">Đơn hàng của bạn đã được tạo. Move_home sẽ thông báo khi có tài xế nhận đơn.</p>
+
+      <!-- Tóm tắt đơn thật — ẩn khi thiếu id hoặc lỗi tải (AC-16) -->
+      <div class="card-elevated mt-8" id="summary-card" style="display:none;">
+        <div class="summary-line"><span>Mã đơn</span><strong id="sum-code">—</strong></div>
+        <div class="summary-line"><span>Điểm đón</span><strong id="sum-pickup">—</strong></div>
+        <div class="summary-line"><span>Điểm trả</span><strong id="sum-dropoff">—</strong></div>
+        <div class="summary-line"><span>Thời gian</span><strong id="sum-scheduled">—</strong></div>
+        <div class="summary-line"><span>Đã trả cọc (30%)</span><strong id="sum-deposit">—</strong></div>
+        <div class="summary-line"><span>Tổng tiền</span><strong id="sum-total">—</strong></div>
       </div>
-      <div class="mt-md"><a href="order-detail.html" class="btn-primary">Xem chi tiết đơn</a> <a href="booking-step1-vehicle.html" class="btn-secondary">Đặt thêm đơn</a> <a href="my-orders-pending.html" class="btn-subtle">Đơn đang chờ</a></div>
+      <div class="card-elevated mt-8" id="summary-loading">Đang tải thông tin đơn...</div>
+      <p class="text-muted mt-8" id="summary-error" style="display:none;">Không tải được tóm tắt đơn — bạn có thể xem trong mục Đơn hàng.</p>
+
+      <div class="mt-md">
+        <a href="my-orders-pending.html" id="detail-link" class="btn-primary">Xem chi tiết đơn</a>
+        <a href="booking-step1-vehicle.html" class="btn-secondary">Đặt thêm đơn</a>
+        <a href="my-orders-pending.html" class="btn-subtle">Đơn đang chờ</a>
+      </div>
     </section>
   </div></main>
 </div>
+
+<script type="module">
+  import { isLoggedIn, getCurrentUser, logout } from '../../js/auth.js';
+  import { getAuthenticated } from '../../js/api.js';
+
+  const DISTRICT_VN = {
+    BA_DINH:'Ba Đình', HOAN_KIEM:'Hoàn Kiếm', HAI_BA_TRUNG:'Hai Bà Trưng', DONG_DA:'Đống Đa',
+    TAY_HO:'Tây Hồ', CAU_GIAY:'Cầu Giấy', THANH_XUAN:'Thanh Xuân', LONG_BIEN:'Long Biên',
+    HA_DONG:'Hà Đông', HOANG_MAI:'Hoàng Mai', BAC_TU_LIEM:'Bắc Từ Liêm', NAM_TU_LIEM:'Nam Từ Liêm'
+  };
+  const $ = (id) => document.getElementById(id);
+  const vnd = (v) => (v === null || v === undefined) ? '—' : Number(v).toLocaleString('vi-VN') + ' VND';
+  const dt = (iso) => !iso ? '—' : new Date(iso).toLocaleString('vi-VN', {
+    hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Asia/Ho_Chi_Minh' });
+  const addr = (a, d) => (a || '') + (d ? ', Quận ' + (DISTRICT_VN[d] || d) : '');
+  const initials = (n) => !n ? 'KH' : n.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (!isLoggedIn()) { window.location.href = '../login.html'; return; }
+    const user = getCurrentUser();
+    if (user?.role !== 'CUSTOMER') { logout('../login.html'); return; }
+    $('header-user-name').textContent = user.fullName || 'Khách hàng';
+    $('header-user-avatar').textContent = initials(user.fullName);
+
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (!id) {
+      // Vào trang không kèm mã đơn (bookmark cũ) → ẩn tóm tắt, giữ CTA về danh sách đơn
+      $('summary-loading').style.display = 'none';
+      $('summary-error').style.display = 'block';
+      return;
+    }
+
+    try {
+      const o = await getAuthenticated(`/api/customer/orders/${id}`);
+      $('success-subtitle').textContent =
+        `Mã đơn ${o.orderCode || ''} đã được tạo. Move_home sẽ thông báo khi có tài xế nhận đơn.`;
+      $('sum-code').textContent = o.orderCode || '—';
+      $('sum-pickup').textContent = addr(o.pickupAddress, o.pickupDistrict);
+      $('sum-dropoff').textContent = addr(o.dropoffAddress, o.dropoffDistrict);
+      $('sum-scheduled').textContent = dt(o.scheduledAt);
+      $('sum-deposit').textContent = vnd(o.depositAmount);
+      $('sum-total').textContent = vnd(o.totalQuote);
+      $('detail-link').href = `order-detail.html?id=${encodeURIComponent(id)}`;
+      $('summary-loading').style.display = 'none';
+      $('summary-card').style.display = 'block';
+    } catch (err) {
+      console.error(err);
+      $('summary-loading').style.display = 'none';
+      $('summary-error').style.display = 'block';
+      $('detail-link').href = `order-detail.html?id=${encodeURIComponent(id)}`;
+    }
+  });
+</script>
 <!-- JS Common + Bell Dropdown -->
 <script type="module" src="../../js/customer-common.js"></script>
 <script src="../../js/chat-badge.js"></script>
