@@ -1,5 +1,21 @@
 <!--
 === SYNC IMPACT REPORT ===
+Version Change: 1.3.0 → 1.4.0
+Date: 2026-07-13
+Type of bump: MINOR (amend HR-14 — them ngoai le hoan coc khi khach huy don CONFIRMED truoc khi co tai xe)
+
+Amendment v1.4.0 (2026-07-13):
+- Source: Quyet dinh leader 2026-07-13 — cho phep hoan coc khi khach chu dong huy don luc CHUA co
+  tai xe nhan (CONFIRMED, driver_id = NULL). Manager duyet thu cong; cop 30% ve customer_wallet.
+- HR-14: SUA (them ngoai le). RefundRecord VAN chi tao khi COMPANY huy (khong doi). Bo sung luong
+  hoan coc RIENG (bang order_cancellation_refund, KHONG phai RefundRecord): CUSTOMER huy don
+  CONFIRMED khi chua co tai xe → tao yeu cau PENDING kem ly do + anh → Manager duyet → hoan coc 30%
+  ve customer_wallet (transaction REFUND, AC-13; vi khong am, HR-18).
+- Lech co chu y voi CONTEXT §Huy don ban goc ("khach huy tu CONFIRMED tro di mat coc"); CONTEXT.md
+  da duoc dong bo cung ngay (§Huy don & Hoan tien + state machine row CONFIRMED→CANCELLED CUSTOMER).
+- Migration lien quan: V41 (order_cancellation_refund + order_cancellation_photo).
+- Khong doi so luong rule: van 21 HR / 16 AC / 8 ES. Chi sua noi dung HR-14.
+
 Version Change: 1.2.0 → 1.3.0
 Date: 2026-06-04
 Type of bump: MINOR (thêm HR-19/20/21, AC-14/15/16, ES-07/08, D10/D11/D12/D13)
@@ -105,7 +121,7 @@ Deferred TODOs:
 
 **Hệ thống Dịch Vụ Chuyển Nhà — SWP @ FPT University**
 
-> **Source of Truth hierarchy:** `CONTEXT.md v2.0` → Constitution v1.3.0 → Specs → Code.
+> **Source of Truth hierarchy:** `CONTEXT.md v2.0` → Constitution v1.4.0 → Specs → Code.
 > Khi có mâu thuẫn giữa Constitution và CONTEXT, CONTEXT thắng. Báo ngay cho leader nhóm.
 
 ---
@@ -287,12 +303,20 @@ có bằng chứng actor nào đã thay đổi gì và khi nào.
 
 ### HR-14 — RefundRecord chỉ tạo khi COMPANY hủy
 
-**Rule:** RefundRecord PHẢI được tạo tự động khi và chỉ khi `cancelled_by = COMPANY`. CUSTOMER
-cancel → không tạo RefundRecord (cọc thuộc công ty). SYSTEM cancel (timeout) → không tạo
-RefundRecord (khách chưa cọc).
+**Rule:** RefundRecord PHẢI được tạo tự động khi và chỉ khi `cancelled_by = COMPANY`. SYSTEM cancel
+(timeout) → không tạo RefundRecord (khách chưa cọc).
 
-**Lý do:** Luồng hoàn tiền thủ công qua RefundRecord chỉ áp dụng khi lỗi phía công ty; nhầm lẫn
-gây hoàn tiền không đúng đối tượng.
+**Ngoại lệ hoàn cọc khi khách hủy sớm (bổ sung v1.4.0 — leader duyệt 2026-07-13):** CUSTOMER hủy
+đơn ở trạng thái `CONFIRMED` **khi CHƯA có tài xế nhận** (`driver_id = NULL`) → hệ thống KHÔNG tạo
+RefundRecord mà tạo một bản ghi `order_cancellation_refund` (status `PENDING`) kèm lý do + ảnh
+(tối đa 3, Cloudinary theo AC-10). Manager duyệt thủ công → hoàn **cọc 30%** về `customer_wallet`
+(ghi `transaction` type `REFUND`, AC-13; ví không bao giờ âm, HR-18) hoặc từ chối kèm lý do.
+CUSTOMER hủy từ `ASSIGNED` trở đi (đã có tài xế) → KHÔNG hủy được qua luồng này, cọc thuộc công ty
+(liên hệ Manager). Migration liên quan: `V41`.
+
+**Lý do:** RefundRecord (chuyển khoản thủ công) chỉ áp dụng khi lỗi phía công ty. Với trường hợp
+khách đổi ý khi CHƯA có tài xế nào cam kết, hoàn cọc về ví là chính sách thân thiện khách và không
+gây thiệt hại vận hành — nên tách thành luồng riêng có Manager kiểm soát.
 
 **Vi phạm → hậu quả:** Bug tiền bạc — khách được hoàn cọc khi không đáng, hoặc Manager phải xử
 lý thủ công RefundRecord giả.
@@ -1041,7 +1065,7 @@ Constitution này là tài liệu pháp lý của dự án, có quyền ưu tiê
 mặc định của framework hay thói quen cá nhân.
 
 **Thứ tự ưu tiên khi có conflict:**
-`CONTEXT.md v2.0` → `Constitution v1.3.0` → Feature Specs → Code Implementation
+`CONTEXT.md v2.0` → `Constitution v1.4.0` → Feature Specs → Code Implementation
 
 **Amendment procedure:**
 1. Propose thay đổi trong PR description với label `constitution-amendment`.
@@ -1060,4 +1084,4 @@ mặc định của framework hay thói quen cá nhân.
 
 ---
 
-**Version**: 1.3.0 | **Ratified**: 2026-05-29 | **Last Amended**: 2026-06-04 (post-sprint-1)
+**Version**: 1.4.0 | **Ratified**: 2026-05-29 | **Last Amended**: 2026-07-13 (cancellation refund — HR-14)

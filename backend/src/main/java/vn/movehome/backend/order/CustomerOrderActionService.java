@@ -32,11 +32,15 @@ public class CustomerOrderActionService {
     private static final String CANCELLED_STATUS = "CANCELLED";
     private static final String IN_PROGRESS_STATUS = "IN_PROGRESS";
 
+    // Trang thai da coc 30% (co tien coc de hoan) — huy o day se tao yeu cau hoan coc cho Manager duyet
+    private static final String CONFIRMED_STATUS = "CONFIRMED";
+
     private final OrderRepository orderRepository;
     private final OrderStatusTransitionService orderStatusTransitionService;
     private final OrderRatingRepository orderRatingRepository;
     private final DriverProfileRepository driverProfileRepository;
     private final DisputeService disputeService;
+    private final OrderCancellationRefundService cancellationRefundService;
 
     // Cua so danh gia TACH RIENG khoi escrow (leader chot 2026-07-11: rating 24h ngoai doi that,
     // escrow tien van 2h theo CONTEXT §2). Field injection de khong doi constructor.
@@ -66,11 +70,24 @@ public class CustomerOrderActionService {
                 order, CANCELLED_STATUS, customerId, changedByRole, cancelledAt);
         log.info("order_state_audit actor_id={} actor_role=CUSTOMER timestamp={} from_state={} to_state={} entity_id={}",
                 customerId, cancelledAt, previousStatus, CANCELLED_STATUS, savedOrder.getId());
+
+        // Chi don da coc 30% (CONFIRMED, chua co tai xe) moi phat sinh yeu cau hoan coc cho Manager duyet.
+        // PENDING/PENDING_PAYMENT chua tra gi → khong tao yeu cau, khach chi don gian huy.
+        // (Override chinh sach CONTEXT §Huy don + HR-14 theo quyet dinh leader 2026-07-13 — hoan coc khi
+        //  khach huy luc chua co tai xe. Docs se cap nhat sau.)
+        boolean refundRequested = false;
+        if (CONFIRMED_STATUS.equals(previousStatus)) {
+            cancellationRefundService.openForCancelledOrder(savedOrder, customerId, reason);
+            refundRequested = true;
+        }
+
         return new CancelOrderResponse(
                 savedOrder.getId(),
                 savedOrder.getStatus(),
                 savedOrder.getCancelledAt(),
-                "Đơn hàng đã được hủy.");
+                refundRequested
+                        ? "Đơn hàng đã được hủy. Yêu cầu hoàn cọc đã gửi tới quản lý để xem xét."
+                        : "Đơn hàng đã được hủy.");
     }
 
     /**
