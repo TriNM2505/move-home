@@ -101,7 +101,7 @@ Don co **8 trang thai**. Bang transition hop le:
 | `PENDING_PAYMENT` | `CANCELLED` | CUSTOMER | Khach huy o trang thai nay → khong mat gi (chua coc) |
 | `PENDING_PAYMENT` | `CANCELLED` | SYSTEM | Sau 15 phut khong nhan IPN hop le → auto-cancel |
 | `CONFIRMED` | `ASSIGNED` | MANAGER | Manager phan Driver phu hop (theo quan hoat dong, loai xe) |
-| `CONFIRMED` | `CANCELLED` | CUSTOMER | Khach huy sau khi da coc → mat coc 30% (cong ty giu) |
+| `CONFIRMED` | `CANCELLED` | CUSTOMER | Khach huy khi CHUA co tai xe (driver_id NULL) → tao yeu cau hoan coc (order_cancellation_refund PENDING), Manager duyet → hoan coc 30% ve vi khach (cap nhat 2026-07-13, xem HR-14 + §Huy don) |
 | `CONFIRMED` | `CANCELLED` | COMPANY | Manager huy do loi cong ty → tao RefundRecord 30% |
 | `ASSIGNED` | `ASSIGNED` | DRIVER | Driver tu choi → reset, Manager phan Driver khac (tinh vao quota tu choi) |
 | `ASSIGNED` | `IN_PROGRESS` | DRIVER | Driver chap nhan + da toi noi + bat dau chuyen |
@@ -120,7 +120,7 @@ Don co **8 trang thai**. Bang transition hop le:
 - `cancelled_by`: `CUSTOMER` | `COMPANY` | `SYSTEM`
 - `cancelled_reason`: text
 - `CUSTOMER` o `PENDING_PAYMENT` → khong mat gi, khong RefundRecord (chua coc)
-- `CUSTOMER` tu `CONFIRMED` tro di → coc thuoc cong ty, khong RefundRecord
+- `CUSTOMER` huy o `CONFIRMED` khi CHUA co tai xe → tao yeu cau hoan coc (order_cancellation_refund), Manager duyet → hoan coc 30% ve customer_wallet (cap nhat 2026-07-13, HR-14). Tu `ASSIGNED` tro di khach KHONG huy duoc (coc thuoc cong ty)
 - `COMPANY` (bat ky luc nao tu CONFIRMED tro di) → tao RefundRecord (PENDING, amount = 30% bao gia)
 - `SYSTEM` (timeout 15 phut) → khong hoan, khong RefundRecord
 
@@ -247,7 +247,7 @@ Xe tai vua, 10km, gio cao diem, ngo hep, tang 4 (khong thang may), 2 boc xep:
 ### Huy don & Hoan tien (khong co vi noi bo)
 
 - **Khach huy o `PENDING_PAYMENT`** (chua coc): → `CANCELLED` (cancelled_by: CUSTOMER). KHONG mat gi, KHONG tao RefundRecord (vi chua tra gi). Day la "huy khong dieu kien" — khach co the huy bat cu luc nao truoc khi thanh toan VNPay.
-- **Khach huy tu `CONFIRMED` tro di** (da coc): → `CANCELLED` (cancelled_by: CUSTOMER) → coc thuoc cong ty. Khong hoan, khong tao RefundRecord.
+- **Khach huy o `CONFIRMED` khi CHUA co tai xe nhan** (da coc, driver_id NULL): → `CANCELLED` (cancelled_by: CUSTOMER). He thong tao **order_cancellation_refund** (status PENDING) kem ly do + anh (toi da 3, Cloudinary AC-10) → Manager duyet thu cong → hoan **coc 30%** ve **customer_wallet** (transaction REFUND, AC-13; vi khong am, HR-18) hoac tu choi kem ly do. *(Cap nhat 2026-07-13 — leader duyet; day la luong RIENG, KHONG phai RefundRecord. Truoc day khach huy tu CONFIRMED la mat coc; nay hoan coc khi chua co tai xe cam ket. Migration V41.)* Tu `ASSIGNED` tro di: khach KHONG huy duoc, coc thuoc cong ty (lien he Manager).
 - **Cong ty huy / loi cong ty** (Manager xac dinh, bat ky trang thai nao tu CONFIRMED): → `CANCELLED` (cancelled_by: COMPANY) → he thong tao **RefundRecord**: order_id, amount = 30% bao gia, status = `PENDING`.
   - Luong hoan tien:
     1. He thong tao RefundRecord (PENDING) + gui email thong bao cho khach.

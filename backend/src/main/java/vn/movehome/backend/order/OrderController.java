@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import vn.movehome.backend.dto.admin.detail.CustomerOrderItem;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.payment.WalletOrderPaymentService;
@@ -29,6 +31,7 @@ public class OrderController {
     private final CustomerOrderActionService customerOrderActionService;
     private final CustomerOrderQueryService customerOrderQueryService;
     private final WalletOrderPaymentService walletOrderPaymentService;
+    private final OrderCancellationPhotoService orderCancellationPhotoService;
 
     /**
      * Danh sach don cua chinh Customer dang dang nhap (HR-10 — scope theo JWT principal).
@@ -83,6 +86,21 @@ public class OrderController {
             @RequestBody CancelOrderRequest request) {
         return customerOrderActionService.cancelOrder(
                 customer.getId(), customer.getRole().name(), id, request);
+    }
+
+    /**
+     * Khach dinh kem 1 anh bang chung cho yeu cau hoan coc cua don vua huy (toi da 3 anh; multipart, AC-10).
+     * Goi sau khi /cancel da tao yeu cau hoan coc (don o CONFIRMED). Chi chu don upload duoc (HR-10).
+     */
+    @PostMapping(value = "/api/customer/orders/{id}/cancellation-photos",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void uploadCancellationPhoto(
+            @AuthenticationPrincipal User customer,
+            @PathVariable UUID id,
+            @RequestParam("file") MultipartFile file) {
+        orderCancellationPhotoService.uploadByOrder(id, customer.getId(), file);
     }
 
     /**

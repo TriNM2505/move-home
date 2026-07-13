@@ -275,7 +275,21 @@
             <a href="#" id="track-btn" class="btn-primary" style="display:none;margin-bottom:10px;width:100%;justify-content:center;">📍 Theo dõi tài xế trên bản đồ</a>
             <button id="cancel-btn" class="btn-danger" style="display:none;width:100%;justify-content:center;margin-bottom:10px;">Hủy đơn</button>
             <div id="cancel-confirm" style="display:none;border:1px solid var(--color-danger);border-radius:12px;padding:12px;margin-bottom:10px;">
-              <p id="cancel-msg" style="margin:0 0 10px;color:var(--color-danger);font-size:var(--font-size-body-sm);">Bạn chắc chắn hủy đơn? Nếu đã trả cọc, cọc có thể không được hoàn lại.</p>
+              <p id="cancel-msg" style="margin:0 0 10px;color:var(--color-danger);font-size:var(--font-size-body-sm);">Vui lòng cho biết lý do hủy đơn.</p>
+              <div id="cancel-refund-note" style="display:none;background:#E6F4EC;border:1px solid var(--color-success);border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:var(--font-size-body-sm);color:var(--color-success-text,#157347);">
+                💰 Đơn đã đặt cọc — sau khi hủy, yêu cầu <strong>hoàn cọc</strong> sẽ được gửi tới quản lý xem xét và hoàn về Ví của bạn.
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cancel-reason">Lý do hủy đơn <span style="color:var(--color-danger)">*</span></label>
+                <textarea class="text-input" id="cancel-reason" rows="3" maxlength="500" placeholder="Ví dụ: Đổi kế hoạch, không cần chuyển nữa..."></textarea>
+              </div>
+              <div class="form-group" id="cancel-photo-group" style="display:none;">
+                <label class="form-label">Ảnh đính kèm (tối đa 3, không bắt buộc)</label>
+                <div id="cancel-photo-previews" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;"></div>
+                <button type="button" class="btn-secondary" id="cancel-photo-btn" style="padding:8px 14px;font-size:var(--font-size-body-sm);">+ Thêm ảnh</button>
+                <input type="file" id="cancel-photo-input" accept="image/jpeg,image/png,image/webp" multiple hidden>
+              </div>
+              <p id="cancel-error" style="color:var(--color-danger);display:none;font-size:var(--font-size-body-sm);margin-bottom:8px;"></p>
               <button id="cancel-confirm-btn" class="btn-danger" style="width:100%;justify-content:center;">Xác nhận hủy</button>
               <button id="cancel-cancel-btn" class="btn-secondary" style="width:100%;justify-content:center;margin-top:8px;">Không hủy</button>
             </div>
@@ -394,12 +408,25 @@
     }
   }
 
-  function setupCancel(id) {
+  function setupCancel(id, order) {
     const cancelBtn = document.getElementById('cancel-btn');
     const confirmBox = document.getElementById('cancel-confirm');
     const confirmBtn = document.getElementById('cancel-confirm-btn');
     const noBtn = document.getElementById('cancel-cancel-btn');
-    const msg = document.getElementById('cancel-msg');
+    const errEl = document.getElementById('cancel-error');
+    const reasonEl = document.getElementById('cancel-reason');
+    const refundNote = document.getElementById('cancel-refund-note');
+    const photoGroup = document.getElementById('cancel-photo-group');
+    const photoBtn = document.getElementById('cancel-photo-btn');
+    const photoInput = document.getElementById('cancel-photo-input');
+    const previews = document.getElementById('cancel-photo-previews');
+    const MAX = 3;
+    let selected = []; // File[] toi da 3
+
+    // Chi don da coc 30% (CONFIRMED) moi phat sinh yeu cau hoan coc → hien ghi chu + cho dinh anh
+    const paidDeposit = order.status === 'CONFIRMED';
+    if (refundNote) refundNote.style.display = paidDeposit ? 'block' : 'none';
+    if (photoGroup) photoGroup.style.display = paidDeposit ? 'block' : 'none';
 
     cancelBtn?.addEventListener('click', () => {
       cancelBtn.style.display = 'none';
@@ -407,18 +434,87 @@
     });
     noBtn?.addEventListener('click', () => {
       if (confirmBox) confirmBox.style.display = 'none';
+      if (errEl) errEl.style.display = 'none';
       cancelBtn.style.display = 'inline-flex';
     });
+
+    // Chon anh dinh kem (tuy chon)
+    photoBtn?.addEventListener('click', () => photoInput.click());
+    photoInput?.addEventListener('change', () => {
+      for (const f of photoInput.files) {
+        if (selected.length >= MAX) break;
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) continue;
+        selected.push(f);
+      }
+      photoInput.value = '';
+      renderPrev();
+    });
+    function renderPrev() {
+      previews.innerHTML = '';
+      selected.forEach((file, idx) => {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'position:relative;width:72px;height:72px;';
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:8px;border:1px solid var(--color-surface-pressed);';
+        const del = document.createElement('button');
+        del.type = 'button'; del.textContent = '×';
+        del.style.cssText = 'position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:999px;border:none;background:var(--color-danger);color:#fff;cursor:pointer;line-height:1;';
+        del.addEventListener('click', () => { selected.splice(idx, 1); renderPrev(); });
+        wrap.appendChild(img); wrap.appendChild(del); previews.appendChild(wrap);
+      });
+      photoBtn.style.display = selected.length >= MAX ? 'none' : 'inline-flex';
+    }
+
     confirmBtn?.addEventListener('click', async () => {
+      if (errEl) errEl.style.display = 'none';
+      const reason = (reasonEl?.value || '').trim();
+      if (reason.length < 1) {
+        if (errEl) { errEl.textContent = 'Vui lòng nhập lý do hủy đơn.'; errEl.style.display = 'block'; }
+        return;
+      }
+      if (reason.length > 500) {
+        if (errEl) { errEl.textContent = 'Lý do không được vượt quá 500 ký tự.'; errEl.style.display = 'block'; }
+        return;
+      }
       confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Đang hủy...';
       try {
-        await putAuthenticated(`/api/customer/orders/${id}/cancel`, { reason: 'Khách hủy đơn' });
+        await putAuthenticated(`/api/customer/orders/${id}/cancel`, { reason });
+        // Upload anh (tuy chon) — chi khi don da coc (backend da tao yeu cau hoan coc de dinh anh)
+        if (paidDeposit && selected.length) {
+          confirmBtn.textContent = 'Đang tải ảnh...';
+          for (const file of selected) {
+            try { const blob = await compressImage(file); await uploadCancellationPhoto(id, blob); }
+            catch (pErr) { console.warn('Không tải được 1 ảnh hủy đơn:', pErr); }
+          }
+        }
         window.location.href = 'my-orders-pending.html';
       } catch (e) {
         confirmBtn.disabled = false;
-        if (msg) { msg.textContent = e.message || 'Không thể hủy đơn. Vui lòng thử lại.'; }
+        confirmBtn.textContent = 'Xác nhận hủy';
+        if (errEl) {
+          errEl.textContent = String(e.message || 'Không thể hủy đơn. Vui lòng thử lại.').split('|').pop().trim();
+          errEl.style.display = 'block';
+        }
       }
     });
+  }
+
+  // Upload 1 anh dinh kem yeu cau hoan coc (multipart) — api.js chi ho tro JSON nen goi fetch truc tiep
+  async function uploadCancellationPhoto(orderId, blob) {
+    const fd = new FormData();
+    fd.append('file', blob, 'cancel.jpg');
+    const token = localStorage.getItem('accessToken');
+    const resp = await fetch(`${BASE_URL}/api/customer/orders/${encodeURIComponent(orderId)}/cancellation-photos`, {
+      method: 'POST',
+      headers: token ? { Authorization: 'Bearer ' + token } : {},
+      body: fd,
+    });
+    if (!resp.ok) {
+      let data = {}; try { data = await resp.json(); } catch {}
+      throw new Error(data.message || ('Lỗi ' + resp.status));
+    }
   }
 
   function setupFinalPayment(id) {
@@ -728,7 +824,7 @@
       const order = await getAuthenticated(`/api/customer/orders/${id}`);
       render(order);
       setupFinalPayment(id);
-      setupCancel(id);
+      setupCancel(id, order);
       setupVerify(id);
       setupDispute(id, order);
       setupRating(id, order);

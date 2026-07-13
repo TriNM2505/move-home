@@ -226,6 +226,11 @@ class OrderStatusEventTransactionTest {
         }
 
         @Bean
+        OrderCancellationRefundService orderCancellationRefundService() {
+            return mock(OrderCancellationRefundService.class);
+        }
+
+        @Bean
         OrderStatusTransitionService orderStatusTransitionService(
                 OrderRepository orderRepository,
                 ApplicationEventPublisher eventPublisher
@@ -250,14 +255,16 @@ class OrderStatusEventTransactionTest {
                 OrderStatusTransitionService transitionService,
                 OrderRatingRepository orderRatingRepository,
                 DriverProfileRepository driverProfileRepository,
-                DisputeService disputeService
+                DisputeService disputeService,
+                OrderCancellationRefundService cancellationRefundService
         ) {
             return new CustomerOrderActionService(
                     orderRepository,
                     transitionService,
                     orderRatingRepository,
                     driverProfileRepository,
-                    disputeService);
+                    disputeService,
+                    cancellationRefundService);
         }
 
         @Bean

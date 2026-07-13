@@ -54,6 +54,41 @@ public class CustomerRefundService {
         return balanceAfter;
     }
 
+    /**
+     * Hoan coc cho khach khi Manager duyet yeu cau huy don (khong lien quan dispute).
+     * Cong customer_wallet + ghi transaction(REFUND, related_order_id) trong CUNG transaction (AC-13, HR-18).
+     * Chay trong transaction cua Manager (Propagation.MANDATORY). Idempotency dam bao boi guard trang thai
+     * yeu cau (PENDING -> REFUNDED duoi lock) o ManagerCancellationRefundService.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public BigDecimal refundForCancellation(
+            UUID customerId,
+            UUID orderId,
+            BigDecimal amount,
+            String description
+    ) {
+        BigDecimal normalizedAmount = money(amount);
+        walletRepository.insertIfMissing(customerId);
+        CustomerWallet wallet = walletRepository.findByCustomerIdForUpdate(customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT,
+                        "CUSTOMER_WALLET_NOT_FOUND|Khong tim thay vi khach hang."));
+
+        BigDecimal balanceAfter = money(wallet.getBalance()).add(normalizedAmount).setScale(0);
+        wallet.setBalance(balanceAfter);
+        walletRepository.saveAndFlush(wallet);
+
+        transactionRepository.saveAndFlush(Transaction.builder()
+                .userId(customerId)
+                .type(TransactionType.REFUND)
+                .amount(normalizedAmount)
+                .relatedOrderId(orderId)
+                .balanceAfter(balanceAfter)
+                .description(description)
+                .build());
+
+        return balanceAfter;
+    }
+
     private BigDecimal money(BigDecimal value) {
         if (value == null) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
