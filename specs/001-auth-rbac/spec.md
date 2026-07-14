@@ -593,7 +593,9 @@ This check MUST be enforced in the service layer, not only at the URL level.
 **FR-059**
 WHEN an authenticated Driver (status = `PENDING_DEPOSIT`) calls `POST /api/driver/me/deposit`,
 THE system SHALL generate a VNPay payment URL for `3,000,000 VND` with a unique
-`vnp_TxnRef = "DRV-DEPOSIT-{driver_id}-{timestamp_ms}"` and return HTTP 200:
+`vnp_TxnRef = "DDP-{driver_id_compact_uuid}-{yyyyMMddHHmmss}-{random_hex_8}"` (actual implementation
+in `VnPayPaymentService.newTxnRef()`; prefix `DDP` is also what `vnpay-return.html` checks via
+`txnRef.startsWith('DDP')` to detect driver-deposit returns) and return HTTP 200:
 `{ "payment_url": "<VNPay URL>", "amount": 3000000, "expires_in_minutes": 15 }`.
 WHERE Driver status != PENDING_DEPOSIT when this endpoint is called → HTTP 403
 `{ "error_code": "INVALID_ONBOARDING_STEP", "message": "Dong coc chi duoc o buoc PENDING_DEPOSIT." }`.

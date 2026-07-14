@@ -759,13 +759,17 @@ HMAC-SHA512 bằng secret env. Domain service chỉ nhận verified command:
 
 ```json
 {
-  "txn_ref": "DRVDEP-20260604-000001",
+  "txn_ref": "DDP-a1b2c3d4e5f647a8b9c0d1e2f3a4b5c6-20260604103000-9f8e7d6c",
   "amount": 3000000,
   "response_code": "00",
   "transaction_no": "14581234",
   "pay_date": "20260604103000"
 }
 ```
+
+`txn_ref` format (actual implementation in `VnPayPaymentService.newTxnRef()`):
+`DDP-{driver_id_compact_uuid}-{yyyyMMddHHmmss}-{random_hex_8}`. Prefix `DDP` is what
+`vnpay-return.html` checks via `txnRef.startsWith('DDP')` to detect driver-deposit returns.
 
 Return URL endpoint chỉ trả display DTO:
 
