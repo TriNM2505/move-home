@@ -48,3 +48,8 @@ package-lock.json
 # ============================================
 .gradle/
 .mvn/wrapper/maven-wrapper.jar
+
+# ============================================
+# graphify - generated knowledge graph (rebuilds locally via /graphify)
+# ============================================
+graphify-out/
