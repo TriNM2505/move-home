@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import vn.movehome.backend.driver.finance.DriverEarningService;
+import vn.movehome.backend.incident.DriverIncidentService;
 import vn.movehome.backend.order.OrderRepository;
 import vn.movehome.backend.order.OrderStatusTransitionService;
 import vn.movehome.backend.order.ServiceOrder;
@@ -39,6 +40,7 @@ public class DriverOrderService {
     private final OrderStatusTransitionService orderStatusTransitionService;
     private final DriverEarningService driverEarningService;
     private final NotificationService notificationService;
+    private final DriverIncidentService driverIncidentService;
 
     // Tai xe duoc quyen bam "Khach khong ra" sau N phut ke tu khi den diem don (3 phut cho demo)
     @Value("${app.pickup.no-show-minutes:3}")
@@ -61,6 +63,9 @@ public class DriverOrderService {
         OffsetDateTime changedAt = OffsetDateTime.now(ZoneOffset.UTC);
         order.setDriverId(driverId);
         orderStatusTransitionService.transition(order, ACCEPTED, driverId, changedByRole, changedAt);
+
+        // Neu don nay tung bi ban lai pool do su co van chuyen (V44), dong su co lai (RESOLVED_REASSIGNED).
+        driverIncidentService.resolveReassigned(orderId);
 
         logStateChange(driverId, orderId, CONFIRMED, ACCEPTED, changedAt);
     }
