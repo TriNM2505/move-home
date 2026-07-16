@@ -239,14 +239,21 @@ class OrderStatusEventTransactionTest {
         }
 
         @Bean
+        vn.movehome.backend.incident.DriverIncidentService driverIncidentService() {
+            return mock(vn.movehome.backend.incident.DriverIncidentService.class);
+        }
+
+        @Bean
         DriverOrderService driverOrderService(
                 OrderRepository orderRepository,
                 OrderStatusTransitionService transitionService,
                 DriverEarningService driverEarningService,
-                NotificationService notificationService
+                NotificationService notificationService,
+                vn.movehome.backend.incident.DriverIncidentService driverIncidentService
         ) {
             return new DriverOrderService(
-                    orderRepository, transitionService, driverEarningService, notificationService);
+                    orderRepository, transitionService, driverEarningService, notificationService,
+                    driverIncidentService);
         }
 
         @Bean

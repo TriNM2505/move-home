@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sự cố vận chuyển — Move_home</title>
+  <title>Sự cố tài xế — Move_home</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,6 @@
     .dsp-pill.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
     .reason-cell { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* Modal chi tiet */
     .cr-overlay { position: fixed; inset: 0; background: rgba(6,27,49,.45); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
     .cr-overlay.open { display: flex; }
     .cr-modal { background: var(--color-canvas); border-radius: 16px; max-width: 620px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: var(--shadow-lg, 0 20px 40px rgba(6,27,49,.2)); }
@@ -32,6 +31,9 @@
     .cr-photos { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
     .cr-photos img { width: 96px; height: 96px; object-fit: cover; border-radius: 10px; border: 1px solid var(--color-surface-pressed); }
     .cr-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .deadline-box { margin-top:14px; padding:10px 12px; border-radius:8px; font-size:var(--font-size-body-sm); }
+    .deadline-wait { background: var(--color-canvas-soft,#f4f6f8); color: var(--color-body); }
+    .deadline-over { background:#FDECEC; color: var(--color-danger); font-weight:600; }
   </style>
 </head>
 <body>
@@ -72,13 +74,13 @@
           </span>
           <span>Khiếu nại</span>
         </a>
-        <a href="cancellation-refunds.html" class="sidebar-item sidebar-item--active">
+        <a href="cancellation-refunds.html" class="sidebar-item">
           <span class="sidebar-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l3 2"></path></svg>
           </span>
           <span>Sự cố vận chuyển</span>
         </a>
-        <a href="driver-incidents.html" class="sidebar-item">
+        <a href="driver-incidents.html" class="sidebar-item sidebar-item--active">
           <span class="sidebar-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           </span>
@@ -90,60 +92,61 @@
     <main class="site-main" id="main-content">
       <div class="dashboard-main">
         <header class="page-header">
-          <h1 class="page-title">Sự cố vận chuyển</h1>
-          <p class="page-subtitle">Khách hủy đơn khi chưa có tài xế nhận. Xem lý do, ảnh đính kèm và duyệt hoàn cọc về ví khách.</p>
+          <h1 class="page-title">Sự cố tài xế</h1>
+          <p class="page-subtitle">Tài xế báo sự cố giữa chuyến (hỏng xe, lý do bất ngờ). Xác nhận để bắn đơn lại cho tài xế khác; quá 15 phút không ai nhận thì hoàn cọc + bồi thường cho khách.</p>
         </header>
 
         <div id="error-banner" class="error-alert" style="display: none; margin-bottom: var(--spacing-lg);"></div>
 
-        <section class="mb-8" aria-label="Chỉ số hoàn cọc">
+        <section class="mb-8" aria-label="Chỉ số sự cố tài xế">
           <div class="grid-3">
             <div class="kpi kpi-warning">
               <div class="kpi-body">
                 <div class="kpi-value" id="kpi-pending">—</div>
-                <div class="kpi-label">Chờ duyệt hoàn cọc</div>
-                <div class="kpi-sub">Cần xử lý sớm cho khách</div>
+                <div class="kpi-label">Chờ xác nhận</div>
+                <div class="kpi-sub">Tài xế vừa báo sự cố</div>
               </div>
             </div>
             <div class="kpi kpi-primary">
               <div class="kpi-body">
-                <div class="kpi-value" id="kpi-refunded">—</div>
-                <div class="kpi-label">Đã hoàn cọc</div>
-                <div class="kpi-sub">Tiền đã về ví khách</div>
+                <div class="kpi-value" id="kpi-confirmed">—</div>
+                <div class="kpi-label">Đang tìm tài xế</div>
+                <div class="kpi-sub">Đã bắn lại, chờ nhận</div>
               </div>
             </div>
             <div class="kpi kpi-neutral">
               <div class="kpi-body">
-                <div class="kpi-value" id="kpi-rejected">—</div>
-                <div class="kpi-label">Đã từ chối</div>
-                <div class="kpi-sub">Không đủ điều kiện hoàn</div>
+                <div class="kpi-value" id="kpi-compensated">—</div>
+                <div class="kpi-label">Đã hoàn + bồi thường</div>
+                <div class="kpi-sub">Không tìm được tài xế</div>
               </div>
             </div>
           </div>
         </section>
 
-        <section class="card" aria-label="Danh sách yêu cầu hoàn cọc">
+        <section class="card" aria-label="Danh sách sự cố">
           <div class="card-header">
-            <h2 class="card-title">Danh sách yêu cầu</h2>
-            <span class="card-meta">Chờ duyệt xếp theo thứ tự gửi</span>
+            <h2 class="card-title">Danh sách sự cố</h2>
+            <span class="card-meta">Chờ xác nhận xếp theo thứ tự báo</span>
           </div>
           <div style="padding: var(--spacing-md) var(--spacing-lg) 0;">
             <div class="dsp-filters" id="filterContainer">
-              <button class="dsp-pill active" data-status="PENDING">Chờ duyệt</button>
+              <button class="dsp-pill active" data-status="PENDING">Chờ xác nhận</button>
+              <button class="dsp-pill" data-status="CONFIRMED">Đang tìm tài xế</button>
+              <button class="dsp-pill" data-status="RESOLVED_REASSIGNED">Đã có tài xế mới</button>
+              <button class="dsp-pill" data-status="COMPENSATED">Đã bồi thường</button>
               <button class="dsp-pill" data-status="">Tất cả</button>
-              <button class="dsp-pill" data-status="REFUNDED">Đã hoàn</button>
-              <button class="dsp-pill" data-status="REJECTED">Đã từ chối</button>
             </div>
           </div>
           <div class="table-wrapper" style="border:none; border-radius:0; box-shadow:none; overflow-x:auto;">
-            <table class="table table-hover" style="min-width: 860px;">
+            <table class="table table-hover" style="min-width: 900px;">
               <thead>
                 <tr>
                   <th>Mã đơn</th>
-                  <th>Khách hàng</th>
+                  <th>Tài xế</th>
                   <th>Lý do</th>
-                  <th>Cọc dự kiến</th>
-                  <th>Ngày gửi</th>
+                  <th>Khi báo</th>
+                  <th>Ngày báo</th>
                   <th>Trạng thái</th>
                   <th class="table-col-action">Thao tác</th>
                 </tr>
@@ -167,45 +170,42 @@
   <div class="cr-modal" role="dialog" aria-modal="true" aria-labelledby="cr-modal-title">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
       <div>
-        <h2 id="cr-modal-title">Yêu cầu hoàn cọc</h2>
+        <h2 id="cr-modal-title">Sự cố tài xế</h2>
         <p class="text-muted" id="cr-modal-order" style="margin:0;">—</p>
       </div>
       <button id="cr-close" class="btn-subtle" aria-label="Đóng">✕</button>
     </div>
 
     <div id="cr-modal-body" style="margin-top:16px;">
-      <div class="cr-row"><span>Khách hàng</span><strong id="cr-customer">—</strong></div>
+      <div class="cr-row"><span>Tài xế báo sự cố</span><strong id="cr-driver">—</strong></div>
       <div class="cr-row"><span>Số điện thoại</span><strong id="cr-phone">—</strong></div>
       <div class="cr-row"><span>Điểm đón</span><strong id="cr-pickup">—</strong></div>
       <div class="cr-row"><span>Điểm trả</span><strong id="cr-dropoff">—</strong></div>
       <div class="cr-row"><span>Tổng tiền đơn</span><strong id="cr-total">—</strong></div>
       <div class="cr-row"><span>Cọc dự kiến hoàn (30%)</span><strong id="cr-deposit" style="color:var(--color-primary);">—</strong></div>
+      <div class="cr-row"><span>Bồi thường cho khách</span><strong id="cr-compensation">—</strong></div>
       <div class="cr-row"><span>Trạng thái</span><strong id="cr-status">—</strong></div>
 
       <div style="margin-top:14px;">
-        <div class="form-label">Lý do khách hủy</div>
+        <div class="form-label">Mô tả sự cố</div>
         <p id="cr-reason" style="margin:4px 0 0;color:var(--color-ink);white-space:pre-wrap;">—</p>
       </div>
 
       <div style="margin-top:14px;" id="cr-photos-wrap">
-        <div class="form-label">Ảnh đính kèm</div>
+        <div class="form-label">Ảnh minh chứng</div>
         <div class="cr-photos" id="cr-photos"></div>
-        <p class="text-muted" id="cr-no-photos" style="font-size:var(--font-size-body-sm);display:none;">Khách không đính kèm ảnh.</p>
+        <p class="text-muted" id="cr-no-photos" style="font-size:var(--font-size-body-sm);display:none;">Tài xế không đính kèm ảnh.</p>
       </div>
+
+      <div id="cr-deadline" class="deadline-box" style="display:none;"></div>
 
       <div id="cr-processed-info" style="display:none;margin-top:14px;padding:10px 12px;border-radius:8px;background:var(--color-canvas-soft,#f4f6f8);font-size:var(--font-size-body-sm);"></div>
 
       <p id="cr-modal-error" style="color:var(--color-danger);display:none;margin-top:12px;font-size:var(--font-size-body-sm);"></p>
 
-      <!-- Form tu choi (an mac dinh) -->
-      <div id="cr-reject-form" style="display:none;margin-top:14px;">
-        <label class="form-label" for="cr-reject-reason">Lý do từ chối <span style="color:var(--color-danger)">*</span></label>
-        <textarea class="text-input" id="cr-reject-reason" rows="2" maxlength="500" placeholder="Ví dụ: Đơn không đủ điều kiện hoàn cọc..."></textarea>
-      </div>
-
       <div class="cr-actions" id="cr-actions">
-        <button id="cr-refund-btn" class="btn-primary" style="flex:1;justify-content:center;">💰 Hoàn cọc</button>
-        <button id="cr-reject-btn" class="btn-danger" style="flex:1;justify-content:center;">Từ chối</button>
+        <button id="cr-confirm-btn" class="btn-primary" style="flex:1;justify-content:center;display:none;">✓ Xác nhận sự cố &amp; bắn lại đơn</button>
+        <button id="cr-compensate-btn" class="btn-danger" style="flex:1;justify-content:center;display:none;">💰 Hoàn cọc + bồi thường</button>
       </div>
     </div>
   </div>
@@ -217,10 +217,12 @@
   import { formatVnd, formatDateTime, renderPagination, esc, showError, hideError } from '../../js/admin-common.js';
 
   const STATUS_VN = {
-    PENDING:  '<span class="badge badge-sm badge-warning">Chờ duyệt</span>',
-    REFUNDED: '<span class="badge badge-sm badge-success">Đã hoàn cọc</span>',
-    REJECTED: '<span class="badge badge-sm badge-neutral">Đã từ chối</span>',
+    PENDING:             '<span class="badge badge-sm badge-warning">Chờ xác nhận</span>',
+    CONFIRMED:           '<span class="badge badge-sm badge-primary">Đang tìm tài xế</span>',
+    RESOLVED_REASSIGNED: '<span class="badge badge-sm badge-success">Đã có tài xế mới</span>',
+    COMPENSATED:         '<span class="badge badge-sm badge-neutral">Đã hoàn + bồi thường</span>',
   };
+  const SNAPSHOT_VN = { ACCEPTED: 'Đang đến điểm đón', IN_PROGRESS: 'Đang giao hàng' };
 
   let currentStatus = 'PENDING';
   let currentPage = 0;
@@ -251,8 +253,8 @@
     document.getElementById('cr-overlay').addEventListener('click', (e) => {
       if (e.target.id === 'cr-overlay') closeModal();
     });
-    document.getElementById('cr-refund-btn').addEventListener('click', doRefund);
-    document.getElementById('cr-reject-btn').addEventListener('click', doReject);
+    document.getElementById('cr-confirm-btn').addEventListener('click', doConfirm);
+    document.getElementById('cr-compensate-btn').addEventListener('click', doCompensate);
 
     loadKpis();
     loadList(0, currentSize);
@@ -260,16 +262,16 @@
 
   async function loadKpis() {
     try {
-      const [pending, refunded, rejected] = await Promise.all([
-        getAuthenticated('/api/manager/cancellation-refunds?status=PENDING&page=0&size=1'),
-        getAuthenticated('/api/manager/cancellation-refunds?status=REFUNDED&page=0&size=1'),
-        getAuthenticated('/api/manager/cancellation-refunds?status=REJECTED&page=0&size=1'),
+      const [pending, confirmed, compensated] = await Promise.all([
+        getAuthenticated('/api/manager/incidents?status=PENDING&page=0&size=1'),
+        getAuthenticated('/api/manager/incidents?status=CONFIRMED&page=0&size=1'),
+        getAuthenticated('/api/manager/incidents?status=COMPENSATED&page=0&size=1'),
       ]);
       document.getElementById('kpi-pending').textContent = pending?.totalElements ?? 0;
-      document.getElementById('kpi-refunded').textContent = refunded?.totalElements ?? 0;
-      document.getElementById('kpi-rejected').textContent = rejected?.totalElements ?? 0;
+      document.getElementById('kpi-confirmed').textContent = confirmed?.totalElements ?? 0;
+      document.getElementById('kpi-compensated').textContent = compensated?.totalElements ?? 0;
     } catch (err) {
-      console.warn('Không thể tải chỉ số hoàn cọc:', err);
+      console.warn('Không thể tải chỉ số sự cố:', err);
     }
   }
 
@@ -280,24 +282,29 @@
     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;">Đang tải...</td></tr>`;
     try {
       const statusParam = currentStatus ? `&status=${encodeURIComponent(currentStatus)}` : '';
-      const data = await getAuthenticated(`/api/manager/cancellation-refunds?page=${page}&size=${size}${statusParam}`);
+      const data = await getAuthenticated(`/api/manager/incidents?page=${page}&size=${size}${statusParam}`);
       const items = (data && data.content) || [];
       if (!items.length) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--color-mute)">Không có yêu cầu hoàn cọc nào.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--color-mute)">Không có sự cố nào.</td></tr>`;
         document.getElementById('cr-pagination').innerHTML = '';
         return;
       }
-      tbody.innerHTML = items.map(c => `
-        <tr${c.status === 'PENDING' ? ' class="row-warning"' : ''}>
+      tbody.innerHTML = items.map(c => {
+        const overdueTag = (c.status === 'CONFIRMED' && c.overdue)
+          ? ' <span class="badge badge-sm badge-danger">Quá 15 phút</span>' : '';
+        const rowCls = (c.status === 'PENDING' || (c.status === 'CONFIRMED' && c.overdue))
+          ? ' class="row-warning"' : '';
+        return `
+        <tr${rowCls}>
           <td><strong>${esc(c.orderCode)}</strong></td>
-          <td>${esc(c.customerName)}</td>
+          <td>${esc(c.driverName)}</td>
           <td class="reason-cell" title="${esc(c.reason)}">${esc(c.reason)}</td>
-          <td class="col-money" style="font-weight:700;">${formatVnd(c.depositAmount)}</td>
+          <td>${esc(SNAPSHOT_VN[c.orderStatusSnapshot] || c.orderStatusSnapshot || '—')}</td>
           <td>${formatDateTime(c.createdAt)}</td>
-          <td>${STATUS_VN[c.status] || `<span class="badge badge-sm badge-neutral">${esc(c.status)}</span>`}</td>
+          <td>${(STATUS_VN[c.status] || `<span class="badge badge-sm badge-neutral">${esc(c.status)}</span>`) + overdueTag}</td>
           <td class="table-col-action"><button class="btn btn-primary btn-sm" data-id="${esc(c.id)}">Xem</button></td>
-        </tr>
-      `).join('');
+        </tr>`;
+      }).join('');
       tbody.querySelectorAll('button[data-id]').forEach(btn =>
         btn.addEventListener('click', () => openModal(btn.dataset.id)));
 
@@ -305,11 +312,11 @@
         { totalElements: data.totalElements, totalPages: data.totalPages, number: data.number, size: data.size },
         (p) => loadList(p, currentSize),
         (s) => loadList(0, s),
-        'yêu cầu');
+        'sự cố');
     } catch (err) {
       console.error(err);
       tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--color-danger)">Không thể tải danh sách. Vui lòng thử lại.</td></tr>`;
-      showError(cleanMessage(err.message) || 'Không thể tải danh sách yêu cầu hoàn cọc.');
+      showError(cleanMessage(err.message) || 'Không thể tải danh sách sự cố.');
     }
   }
 
@@ -317,17 +324,17 @@
     currentDetailId = id;
     const overlay = document.getElementById('cr-overlay');
     resetModalError();
-    document.getElementById('cr-reject-form').style.display = 'none';
     overlay.classList.add('open');
     try {
-      const d = await getAuthenticated(`/api/manager/cancellation-refunds/${encodeURIComponent(id)}`);
+      const d = await getAuthenticated(`/api/manager/incidents/${encodeURIComponent(id)}`);
       document.getElementById('cr-modal-order').textContent = 'Đơn ' + (d.orderCode || '—');
-      document.getElementById('cr-customer').textContent = d.customerName || '—';
-      document.getElementById('cr-phone').textContent = d.customerPhone || '—';
+      document.getElementById('cr-driver').textContent = d.driverName || '—';
+      document.getElementById('cr-phone').textContent = d.driverPhone || '—';
       document.getElementById('cr-pickup').textContent = d.order?.pickupAddress || '—';
       document.getElementById('cr-dropoff').textContent = d.order?.dropoffAddress || '—';
       document.getElementById('cr-total').textContent = fmtVnd(d.order?.totalQuote);
-      document.getElementById('cr-deposit').textContent = fmtVnd(d.depositAmount);
+      document.getElementById('cr-deposit').textContent = fmtVnd(d.depositEstimate);
+      document.getElementById('cr-compensation').textContent = fmtVnd(d.compensationAmount);
       document.getElementById('cr-status').innerHTML = STATUS_VN[d.status] || esc(d.status);
       document.getElementById('cr-reason').textContent = d.reason || '—';
 
@@ -341,28 +348,61 @@
         urls.forEach(u => {
           const a = document.createElement('a');
           a.href = u; a.target = '_blank'; a.rel = 'noopener';
-          const img = document.createElement('img'); img.src = u; img.alt = 'Ảnh đính kèm';
+          const img = document.createElement('img'); img.src = u; img.alt = 'Ảnh minh chứng';
           a.appendChild(img); photosEl.appendChild(a);
         });
       } else {
         noPhotos.style.display = 'block';
       }
 
-      // Trang thai da xu ly → an nut hanh dong, hien thong tin xu ly
-      const isPending = d.status === 'PENDING';
-      document.getElementById('cr-actions').style.display = isPending ? 'flex' : 'none';
+      // Deadline box (chi khi CONFIRMED)
+      const deadlineBox = document.getElementById('cr-deadline');
+      deadlineBox.style.display = 'none';
+      deadlineBox.className = 'deadline-box';
+
+      const confirmBtn = document.getElementById('cr-confirm-btn');
+      const compBtn = document.getElementById('cr-compensate-btn');
+      const actions = document.getElementById('cr-actions');
       const processed = document.getElementById('cr-processed-info');
-      if (!isPending) {
+      confirmBtn.style.display = 'none';
+      compBtn.style.display = 'none';
+      processed.style.display = 'none';
+
+      if (d.status === 'PENDING') {
+        actions.style.display = 'flex';
+        confirmBtn.style.display = 'inline-flex';
+        confirmBtn.disabled = false; confirmBtn.textContent = '✓ Xác nhận sự cố & bắn lại đơn';
+      } else if (d.status === 'CONFIRMED') {
+        actions.style.display = 'flex';
+        compBtn.style.display = 'inline-flex';
+        deadlineBox.style.display = 'block';
+        if (d.overdue) {
+          deadlineBox.classList.add('deadline-over');
+          deadlineBox.textContent = '⚠ Đã quá 15 phút mà chưa có tài xế nhận lại. Có thể hoàn cọc + bồi thường cho khách.';
+          compBtn.disabled = false; compBtn.style.opacity = '';
+          compBtn.textContent = '💰 Hoàn cọc + bồi thường';
+        } else {
+          deadlineBox.classList.add('deadline-wait');
+          deadlineBox.textContent = 'Đang chờ tài xế mới nhận lại. Được hoàn cọc + bồi thường sau '
+            + formatDateTime(d.reassignDeadline) + ' nếu chưa có ai nhận.';
+          compBtn.disabled = true; compBtn.style.opacity = '0.5';
+          compBtn.textContent = '💰 Chờ đủ 15 phút';
+        }
+      } else {
+        // RESOLVED_REASSIGNED hoac COMPENSATED
+        actions.style.display = 'none';
         let html = '';
-        if (d.status === 'REFUNDED') html = `✓ Đã hoàn <strong>${esc(fmtVnd(d.refundAmount))}</strong> vào ví khách lúc ${esc(formatDateTime(d.processedAt))}.`;
-        else if (d.status === 'REJECTED') html = `✕ Đã từ chối lúc ${esc(formatDateTime(d.processedAt))}.` + (d.rejectionReason ? `<br>Lý do: ${esc(d.rejectionReason)}` : '');
+        if (d.status === 'RESOLVED_REASSIGNED') {
+          html = '✓ Đơn đã được tài xế khác tiếp nhận và tiếp tục.';
+        } else if (d.status === 'COMPENSATED') {
+          html = `✓ Đã hoàn <strong>${esc(fmtVnd(d.refundAmount))}</strong> (cọc + bồi thường) vào ví khách.`
+            + `<br>Đã trừ <strong>${esc(fmtVnd(d.penaltyAmount))}</strong> từ tài xế gây sự cố.`;
+        }
         processed.innerHTML = html;
         processed.style.display = 'block';
-      } else {
-        processed.style.display = 'none';
       }
     } catch (err) {
-      showModalError(cleanMessage(err.message) || 'Không thể tải chi tiết yêu cầu.');
+      showModalError(cleanMessage(err.message) || 'Không thể tải chi tiết sự cố.');
     }
   }
 
@@ -371,45 +411,35 @@
     currentDetailId = null;
   }
 
-  async function doRefund() {
+  async function doConfirm() {
     if (!currentDetailId) return;
     resetModalError();
-    const btn = document.getElementById('cr-refund-btn');
-    btn.disabled = true; btn.textContent = 'Đang hoàn...';
+    const btn = document.getElementById('cr-confirm-btn');
+    btn.disabled = true; btn.textContent = 'Đang xử lý...';
     try {
-      await postAuthenticated(`/api/manager/cancellation-refunds/${encodeURIComponent(currentDetailId)}/refund`, null);
+      await postAuthenticated(`/api/manager/incidents/${encodeURIComponent(currentDetailId)}/confirm`, null);
       closeModal();
       loadKpis();
       loadList(currentPage, currentSize);
     } catch (err) {
-      btn.disabled = false; btn.textContent = '💰 Hoàn cọc';
-      showModalError(cleanMessage(err.message) || 'Không thể hoàn cọc. Vui lòng thử lại.');
+      btn.disabled = false; btn.textContent = '✓ Xác nhận sự cố & bắn lại đơn';
+      showModalError(cleanMessage(err.message) || 'Không thể xác nhận. Vui lòng thử lại.');
     }
   }
 
-  async function doReject() {
+  async function doCompensate() {
     if (!currentDetailId) return;
-    const form = document.getElementById('cr-reject-form');
-    const reasonEl = document.getElementById('cr-reject-reason');
-    // Lan bam dau: mo o nhap ly do; lan bam sau (khi da mo): gui
-    if (form.style.display === 'none') {
-      form.style.display = 'block';
-      reasonEl.focus();
-      return;
-    }
     resetModalError();
-    const reason = (reasonEl.value || '').trim();
-    if (reason.length < 3) { showModalError('Vui lòng nhập lý do từ chối (ít nhất 3 ký tự).'); return; }
-    const btn = document.getElementById('cr-reject-btn');
-    btn.disabled = true; btn.textContent = 'Đang gửi...';
+    const btn = document.getElementById('cr-compensate-btn');
+    btn.disabled = true; btn.textContent = 'Đang xử lý...';
     try {
-      await postAuthenticated(`/api/manager/cancellation-refunds/${encodeURIComponent(currentDetailId)}/reject`, { reason });
+      await postAuthenticated(`/api/manager/incidents/${encodeURIComponent(currentDetailId)}/compensate`, null);
       closeModal();
       loadKpis();
       loadList(currentPage, currentSize);
     } catch (err) {
-      btn.disabled = false; btn.textContent = 'Từ chối';
-      showModalError(cleanMessage(err.message) || 'Không thể từ chối. Vui lòng thử lại.');
+      btn.disabled = false; btn.textContent = '💰 Hoàn cọc + bồi thường';
+      showModalError(cleanMessage(err.message) || 'Không thể hoàn cọc. Vui lòng thử lại.');
     }
   }
 

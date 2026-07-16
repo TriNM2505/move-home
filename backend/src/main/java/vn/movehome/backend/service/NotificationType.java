@@ -23,6 +23,10 @@ public final class NotificationType {
     public static final String PENALTY_SETTLED = "PENALTY_SETTLED";
     public static final String CHAT_MESSAGE = "CHAT_MESSAGE";
     public static final String DRIVER_ARRIVED = "DRIVER_ARRIVED";
+    // Su co tai xe giua chuyen (V44): bao Manager, va bao khach khi don duoc ban lai / hoan coc + boi thuong.
+    public static final String DRIVER_INCIDENT_REPORTED = "DRIVER_INCIDENT_REPORTED";
+    public static final String ORDER_REASSIGNING = "ORDER_REASSIGNING";
+    public static final String ORDER_INCIDENT_REFUNDED = "ORDER_INCIDENT_REFUNDED";
 
     private NotificationType() {
     }

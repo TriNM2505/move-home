@@ -366,9 +366,36 @@
               <button id="btn-request-payment" class="btn-primary btn-full" style="display: none; justify-content: center;">Yêu cầu khách thanh toán 70%</button>
               <p id="final-wait-hint" style="display:none; text-align:center; color: var(--color-mute); font-size: var(--font-size-body-sm); margin: 8px 0 0;">Đang chờ khách thanh toán nốt 70%. Nút Hoàn thành sẽ mở khi khách trả xong.</p>
               <button id="btn-complete" class="btn-primary-amber btn-full" style="display: none; justify-content: center;">Đã hoàn thành</button>
+              <!-- Bao su co: chi hien khi ACCEPTED / IN_PROGRESS (truoc khi tra 70%) -->
+              <button id="btn-incident" class="btn-subtle btn-full" style="display: none; justify-content: center; border:1px solid var(--color-danger); color:var(--color-danger); cursor:pointer;">Báo sự cố cho quản lý</button>
             </div>
           </section>
         </aside>
+      </div>
+
+      <!-- MODAL BAO SU CO -->
+      <div id="incident-modal" style="display:none; position:fixed; inset:0; background:rgba(6,27,49,0.55); z-index:1000; align-items:center; justify-content:center; padding:16px;">
+        <div class="card-elevated" style="max-width:480px; width:100%; background:var(--color-canvas);" role="dialog" aria-modal="true" aria-labelledby="incident-modal-title">
+          <span class="eyebrow">Sự cố giữa chuyến</span>
+          <h2 id="incident-modal-title" class="section-title" style="margin-bottom:6px;">Báo sự cố cho quản lý</h2>
+          <p style="color:var(--color-body); font-size:var(--font-size-body-sm); margin-bottom:var(--spacing-md);">
+            Mô tả lý do không thể tiếp tục giao (hỏng xe, sự cố bất ngờ…). Quản lý sẽ xác nhận và điều phối lại đơn cho tài xế khác.
+          </p>
+
+          <label for="incident-reason" style="display:block; font-weight:600; margin-bottom:6px;">Mô tả sự cố <span style="color:var(--color-danger);">*</span></label>
+          <textarea id="incident-reason" rows="4" maxlength="500" placeholder="Ví dụ: Xe bị thủng lốp trên đường, không thể tiếp tục giao hàng." style="width:100%; padding:10px 12px; border:1px solid var(--color-surface-pressed); border-radius:var(--rounded-lg); font-family:inherit; resize:vertical;"></textarea>
+
+          <label for="incident-photos" style="display:block; font-weight:600; margin:var(--spacing-md) 0 6px;">Ảnh minh chứng (tối đa 3, không bắt buộc)</label>
+          <input type="file" id="incident-photos" accept="image/jpeg,image/png,image/webp" multiple>
+          <p id="incident-photo-hint" style="color:var(--color-mute); font-size:var(--font-size-body-sm); margin:6px 0 0;"></p>
+
+          <div id="incident-modal-error" class="error-alert" style="display:none; margin-top:var(--spacing-md);"></div>
+
+          <div class="flex-row gap-md" style="display:flex; gap:var(--spacing-md); margin-top:var(--spacing-lg);">
+            <button id="incident-cancel" class="btn-subtle btn-full" style="justify-content:center; border:1px solid var(--color-surface-pressed); cursor:pointer;">Đóng</button>
+            <button id="incident-submit" class="btn-danger btn-full" style="justify-content:center; cursor:pointer;">Gửi báo cáo</button>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -432,6 +459,12 @@
     document.getElementById('btn-no-show')?.addEventListener('click', () => handleOrderAction('cancel-no-show'));
     document.getElementById('btn-request-payment')?.addEventListener('click', () => handleOrderAction('request-final-payment'));
     document.getElementById('btn-complete')?.addEventListener('click', () => handleOrderAction('complete'));
+
+    // Bao su co
+    document.getElementById('btn-incident')?.addEventListener('click', openIncidentModal);
+    document.getElementById('incident-cancel')?.addEventListener('click', closeIncidentModal);
+    document.getElementById('incident-submit')?.addEventListener('click', submitIncident);
+    document.getElementById('incident-photos')?.addEventListener('change', onIncidentPhotosChange);
   }
 
   async function loadOrderDetails() {
@@ -598,6 +631,12 @@
     if (arrivedWaitEl) arrivedWaitEl.style.display = 'none';
     if (btnNoShowEl) btnNoShowEl.style.display = 'none';
     stopArrivedTimers();
+
+    // Nut "Bao su co": chi khi dang tren duong (ACCEPTED) hoac dang giao (IN_PROGRESS), truoc khi tra 70%
+    const btnIncident = document.getElementById('btn-incident');
+    if (btnIncident) {
+      btnIncident.style.display = (status === 'ACCEPTED' || status === 'IN_PROGRESS') ? 'inline-flex' : 'none';
+    }
 
     // Populate timeline times based on statuses
     // For timeline:
@@ -845,6 +884,127 @@
         actionBtn.disabled = false;
       }
     }
+  }
+
+  // ===== Bao su co giua chuyen (V44) =====
+  const BASE_URL = 'http://localhost:8080';
+  const MAX_INCIDENT_PHOTOS = 3;
+
+  function openIncidentModal() {
+    const modal = document.getElementById('incident-modal');
+    if (!modal) return;
+    document.getElementById('incident-reason').value = '';
+    document.getElementById('incident-photos').value = '';
+    document.getElementById('incident-photo-hint').textContent = '';
+    hideIncidentError();
+    modal.style.display = 'flex';
+  }
+
+  function closeIncidentModal() {
+    const modal = document.getElementById('incident-modal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function onIncidentPhotosChange(e) {
+    const files = Array.from(e.target.files || []);
+    const hint = document.getElementById('incident-photo-hint');
+    if (files.length > MAX_INCIDENT_PHOTOS) {
+      hint.style.color = 'var(--color-danger)';
+      hint.textContent = `Chỉ được chọn tối đa ${MAX_INCIDENT_PHOTOS} ảnh. Hệ thống sẽ gửi 3 ảnh đầu tiên.`;
+    } else {
+      hint.style.color = 'var(--color-mute)';
+      hint.textContent = files.length ? `Đã chọn ${files.length} ảnh.` : '';
+    }
+  }
+
+  function showIncidentError(msg) {
+    const el = document.getElementById('incident-modal-error');
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+  }
+  function hideIncidentError() {
+    const el = document.getElementById('incident-modal-error');
+    if (el) el.style.display = 'none';
+  }
+
+  async function submitIncident() {
+    if (!currentOrder) return;
+    const reason = (document.getElementById('incident-reason').value || '').trim();
+    if (!reason) {
+      showIncidentError('Vui lòng mô tả sự cố.');
+      return;
+    }
+    hideIncidentError();
+
+    const submitBtn = document.getElementById('incident-submit');
+    submitBtn.classList.add('btn-loading');
+    submitBtn.disabled = true;
+
+    try {
+      // Buoc 1: tao bao cao su co -> lay incidentId
+      await postAuthenticated(`/api/driver/orders/${currentOrder.id}/incident`, { reason });
+
+      // Buoc 2: upload tung anh (toi da 3) — loi 1 anh khong chan viec da bao su co
+      const files = Array.from(document.getElementById('incident-photos').files || []).slice(0, MAX_INCIDENT_PHOTOS);
+      for (const file of files) {
+        try {
+          const blob = await compressImage(file);
+          await uploadIncidentPhoto(currentOrder.id, blob);
+        } catch (pErr) {
+          console.warn('Không tải được 1 ảnh sự cố:', pErr);
+        }
+      }
+
+      closeIncidentModal();
+      // Da bao su co: don cho Manager xac nhan — dua tai xe ve lich su
+      window.location.href = 'history.html';
+    } catch (err) {
+      showIncidentError(err.message || 'Không thể gửi báo cáo sự cố. Vui lòng thử lại.');
+    } finally {
+      submitBtn.classList.remove('btn-loading');
+      submitBtn.disabled = false;
+    }
+  }
+
+  // Upload 1 anh su co (multipart) — api.js chi ho tro JSON nen goi fetch truc tiep
+  async function uploadIncidentPhoto(orderId, blob) {
+    const fd = new FormData();
+    fd.append('file', blob, 'incident.jpg');
+    const token = localStorage.getItem('accessToken');
+    const resp = await fetch(`${BASE_URL}/api/driver/orders/${encodeURIComponent(orderId)}/incident/photos`, {
+      method: 'POST',
+      headers: token ? { Authorization: 'Bearer ' + token } : {},
+      body: fd,
+    });
+    if (!resp.ok) {
+      let msg = 'Tải ảnh thất bại';
+      try { const d = await resp.json(); msg = d.message || msg; } catch {}
+      throw new Error(msg);
+    }
+  }
+
+  // Nen anh client-side truoc khi gui (AC-10): canh dai toi da 1280px, JPEG 0.8
+  function compressImage(file) {
+    return new Promise((resolve, reject) => {
+      const objectUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        let { width, height } = img;
+        const maxDim = 1280;
+        if (width > maxDim || height > maxDim) {
+          const scale = Math.min(maxDim / width, maxDim / height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Không xử lý được ảnh.')),
+          'image/jpeg', 0.8);
+      };
+      img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Không đọc được ảnh.')); };
+      img.src = objectUrl;
+    });
   }
 </script>
 <!-- JS Common + Bell Dropdown -->
