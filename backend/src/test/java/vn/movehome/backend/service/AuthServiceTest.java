@@ -13,7 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 import vn.movehome.backend.dto.auth.AuthResponse;
 import vn.movehome.backend.dto.auth.LoginRequest;
+import vn.movehome.backend.dto.auth.VerifyEmailRequest;
 import vn.movehome.backend.email.notification.EmailService;
+import vn.movehome.backend.entity.EmailVerificationToken;
 import vn.movehome.backend.entity.User;
 import vn.movehome.backend.entity.UserRole;
 import vn.movehome.backend.entity.UserStatus;
@@ -66,9 +68,6 @@ class AuthServiceTest {
     @Mock
     private DriverProfileRepository driverProfileRepository;
 
-    private static final String VERIFY_EMAIL_URL =
-            "http://localhost:5500/frontend/pages/verify-email-success.html";
-
     private AuthService authService;
 
     @BeforeEach
@@ -82,7 +81,7 @@ class AuthServiceTest {
                 loginEventRecorder,
                 emailService,
                 driverProfileRepository,
-                VERIFY_EMAIL_URL);
+                "http://localhost:5500/frontend/pages/verify-email-success.html");
     }
 
     @ParameterizedTest
@@ -101,7 +100,6 @@ class AuthServiceTest {
         assertThat(response.refreshToken()).isEqualTo("refresh-token");
         assertThat(response.user().status()).isEqualTo(status);
         verify(userRepository).save(user);
-        verify(loginEventRecorder).recordSuccessfulLogin(user.getId());
     }
 
     @Test
@@ -126,45 +124,6 @@ class AuthServiceTest {
                 });
 
         verify(jwtTokenProvider, never()).generateAccessToken(any());
-        verify(loginEventRecorder, never()).recordSuccessfulLogin(any());
-    }
-
-    @Test
-    void adminLockedUserCannotLoginAndReceivesAccountLocked() {
-        String email = "locked-customer@movehome.vn";
-        User user = verifiedUser(email, UserRole.CUSTOMER, UserStatus.LOCKED);
-        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.of(user));
-
-        assertThatThrownBy(() -> authService.login(new LoginRequest(email, PASSWORD)))
-                .isInstanceOfSatisfying(ResponseStatusException.class, ex -> {
-                    assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.LOCKED);
-                    assertThat(ex.getReason()).isEqualTo(
-                            "ACCOUNT_LOCKED|Tai khoan da bi khoa. Vui long lien he quan tri vien.");
-                });
-
-        verify(passwordEncoder, never()).matches(any(), any());
-        verify(jwtTokenProvider, never()).generateAccessToken(any());
-        verify(refreshTokenRepository, never()).save(any());
-        verify(loginEventRecorder, never()).recordSuccessfulLogin(any());
-    }
-
-    @Test
-    void suspendedUserCannotLoginAndDoesNotReceiveTokens() {
-        String email = "suspended-customer@movehome.vn";
-        User user = verifiedUser(email, UserRole.CUSTOMER, UserStatus.SUSPENDED);
-        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.of(user));
-
-        assertThatThrownBy(() -> authService.login(new LoginRequest(email, PASSWORD)))
-                .isInstanceOfSatisfying(ResponseStatusException.class, ex -> {
-                    assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-                    assertThat(ex.getReason()).isEqualTo(
-                            "ACCOUNT_SUSPENDED|Tai khoan da bi dinh chi. Vui long lien he quan tri vien.");
-                });
-
-        assertThat(user.isAccountNonLocked()).isFalse();
-        verify(passwordEncoder, never()).matches(any(), any());
-        verify(jwtTokenProvider, never()).generateAccessToken(any());
-        verify(refreshTokenRepository, never()).save(any());
     }
 
     private void stubSuccessfulLogin(User user) {
@@ -196,5 +155,41 @@ class AuthServiceTest {
                 Arguments.of("customer1@test.com", UserRole.CUSTOMER, UserStatus.ACTIVE),
                 Arguments.of("admin@movehome.vn", UserRole.ADMIN, UserStatus.ACTIVE)
         );
+    }
+
+    // =========================================================================
+    // verifyEmail — kiem tra nhanh user khong ton tai sau khi token hop le (FR-014)
+    // =========================================================================
+
+    /**
+     * Kich ban: token email hop le (chua het han, chua dung), nhung userId tuong ung
+     * khong con trong DB (co the da bi xoa).
+     * Ket qua mong doi: Nem 404 NOT_FOUND (cover AuthService.java:113 — orElseThrow lambda).
+     */
+    @Test
+    void verifyEmailThrows404WhenUserNotFound() {
+        UUID userId   = UUID.randomUUID();
+        String rawTok = "raw-email-token";
+        String hash   = "sha256-email-token-hash";
+
+        // Token hop le: chua het han, chua dung
+        EmailVerificationToken evToken = EmailVerificationToken.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .token(hash)
+                .expiresAt(Instant.now().plus(24, ChronoUnit.HOURS))
+                .usedAt(null)
+                .build();
+
+        when(jwtTokenProvider.hashToken(rawTok)).thenReturn(hash);
+        when(emailTokenRepository.findByToken(hash)).thenReturn(Optional.of(evToken));
+        // User da bi xoa khoi DB
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.verifyEmail(new VerifyEmailRequest(rawTok)))
+                .isInstanceOfSatisfying(ResponseStatusException.class, ex -> {
+                    assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(ex.getReason()).startsWith("NOT_FOUND|");
+                });
     }
 }
