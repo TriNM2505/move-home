@@ -11,6 +11,41 @@
 
 ---
 
+## ⚠️ QUAN TRỌNG — ĐỌC TRƯỚC §4, §5.5 (nguồn đúng hiện tại)
+
+> Các điểm sau là nguồn đúng, **ghi đè** mọi mục ở §4/§5.5 nếu lệch:
+>
+> 1. **BRAND = Move_home forest green** (constitution HR-19): primary **forest green `#1B4D3E`** +
+>    accent **amber `#F5A623`** + font **Be Vietnam Pro** + button pill `999px` / card `16px`. KHÔNG
+>    dùng Stripi purple `#533afd`/Inter.
+> 2. **Spec hiện có 001–026.** Khi làm tính năng nào, đọc spec tương ứng trong `specs/`
+>    (vd Admin Dashboard = **`specs/015-admin-dashboard/spec.md`**).
+> 3. **Các con số** (schema, status, màn hình) theo
+>    code/DB + migration thật. Nếu còn thấy lệch → tin code/migration + spec tương ứng.
+> 4. Directory structure §3 là bản rút gọn. **Cây thư mục đầy đủ:**
+>
+> ```
+> backend/src/main/java/vn/movehome/backend/
+>   ├── controller/  (Auth, Profile, Wallet, Notification, AuditLog, Admin* ×8, ManagerDriver*, PublicQuote…)
+>   ├── service/     (Auth, WalletService, CustomerProfile, DriverProfile, Admin* , ManagerDriverRating…)
+>   ├── chat/        (ChatController/Service, Conversation, ChatMessage, ChatImageService, ChatRealtimePublisher)
+>   ├── dispute/     (DisputeController/Service, CustomerRefundService, DisputePhoto, PenaltyEnforcementScheduler)
+>   ├── driver/      (DriverOrder*, finance/DriverWallet+DriverEarningService, location/DriverLocation*)
+>   ├── order/       (OrderController, CustomerOrderAction/Query, ManagerCancellationRefund*, OrderCancellation*)
+>   ├── payment/     (VnPayController/Service/Signer, WalletOrderPaymentService)
+>   ├── email/notification/, entity/, repository/, dto/, security/ (JwtTokenProvider), config/ (Security, WebSocket, Cloudinary)
+>   └── resources/db/migration/  (V1..V41 + V99 seed)
+> frontend/
+>   ├── pages/       (login, register, messages.html, customer/, driver/, manager/, admin/, public/, 403|404|500)
+>   ├── js/          (api, auth, chat, chat-badge, notifications-bell, dashboard, admin-*, customer-*, driver-common)
+>   └── css/, assets/
+> specs/001-026/     (spec.md + plan.md + tasks.md + checklists/requirements.md — đủ bộ)
+> docs/              (CONTEXT, PROJECT_KNOWLEDGE_FULL, SCREEN_INVENTORY, USE_CASES_*, design-internal-reference)
+> .specify/memory/constitution.md
+> ```
+
+---
+
 ## 1. Project Overview (read first)
 
 Move_home la **marketplace co dieu phoi** dich vu chuyen nha noi thanh Ha Noi (12 quan). Mo hinh:
@@ -105,17 +140,16 @@ Truoc khi viet hoac sua bat ky code/spec moi, AI assistant PHAI doc theo thu tu 
 | 2 | `.specify/memory/constitution.md` | Luon luon |
 | 3 | `docs/design-internal-reference.md` | Khi lam frontend |
 | 4 | `specs/001-auth-rbac/spec.md` | Khi lam Auth, RBAC, JWT, Driver onboarding |
-| 5 | `specs/028-admin-dashboard/spec.md` | Khi lam Admin Dashboard |
+| 5 | `specs/015-admin-dashboard/spec.md` | Khi lam Admin Dashboard |
 | 6 | `DESIGN.md` (root, UPPERCASE) | Khi lam frontend — brand identity (color palette, typography, shadow, components). Chi tiet: §5.5 |
 
-> 📌 **CHAT (cap nhat 2026-07):** Tinh nang chat da mo rong **3 cap** Customer/Manager/Driver —
-> **Driver CO tham gia chat**, dung WebSocket STOMP+SockJS. Day la **CO CHU Y**, lech voi
-> `CONTEXT.md §Chat` ("Driver KHONG chat") va AC-05 — **KHONG phai bug, KHONG "sua" bang cach go Driver chat.**
+> 📌 **CHAT:** Chat mo rong **3 cap** Customer/Manager/Driver — **Driver CO tham gia chat**, dung
+> WebSocket STOMP+SockJS. Day la **CO CHU Y** — **KHONG go bo Driver chat.**
 > Chi tiet: package backend `chat`, migration V36, FE `pages/messages.html`.
 >
 > ⛔ `spec_v1_archived.md` va `CONTEXT_v1.5_archived.md` — chi doc khi can tham chieu
 > lich su. TUYET DOI KHONG dung lam source cho code moi.
-> 📝 `DESIGN.md` (root, UPPERCASE) — brand spec Stripi/Stripe inspired. Cung cap color palette (#533afd, #061b31), typography Inter weight 300, OpenType ss01+tnum, shadow blue-tinted. KHONG sua file nay tru khi thay doi brand identity.
+> 📝 `DESIGN.md` (root, UPPERCASE) — brand spec Move_home (forest green). Cung cap color palette (primary `#1B4D3E`, accent `#F5A623`, canvas `#FFFFFF`), typography Be Vietnam Pro, shape pill `999px` / card `16px`, shadow neutral Level 1/2 (theo HR-19). KHONG sua file nay tru khi thay doi brand identity.
 
 ---
 
@@ -192,18 +226,18 @@ KHI co xung dot giua brand spec va Move_home spec, follow rule sau:
 
 | Aspect | Source of Truth | Ly do |
 |--------|----------------|-------|
-| **Color palette** (primary, accents) | `DESIGN.md` wins | Brand consistency. Vi du: primary = `#533afd` (Stripi purple), KHONG dung xanh duong Grab/Be cu trong design-internal-reference. |
+| **Color palette** (primary, accents) | `DESIGN.md` wins | Brand consistency. primary = `#1B4D3E` (forest green) + accent `#F5A623` (amber), KHONG dung xanh duong Grab/Be cu (theo HR-19). |
 | **Status mapping** (PENDING_APPROVAL, IN_DISPUTE, ACTIVE...) | `design-internal-reference.md` wins | Business logic Move_home. DESIGN.md khong biet ve domain marketplace chuyen nha. |
 | **Component layout** (Login form, KPI 6-box Dashboard, Driver Onboarding 4-step) | `spec.md` wins | Spec dinh nghia chinh xac yeu cau chuc nang. |
-| **Typography** (sohne-var vs Inter) | `design-internal-reference.md` wins | Stack rang buoc: dung Inter (Google Fonts free), KHONG dung sohne-var (proprietary, khong co san). |
-| **Border radius** | `DESIGN.md` wins | Brand-conservative (4-8px), KHONG dung pill shape. |
-| **Shadow system** | `DESIGN.md` wins | Blue-tinted multi-layer la signature Stripi. |
+| **Typography** (font family) | `DESIGN.md` = `design-internal-reference.md` (thong nhat) | Dung **Be Vietnam Pro** (Google Fonts, subset=vietnamese, native dau tieng Viet), KHONG dung Inter/sohne-var. |
+| **Border radius** | `DESIGN.md` wins | Button = pill `999px`, card = `16px` (`rounded.xl`) theo HR-19. |
+| **Shadow system** | `DESIGN.md` wins | Neutral drop shadow Level 1 (`0 2px 8px rgba(0,0,0,.08)`) / Level 2 (`0 4px 16px rgba(0,0,0,.12)`), KHONG dung blue-tinted cu. |
 | **Spacing scale** | `DESIGN.md` wins | Base 8px scale chung. |
-| **Numeric display** | `DESIGN.md` wins | Dung OpenType `tnum` cho moi numeric (VND amount, commission, wallet). |
+| **Numeric display** | `DESIGN.md` wins | Format VND qua `Intl.NumberFormat('vi-VN')`; dung `font-variant-numeric: tabular-nums` cho cot tien (VND amount, commission, wallet) neu font ho tro. |
 
 ### Quy tac vang khi sinh code FE
 
-1. **OpenType features:** Apply `font-feature-settings: "ss01"` global tren body. Apply `"tnum"` per-element tren cell hien thi tien (VND amount, wallet balance, commission, total_quote).
+1. **Font & so:** Dung `Be Vietnam Pro` cho toan bo body (theo HR-19). Cho cell hien thi tien (VND amount, wallet balance, commission, total_quote) dung `font-variant-numeric: tabular-nums` de canh cot neu font ho tro.
 
 2. **Status badges:** Lay color tu `design-internal-reference.md` Status Mapping (Order 8 status, Driver 7 status). KHONG tu doan mau.
 
@@ -213,7 +247,7 @@ KHI co xung dot giua brand spec va Move_home spec, follow rule sau:
 
 5. **Forms:** Login form, Driver Onboarding form follow pattern trong `design-internal-reference.md` Section 4 (Form Components) + spec #001 Frontend Implementation Note.
 
-6. **Dashboard:** Admin Dashboard follow layout 2x3 KPI per spec #028 FR-016/017/018. Color KPI cards theo status (kpi-primary/success/warning/danger).
+6. **Dashboard:** Admin Dashboard follow layout 2x3 KPI per spec #015. Color KPI cards theo status (kpi-primary/success/warning/danger).
 
 7. **Responsive:** Mobile-first nhung KHONG fully responsive (do an 6 tuan). Focus desktop 1280px+, tablet 768px+ van dung duoc.
 
@@ -221,13 +255,12 @@ KHI co xung dot giua brand spec va Move_home spec, follow rule sau:
 
 ### Anti-patterns can tranh
 
-- ❌ KHONG dung mau xanh duong Grab/Be (cu) — gio dung Stripi purple `#533afd`
-- ❌ KHONG dung pill-shaped buttons (border-radius 9999px)
-- ❌ KHONG dung font weight 600-700 cho headlines (Stripi dung 300)
-- ❌ KHONG hardcode mau status — luon dung Status Mapping
-- ❌ KHONG dung neutral gray shadow — luon blue-tinted
-- ❌ KHONG dung pure black `#000000` cho heading — dung deep navy `#061b31`
-- ❌ KHONG quen `font-feature-settings: "ss01"` global + `"tnum"` per-element cho numbers
+- ❌ KHONG dung mau xanh duong Grab/Be (cu) hay Stripi purple `#533afd` — dung forest green `#1B4D3E` + amber `#F5A623` (HR-19)
+- ❌ KHONG dung amber `#F5A623` cho primary action — amber chi cho CTA dac biet/badge; primary luon la forest green
+- ❌ KHONG dung button bo goc nho — button la pill `999px`, card la `16px` (HR-19)
+- ❌ KHONG hardcode mau status — luon dung Status Mapping (`design-internal-reference.md`)
+- ❌ KHONG dung blue-tinted shadow (cu) — dung neutral drop shadow Level 1 (`0 2px 8px rgba(0,0,0,.08)`) / Level 2 (`0 4px 16px rgba(0,0,0,.12)`)
+- ❌ KHONG dung pure black `#000000` cho heading — dung mau `ink` cua DESIGN.md
 
 ---
 
@@ -348,7 +381,7 @@ cd backend
 | Business model day du | `docs/CONTEXT.md` v2.0 |
 | Project rules | `.specify/memory/constitution.md` v1.2.0 |
 | Auth spec | `specs/001-auth-rbac/spec.md` v2.0 |
-| Admin Dashboard spec | `specs/028-admin-dashboard/spec.md` v1.0 |
+| Admin Dashboard spec | `specs/015-admin-dashboard/spec.md` v1.0 |
 | UI Design system | `docs/design-internal-reference.md` v1.0 |
 | VNPay Sandbox docs | https://sandbox.vnpayment.vn/apis/ |
 | Cloudinary Java SDK | https://cloudinary.com/documentation/java_integration |
@@ -366,7 +399,7 @@ cd backend
   - `/register` — Customer Register form
   - `/login` — Login (Customer + Driver + Staff)
   - `/driver/onboarding` — Driver Onboarding Step 1-2 (Step 3-4 mock)
-  - `/admin/dashboard` — Admin Dashboard (Spec #028)
+  - `/admin/dashboard` — Admin Dashboard (Spec #015)
 - **Demo MOCK MODE** (cho demo ngay): VNPay + Cloudinary co nut "Gia lap thanh cong (demo)" de
   test flow ma khong can ket noi that. Production integration la phase 2.
 - **Seed data:** `V99__seed_demo_data.sql` — chay 1 lan qua Flyway, tao 150 orders + 60 users.

@@ -5,7 +5,7 @@
 **Created:** 2026-06-04  
 **Version:** 1.0.0  
 **Status:** Draft  
-**Sprint Target:** Sprint 6 — ngoại lệ hoàn cọc theo HR-14 v1.4.0 (leader duyệt 2026-07-13)
+**Sprint Target:** Sprint 6 — ngoại lệ hoàn cọc theo HR-14 v1.4.0 (leader duyệt 2026-06-18)
 
 **CONTEXT.md reference:** v2.0 §2 Order State Machine (row `CONFIRMED → CANCELLED` CUSTOMER),
 §2 Huy don & Hoan tien, §2 Wallet & Commission  
@@ -33,7 +33,7 @@ kèm lý do khách nhập. Khách có thể đính kèm tối đa 3 ảnh bằng
 Manager xem hàng đợi, mở chi tiết (kèm ảnh qua signed URL), rồi quyết định: **Hoàn cọc** (cộng 30% vào
 `customer_wallet` + ghi `transaction` type `REFUND`) hoặc **Từ chối** kèm lý do (không đụng tiền).
 
-Đây là **ngoại lệ chính sách được leader duyệt ngày 2026-07-13** và đã được codify vào Constitution
+Đây là **ngoại lệ chính sách được leader duyệt ngày 2026-06-18** và đã được codify vào Constitution
 HR-14 v1.4.0: chính sách gốc CONTEXT §Hủy đơn quy định khách hủy từ `CONFIRMED` trở đi là **mất cọc**;
 ngoại lệ này cho hoàn cọc **khi chưa có tài xế nào cam kết**, vì lúc đó chưa phát sinh chi phí vận hành.
 Từ `ASSIGNED`/`ACCEPTED` trở đi khách **không hủy được** qua luồng này.
@@ -53,12 +53,12 @@ ví không bao giờ âm (HR-18), mọi thay đổi số dư đi kèm bút toán
 | Nguồn | Nội dung | Trạng thái |
 |-------|----------|-----------|
 | Constitution **HR-14 v1.4.0** | Đã thêm ngoại lệ hoàn cọc: CUSTOMER hủy `CONFIRMED` khi `driver_id = NULL` → tạo `order_cancellation_refund` PENDING kèm lý do + ảnh (tối đa 3, AC-10) → Manager duyệt → hoàn 30% về `customer_wallet` (REFUND, AC-13; HR-18). Migration `V41`. | ✅ **Đồng bộ với code** |
-| `CONTEXT.md` §2 State Machine row `CONFIRMED → CANCELLED` CUSTOMER | Đã cập nhật 2026-07-13: "Khach huy khi CHUA co tai xe (driver_id NULL) → tao yeu cau hoan coc... Manager duyet → hoan coc 30% ve vi khach" | ✅ **Đồng bộ** |
+| `CONTEXT.md` §2 State Machine row `CONFIRMED → CANCELLED` CUSTOMER | Đã cập nhật 2026-06-18: "Khach huy khi CHUA co tai xe (driver_id NULL) → tao yeu cau hoan coc... Manager duyet → hoan coc 30% ve vi khach" | ✅ **Đồng bộ** |
 | `CONTEXT.md` §2 Metadata bắt buộc khi CANCELLED | Đã cập nhật: "CUSTOMER huy o CONFIRMED khi CHUA co tai xe → tao yeu cau hoan coc (order_cancellation_refund), Manager duyet → hoan coc 30% ve customer_wallet" | ✅ **Đồng bộ** |
-| `CONTEXT.md` §2 Hủy đơn & Hoàn tiền | Đã cập nhật gạch đầu dòng thứ 2 với ghi chú "(Cap nhat 2026-07-13 — leader duyet...)" | ✅ **Đồng bộ** |
+| `CONTEXT.md` §2 Hủy đơn & Hoàn tiền | Đã cập nhật gạch đầu dòng thứ 2 với ghi chú "(Cap nhat 2026-06-18 — leader duyet...)" | ✅ **Đồng bộ** |
 
 > **Nền tảng vững:** Khác Spec #021 (ví khách — còn chờ leader duyệt), ngoại lệ hoàn cọc đã được
-> codify vào **Constitution HR-14 v1.4.0** và **CONTEXT §Hủy đơn** cùng ngày 2026-07-13, **trước** khi
+> codify vào **Constitution HR-14 v1.4.0** và **CONTEXT §Hủy đơn** cùng ngày 2026-06-18, **trước** khi
 > spec này được viết. Spec này chỉ chi tiết hoá một quyết định đã có hiệu lực ở cấp trên.
 
 ### Ranh giới cần làm rõ trước khi triển khai
@@ -913,6 +913,6 @@ Layer 1 : 19/21 PASS, 2 partial (HR-05 → DS-02, HR-14 → DS-01/OQ-1)
 Layer 2 : 14/16 PASS, 2 exception documented (AC-09, AC-10)  
 Layer 3 : 6/8 PASS, ES-04 partial, ES-05 chưa verify  
 Status  : **CLEARED TO SUBMIT với điều kiện** — luồng này đã được HR-14 v1.4.0 và CONTEXT §Hủy đơn
-đồng bộ từ 2026-07-13, nên không bị block như Spec #021. Cần trả lời OQ-1 (RefundRecord) và quyết
+đồng bộ từ 2026-06-18, nên không bị block như Spec #021. Cần trả lời OQ-1 (RefundRecord) và quyết
 DS-01 (guard `driver_id`).
 ================================

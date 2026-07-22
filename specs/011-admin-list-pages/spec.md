@@ -94,7 +94,7 @@ trên, không mở rộng DB CHECK bằng alias.
 6. Advanced multi-status/geographic filters.
 7. Saved views hoặc shared filters.
 8. Real-time WebSocket/SSE.
-9. Full audit-log viewer.
+9. Full audit-log viewer — **đã tách sang Spec #025 Admin Audit Log Viewer** (đã build, V22). Ghi chú 2026-06-24.
 10. Search engine ngoài PostgreSQL.
 
 ---

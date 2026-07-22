@@ -7,7 +7,7 @@
 **Status:** Draft  
 **Sprint Target:** Sprint 6 — Chat 3 cấp (WebSocket STOMP + SockJS)
 
-**CONTEXT.md reference:** v2.0 §2 Chat ho tro (⚠️ **đã lỗi thời** — xem Source-of-Truth Resolution),
+**CONTEXT.md reference:** v2.0 §2 Chat ho tro (mô hình 3 cấp — xem Source-of-Truth Resolution),
 §3 RBAC  
 **Constitution reference:** v1.4.0 — **AC-05** (WebSocket STOMP + SockJS + fallback polling), AC-02,
 AC-09, AC-10, AC-11, AC-12, AC-14, AC-15, AC-16, HR-01, HR-10, HR-20, HR-21, ES-02, ES-04  
@@ -49,7 +49,7 @@ lưu UTC (AC-07), pagination default 30 (AC-15).
 ### Quyết định kiến trúc — mở rộng chat lên 3 cấp
 
 Bản gốc `CONTEXT.md` v2.0 §2 quy định chat **một cấp**: chỉ Customer ↔ Manager, kênh hỗ trợ chung, không
-gắn theo đơn, và "Driver KHONG tham gia chat". Quyết định của leader (2026-07) **mở rộng lên 3 cấp** và
+gắn theo đơn, và "Driver KHONG tham gia chat". Quyết định của leader (2026-06) **mở rộng lên 3 cấp** và
 cho Driver tham gia. Spec này đặc tả mô hình 3 cấp đó.
 
 **Lý do mở rộng:**
@@ -66,9 +66,9 @@ cho Driver tham gia. Spec này đặc tả mô hình 3 cấp đó.
 
 | Chủ đề | Quyết định canonical | Nguồn |
 |--------|----------------------|-------|
-| Số cấp chat | **3** — thay cho 1 cấp của CONTEXT §2 bản gốc | Leader 2026-07 |
-| Driver tham gia chat | **Có** — thay cho "Driver KHONG tham gia chat" | Leader 2026-07 |
-| Gắn theo đơn | **Có** `order_id` — thay cho "khong gan theo don cu the" | Leader 2026-07 |
+| Số cấp chat | **3** — thay cho 1 cấp của CONTEXT §2 bản gốc | Leader 2026-06 |
+| Driver tham gia chat | **Có** — thay cho "Driver KHONG tham gia chat" | Leader 2026-06 |
+| Gắn theo đơn | **Có** `order_id` — thay cho "khong gan theo don cu the" | Leader 2026-06 |
 | Kỹ thuật realtime | WebSocket STOMP + SockJS, broker in-memory, lưu DB ngay | **Giữ nguyên AC-05** |
 | Fallback | Polling lưới an toàn phía FE | **Giữ nguyên AC-05** |
 
@@ -791,7 +791,7 @@ COMMIT
 | DS-05 | Thống nhất chính sách validate `page`/`size` toàn dự án — chat clamp, các endpoint tiền trả 422 | Contract API không nhất quán giữa các module | Chọn một chuẩn, áp cho tất cả |
 | DS-06 | Cleanup `chat_message` > 90 ngày (AC-09 cho phép hard delete) | Bảng phình vô hạn; Neon free tier 0.5 GB | Scheduled job dọn định kỳ |
 | DS-07 | Bổ sung `messages.html` vào `SCREEN_INVENTORY.md` (inventory hiện chỉ nhắc "chat - Sprint 6 nếu có" ở màn 3.10) | Số màn hình báo cáo thiếu so với thực tế | Cập nhật inventory |
-| DS-08 | Đồng bộ `CONTEXT.md` §2 Chat và AC-05 với mô hình 3 cấp — phần thân CONTEXT vẫn còn mô tả 1 cấp kèm banner đính chính | Người đọc lướt qua banner sẽ hiểu sai phạm vi | Viết lại §2 Chat thay vì chỉ thêm banner. Xem OQ-2 |
+| DS-08 | Đồng bộ `CONTEXT.md` §2 Chat với mô hình 3 cấp | — | ✅ `CONTEXT.md` §2 Chat đã viết theo mô hình 3 cấp (Driver có chat) |
 | DS-09 | Cleanup ảnh chat trên Cloudinary (AC-10 yêu cầu cleanup asset) | Ảnh rác tích tụ trên free tier 25 GB | Job dọn theo `chat_message` đã xoá |
 | DS-10 | Chính sách xoá cho `conversation` — AC-09 cho phép hard delete `chat_message` nhưng chưa quy định cho `conversation` | Không rõ vòng đời hội thoại khi dọn dữ liệu | Làm rõ trong AC-09 |
 | DS-11 | Rate limit cho `POST /conversations/{id}/messages` theo HR-16 (60 req/IP/phút) | Chat có thể bị spam; hiện chỉ dựa vào participant check | Áp rate limit chung hoặc xin ngoại lệ HR-16 |
@@ -803,7 +803,7 @@ COMMIT
 | # | Câu hỏi | Block | Ưu tiên |
 |---|---------|-------|---------|
 | OQ-1 | **Khi đơn đổi tài xế, hội thoại `CUSTOMER_DRIVER` xử lý thế nào?** (DS-02) — cập nhật `driver_id`, đóng hội thoại cũ rồi tạo mới, hay giữ lịch sử và tạo hội thoại thứ hai? | DS-02 | **High** |
-| OQ-2 | Viết lại `CONTEXT.md` §2 Chat cho khớp mô hình 3 cấp, hay giữ banner đính chính? (DS-08) | Tài liệu | High |
+| OQ-2 | `CONTEXT.md` §2 Chat đã viết lại khớp mô hình 3 cấp (Driver có chat) | Tài liệu | ✅ Resolved |
 | OQ-3 | Admin có quyền chat ngang Manager không? CONTEXT §3 RBAC ghi "Chat ho tro: Admin **Yes**" — spec này theo đó (FR-004, FR-046) | — | Medium |
 | OQ-4 | User `SUSPENDED` có được chat không? Spec này không quy định guard trạng thái | — | Medium |
 | OQ-5 | Chu kỳ cleanup `chat_message` (AC-09 cho phép hard delete > 90 ngày)? | DS-06 | Medium |

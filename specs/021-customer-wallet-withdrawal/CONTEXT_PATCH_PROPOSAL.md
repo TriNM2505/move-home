@@ -37,7 +37,7 @@
 **Đề xuất:**
 
 ```
-| **RefundRecord** | ⚠️ LOI THOI 2026-07 — KHONG con dung. Hoan tien nay di qua **Vi khach hang** (customer_wallet): huy don → order_cancellation_refund (V41) → Manager duyet → cong vi; tranh chap/su co → cong vi truc tiep. Xem Spec #021, #022. |
+| **RefundRecord** | ⚠️ LOI THOI 2026-06 — KHONG con dung. Hoan tien nay di qua **Vi khach hang** (customer_wallet): huy don → order_cancellation_refund (V41) → Manager duyet → cong vi; tranh chap/su co → cong vi truc tiep. Xem Spec #021, #022. |
 | **Customer Wallet (Vi khach hang)** | So du VND cua khach trong he thong (bang `customer_wallet`, V8). Nguon tien vao: nap qua VNPay, hoan coc huy don, hoan tranh chap, boi thuong su co. Tien ra: tra coc 30%, tra not 70%, rut ve ngan hang (Admin duyet). Vi KHONG bao gio am (HR-18). Chi tiet: Spec #021. |
 ```
 
@@ -66,7 +66,7 @@ KHONG co vi cho Customer (RefundRecord chuyen khoan thu cong).
 - **Vi Customer (customer_wallet):** so du cua khach — nap qua VNPay, dung tra don, nhan tien hoan,
   rut ve ngan hang qua Admin duyet.
 
-> ⚠️ **CAP NHAT 2026-07 (doc truoc):** Ban goc v2.0 ghi "KHONG co vi cho Customer". Quyet dinh nay
+> ⚠️ **CAP NHAT 2026-06 (doc truoc):** Ban goc v2.0 ghi "KHONG co vi cho Customer". Quyet dinh nay
 > da DAO NGUOC: Vi khach hang da duoc trien khai day du (migration V8 + V39). Ly do: hoan tien qua vi
 > nhanh hon nhieu so voi luong RefundRecord thu cong (Manager xin STK qua chat → chuyen khoan → bam
 > PROCESSED), va cho phep khach tra don bang so du co san. Day la **CO CHU Y**, khong phai bug.
@@ -82,7 +82,7 @@ KHONG co vi cho Customer (RefundRecord chuyen khoan thu cong).
 **Đề xuất đổi tiêu đề:**
 
 ```
-### Huy don & Hoan tien  (hoan ve Vi khach hang — cap nhat 2026-07)
+### Huy don & Hoan tien  (hoan ve Vi khach hang — cap nhat 2026-06)
 ```
 
 **Sửa gạch đầu dòng "Cong ty huy / loi cong ty"** — bỏ luồng xin STK thủ công:
@@ -148,7 +148,7 @@ Spec #004 là nơi mâu thuẫn nặng nhất (FR-032..FR-036 cấm thẳng). Ha
 Thêm banner đầu file:
 
 ```
-> ⚠️ LOI THOI 2026-07: Muc Out-of-scope #1 va FR-032..FR-036 ("khong ho tro vi Customer") KHONG con
+> ⚠️ LOI THOI 2026-06: Muc Out-of-scope #1 va FR-032..FR-036 ("khong ho tro vi Customer") KHONG con
 > dung. Vi khach hang da duoc trien khai — xem Spec #021. Cac FR do giu lai chi de tham chieu lich su.
 ```
 

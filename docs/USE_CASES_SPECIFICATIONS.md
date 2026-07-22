@@ -4,9 +4,16 @@
 > Source of Truth cho QA test plan và final defense Q&A.
 >
 > **Format:** Use Case Specification Table (FPT SWP standard)
-> **Total UCs detailed:** 15 / 65 (overview xem `docs/USE_CASES_CATALOG.md`)
+> **Total UCs detailed:** 15 / 73 (overview 26 spec xem `docs/USE_CASES_CATALOG.md`)
 > **Version:** 1.0
 > **Last updated:** 2026-06-09
+
+---
+
+> ℹ️ **Phạm vi:** tài liệu này chi tiết 15/65 UC critical của **18 spec đầu (001–018)**. Tính năng
+> **019–026** (chat, notifications, ví khách, hoàn cọc hủy đơn, incident, blog[BLOCKED], audit log,
+> ratings) dùng danh sách UC tạm UC-066→UC-073 ở `docs/USE_CASES_CATALOG.md` (Section 7); sẽ viết chi
+> tiết UC ở pha sau nếu cần cho defense.
 
 ---
 

@@ -3,12 +3,45 @@
 > **Mục đích:** Catalog đầy đủ tất cả màn hình trong dự án.  
 > **Audience:** Team developer + hội đồng final defense.  
 > **Total screens:** 60 màn hình (5 roles × workflows + public + error pages).  
-> **Last updated:** 2026-06-03  
+> **Last updated:** 2026-06-03 · xem mục "HIỆN TRẠNG BUILD" ngay dưới  
 > **Status legend:**
 > - ✅ DONE — Đã implement + tested
 > - 🔄 IN PROGRESS — Đang làm trong sprint hiện tại
 > - 📋 PLANNED — Đã lên kế hoạch (chưa code)
+> - 🔨 ĐÃ BUILD — file HTML tồn tại + nối API (**chưa** xác nhận test đầy đủ nên khác ✅ DONE)
 > - 💡 IDEA — Concept, chưa confirm scope
+
+---
+
+## HIỆN TRẠNG BUILD (tổng quan)
+
+> `frontend/pages/` có **~80 file HTML**, phần lớn **đã build**. Danh sách theo thư mục:
+
+**Auth/shared (`pages/`):** `login`, `register`, `forgot-password`, `reset-password`,
+`verify-email-success`, `session-expired`, `vnpay-return`, `messages` *(chat 3 cấp — MỚI)*
+**Public (`pages/public/` + `pages/`):** `index`, `about`, `how-it-works`, `pricing`, `contact`,
+`terms`, `become-a-driver`, `blog-detail` *(MỚI — blog, BE chưa build, xem D-07)*,
+`estimate-step1..5` *(Guest ước tính giá — MỚI)*
+**Error:** `403`, `404`, `500`
+**Customer (`pages/customer/`):** `home`, `booking-step1..6`, `booking-success`,
+`my-orders-pending/active/history`, `order-detail`, `order-rate`, `my-profile`, `my-profile-edit`,
+`change-password`, `my-wallet`, `notifications` *(MỚI)*, `withdrawal-request`/`withdrawal-history` *(MỚI)*
+**Driver (`pages/driver/`):** `home`, `register-step1..2`, `register-step3-deposit`, `driver-terms`,
+`pending-approval`, `available-orders`, `order-detail`, `in-progress`, `history`, `profile`,
+`earnings`, `withdrawal-request`/`withdrawal-history`, `notifications` *(MỚI)*
+**Manager (`pages/manager/`):** `home`, `driver-approvals`, `driver-detail`, `driver-rejected`,
+`disputes`, `dispute-detail`, `driver-ratings` *(MỚI)*, `cancellation-refunds` *(MỚI)*,
+`notifications` *(MỚI)*
+**Admin (`pages/admin/`):** `dashboard`, `orders`, `order-detail`, `drivers`, `driver-detail`,
+`customers`, `customer-detail`, `transactions`, `commission-settings`, `withdrawals`,
+`customer-withdrawals` *(MỚI)*, `audit-log` *(MỚI)*, `notifications` *(MỚI)*, `settings`
+
+**Các nhóm màn hình MỚI so với inventory 65** (từ spec 019–026): chat `messages`, `notifications×4`,
+Guest `estimate-step*`, `blog-detail`, customer withdrawal, manager `cancellation-refunds` +
+`driver-ratings`, admin `audit-log` + `customer-withdrawals`.
+
+> 🔧 **TODO:** đồng bộ từng mục §2–§8 dưới (đổi 📋 PLANNED → ✅ DONE cho các màn đã build) và cập nhật
+> bảng phân bố §1 cho khớp danh sách file ở trên.
 
 ---
 
@@ -16,16 +49,19 @@
 
 ## Phân bố theo role
 
-| Role | Total screens | Status |
-|------|---------------|--------|
-| **Customer** | 16 | 0 done, 1 placeholder, 15 planned |
-| **Driver** | 13 | 0 done, 1 placeholder, 12 planned |
-| **Manager** | 9 | 0 done, 1 placeholder, 8 planned |
-| **Admin** | 12 | 6 done, 6 planned |
-| **Public marketing** | 6 | 0 done, 6 planned |
-| **Auth (shared)** | 5 | 2 done, 3 planned |
-| **Error/Utility** | 4 | 0 done, 4 planned |
-| **TOTAL** | **65** | **8 done, 57 planned** |
+> ℹ️ **Cột Status dưới đây** theo file HTML trong `frontend/pages/` (xem mục "HIỆN TRẠNG BUILD" ở trên).
+> "Đã build" = file HTML tồn tại + nối API; **chưa gồm** đánh giá test đầy đủ.
+
+| Role | Files | Status |
+|------|-----------|---------------------|
+| **Customer** | ~16 | Hầu hết **đã build** (booking 1–6, my-orders, order-detail/rate, profile, wallet, notifications, withdrawal) |
+| **Driver** | ~15 | Hầu hết **đã build** (register 1–3, workflow, earnings, withdrawal, notifications) |
+| **Manager** | 9 | **Đã build** (approvals, disputes, cancellation-refunds, driver-ratings, notifications) |
+| **Admin** | 14 | **Đã build** (dashboard, lists, details, transactions, commission, audit-log, customer-withdrawals) |
+| **Public marketing** | 7 | Build: index/about/how-it-works/pricing/contact/terms/become-a-driver + estimate 1–5; `blog-detail` = **stub (BE chưa build, D-07)** |
+| **Auth (shared)** | 8 | **Đã build** (login, register, forgot/reset-password, verify-email-success, session-expired, vnpay-return, messages) |
+| **Error/Utility** | 3 | **Đã build** (403, 404, 500) |
+| **TOTAL** | **~80 file HTML** | **Phần lớn đã build.** Chưa build: màn Spec #023 (driver-incident) + BE blog #024. Chi tiết từng dòng §2–§8 vẫn còn marker 📋 cũ — đối chiếu danh sách file ở banner |
 
 ## Phân kỳ theo Sprint
 
@@ -88,7 +124,7 @@ CÓ count:
   - Auto login + redirect customer/home
 
 ## 2.3 📋 Quên mật khẩu — `/forgot-password.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Nhập email để nhận link reset password
 - **Roles:** All
 - **Spec ref:** Spec #001 FR-031 (cần expand)
@@ -100,7 +136,7 @@ CÓ count:
   - Link back đến login
 
 ## 2.4 📋 Đặt lại mật khẩu — `/reset-password.html?token=XXX`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Form nhập mật khẩu mới sau khi click link reset
 - **Roles:** All
 - **Components:** card-elevated, text-input × 2, btn-primary
@@ -111,7 +147,7 @@ CÓ count:
   - Redirect login với message "Đặt lại mật khẩu thành công"
 
 ## 2.5 📋 Xác thực email thành công — `/verify-email-success.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Landing page sau khi user click link verify email
 - **Roles:** Customer, Driver
 - **Components:** card-elevated, illustration, btn-primary
@@ -135,7 +171,7 @@ CÓ count:
   - CTA "Đặt đơn ngay" → booking flow
 
 ## 3.2 📋 Đặt đơn Bước 1: Chọn xe — `/customer/booking-step1-vehicle.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Customer chọn loại xe phù hợp với khối lượng cần chuyển
 - **Roles:** Customer
 - **Spec ref:** Spec #002 (sắp viết) FR-100
@@ -150,7 +186,7 @@ CÓ count:
   - Progress indicator "Bước 1/6"
 
 ## 3.3 📋 Đặt đơn Bước 2: Điểm đón — `/customer/booking-step2-pickup.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Nhập điểm đón
 - **Roles:** Customer
 - **Components:** select-input (quận), text-input (địa chỉ), btn-primary
@@ -163,7 +199,7 @@ CÓ count:
   - Progress "Bước 2/6"
 
 ## 3.4 📋 Đặt đơn Bước 3: Điểm trả — `/customer/booking-step3-dropoff.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Nhập điểm trả (giống step 2 nhưng cho destination)
 - **Roles:** Customer
 - **Components:** Tương tự step 2
@@ -174,7 +210,7 @@ CÓ count:
   - Progress "Bước 3/6"
 
 ## 3.5 📋 Đặt đơn Bước 4: Chi tiết — `/customer/booking-step4-details.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Thời gian + ghi chú + dịch vụ thêm
 - **Roles:** Customer
 - **Components:** datetime-picker, text-input (ghi chú), toggle-switch
@@ -186,7 +222,7 @@ CÓ count:
   - Progress "Bước 4/6"
 
 ## 3.6 📋 Đặt đơn Bước 5: Báo giá — `/customer/booking-step5-quote.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Hiển thị báo giá breakdown chi tiết
 - **Roles:** Customer
 - **Spec ref:** Spec #002 FR-110 pricing formula
@@ -204,7 +240,7 @@ CÓ count:
   - Button "Quay lại" → step 4
 
 ## 3.7 📋 Đặt đơn Bước 6: Thanh toán — `/customer/booking-step6-payment.html`
-- **Status:** PLANNED (Sprint 4)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 4)
 - **Description:** Chọn phương thức thanh toán
 - **Roles:** Customer
 - **Components:** payment-method-card × 3, btn-primary
@@ -218,7 +254,7 @@ CÓ count:
   - Submit → success page
 
 ## 3.8 📋 Đặt đơn thành công — `/customer/booking-success.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Confirmation page sau khi đặt đơn
 - **Roles:** Customer
 - **Components:** success-illustration, order-summary-card, btn-primary
@@ -232,7 +268,7 @@ CÓ count:
   - Email confirmation gửi tới customer
 
 ## 3.9 📋 Đơn đang chờ — `/customer/my-orders-pending.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Danh sách đơn của customer đang chờ tài xế nhận
 - **Roles:** Customer
 - **Components:** order-card × N, pagination-bar
@@ -244,7 +280,7 @@ CÓ count:
   - Có thể hủy đơn nếu status = PENDING
 
 ## 3.10 📋 Đơn đang giao (Real-time) — `/customer/my-orders-active.html`
-- **Status:** PLANNED (Sprint 4)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 4)
 - **Description:** Tracking real-time đơn đang vận chuyển
 - **Roles:** Customer
 - **Components:** map-view, driver-info-card, status-timeline
@@ -257,7 +293,7 @@ CÓ count:
   - Button "Nhắn tin tài xế" (chat - Sprint 6 nếu có)
 
 ## 3.11 📋 Lịch sử đơn — `/customer/my-orders-history.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Lịch sử đơn đã hoàn thành/hủy
 - **Roles:** Customer
 - **Components:** data-table với pagination
@@ -269,7 +305,7 @@ CÓ count:
   - Export CSV (optional Sprint 6)
 
 ## 3.12 📋 Chi tiết đơn — `/customer/order-detail.html?id=XXX`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Detail page 1 đơn cụ thể
 - **Roles:** Customer
 - **Components:** info-section, status-timeline, action-buttons
@@ -285,7 +321,7 @@ CÓ count:
     - DISPUTED: button "Xem khiếu nại"
 
 ## 3.13 📋 Đánh giá tài xế — `/customer/order-rate.html?id=XXX`
-- **Status:** PLANNED (Sprint 4)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 4)
 - **Description:** Form đánh giá tài xế sau khi đơn COMPLETED
 - **Roles:** Customer
 - **Components:** star-rating, textarea, btn-primary
@@ -297,7 +333,7 @@ CÓ count:
   - Submit → update driver_profile.average_rating
 
 ## 3.14 📋 Thông tin cá nhân — `/customer/my-profile.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Xem thông tin tài khoản
 - **Roles:** Customer
 - **Components:** info-display, btn-secondary
@@ -308,7 +344,7 @@ CÓ count:
   - Button "Đổi mật khẩu" → change-password
 
 ## 3.15 📋 Chỉnh sửa thông tin — `/customer/my-profile-edit.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Form edit profile
 - **Roles:** Customer
 - **Components:** text-input × N, btn-primary, btn-secondary
@@ -318,7 +354,7 @@ CÓ count:
   - Buttons: "Lưu" + "Hủy"
 
 ## 3.16 📋 Đổi mật khẩu — `/customer/change-password.html`
-- **Status:** PLANNED (Sprint 2)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 2)
 - **Description:** Form change password (cần old password)
 - **Roles:** All authenticated
 - **Components:** text-input × 3, btn-primary
@@ -328,7 +364,7 @@ CÓ count:
   - Success → logout + redirect login
 
 ## 3.17 📋 Ví của tôi — `/customer/my-wallet.html`
-- **Status:** PLANNED (Sprint 4)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 4)
 - **Description:** Xem balance + lịch sử transaction
 - **Roles:** Customer
 - **Components:** balance-card, transaction-table, pagination
@@ -346,7 +382,7 @@ CÓ count:
 # 4. DRIVER SCREENS (13 màn hình)
 
 ## 4.1 📋 Đăng ký Tài xế Bước 1: Thông tin — `/driver/register-step1.html`
-- **Status:** PLANNED (Sprint 3)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 3)
 - **Description:** Thông tin cá nhân driver
 - **Components:** text-input × 5, btn-primary
 - **Key features:**
@@ -354,7 +390,7 @@ CÓ count:
   - Backend tạo user role=DRIVER status=PENDING_DOCUMENTS
 
 ## 4.2 📋 Đăng ký Bước 2: Giấy phép + Xe — `/driver/register-step2.html`
-- **Status:** PLANNED (Sprint 3)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 3)
 - **Description:** Upload giấy tờ + thông tin xe
 - **Components:** file-upload × 2, text-input × 3, select, btn-primary
 - **Key features:**
@@ -367,7 +403,7 @@ CÓ count:
   - Backend update driver_profile + status=PENDING_DEPOSIT
 
 ## 4.3 📋 Đăng ký Bước 3: Đặt cọc — `/driver/register-step3-deposit.html`
-- **Status:** PLANNED (Sprint 3 + 4)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 3 + 4)
 - **Description:** Form đặt cọc 3 triệu VND
 - **Components:** info-card, payment-method, btn-primary
 - **Key features:**
@@ -376,7 +412,7 @@ CÓ count:
   - Submit → transaction DEPOSIT_TOP_UP + status=PENDING_APPROVAL
 
 ## 4.4 📋 Chờ duyệt — `/driver/pending-approval.html`
-- **Status:** PLANNED (Sprint 3)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 3)
 - **Description:** Landing page sau register, chờ manager duyệt
 - **Components:** card-elevated, illustration, info
 - **Key features:**
@@ -396,7 +432,7 @@ CÓ count:
   - 3 promo cards
 
 ## 4.6 📋 Đơn có sẵn — `/driver/available-orders.html`
-- **Status:** PLANNED (Sprint 3)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 3)
 - **Description:** Danh sách đơn PENDING phù hợp vehicle_type của driver
 - **Components:** order-card × N, filter-pills, refresh-btn
 - **Key features:**
@@ -406,7 +442,7 @@ CÓ count:
   - Auto-refresh mỗi 30s (poll)
 
 ## 4.7 📋 Chi tiết đơn (Driver view) — `/driver/order-detail.html?id=XXX`
-- **Status:** PLANNED (Sprint 3)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 3)
 - **Description:** Detail page trước khi accept
 - **Components:** info-section × 3, map-preview, btn-primary, btn-secondary
 - **Key features:**
@@ -420,7 +456,7 @@ CÓ count:
   - Lock concurrency: 2 driver cùng click → chỉ 1 thắng
 
 ## 4.8 📋 Đang giao — `/driver/in-progress.html`
-- **Status:** PLANNED (Sprint 3 + 4)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 3 + 4)
 - **Description:** Workflow update status đơn đang nhận
 - **Components:** map-view, status-buttons, order-info
 - **Key features:**
@@ -433,7 +469,7 @@ CÓ count:
   - Button "Gọi khách"
 
 ## 4.9 📋 Lịch sử nhận đơn — `/driver/history.html`
-- **Status:** PLANNED (Sprint 3)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 3)
 - **Description:** Lịch sử đơn đã hoàn thành/hủy
 - **Components:** data-table, pagination, filter
 - **Key features:**
@@ -442,7 +478,7 @@ CÓ count:
   - Filter status
 
 ## 4.10 📋 Thông tin Tài xế — `/driver/profile.html`
-- **Status:** PLANNED (Sprint 3)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 3)
 - **Description:** Profile + xe + giấy phép
 - **Components:** info-section × 3, btn-secondary
 - **Key features:**
@@ -452,7 +488,7 @@ CÓ count:
   - Performance metrics: tổng đơn, doanh thu, rating
 
 ## 4.11 📋 Thu nhập — `/driver/earnings.html`
-- **Status:** PLANNED (Sprint 3)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 3)
 - **Description:** Earnings breakdown
 - **Components:** kpi-card × 3, chart, transaction-table
 - **Key features:**
@@ -462,7 +498,7 @@ CÓ count:
   - Filter by month
 
 ## 4.12 📋 Yêu cầu rút tiền — `/driver/withdrawal-request.html`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Form request withdrawal
 - **Components:** input, info-card, btn-primary
 - **Key features:**
@@ -473,7 +509,7 @@ CÓ count:
   - Manager approve sau
 
 ## 4.13 📋 Lịch sử rút tiền — `/driver/withdrawal-history.html`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Lịch sử các request rút tiền
 - **Components:** data-table, status-badge
 - **Key features:**
@@ -497,7 +533,7 @@ CÓ count:
   - Hero "Khu vực Quản lý"
 
 ## 5.2 📋 Duyệt tài xế — `/manager/driver-approvals.html`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Danh sách tài xế PENDING_APPROVAL
 - **Components:** data-table, pagination, filter-pills
 - **Key features:**
@@ -507,7 +543,7 @@ CÓ count:
   - Highlight rows PENDING_APPROVAL (yellow row)
 
 ## 5.3 📋 Chi tiết tài xế (Manager view) — `/manager/driver-detail.html?id=XXX`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Detail page để duyệt/từ chối driver
 - **Components:** info-section × 4, image-viewer, btn-primary, btn-danger
 - **Key features:**
@@ -520,7 +556,7 @@ CÓ count:
     - Button "Từ chối" (danger) → modal nhập lý do → status REJECTED + rejection_reason
 
 ## 5.4 📋 Lịch sử duyệt — `/manager/driver-rejected.html`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Lịch sử driver bị từ chối
 - **Components:** data-table, pagination
 - **Key features:**
@@ -529,7 +565,7 @@ CÓ count:
   - Read-only history
 
 ## 5.5 📋 Rút tiền chờ duyệt — `/manager/withdrawal-pending.html`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** ❌ KHÔNG BUILD — rút tiền đã chuyển sang **Admin** (#009), màn Manager này không tồn tại; dùng `admin/withdrawals.html`
 - **Description:** Danh sách yêu cầu rút tiền PENDING
 - **Components:** data-table, pagination
 - **Key features:**
@@ -537,7 +573,7 @@ CÓ count:
   - Row click → manager-withdrawal-detail
 
 ## 5.6 📋 Chi tiết yêu cầu rút tiền — `/manager/withdrawal-detail.html?id=XXX`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** ❌ KHÔNG BUILD — rút tiền do **Admin** xử lý (#009), màn Manager này không tồn tại
 - **Description:** Detail page xử lý 1 withdrawal request
 - **Components:** info-section × 3, btn-primary, btn-danger
 - **Key features:**
@@ -549,7 +585,7 @@ CÓ count:
     - "Từ chối" → modal lý do → REJECTED
 
 ## 5.7 📋 Lịch sử rút tiền — `/manager/withdrawal-history.html`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** ❌ KHÔNG BUILD — rút tiền do **Admin** xử lý (#009); màn Manager này không tồn tại
 - **Description:** Lịch sử đã duyệt/từ chối
 - **Components:** data-table, pagination, filter
 - **Key features:**
@@ -557,7 +593,7 @@ CÓ count:
   - Filter status + filter date range
 
 ## 5.8 📋 Đơn khiếu nại — `/manager/disputes.html`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Danh sách đơn status DISPUTED
 - **Components:** data-table, pagination
 - **Key features:**
@@ -565,7 +601,7 @@ CÓ count:
   - Row click → manager-dispute-detail
 
 ## 5.9 📋 Xử lý khiếu nại — `/manager/dispute-detail.html?id=XXX`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Detail page để xử lý dispute
 - **Components:** info-section × 4, textarea, btn-primary
 - **Key features:**
@@ -641,7 +677,7 @@ CÓ count:
 - **Key features:** Empty state với illustration
 
 ## 6.7 📋 Chi tiết đơn (Admin view) — `/admin/order-detail.html?id=XXX`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Detail page 1 đơn từ góc nhìn admin
 - **Components:** info-section × 5, timeline, btn-secondary
 - **Key features:**
@@ -651,7 +687,7 @@ CÓ count:
   - Actions: "Cancel order" (force admin action), "View customer/driver profile"
 
 ## 6.8 📋 Chi tiết tài xế (Admin view) — `/admin/driver-detail.html?id=XXX`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Full profile + analytics của 1 tài xế
 - **Components:** info-section × 4, chart, table
 - **Key features:**
@@ -663,7 +699,7 @@ CÓ count:
   - Actions: "Suspend" / "Re-approve"
 
 ## 6.9 📋 Chi tiết khách hàng (Admin view) — `/admin/customer-detail.html?id=XXX`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Profile + history của 1 khách
 - **Components:** info-section × 3, table
 - **Key features:**
@@ -674,7 +710,7 @@ CÓ count:
   - Actions: "Suspend" (nếu spam/abuse)
 
 ## 6.10 📋 Giao dịch hệ thống — `/admin/transactions.html`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Lịch sử transaction toàn hệ thống
 - **Components:** data-table, pagination, filter
 - **Key features:**
@@ -684,7 +720,7 @@ CÓ count:
   - Financial reconciliation reference
 
 ## 6.11 📋 Cấu hình Commission — `/admin/commission-settings.html`
-- **Status:** PLANNED (Sprint 5)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 5)
 - **Description:** Form cấu hình tỷ lệ commission + surcharges
 - **Components:** form, btn-primary, info-card
 - **Key features:**
@@ -697,7 +733,7 @@ CÓ count:
   - Save → backend update settings (chỉ ảnh hưởng đơn mới, snapshot pattern)
 
 ## 6.12 📋 Báo cáo Analytics — `/admin/reports.html`
-- **Status:** PLANNED (Sprint 6)
+- **Status:** ❌ KHÔNG BUILD — module Admin Reports **đã gỡ khỏi build**; cần leader quyết build lại hay defer
 - **Description:** Advanced analytics + reports
 - **Components:** chart × N, date-range-picker, export-btn
 - **Key features:**
@@ -714,7 +750,7 @@ CÓ count:
 # 7. PUBLIC MARKETING SCREENS (6 màn hình)
 
 ## 7.1 📋 Trang chủ Marketing — `/index.html` (public)
-- **Status:** PLANNED (Sprint 6)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 6)
 - **Description:** Public landing page với hero + features
 - **Roles:** Visitor (chưa đăng nhập)
 - **Components:** hero-band-light, request-form-card, promo-card × 6, footer
@@ -730,7 +766,7 @@ CÓ count:
 ⚠️ Note: Cần phân biệt với `/customer/home.html` (sau khi login). Public homepage này thay thế redirect logic của `frontend/index.html` cho visitor chưa login.
 
 ## 7.2 📋 Về chúng tôi — `/about.html`
-- **Status:** PLANNED (Sprint 6)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 6)
 - **Description:** Story + mission + team
 - **Components:** content-section × 4
 - **Key features:**
@@ -740,7 +776,7 @@ CÓ count:
   - Milestones timeline
 
 ## 7.3 📋 Cách thức hoạt động — `/how-it-works.html`
-- **Status:** PLANNED (Sprint 6)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 6)
 - **Description:** Step-by-step user guide
 - **Components:** step-card × 4, video-embed
 - **Key features:**
@@ -752,7 +788,7 @@ CÓ count:
   - Tương tự cho Driver (toggle)
 
 ## 7.4 📋 Bảng giá — `/pricing.html`
-- **Status:** PLANNED (Sprint 6)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 6)
 - **Description:** Pricing reference cho visitor
 - **Components:** pricing-tier × 3, comparison-table
 - **Key features:**
@@ -762,7 +798,7 @@ CÓ count:
   - CTA "Đăng ký để xem báo giá chính xác"
 
 ## 7.5 📋 Liên hệ + FAQ — `/contact.html`
-- **Status:** PLANNED (Sprint 6)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 6)
 - **Description:** Contact form + FAQ accordion
 - **Components:** contact-form, faq-row × N
 - **Key features:**
@@ -771,7 +807,7 @@ CÓ count:
   - Footer info: địa chỉ, sđt hotline, email
 
 ## 7.6 📋 Điều khoản + Privacy — `/terms.html` + `/privacy.html`
-- **Status:** PLANNED (Sprint 6)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 6)
 - **Description:** Legal pages
 - **Components:** prose-content
 - **Key features:**
@@ -785,7 +821,7 @@ CÓ count:
 # 8. ERROR + UTILITY SCREENS (4 màn hình)
 
 ## 8.1 📋 404 Not Found — `/404.html`
-- **Status:** PLANNED (Sprint 6)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 6)
 - **Description:** Page when URL không tồn tại
 - **Components:** illustration, btn-primary
 - **Key features:**
@@ -794,7 +830,7 @@ CÓ count:
   - Button "Về trang chủ"
 
 ## 8.2 📋 500 Server Error — `/500.html`
-- **Status:** PLANNED (Sprint 6)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 6)
 - **Description:** Backend lỗi unexpected
 - **Components:** illustration, info, btn-primary
 - **Key features:**
@@ -803,7 +839,7 @@ CÓ count:
   - Button "Thử lại" + "Liên hệ hỗ trợ"
 
 ## 8.3 📋 403 Forbidden — `/403.html`
-- **Status:** PLANNED (Sprint 6)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 6)
 - **Description:** Khi user access page không đủ quyền
 - **Components:** illustration, info
 - **Key features:**
@@ -811,13 +847,45 @@ CÓ count:
   - Show current role + link back home theo role
 
 ## 8.4 📋 Session Expired — `/session-expired.html`
-- **Status:** PLANNED (Sprint 4 — link với JWT refresh)
+- **Status:** 🔨 ĐÃ BUILD (Sprint 4 — link với JWT refresh)
 - **Description:** Auto-redirect khi token hết hạn + reuse detection
 - **Components:** illustration, btn-primary
 - **Key features:**
   - "Phiên đăng nhập hết hạn"
   - Button "Đăng nhập lại"
   - Auto-clear localStorage
+
+---
+
+# 8.5. MÀN HÌNH BỔ SUNG 019–026 (chưa có mục riêng ở §2–§8)
+
+> Các màn hình thật trong `frontend/pages/` phát sinh từ tính năng 019–026 (và một số Sprint sau) mà
+> danh mục 65 màn gốc **chưa liệt thành mục riêng**. Bổ sung để inventory khớp code. Trạng thái: ✅ build
+> (file tồn tại + nối API) · 🔨 stub (chỉ HTML) · Spec = spec liên quan.
+
+| # | Màn hình | File | Spec | TT |
+|---|----------|------|------|----|
+| S-01 | Tin nhắn (chat 3 cấp, dùng chung 4 vai trò) | `pages/messages.html` (+ `js/chat.js`, `js/chat-badge.js`) | 019 | ✅ |
+| S-02 | Thông báo — Khách | `pages/customer/notifications.html` | 020 | ✅ |
+| S-03 | Thông báo — Tài xế | `pages/driver/notifications.html` | 020 | ✅ |
+| S-04 | Thông báo — Quản lý | `pages/manager/notifications.html` | 020 | ✅ |
+| S-05 | Thông báo — Admin | `pages/admin/notifications.html` | 020 | ✅ |
+| S-06 | Chuông thông báo (component) | `js/notifications-bell.js` | 020 | ✅ |
+| S-07 | Ví khách — Rút tiền | `pages/customer/withdrawal-request.html` | 021 | ✅ |
+| S-08 | Ví khách — Lịch sử rút | `pages/customer/withdrawal-history.html` | 021 | ✅ |
+| S-09 | Admin — Rút tiền khách | `pages/admin/customer-withdrawals.html` | 021 | ✅ |
+| S-10 | Quản lý — Hoàn cọc hủy đơn | `pages/manager/cancellation-refunds.html` | 022 | ✅ |
+| S-11 | Admin — Nhật ký hệ thống (audit) | `pages/admin/audit-log.html` (+ `js/admin-audit.js`) | 025 | ✅ |
+| S-12 | Quản lý — Đánh giá tài xế | `pages/manager/driver-ratings.html` | 026 | ✅ |
+| S-13 | Guest — Ước tính giá 5 bước | `pages/public/estimate-step1..5.html` | 017 | ✅ |
+| S-14 | Guest — Trở thành tài xế | `pages/public/become-a-driver.html` | 017 | ✅ |
+| S-15 | Blog cộng đồng — chi tiết | `pages/public/blog-detail.html` | 024 | 🔨 stub (BE chưa build, D-07) |
+| S-16 | Tài xế — Điều khoản | `pages/driver/driver-terms.html` | 005 | ✅ |
+| S-17 | VNPay — Trang kết quả | `pages/vnpay-return.html` | 002/005 | ✅ |
+
+> **Chưa có màn (spec còn):** #023 driver-incident (`manager/driver-incidents.html`, nút ở `driver/
+> in-progress.html`) — chưa build (D-12); #017 contact form BE — FE có, BE chưa (D-16); #016 reports —
+> module đã gỡ (D-15).
 
 ---
 
