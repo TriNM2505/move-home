@@ -5,7 +5,7 @@
 **Created:** 2026-06-04  
 **Version:** 1.0.0  
 **Status:** Draft  
-**Sprint Target:** Sprint 6 — màn Manager tra cứu đánh giá (leader duyệt chính sách 5 sao 2026-07-11)
+**Sprint Target:** Sprint 6 — màn Manager tra cứu đánh giá (leader duyệt chính sách 5 sao 2026-06-17)
 
 **CONTEXT.md reference:** v2.0 §7 Feature #30 (Rating + feedback Driver — 🟢 Nice-to-have), §3 RBAC  
 **Constitution reference:** v1.4.0 — HR-10, HR-20, HR-21, AC-04, AC-07, AC-15, AC-16, ES-02, ES-04  
@@ -30,7 +30,7 @@ Manager đọc được **cả nội dung nhận xét**, trong khi Admin chỉ x
 Lý do: Manager là người trực tiếp "quản lý chất lượng Driver qua quy trình duyệt + DamageReport +
 rating" (CONTEXT §1), nên cần đọc khách nói gì để xử lý tài xế có phản hồi xấu.
 
-Spec cũng chốt **chính sách 5 sao mặc định** (quyết định leader 2026-07-11, migration `V40`): tài xế
+Spec cũng chốt **chính sách 5 sao mặc định** (quyết định leader 2026-06-17, migration `V40`): tài xế
 chưa có đánh giá nào hiển thị `average_rating = 5.00` thay vì `0.00`, để tài xế mới không bị thiệt khi
 khách chọn — kèm đánh đổi được phân tích ở DS-01.
 
@@ -54,14 +54,14 @@ lowercase trong Java trước khi bind (FR-012, FR-013). Ràng buộc này phả
 | `CONTEXT.md` §7 | **Không có** feature "Manager xem đánh giá" | ❌ **Thiếu** |
 | `CONTEXT.md` §3 RBAC | **Không có** dòng nào về xem đánh giá tài xế | ❌ **Thiếu** |
 | `CONTEXT.md` §2 Escrow | "Trong 2h khach co quyen tao DamageReport hoac **rating**" | ⚠️ Lệch — thiết kế này tách rating ra 24h, xem DS-02 |
-| Quyết định leader 2026-07-11 | Cửa sổ rating **24 giờ** (`app.rating.window-minutes:1440`), tách khỏi escrow tiền 2h | ⚠️ CONTEXT chưa cập nhật — xem DS-02 |
-| Quyết định leader 2026-07-11 | Tài xế mặc định **5.00 sao** khi chưa có đánh giá nào (V40) | ❌ Chính sách chưa có trong CONTEXT — xem DS-02 |
+| Quyết định leader 2026-06-17 | Cửa sổ rating **24 giờ** (`app.rating.window-minutes:1440`), tách khỏi escrow tiền 2h | ⚠️ CONTEXT chưa cập nhật — xem DS-02 |
+| Quyết định leader 2026-06-17 | Tài xế mặc định **5.00 sao** khi chưa có đánh giá nào (V40) | ❌ Chính sách chưa có trong CONTEXT — xem DS-02 |
 | Spec #016 Admin Reports | "rating distribution" cho Admin | ✅ Luồng khác — thống kê, không phải danh sách |
 | Spec #012 Admin Detail | Admin xem rating trong chi tiết tài xế | ✅ Luồng khác |
 
 **Đánh giá:** Rating **có** trong CONTEXT (feature #30) nhưng chỉ ở phía Customer tạo. Ba thứ chưa có
 tài liệu: (a) màn Manager tra cứu, (b) chính sách 5 sao mặc định (V40), (c) cửa sổ rating 24h thay vì
-2h. Cả (b) và (c) đều là **quyết định leader ngày 2026-07-11** chỉ tồn tại trong comment code/migration.
+2h. Cả (b) và (c) đều là **quyết định leader ngày 2026-06-17** chỉ tồn tại trong comment code/migration.
 
 ### Ba luồng đọc rating — phân biệt
 
@@ -79,8 +79,8 @@ tài liệu: (a) màn Manager tra cứu, (b) chính sách 5 sao mặc định (V
 | Bảng | `order_rating` — do Spec #003 tạo, spec này tái dùng | V9 |
 | Một đơn một đánh giá | `UNIQUE (order_id)` | V9 |
 | Thang sao | `INTEGER` + `CHECK BETWEEN 1 AND 5` | V9, AC-14 |
-| Mặc định khi chưa có đánh giá | **5.00 sao** — thay cho `0.00` | Leader 2026-07-11 (V40) |
-| Cửa sổ đánh giá | **24 giờ** — tách khỏi escrow tiền 2h | Leader 2026-07-11 |
+| Mặc định khi chưa có đánh giá | **5.00 sao** — thay cho `0.00` | Leader 2026-06-17 (V40) |
+| Cửa sổ đánh giá | **24 giờ** — tách khỏi escrow tiền 2h | Leader 2026-06-17 |
 | Manager xem comment | **Có** — khác Admin (chỉ xem sao/thống kê) | CONTEXT §1 (Manager quản lý chất lượng Driver) |
 | Sort | Cố định `createdAt` DESC — không nhận sort từ client | AC-04 (chống injection qua tên cột) |
 
@@ -238,7 +238,7 @@ kê), vì Manager là người trực tiếp quản lý chất lượng tài x�
 
 **FR-020**  
 WHILE tài xế **chưa có** bản ghi nào trong `order_rating`, THE system SHALL hiển thị
-`driver_profile.average_rating = 5.00` — quyết định leader 2026-07-11 (V40).
+`driver_profile.average_rating = 5.00` — quyết định leader 2026-06-17 (V40).
 
 **FR-021**  
 WHEN tài xế mới đăng ký, THE system SHALL set `average_rating` = **DEFAULT 5.00** (V40 đổi từ `0.00`).
@@ -254,7 +254,7 @@ WHERE tài xế có 1 đánh giá 1 sao, `average_rating` SHALL là `1.00` — *
 **FR-024**  
 WHILE cửa sổ đánh giá mở, THE system SHALL cho phép Customer đánh giá trong **24 giờ**
 (`app.rating.window-minutes:1440`) sau COMPLETED — **tách riêng** khỏi escrow tiền 2h (CONTEXT §2);
-quyết định leader 2026-07-11.
+quyết định leader 2026-06-17.
 
 **FR-025**  
 WHERE tài xế của một đánh giá đã bị **xoá mềm**, THE system SHALL vẫn trả bản ghi đánh giá đó với
@@ -360,7 +360,7 @@ có. Tài xế **đã có** đánh giá giữ nguyên trung bình thực (FR-022
 
 ## Implementation Notes — Bẫy PostgreSQL với tham số nullable
 
-> **Đây là lỗi 500 thật đã gặp ngày 2026-07-11**, được ghi lại để không lặp lại.
+> **Đây là lỗi 500 thật đã gặp ngày 2026-06-17**, được ghi lại để không lặp lại.
 
 ### Vấn đề
 
@@ -557,7 +557,7 @@ COMMIT
 | ID | Hạng mục | Rủi ro nếu bỏ qua lâu | Hướng xử lý |
 |----|----------|------------------------|-------------|
 | DS-01 | **Xem lại công thức trung bình** — chính sách 5 sao mặc định (FR-020) kết hợp trung bình thuần (FR-022) khiến tài xế mới rơi 5.00 → 1.00 chỉ với **một** đánh giá xấu, trong khi tài xế có 100 đánh giá gần như miễn nhiễm | Tài xế mới chịu rủi ro không cân xứng; một khách khó tính có thể xoá sổ tài xế vừa vào nghề | Bayesian average (prior 5 sao × N đánh giá ảo). Xem OQ-3 |
-| DS-02 | **Cập nhật CONTEXT** cho 2 quyết định leader 2026-07-11: (a) 5 sao mặc định, (b) cửa sổ rating **24 giờ** tách khỏi escrow tiền 2 giờ | CONTEXT §2 Escrow vẫn ghi "Trong 2h khach co quyen tao DamageReport hoac rating" → tài liệu nói khác thiết kế; hội đồng đối chiếu sẽ thấy lệch | Cập nhật CONTEXT §2 Escrow + §7 Feature #30. Xem OQ-1 |
+| DS-02 | **Cập nhật CONTEXT** cho 2 quyết định leader 2026-06-17: (a) 5 sao mặc định, (b) cửa sổ rating **24 giờ** tách khỏi escrow tiền 2 giờ | CONTEXT §2 Escrow vẫn ghi "Trong 2h khach co quyen tao DamageReport hoac rating" → tài liệu nói khác thiết kế; hội đồng đối chiếu sẽ thấy lệch | Cập nhật CONTEXT §2 Escrow + §7 Feature #30. Xem OQ-1 |
 | DS-03 | **Công cụ xử lý đánh giá độc hại** — bản này không cho Manager ẩn/xoá đánh giá nào, kể cả bôi nhọ, spam hay chấm nhầm người | Không có đường xử lý khi có đánh giá sai sự thật. Đối lập với Blog (#024) — nơi Manager ẩn/xoá bài được. Nhưng cho phép xoá lại mở ra rủi ro công ty gỡ đánh giá xấu | `status VISIBLE/HIDDEN` như blog **hoặc** quy trình khiếu nại có audit. Xem OQ-2 |
 | DS-04 | Bổ sung `manager/driver-ratings.html` vào `SCREEN_INVENTORY.md` (mục 5.x hiện có 9 màn Manager, không có màn này) | Số màn hình báo cáo thiếu | Cập nhật inventory |
 | DS-05 | **Bộ lọc theo khoảng thời gian** `from`/`to` — Spec #025 có, spec này không | Manager không xem được "đánh giá tháng này" để đối chiếu theo kỳ | Thêm 2 param vào query |

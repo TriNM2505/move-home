@@ -80,7 +80,7 @@ He thong giai quyet **3 noi dau cua 4 nhom nguoi dung:**
 | **Deposit (Coc)** | 30% bao gia, tra qua VNPay khi dat. Day cung chinh la commission cong ty thu (Quyet dinh: commission 30% tren total_quote). |
 | **Final Payment (70%)** | Khach tra not 70% qua VNPay TAI CHO sau khi Driver chuyen do xong, TRUOC khi Driver bam Hoan thanh. KHONG co COD. |
 | **Commission** | 30% tren total_quote. Trung khop voi so tien coc → cong ty giu coc luon, khong can chuyen di chuyen lai. |
-| **Escrow Window** | 2 gio sau COMPLETED. Trong 2h khach co quyen tao DamageReport hoac rating. Het 2h: scheduled job tu chuyen 70% (= total_quote - commission 30%) vao vi Driver. |
+| **Escrow Window** | 2 gio sau COMPLETED. Trong 2h khach co quyen tao DamageReport. Het 2h: scheduled job tu chuyen 70% (= total_quote - commission 30%) vao vi Driver. (Cua so danh gia/rating tach rieng: **24 gio** — xem §7 Feature #30, spec #026.) |
 | **Wallet (Vi Driver)** | So du tien cua Driver luu trong he thong. Cong them khi don COMPLETED + het escrow 2h khong khieu nai. Tru khi co DamageReport (Driver boi thuong 100%). |
 | **Withdrawal (Don rut tien Driver)** | Driver tao yeu cau rut → Admin duyet thu cong + chuyen khoan ngoai he thong → danh dau PROCESSED. |
 | **Driver Deposit (Coc Driver)** | 3 trieu dong, dong qua VNPay khi dang ky lam Driver. La COLLATERAL cho DamageReport (tru truoc tu coc, het coc thi tru vi, het vi thi khoa account). |
@@ -101,7 +101,7 @@ Don co **8 trang thai**. Bang transition hop le:
 | `PENDING_PAYMENT` | `CANCELLED` | CUSTOMER | Khach huy o trang thai nay → khong mat gi (chua coc) |
 | `PENDING_PAYMENT` | `CANCELLED` | SYSTEM | Sau 15 phut khong nhan IPN hop le → auto-cancel |
 | `CONFIRMED` | `ASSIGNED` | MANAGER | Manager phan Driver phu hop (theo quan hoat dong, loai xe) |
-| `CONFIRMED` | `CANCELLED` | CUSTOMER | Khach huy khi CHUA co tai xe (driver_id NULL) → tao yeu cau hoan coc (order_cancellation_refund PENDING), Manager duyet → hoan coc 30% ve vi khach (cap nhat 2026-07-13, xem HR-14 + §Huy don) |
+| `CONFIRMED` | `CANCELLED` | CUSTOMER | Khach huy khi CHUA co tai xe (driver_id NULL) → tao yeu cau hoan coc (order_cancellation_refund PENDING), Manager duyet → hoan coc 30% ve vi khach (xem HR-14 + §Huy don) |
 | `CONFIRMED` | `CANCELLED` | COMPANY | Manager huy do loi cong ty → tao RefundRecord 30% |
 | `ASSIGNED` | `ASSIGNED` | DRIVER | Driver tu choi → reset, Manager phan Driver khac (tinh vao quota tu choi) |
 | `ASSIGNED` | `IN_PROGRESS` | DRIVER | Driver chap nhan + da toi noi + bat dau chuyen |
@@ -120,7 +120,7 @@ Don co **8 trang thai**. Bang transition hop le:
 - `cancelled_by`: `CUSTOMER` | `COMPANY` | `SYSTEM`
 - `cancelled_reason`: text
 - `CUSTOMER` o `PENDING_PAYMENT` → khong mat gi, khong RefundRecord (chua coc)
-- `CUSTOMER` huy o `CONFIRMED` khi CHUA co tai xe → tao yeu cau hoan coc (order_cancellation_refund), Manager duyet → hoan coc 30% ve customer_wallet (cap nhat 2026-07-13, HR-14). Tu `ASSIGNED` tro di khach KHONG huy duoc (coc thuoc cong ty)
+- `CUSTOMER` huy o `CONFIRMED` khi CHUA co tai xe → tao yeu cau hoan coc (order_cancellation_refund), Manager duyet → hoan coc 30% ve customer_wallet (HR-14). Tu `ASSIGNED` tro di khach KHONG huy duoc (coc thuoc cong ty)
 - `COMPANY` (bat ky luc nao tu CONFIRMED tro di) → tao RefundRecord (PENDING, amount = 30% bao gia)
 - `SYSTEM` (timeout 15 phut) → khong hoan, khong RefundRecord
 
@@ -247,7 +247,7 @@ Xe tai vua, 10km, gio cao diem, ngo hep, tang 4 (khong thang may), 2 boc xep:
 ### Huy don & Hoan tien (khong co vi noi bo)
 
 - **Khach huy o `PENDING_PAYMENT`** (chua coc): → `CANCELLED` (cancelled_by: CUSTOMER). KHONG mat gi, KHONG tao RefundRecord (vi chua tra gi). Day la "huy khong dieu kien" — khach co the huy bat cu luc nao truoc khi thanh toan VNPay.
-- **Khach huy o `CONFIRMED` khi CHUA co tai xe nhan** (da coc, driver_id NULL): → `CANCELLED` (cancelled_by: CUSTOMER). He thong tao **order_cancellation_refund** (status PENDING) kem ly do + anh (toi da 3, Cloudinary AC-10) → Manager duyet thu cong → hoan **coc 30%** ve **customer_wallet** (transaction REFUND, AC-13; vi khong am, HR-18) hoac tu choi kem ly do. *(Cap nhat 2026-07-13 — leader duyet; day la luong RIENG, KHONG phai RefundRecord. Truoc day khach huy tu CONFIRMED la mat coc; nay hoan coc khi chua co tai xe cam ket. Migration V41.)* Tu `ASSIGNED` tro di: khach KHONG huy duoc, coc thuoc cong ty (lien he Manager).
+- **Khach huy o `CONFIRMED` khi CHUA co tai xe nhan** (da coc, driver_id NULL): → `CANCELLED` (cancelled_by: CUSTOMER). He thong tao **order_cancellation_refund** (status PENDING) kem ly do + anh (toi da 3, Cloudinary AC-10) → Manager duyet thu cong → hoan **coc 30%** ve **customer_wallet** (transaction REFUND, AC-13; vi khong am, HR-18) hoac tu choi kem ly do. *(Luong RIENG, KHONG phai RefundRecord — xem HR-14. Migration V41.)* Tu `ASSIGNED` tro di: khach KHONG huy duoc, coc thuoc cong ty (lien he Manager).
 - **Cong ty huy / loi cong ty** (Manager xac dinh, bat ky trang thai nao tu CONFIRMED): → `CANCELLED` (cancelled_by: COMPANY) → he thong tao **RefundRecord**: order_id, amount = 30% bao gia, status = `PENDING`.
   - Luong hoan tien:
     1. He thong tao RefundRecord (PENDING) + gui email thong bao cho khach.
@@ -264,6 +264,12 @@ Xe tai vua, 10km, gio cao diem, ngo hep, tang 4 (khong thang may), 2 boc xep:
 ---
 
 ### Bao cao hu hong (DamageReport)
+
+> ℹ️ **Mo hinh canonical (spec #010 + migration V16/V34/V37):** thuc the ten `dispute` (khong phai
+> `damage_report`), status = `OPEN / INVESTIGATING / RESOLVED_REFUND / RESOLVED_DEDUCT / CLOSED_NO_FAULT`.
+> Thu tu tru boi thuong: **VI truoc** (khop HR-18); thieu thi luu shortfall + deadline roi khoa tai khoan
+> + tru coc (V34). `claim_type` ho tro them `DRIVER_MISMATCH` (V37). Nguon chuan khi trich dan: spec #010
+> + bang `dispute`. Phan mo ta ben duoi la dien giai nghiep vu muc y niem.
 
 **Khi nao su dung:** Khach phat hien do bi hu hong/mat sau khi chuyen xong, trong 2 gio escrow sau `COMPLETED`.
 
@@ -414,6 +420,12 @@ Sau khi upload du → status = PENDING_DEPOSIT
 ---
 
 ### Wallet & Commission (v2.0 — chi tiet)
+
+> ℹ️ **Mo hinh canonical:** bang `wallet_transaction` mo ta duoi day la mo hinh y niem; code dung 1 bang
+> `transaction` (V6) voi type: `DEPOSIT_TOP_UP`, `DEPOSIT_REFUND`, `ORDER_PAYMENT`, `WALLET_TOP_UP`,
+> `DRIVER_EARNING`, `PLATFORM_FEE`, `DAMAGE_DEDUCTION`, `REFUND`, `WITHDRAWAL`. Vi Driver va Vi Customer
+> dung chung bang nay. **Ghi chu governance:** trang thai "KHONG co vi Customer" o duoi dang duoc xem xet
+> lai (#021 — cho leader duyet, xem D-11).
 
 **Tong quan:** He thong co 2 luong tien tach biet:
 - **Vi cong ty (dashboard):** noi tat ca tien chay vao tu khach.
@@ -573,7 +585,7 @@ KHI don da CREATED:
 |---|-------|-----|---------|
 | 1 | Landing page | `/` | Gioi thieu dich vu, CTA dang ky |
 | 2 | Bang gia tham khao | `/pricing` | Bang gia 4 loai xe + 4 phu thu |
-| 3 | Form uoc tinh gia | `/quote` | Nhap diem di/den/xe → ra gia (khong luu) |
+| 3 | Form uoc tinh gia | `/quote` | **Wizard 5 buoc** `public/estimate-step1..5.html` (chon xe → diem di → diem den → chi tiet → bao gia), luu tam localStorage, khong goi API (spec #017) |
 | 4 | Tro thanh tai xe | `/become-driver` | Marketing cho Driver dang ky |
 | 5 | FAQ | `/faq` | Cau hoi thuong gap |
 | 6 | Dieu khoan + Bao mat | `/terms`, `/privacy` | Bat buoc theo luat |
@@ -590,19 +602,15 @@ KHI don da CREATED:
 
 ### Chat ho tro
 
-> ⚠️ **CAP NHAT 2026-07 (doc truoc):** Tinh nang chat da duoc mo rong thanh **3 cap** —
-> Customer↔Manager, **Manager↔Driver**, **Customer↔Driver** — tuc **Driver HIEN CO tham gia chat**,
-> gan theo don (kenh ho tro chung Driver↔Manager va Customer↔Manager dung `order_id = NULL`).
-> Day la **CO CHU Y** theo yeu cau leader, **lech voi mo ta cu ben duoi** (va AC-05). **KHONG phai bug,
-> KHONG go bo Driver chat.** Code: package backend `chat`, migration **V36**, FE `pages/messages.html` +
-> `js/chat.js`. Realtime dung WebSocket STOMP+SockJS (dung AC-05), user-destination, co polling luoi an toan.
+Chat mo rong **3 cap** — Customer↔Manager, **Manager↔Driver**, **Customer↔Driver** — tuc **Driver co tham
+gia chat**, gan theo don (kenh ho tro chung Driver↔Manager va Customer↔Manager dung `order_id = NULL`).
+Code: package backend `chat`, migration **V36**, FE `pages/messages.html` + `js/chat.js`.
 
-- Kenh realtime **Khach ↔ Manager**, kenh ho tro chung, khong gan theo don cu the.
+- Kenh realtime **Khach ↔ Manager** + **Manager ↔ Driver** + **Customer ↔ Driver**; kenh ho tro chung khong gan theo don cu the.
 - **1 tai khoan Manager duy nhat** → khong can routing logic.
 - Giao dien Manager: danh sach hoi thoai (moi khach 1 thread), bam vao tung khach de tra loi.
 - Tin nhan luu DB (PostgreSQL) — lich su ben vung, mo lai thay hoi thoai cu.
-- Driver KHONG tham gia chat. *(⚠️ LOI THOI 2026-07 — xem ghi chu dau muc: Driver HIEN CO chat.)*
-- Ky thuat: **WebSocket STOMP + SockJS** (Spring built-in), in-memory broker. Tin nhan day WebSocket dong thoi luu DB.
+- Ky thuat: **WebSocket STOMP + SockJS** (Spring built-in), in-memory broker, user-destination, co polling luoi an toan (dung AC-05). Tin nhan day WebSocket dong thoi luu DB.
 - **Fallback:** Neu tuan 5 khong kip → ha xuong polling 30s. Khong de chat lam cham CORE.
 
 ---
@@ -642,6 +650,7 @@ KHI don da CREATED:
 | Duyet Driver onboarding | No | Yes | No | No | No |
 | Phan cong Trip | Yes | Yes | No | No | No |
 | Xu ly RefundRecord / DamageReport / DisputeReport | Yes | Yes | No | No | No |
+| Xem nhat ky he thong (audit log toan cuc) | Yes | Yes | No | No | No |
 | Quan ly thong tin Driver/Xe | Yes | Yes | No | No | No |
 | Xem va cap nhat Trip cua minh | No | No | Yes | No | No |
 | Vi noi bo + rut tien | No | No | Yes | No | No |
@@ -803,7 +812,20 @@ DA DONG (tu Pha 0 v1.x va decisions trong v2.0 pivot):
 | 27 | Email thong bao (dang ky, verify, dat don, phan cong, hoan thanh, refund...) | System | 🟡 SHELL | Spring @Async, khong rollback main flow |
 | 28 | Admin Dashboard (doanh thu, commission, Driver count, Withdrawal queue) | Admin | 🟡 SHELL | Bao cao co ban |
 | 29 | Chat realtime Khach ↔ Manager (kenh ho tro chung) + Guest contact form | Customer / Manager / Guest | 🟡 SHELL (uu tien thap) | WebSocket STOMP, fallback polling 30s |
-| 30 | Rating + feedback Driver sau khi hoan thanh | Customer | 🟢 Nice-to-have | Trong escrow 2h |
+| 30 | Rating + feedback Driver sau khi hoan thanh | Customer | 🟢 Nice-to-have | ⚠️ Cua so danh gia **24 gio** (KHONG phai escrow tien 2h) + tai xe mac dinh **5.00 sao** khi chua co danh gia (V40, spec #026). Manager xem danh gia kem comment: spec #026 |
+
+**Feature bo sung (spec 019–026):**
+
+| # | Feature | Actor | Loai | Ghi chu |
+|---|---------|-------|------|---------|
+| 31 | Chat 3 cap (Customer/Manager/Driver) | Tat ca | 🟡 SHELL | Spec 019; WebSocket STOMP+SockJS, migration V36. Driver CO chat (le AC-05 co chu y) |
+| 32 | Thong bao (Notification) | Tat ca | 🟡 SHELL | Spec 020; migration V18, chuong bell + trang notifications |
+| 33 | Vi khach hang + rut tien khach | Customer / Admin | 🔴 CORE (tien) | Spec 021; customer_wallet V8 + customer_withdrawal_request V39; Admin duyet thu cong |
+| 34 | Hoan coc khi khach huy don som | Customer / Manager | 🔴 CORE (tien) | Spec 022; order_cancellation_refund V41; HR-14 amend v1.4.0; Manager duyet |
+| 35 | Driver bao cao su co (incident) | Driver / Manager | 🟡 SHELL | Spec 023; xac thuc tai diem don + claim DRIVER_MISMATCH (V37) |
+| 36 | Blog cong dong (Community Wall) | Customer / Manager / Guest | 🟡 SHELL | Spec 024 — ⚠️ **Draft/BLOCKED, CHUA build** (khong V42/code); cho leader duyet OQ-1. Le Spec #017 out-of-scope (chua build). |
+| 37 | Admin Audit Log | Admin | 🟡 SHELL | Spec 025; audit_log V22 (HR-13); trang admin/audit-log |
+| 38 | Manager Driver Ratings | Manager | 🟡 SHELL | Spec 026; order_rating V9, driver default rating 5 (V40) |
 
 **Backlog — Out of Scope sprint chinh (phase 2):**
 GPS realtime track Driver, auto-matching Driver-Order (giong Grab), VNPay auto-refund, Maps autocomplete + ban do tuong tac, push notification mobile, commission tier theo loai xe, Driver re-cooperation flow sau khi bi suspend lau.

@@ -1,11 +1,29 @@
 # Move_home — Use Cases Catalog
 
-> **Mục đích:** Tổng hợp toàn bộ 65 use cases của Move_home, mapped với 18 functional specs và
-> 65 màn hình. Source of Truth cho hội đồng final defense.
+> **Mục đích:** Tổng hợp toàn bộ **73 use cases** của Move_home, mapped với **26 functional specs** và
+> ~80 màn hình. Source of Truth cho hội đồng final defense.
 >
 > **Format:** Catalog matrix (overview) — chi tiết xem các `specs/XXX-*/spec.md`
-> **Version:** 1.0
+> **Version:** 1.1
 > **Last updated:** 2026-06-04
+
+---
+
+## Section 7 — Use Cases tính năng 019–026 (UC-066 → UC-073)
+
+> 8 tính năng 019–026 làm theo **spec-after** (code trước, spec sau), nay đưa chính thức vào catalog.
+> Trạng thái build: ✅ đã build · 🚫 chưa build.
+
+| UC-ID | Use Case | Actor | Priority | Spec | Screen | TT |
+|-------|----------|-------|----------|------|--------|----|
+| UC-066 | Chat hỗ trợ 3 cấp (Customer↔Manager↔Driver) | Customer/Driver/Manager | P2 | 019 | `messages.html` | ✅ |
+| UC-067 | Nhận & đọc thông báo (chuông + trang) | Tất cả | P2 | 020 | `{customer,driver,manager,admin}/notifications.html` | ✅ |
+| UC-068 | Khách nạp ví + rút tiền; Admin duyệt rút khách | Customer/Admin | P1 | 021 | `customer/my-wallet.html`, `customer/withdrawal-request.html`, `customer/withdrawal-history.html`, `admin/customer-withdrawals.html` | ✅ (⚠️ spec BLOCKED chờ leader duyệt) |
+| UC-069 | Khách hủy đơn sớm + hoàn cọc; Manager duyệt | Customer/Manager | P1 | 022 | `manager/cancellation-refunds.html` | ✅ |
+| UC-070 | Tài xế xác thực điểm đón + báo cáo sự cố | Driver/Manager | P1 | 023 | `driver/in-progress.html` | 🚫 chưa build (chỉ có V37 DRIVER_MISMATCH) |
+| UC-071 | Blog cộng đồng (đăng/bình luận/kiểm duyệt) | Customer/Manager/Guest | P2 | 024 | `public/blog-detail.html` (stub) | 🚫 chưa build (Draft/BLOCKED) |
+| UC-072 | Admin xem Audit Log toàn cục | Admin/Manager | P2 | 025 | `admin/audit-log.html` | ✅ |
+| UC-073 | Manager xem Đánh giá tài xế (kèm comment) | Manager | P2 | 026 | `manager/driver-ratings.html` | ✅ |
 
 ---
 
@@ -21,16 +39,17 @@
 | Manager | 9 | UC-036 → UC-044 |
 | Admin | 12 | UC-045 → UC-056 |
 | System (cross-cutting) | 9 | UC-057 → UC-065 |
-| **TOTAL** | **65** | **UC-001 → UC-065** |
+| Tính năng 019–026 | 8 | UC-066 → UC-073 |
+| **TOTAL** | **73** | **UC-001 → UC-073** |
 
 ### Phân loại theo Priority
 
 | Priority | Số UC | Ghi chú |
 |----------|------:|---------|
-| P1 — Critical (CORE) | 53 | Luồng chính, bảo mật, vận hành và tích hợp bắt buộc |
-| P2 — High (SUPPORTIVE) | 12 | Recovery, lịch sử, báo cáo và UX hỗ trợ |
-| P3 — Nice-to-have | 0 | Các P3/deferred stories không nằm trong 65 UC committed scope |
-| **TOTAL** | **65** | Priority phản ánh scope hiện tại của 18 specs |
+| P1 — Critical (CORE) | 56 | Luồng chính, bảo mật, vận hành và tích hợp bắt buộc (+UC-068/069/070) |
+| P2 — High (SUPPORTIVE) | 17 | Recovery, lịch sử, báo cáo, UX hỗ trợ (+UC-066/067/071/072/073) |
+| P3 — Nice-to-have | 0 | Các P3/deferred stories không nằm trong scope committed |
+| **TOTAL** | **73** | 65 UC gốc (18 spec) + 8 UC của tính năng 019–026 (26 spec) |
 
 ### Quy tắc Mapping
 
@@ -55,7 +74,7 @@
 | UC-002 | Xem trang Giới thiệu Move_home | Guest | P1 | 017 | `about.html` |
 | UC-003 | Xem Cách thức hoạt động | Guest | P1 | 017 | `how-it-works.html` |
 | UC-004 | Xem Bảng giá và calculator ước tính | Guest | P1 | 017 | `pricing.html` |
-| UC-005 | Gửi liên hệ và xem FAQ | Guest | P1 | 017 | `contact.html` |
+| UC-005 | Gửi liên hệ và xem FAQ | Guest | P1 | 017 | `contact.html` ⚠️ (form FE có, BE `/api/public/contact` + bảng `contact_submission` **chưa build**) |
 | UC-006 | Đọc Điều khoản và Privacy | Guest | P2 | 017 | `terms.html`, `privacy.html` |
 
 ### Section 2 — Customer (UC-007 → UC-022)
@@ -137,9 +156,9 @@
 | UC-037 | Xem queue Driver PENDING_APPROVAL | Manager | P1 | 008 | `manager/driver-approvals.html` |
 | UC-038 | Xem chi tiết, approve hoặc reject Driver | Manager | P1 | 008 | `manager/driver-detail.html?id=XXX` |
 | UC-039 | Xem lịch sử Driver bị reject | Manager | P2 | 008 | `manager/driver-rejected.html` |
-| UC-040 | Xem queue withdrawal chờ xử lý | Manager route legacy / Admin canonical | P1 | 009 | `manager/withdrawal-pending.html` → `admin/withdrawal-pending.html` |
-| UC-041 | Approve/reject và mark withdrawal processed | Manager route legacy / Admin canonical | P1 | 009 | `manager/withdrawal-detail.html?id=XXX` → `admin/withdrawal-detail.html?id=XXX` |
-| UC-042 | Xem lịch sử withdrawal đã xử lý | Manager route legacy / Admin canonical | P1 | 009 | `manager/withdrawal-history.html` → `admin/withdrawal-history.html` |
+| UC-040 | Xem queue withdrawal chờ xử lý | **Admin** (canonical) | P1 | 009 | `admin/withdrawals.html` (màn Manager legacy **không tồn tại**) |
+| UC-041 | Xác nhận đã chuyển / từ chối withdrawal | **Admin** (canonical) | P1 | 009 | `admin/withdrawals.html` (thao tác process/reject) |
+| UC-042 | Xem lịch sử withdrawal đã xử lý | **Admin** (canonical) | P1 | 009 | `admin/withdrawals.html` (filter lịch sử) |
 | UC-043 | Xem và xử lý khiếu nại với 3 outcomes | Manager | P1 | 010 | `manager/disputes.html`, `manager/dispute-detail.html?id=XXX` |
 | UC-044 | Xem lịch sử khiếu nại theo outcome/ngày | Manager | P2 | 010 | `manager/disputes.html` (history filter), `manager/dispute-detail.html?id=XXX` |
 
@@ -157,7 +176,7 @@
 | UC-052 | Xem chi tiết Customer và lịch sử | Admin | P1 | 012 | `admin/customer-detail.html?id=XXX` |
 | UC-053 | Xem System Transactions và reconciliation | Admin | P1 | 013 | `admin/transactions.html` |
 | UC-054 | Cấu hình commission và pricing settings | Admin | P1 | 014 | `admin/commission-settings.html`, `admin/settings.html` |
-| UC-055 | Xem Analytics Reports | Admin | P2 | 016 | `admin/reports.html` |
+| UC-055 | Xem Analytics Reports | Admin | P2 | 016 | ❌ `admin/reports.html` — module Admin Reports **đã gỡ khỏi build**, screen không tồn tại |
 | UC-056 | Suspend hoặc reactivate Driver/Customer | Admin | P1 | 012 | `admin/driver-detail.html?id=XXX`, `admin/customer-detail.html?id=XXX` |
 
 ### Section 6 — System / Cross-cutting (UC-057 → UC-065)
@@ -196,8 +215,16 @@
 | 014 — Commission Settings | Commission, pricing config và history | UC-054, UC-062 |
 | 015 — Admin Dashboard | KPI, charts và operational tables | UC-045, UC-062 |
 | 016 — Admin Reports | Financial, operations, Driver, Customer reports | UC-055 |
-| 017 — Public Marketing | Sáu public marketing pages | UC-001 → UC-006 |
+| 017 — Public Marketing | Sáu public marketing pages + calculator (⚠️ contact BE chưa build) | UC-001 → UC-006 |
 | 018 — Error Handling | Error pages, form errors, network/session recovery | UC-057 → UC-061 |
+| 019 — Chat Messaging | Chat 3 cấp realtime (WebSocket STOMP, V36) | UC-066 |
+| 020 — Notifications | Hạ tầng thông báo in-app (V18) | UC-067 |
+| 021 — Customer Wallet & Withdrawal | Ví khách + nạp/rút (V8/V39) — ⚠️ BLOCKED | UC-068 |
+| 022 — Order Cancellation Refund | Hoàn cọc khi hủy sớm (V41, HR-14) | UC-069 |
+| 023 — Driver Incident Report | Báo sự cố + điều phối lại — 🚫 chưa build | UC-070 |
+| 024 — Community Blog | Blog cộng đồng — 🚫 chưa build (BLOCKED) | UC-071 |
+| 025 — Admin Audit Log | Tra cứu nhật ký toàn cục (V22) | UC-072 |
+| 026 — Manager Driver Ratings | Manager xem đánh giá kèm comment (V9/V40) | UC-073 |
 
 ---
 
@@ -223,9 +250,11 @@ Priority:
 
 ## Cross-references
 
-- **18 Specs:** Chi tiết User Stories, FR/NFR và Acceptance Criteria xem trong
-  `specs/001-auth-rbac/spec.md` → `specs/018-error-handling/spec.md`.
-- **65 Screens:** UI catalog, route và trạng thái triển khai xem trong `docs/SCREEN_INVENTORY.md`.
+- **26 Specs:** Chi tiết User Stories, FR/NFR và Acceptance Criteria xem trong
+  `specs/001-auth-rbac/spec.md` → `specs/026-manager-driver-ratings/spec.md` (mỗi spec có đủ
+  `spec.md` + `plan.md` + `tasks.md` + `checklists/requirements.md`).
+- **~80 Screens:** UI catalog, route và trạng thái triển khai xem trong `docs/SCREEN_INVENTORY.md`
+  (§8.5 liệt các màn 019–026).
 - **Feature Tree:** Phân cấp scope xem trong `docs/diagrams/feature-tree.drawio`.
 - **Source hierarchy:** `CONTEXT.md` → Constitution → Specs → Code.
 
@@ -236,4 +265,4 @@ Priority:
 | Updated when | Có UC mới, thay đổi ownership/actor, spec hoặc screen route |
 | Owner | TriNM2505 (Leader) |
 | Format version | 1.0 — catalog matrix |
-| Verification rule | Luôn giữ đúng 65 UC IDs liên tục và reference đủ 18 specs |
+| Verification rule | Giữ đúng 73 UC IDs (65 gốc + 8 của 019–026) và reference đủ 26 specs |

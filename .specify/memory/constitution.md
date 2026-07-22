@@ -1,20 +1,4 @@
-<!--
-=== SYNC IMPACT REPORT ===
-Version Change: 1.3.0 → 1.4.0
-Date: 2026-07-13
-Type of bump: MINOR (amend HR-14 — them ngoai le hoan coc khi khach huy don CONFIRMED truoc khi co tai xe)
 
-Amendment v1.4.0 (2026-07-13):
-- Source: Quyet dinh leader 2026-07-13 — cho phep hoan coc khi khach chu dong huy don luc CHUA co
-  tai xe nhan (CONFIRMED, driver_id = NULL). Manager duyet thu cong; cop 30% ve customer_wallet.
-- HR-14: SUA (them ngoai le). RefundRecord VAN chi tao khi COMPANY huy (khong doi). Bo sung luong
-  hoan coc RIENG (bang order_cancellation_refund, KHONG phai RefundRecord): CUSTOMER huy don
-  CONFIRMED khi chua co tai xe → tao yeu cau PENDING kem ly do + anh → Manager duyet → hoan coc 30%
-  ve customer_wallet (transaction REFUND, AC-13; vi khong am, HR-18).
-- Lech co chu y voi CONTEXT §Huy don ban goc ("khach huy tu CONFIRMED tro di mat coc"); CONTEXT.md
-  da duoc dong bo cung ngay (§Huy don & Hoan tien + state machine row CONFIRMED→CANCELLED CUSTOMER).
-- Migration lien quan: V41 (order_cancellation_refund + order_cancellation_photo).
-- Khong doi so luong rule: van 21 HR / 16 AC / 8 ES. Chi sua noi dung HR-14.
 
 Version Change: 1.2.0 → 1.3.0
 Date: 2026-06-04

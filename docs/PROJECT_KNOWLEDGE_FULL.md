@@ -350,7 +350,23 @@ Flyway mandatory. Hibernate `ddl-auto=validate` only (verify entity match DB).
 
 ## 2.1 Schema Overview
 
-6 bảng + `flyway_schema_history`:
+> ℹ️ **Schema tổng thể:** hệ thống có **27 bảng** (migration V1–V41 + `V99` seed). Các mục §2.2–§2.7
+> mô tả **6 bảng lõi**; danh sách đầy đủ 27 bảng ở bảng nhóm ngay dưới.
+
+**27 bảng (+ `flyway_schema_history`), nhóm theo miền:**
+
+| Nhóm | Bảng | Migration |
+|------|------|-----------|
+| Auth/User (5) | `app_user`, `email_verification_token`, `refresh_token`, `password_reset_token`, `login_event` | V1, V2, V3, V19, V26 |
+| Driver (4) | `driver_profile`, `driver_document`, `driver_wallet`, `driver_location` | V4, V14, V11, V20 |
+| Order (2) | `service_order`, `order_rating` | V5, V9 |
+| Tiền (6) | `transaction`, `customer_wallet`, `withdrawal_request`, `customer_withdrawal_request`, `commission_settings`, `commission_settings_history` | V6, V8, V12, V39, V16, V16 |
+| Dispute (4) | `dispute`, `dispute_evidence`, `dispute_comment`, `dispute_photo` | V16, V16, V16, V35 |
+| Chat (2) | `conversation`, `chat_message` | V36 |
+| Khác (4) | `notification`, `audit_log`, `order_cancellation_refund`, `order_cancellation_photo` | V18, V22, V41, V41 |
+
+**Quan hệ lõi (6 bảng gốc):**
+```
 app_user (1)
 ├── 1-1 → driver_profile (only DRIVER role)
 ├── 1-N → email_verification_token
@@ -359,6 +375,10 @@ app_user (1)
 ├── 1-N → service_order (as driver) — nullable
 └── 1-N → transaction
 service_order (1) → 1-N transaction
+```
+Ngoài ra: mỗi `service_order` có thể có `order_rating` (1-1), nhiều `dispute`, `conversation`,
+`order_cancellation_refund`; mỗi Driver/Customer có `driver_wallet`/`customer_wallet` (1-1) +
+`withdrawal_request`/`customer_withdrawal_request` (1-N).
 
 ## 2.2 Table: `app_user`
 
@@ -566,6 +586,13 @@ CREATE INDEX idx_dp_total_revenue ON driver_profile(total_revenue DESC);
 
 ## 2.6 Table: `service_order`
 
+> ℹ️ **Schema canonical:** cột `status` là **`VARCHAR(30)`** (V30), CHECK (V21) cho **11 giá trị**:
+> `PENDING, PENDING_PAYMENT, CONFIRMED, ASSIGNED, ACCEPTED, IN_PROGRESS, AWAITING_FINAL_PAYMENT,
+> COMPLETED, DISPUTED, IN_DISPUTE, CANCELLED` (còn lẫn cặp legacy+mới: `ASSIGNED`≈`ACCEPTED`,
+> `DISPUTED`≈`IN_DISPUTE`, `PENDING`≈`PENDING_PAYMENT`, nên dọn về 1 bộ). Cột: `final_paid_at`,
+> `earning_released_at` (V30), `arrived_at` (V37). State machine nghiệp vụ chuẩn (8 trạng thái) xem
+> `CONTEXT.md §2`. Code block dưới là diễn giải mức ý niệm.
+
 ```sql
 CREATE TABLE service_order (
     -- Identity
@@ -652,6 +679,11 @@ PENDING ─[driver accept]→ ACCEPTED ─[start trip]→ IN_PROGRESS ─[done]�
 ## 2.7 Table: `transaction`
 
 Financial ledger — append only.
+
+> ℹ️ **Sổ cái canonical:** CHECK (V24) cho **9 loại** (thêm **`WALLET_TOP_UP`** V21 và **`WITHDRAWAL`**
+> V24 so với 7 loại cơ bản). Cột bổ sung: `balance_after`, `related_dispute_id` (V16),
+> `related_withdrawal_id` (V24), `related_customer_withdrawal_id` (V39). Lưu ý: `DISPUTE_DEDUCTION` (V16)
+> là type **mồ côi** — khấu trừ dispute thực tế insert `DAMAGE_DEDUCTION` (xem CODE-02).
 
 ```sql
 CREATE TABLE transaction (
@@ -752,6 +784,10 @@ CREATE INDEX idx_tx_type_created ON transaction(type, created_at DESC);
 
 ## 2.9 Seed Data (V99__seed_demo_data.sql)
 
+> ℹ️ **Lưu ý seed:** số liệu seed dưới (17 users / 30 orders / 75 transactions) là bản mô tả cũ; spec #015
+> Admin Dashboard tham chiếu bản seed lớn hơn (~60 users / ~150 orders). Cần đối chiếu
+> `V99__seed_demo_data.sql` hiện tại trước khi trích số cụ thể cho báo cáo.
+
 604 dòng SQL, tạo:
 
 ### Users (17 total)
@@ -797,6 +833,59 @@ Tổng: 60 + 6 = ~75 transactions.
 
 ---
 
+## 2.10 Bảng bổ sung (V8–V41) — chi tiết rút gọn
+
+> §2.2–§2.7 mô tả 6 bảng lõi; dưới đây là **21 bảng còn lại** (cột chính + ràng buộc quan trọng). Nguồn:
+> migration tương ứng. Tiền = `NUMERIC(15,0)` (AC-08), thời gian = `TIMESTAMPTZ` (AC-07), status =
+> `VARCHAR + CHECK` (AC-14).
+
+### Auth/User bổ sung
+| Bảng (mig) | Cột chính | Ghi chú |
+|-----------|-----------|---------|
+| `password_reset_token` (V19) | `user_id`, `token_hash`, `expires_at`, `used_at` | Reset mật khẩu; lưu hash |
+| `login_event` (V26) | `user_id`, `logged_in_at` | Phục vụ báo cáo hoạt động khách |
+
+### Driver
+| Bảng (mig) | Cột chính | Ghi chú |
+|-----------|-----------|---------|
+| `driver_document` (V14) | `driver_id`, `doc_type` CHECK(`DRIVING_LICENSE`/`VEHICLE_REGISTRATION`/`VEHICLE_PHOTO`), `url` | Giấy tờ onboarding (Cloudinary) |
+| `driver_wallet` (V11) | `driver_id` UNIQUE, `balance` CHECK≥0, `total_earned`, `total_withdrawn` | Ví tài xế (HR-18) |
+| `driver_location` (V20) | `driver_id` PK, `current_order_id`, `lat`, `lng`, `heading`, `speed_kmh` | Vị trí mới nhất (UPSERT) |
+
+### Order
+| Bảng (mig) | Cột chính | Ghi chú |
+|-----------|-----------|---------|
+| `order_rating` (V9, V40) | `order_id` UNIQUE, `customer_id`, `driver_id`, `stars` CHECK 1–5, `comment` | Default hiển thị 5.00 sao (V40) |
+
+### Tiền
+| Bảng (mig) | Cột chính | Ghi chú |
+|-----------|-----------|---------|
+| `customer_wallet` (V8, V39) | `customer_id` UNIQUE, `balance` CHECK≥0, `total_topped_up`, `total_spent`, `total_withdrawn` | ⚠️ Governance: ví Customer #021 đang BLOCKED, chờ leader duyệt |
+| `withdrawal_request` (V12) | `driver_id`, `amount` CHECK≥100000, `bank_*`, `status`(PENDING/PROCESSED/REJECTED/CANCELLED), `idempotency_key` | Rút tiền tài xế |
+| `customer_withdrawal_request` (V39) | `customer_id`, `amount` CHECK>0, `bank_*`, `status`, `idempotency_key` | Rút tiền khách; CHECK terminal fields |
+| `commission_settings` (V16) | singleton `id=1`, `commission_rate`, peak/alley/floor `JSONB`, `base_rate_per_km JSONB`, `driver_deposit_vnd`, `version` | Cấu hình giá/hoa hồng có optimistic version |
+| `commission_settings_history` (V16) | `from_version`, `to_version`, `old_values/new_values/diff JSONB` | Lịch sử append-only |
+
+### Dispute
+| Bảng (mig) | Cột chính | Ghi chú |
+|-----------|-----------|---------|
+| `dispute` (V16, V34, V37) | `order_id`, `customer_id`, `driver_id`, `claim_type`(+`DRIVER_MISMATCH` V37), `claim_amount`, `status`(OPEN/INVESTIGATING/RESOLVED_REFUND/RESOLVED_DEDUCT/CLOSED_NO_FAULT), `pending_deduct_shortfall`+`deduct_deadline`(V34) | ⚠️ Khác CONTEXT §DamageReport (đã sync trong CONTEXT) |
+| `dispute_evidence` (V16) | `dispute_id`, `uploader_id/role`, `evidence_type`, `cloudinary_public_id` | Bằng chứng |
+| `dispute_comment` (V16) | `dispute_id`, `author_role`(MANAGER/ADMIN), `comment`, `idempotency_key` | Bình luận nội bộ |
+| `dispute_photo` (V35) | `dispute_id`, `url`, `public_id` | Ảnh khách đính kèm (signed) |
+
+### Chat / Notification / Audit / Hủy đơn
+| Bảng (mig) | Cột chính | Ghi chú |
+|-----------|-----------|---------|
+| `conversation` (V36) | `order_id`, `type` CHECK(CUSTOMER_MANAGER/MANAGER_DRIVER/CUSTOMER_DRIVER), `customer_id`, `driver_id`, `last_message_*` | 2 partial UNIQUE index |
+| `chat_message` (V36, V38) | `conversation_id`, `sender_id`, `content`, `image_public_id`(V38), `read_at` | `image_public_id` = cột, KHÔNG phải bảng riêng |
+| `notification` (V18) | `user_id`, `type VARCHAR(50)` (KHÔNG CHECK), `title`, `message`, `is_read` | ⚠️ Không FK/CHECK/index (bảng tối giản, có chủ ý) |
+| `audit_log` (V22) | `actor_id`, `actor_email`, `action`, `entity_type`, `entity_id`, `detail` | Append-only; chỉ 3/6 field HR-13 là cột (D-14) |
+| `order_cancellation_refund` (V41) | `order_id` UNIQUE, `customer_id`, `reason`, `status`(PENDING/REFUNDED/REJECTED), `refund_amount`, CHECK terminal | Hoàn cọc khi hủy sớm (HR-14) |
+| `order_cancellation_photo` (V41) | `cancellation_id`, `url`, `public_id` | Ảnh bằng chứng (signed) |
+
+---
+
 # PART 3 — API ENDPOINTS CATALOG
 
 ## 3.1 Overview
@@ -806,7 +895,13 @@ Tổng: 60 + 6 = ~75 transactions.
 **Format:** JSON request/response, UTF-8
 **Error codes:** Standard HTTP + custom in body
 
-12 endpoints chia 3 nhóm:
+> ℹ️ **Phạm vi mục này:** danh mục dưới liệt kê nhóm **Auth + Admin Dashboard**. Hệ thống có nhiều
+> controller khác (booking, driver workflow, wallet/withdrawal, dispute, chat, notification, audit log,
+> public quote, VNPay, order cancellation refund, manager approval/ratings...) — nguồn API đầy đủ = các
+> file `*Controller.java` trong `backend/.../vn/movehome` + phần **API Endpoints Summary** của từng spec
+> 002–026 (danh mục controller đầy đủ ở §3.5).
+
+12 endpoints (Sprint 1) chia 3 nhóm:
 - Auth (4) — public hoặc authenticated
 - Admin Dashboard (6) — require ROLE_ADMIN
 - Admin Lists (3) — require ROLE_ADMIN
@@ -1117,6 +1212,52 @@ Response: `List<CustomerListItem>`
 ```
 
 ---markdown---
+
+## 3.5 Danh mục Controller (28 controller)
+
+> §3.2–§3.4 chỉ liệt 12 endpoint Sprint 1. Thực tế hệ thống có **28 `@RestController`**. Đây là danh mục
+> đầy đủ (base path); chi tiết endpoint xem phần **API Endpoints Summary** trong spec tương ứng.
+
+| Base path | Controller | Vai trò | Spec |
+|-----------|-----------|---------|------|
+| `/api/auth` | `AuthController` | Public/Auth | 001 |
+| `/api/customer/profile` | `ProfileController` | Customer | 004 |
+| `/api/customer/wallet` | `WalletController` | Customer | 021 |
+| (customer orders) | `OrderController`, `CustomerQuoteController` | Customer | 002/003 |
+| `/api/driver/orders` | `DriverOrderController`, `DriverOrderQueryController` | Driver | 006 |
+| `/api/driver` | `DriverWalletController` | Driver | 007 |
+| `/api/driver/profile` | `DriverProfileController` | Driver | 005 |
+| `/api/driver/documents` | `DriverDocumentController` | Driver | 005 |
+| `/api/driver/location` | `DriverLocationController` | Driver | 006 |
+| `/api/manager/drivers` | `ManagerDriverApprovalController` | Manager | 008 |
+| `/api/manager/driver-ratings` | `ManagerDriverRatingController` | Manager | 026 |
+| `/api/manager/cancellation-refunds` | `ManagerCancellationRefundController` | Manager | 022 |
+| (manager disputes) | `DisputeController` | Manager/Admin | 010 |
+| `/api/admin/dashboard` | `AdminDashboardController` | Admin | 015 |
+| `/api/admin` | `AdminListController`, `AdminDetailController` | Admin | 011/012 |
+| `/api/admin/transactions` | `AdminTransactionController` | Admin | 013 |
+| `/api/admin/withdrawals` | `AdminWithdrawalController` | Admin | 009 |
+| `/api/admin/customer-withdrawals` | `AdminCustomerWithdrawalController` | Admin | 021 |
+| `/api/admin/settings/commission` | `AdminCommissionSettingsController` | Admin | 014 |
+| `/api/admin/audit-logs` | `AuditLogController` | Admin/Manager | 025 |
+| `/api/admin/users` | `AdminUserAccountController` | Admin | 012 |
+| `/api/chat` | `ChatController` | Tất cả | 019 |
+| `/api/notifications` | `NotificationController` | Tất cả | 020 |
+| `/api/public/*` | `PublicQuoteController` | Guest | 017 |
+| `/api/vnpay/*` | `VnPayController` | System (IPN) | 002/005/021 |
+
+> ⚠️ **KHÔNG có:** Admin Reports controller (`/api/admin/reports` — module đã gỡ, D-15); contact
+> (`/api/public/contact` — chưa build, D-16); driver incident (chưa build, D-12).
+
+### Frontend JS thật (20 module) — cập nhật §3 (CLAUDE.md chỉ nhắc `auth.js`/`dashboard.js`/`charts-config.js`)
+
+`api.js` (fetch wrapper, single-flight refresh — #018), `auth.js`, `chat.js` + `chat-badge.js` (#019),
+`notifications-bell.js` (#020), `dashboard.js`, `admin-common.js`, `admin-orders/drivers/customers.js`,
+`admin-order-detail/driver-detail/customer-detail.js`, `admin-transactions.js`, `admin-audit.js`,
+`admin-user-account.js`, `customer-common.js`, `customer-orders.js`, `customer-order-tracking.js`,
+`driver-common.js`.
+
+---
 
 # PART 4 — CODE PATTERNS & EXAMPLES
 

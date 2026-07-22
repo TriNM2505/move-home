@@ -4,7 +4,49 @@
 **Created:** 2026-05-30
 **Owner:** Frontend team (5 member SWP)
 **Stack:** HTML + Vanilla JS + Vanilla CSS (theo Constitution AC-01)
-**Reference:** docs/CONTEXT.md v2.0, .specify/memory/constitution.md v1.2.0
+**Reference:** docs/CONTEXT.md v2.0, .specify/memory/constitution.md v1.4.0
+
+---
+
+> ℹ️ **Brand & nguồn canonical:**
+> - **Brand color:** primary **forest green `#1B4D3E`**, accent **amber `#F5A623`**, font
+>   **Be Vietnam Pro** (theo `DESIGN.md` + constitution HR-19). KHÔNG dùng màu xanh/tím cho code mới —
+>   các bảng màu cũ trong file này đã bị HR-19 ghi đè.
+> - **Status mapping:** "8 trạng thái Order" nêu dưới là mô hình nghiệp vụ; constraint DB cho
+>   **11 giá trị** (còn lẫn legacy+mới) — khi map badge, đối chiếu `service_order` CHECK (V21) + cần chốt
+>   về 1 bộ canonical. Badge cho trạng thái mới: `dispute` (OPEN/INVESTIGATING/...),
+>   `order_cancellation_refund` (PENDING/REFUNDED/REJECTED), notification, chat — xem §1.0.
+> - Phần **typography (Be Vietnam Pro / Inter) và status-mapping business logic** của file này là
+>   nguồn đúng theo CLAUDE.md §5.5 (design-internal-reference wins về typography + status mapping).
+
+---
+
+## 1.0. Badge trang thai (thuc the 019-026)
+
+> Map trang thai cac thuc the moi (019-026) sang **intent** cua he thong badge (dung token
+> `--color-success`/`--color-warning`/`--color-danger`/`--color-info`/`--color-muted` neu co; neu thieu:
+> success = forest green `#1B4D3E`, warning/pending = amber `#F5A623`, danger = `#C0392B`, info =
+> `#2E5AAC`, muted = neutral gray). Business status mapping van la nguon dung cua file nay (CLAUDE.md §5.5).
+
+| Thuc the | Trang thai | Intent / mau | Nhan tieng Viet |
+|----------|-----------|--------------|-----------------|
+| `dispute` | `OPEN` | warning (amber) | "Cho xu ly" |
+| `dispute` | `INVESTIGATING` | info (xanh duong) | "Dang xac minh" |
+| `dispute` | `RESOLVED_REFUND` | success (green) | "Da hoan khach" |
+| `dispute` | `RESOLVED_DEDUCT` | success (green) | "Da tru tai xe" |
+| `dispute` | `CLOSED_NO_FAULT` | muted (gray) | "Dong — khong loi" |
+| `order_cancellation_refund` | `PENDING` | warning | "Cho duyet" |
+| `order_cancellation_refund` | `REFUNDED` | success | "Da hoan coc" |
+| `order_cancellation_refund` | `REJECTED` | danger | "Tu choi" |
+| `withdrawal_request` / `customer_withdrawal_request` | `PENDING` | warning | "Cho xu ly" |
+| " | `PROCESSED` | success | "Da chuyen" |
+| " | `REJECTED` | danger | "Bi tu choi" |
+| " | `CANCELLED` | muted | "Da huy" |
+| `notification` | `is_read=false` | warning (cham/bold) | (chua doc) |
+| `notification` | `is_read=true` | muted | (da doc) |
+
+> Order status (11 gia tri, V21) va Driver status van dung Status Mapping goc cua file nay — luu y cap
+> legacy+moi (ASSIGNED/ACCEPTED, DISPUTED/IN_DISPUTE) can chot ve 1 bo canonical.
 
 ---
 
