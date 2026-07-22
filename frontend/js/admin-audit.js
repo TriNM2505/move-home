@@ -11,7 +11,6 @@ import { getAuthenticated } from './api.js';
 
 let page = 0;
 let size = 10;
-let action = '';   // rỗng = tất cả
 let entityType = '';
 let from = '';
 let to = '';
@@ -22,15 +21,32 @@ function showLoading() {
     `<tr><td colspan="5" class="table-empty-row"><span class="spinner spinner-sm"></span> Đang tải dữ liệu...</td></tr>`;
 }
 
-// Nhãn hành động cho dễ đọc
+// Nhãn hành động cho dễ đọc — khớp 18 mã thật backend đang ghi (AuditService.log)
+const ACTION_LABELS = {
+  // Khiếu nại (entity_type = DISPUTE)
+  DISPUTE_OPENED:            'Mở khiếu nại',
+  DISPUTE_RESOLVED:          'Xử lý khiếu nại',
+  DISPUTE_REJECTED:          'Từ chối khiếu nại',
+  DISPUTE_RESOLVED_DEDUCT:   'Trừ tiền bồi thường tài xế',
+  DISPUTE_DEDUCT_PENDING:    'Chờ tài xế nộp bổ sung',
+  DISPUTE_PENALTY_PAID:      'Tài xế đã nộp bổ sung',
+  DISPUTE_PENALTY_ENFORCED:  'Cưỡng chế phạt (hệ thống)',
+  MISMATCH_DISPUTE_OPENED:   'Mở khiếu nại đối chiếu',
+  MISMATCH_DISPUTE_REJECTED: 'Từ chối khiếu nại đối chiếu',
+  MISMATCH_DISPUTE_RESOLVED: 'Xử lý khiếu nại đối chiếu',
+  // Tài khoản (entity_type = USER)
+  DRIVER_APPROVED:           'Duyệt tài xế',
+  DRIVER_REJECTED:           'Từ chối tài xế',
+  USER_SUSPENDED:            'Đình chỉ tài khoản',
+  USER_REACTIVATED:          'Kích hoạt lại tài khoản',
+  USER_ACCOUNT_LOCKED:       'Khóa tài khoản',
+  USER_ACCOUNT_UNLOCKED:     'Mở khóa tài khoản',
+  // Hoàn cọc (entity_type = ORDER_CANCELLATION_REFUND)
+  CANCELLATION_REFUNDED:         'Hoàn cọc đơn hủy',
+  CANCELLATION_REFUND_REJECTED:  'Từ chối hoàn cọc',
+};
 function actionLabel(a) {
-  const map = {
-    LOGIN_SUCCESS: 'Đăng nhập', LOGIN_FAILED: 'Đăng nhập thất bại',
-    ACCOUNT_LOCKED: 'Khóa tài khoản', ACCOUNT_UNLOCKED: 'Mở khóa tài khoản',
-    PASSWORD_RESET: 'Đặt lại mật khẩu', ORDER_ACCEPTED: 'Nhận đơn',
-    WITHDRAWAL_REQUESTED: 'Yêu cầu rút tiền',
-  };
-  return map[a] || a || '—';
+  return ACTION_LABELS[a] || a || '—';
 }
 
 function render(data) {
@@ -74,7 +90,6 @@ async function load() {
   showLoading();
   try {
     const q = new URLSearchParams({ page, size });
-    if (action) q.set('action', action);
     if (entityType) q.set('entityType', entityType);
     if (from) q.set('from', new Date(from).toISOString());
     if (to) q.set('to', new Date(to).toISOString());
@@ -91,18 +106,19 @@ async function load() {
 document.addEventListener('DOMContentLoaded', () => {
   if (!setupAdminPage('../login.html')) return;
 
+  // Pill lọc theo NHÓM ĐỐI TƯỢNG thật (entityType), không phải action cũ đã lỗi thời
   document.getElementById('filterContainer')?.addEventListener('click', (e) => {
-    const pill = e.target.closest('[data-action]');
+    const pill = e.target.closest('[data-entity]');
     if (!pill) return;
-    action = pill.dataset.action || '';
+    entityType = pill.dataset.entity || '';
     page = 0;
-    document.querySelectorAll('#filterContainer [data-action]').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#filterContainer [data-entity]').forEach(p => p.classList.remove('active'));
     pill.classList.add('active');
     load();
   });
 
+  // Bộ lọc thời gian (kết hợp được với pill nhóm đối tượng)
   document.getElementById('applyAuditFilters')?.addEventListener('click', () => {
-    const nextEntityType = document.getElementById('entityTypeFilter')?.value.trim() || '';
     const nextFrom = document.getElementById('fromFilter')?.value || '';
     const nextTo = document.getElementById('toFilter')?.value || '';
 
@@ -111,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    entityType = nextEntityType;
     from = nextFrom;
     to = nextTo;
     page = 0;
@@ -119,14 +134,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('clearAuditFilters')?.addEventListener('click', () => {
-    ['entityTypeFilter', 'fromFilter', 'toFilter'].forEach(id => {
+    ['fromFilter', 'toFilter'].forEach(id => {
       const input = document.getElementById(id);
       if (input) input.value = '';
     });
+    // Reset cả pill về "Tất cả"
     entityType = '';
     from = '';
     to = '';
     page = 0;
+    document.querySelectorAll('#filterContainer [data-entity]').forEach(p => p.classList.remove('active'));
+    document.querySelector('#filterContainer [data-entity=""]')?.classList.add('active');
     load();
   });
 
