@@ -37,6 +37,28 @@ class DriverWorkflowAccessServiceTest {
         assertThat(service.isActiveDriver(authentication(customer))).isFalse();
     }
 
+    @Test
+    void rejectsNullAuthentication() {
+        assertThat(service.isActiveDriver(null)).isFalse();
+    }
+
+    @Test
+    void rejectsUnauthenticatedAuthentication() {
+        User driver = verifiedUser(UserRole.DRIVER, UserStatus.ACTIVE);
+        UsernamePasswordAuthenticationToken authentication = authentication(driver);
+        authentication.setAuthenticated(false);
+
+        assertThat(service.isActiveDriver(authentication)).isFalse();
+    }
+
+    @Test
+    void rejectsPrincipalThatIsNotAUserInstance() {
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken("not-a-user-entity", null, java.util.List.of());
+
+        assertThat(service.isActiveDriver(authentication)).isFalse();
+    }
+
     private UsernamePasswordAuthenticationToken authentication(User user) {
         return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
     }

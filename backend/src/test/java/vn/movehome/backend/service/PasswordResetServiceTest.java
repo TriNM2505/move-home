@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 import vn.movehome.backend.dto.auth.ForgotPasswordRequest;
 import vn.movehome.backend.dto.auth.ResetPasswordRequest;
@@ -149,6 +150,65 @@ class PasswordResetServiceTest {
 
         verify(userRepository, never()).save(any());
         verify(tokenRepository, never()).save(any());
+    }
+
+    @Test
+    void resetPasswordWithUnknownTokenIsRejectedAsInvalid() {
+        String rawToken = "unknown-reset-token";
+        when(tokenRepository.findByTokenHashForUpdate(sha256(rawToken))).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.resetPassword(new ResetPasswordRequest(rawToken, NEW_PASSWORD)))
+                .isInstanceOfSatisfying(ResponseStatusException.class, exception -> {
+                    assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    assertThat(exception.getReason()).isEqualTo(
+                            "INVALID_RESET_TOKEN|Liên kết đặt lại mật khẩu không hợp lệ.");
+                });
+
+        verify(userRepository, never()).save(any());
+        verify(tokenRepository, never()).save(any());
+    }
+
+    @Test
+    void resetPasswordWithValidTokenButMissingUserIsRejectedAsInvalid() {
+        String rawToken = "orphan-reset-token";
+        UUID userId = UUID.randomUUID();
+        PasswordResetToken resetToken = token(userId, Instant.now().plus(5, ChronoUnit.MINUTES), null);
+        when(tokenRepository.findByTokenHashForUpdate(sha256(rawToken))).thenReturn(Optional.of(resetToken));
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.resetPassword(new ResetPasswordRequest(rawToken, NEW_PASSWORD)))
+                .isInstanceOfSatisfying(ResponseStatusException.class, exception -> {
+                    assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    assertThat(exception.getReason()).isEqualTo(
+                            "INVALID_RESET_TOKEN|Liên kết đặt lại mật khẩu không hợp lệ.");
+                });
+
+        verify(userRepository, never()).save(any());
+        verify(tokenRepository, never()).save(any());
+    }
+
+    @Test
+    void forgotPasswordSendsEmailOnlyAfterTransactionCommitsWhenSynchronizationActive() {
+        User user = User.builder().id(UUID.randomUUID()).email(EMAIL).build();
+        when(userRepository.findByEmailAndDeletedAtIsNull(EMAIL)).thenReturn(Optional.of(user));
+        when(tokenRepository.save(any(PasswordResetToken.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            String response = service.requestReset(new ForgotPasswordRequest(EMAIL));
+
+            // Email chi duoc gui that sau khi transaction commit (HR-11) — chua commit thi chua goi.
+            verifyNoInteractions(emailService);
+            assertThat(response).isEqualTo(PasswordResetService.NEUTRAL_RESPONSE);
+
+            TransactionSynchronizationManager.getSynchronizations()
+                    .forEach(org.springframework.transaction.support.TransactionSynchronization::afterCommit);
+
+            verify(emailService).send(eq(EMAIL), eq("Đặt lại mật khẩu Move_home"), any());
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 
     @Test

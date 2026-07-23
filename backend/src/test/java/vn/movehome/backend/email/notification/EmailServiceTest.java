@@ -94,6 +94,20 @@ class EmailServiceTest {
         verify(mailSenderProvider, never()).getIfAvailable();
     }
 
+    @Test
+    void mailSenderNotYetAvailableSkipsEmailWithoutThrowing() {
+        EmailService emailService = configuredEmailService();
+        when(mailSenderProvider.getIfAvailable()).thenReturn(null);
+
+        assertThatCode(() -> emailService.send(
+                "customer@example.com",
+                "Xác thực tài khoản",
+                "<p>Nội dung</p>"))
+                .doesNotThrowAnyException();
+
+        verify(mailSender, never()).createMimeMessage();
+    }
+
     private EmailService configuredEmailService() {
         return new EmailService(
                 mailSenderProvider,

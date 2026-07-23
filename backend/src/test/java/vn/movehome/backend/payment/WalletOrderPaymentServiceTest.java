@@ -156,6 +156,84 @@ class WalletOrderPaymentServiceTest {
     }
 
     @Test
+    void payDepositFromWalletThrowsNotFoundWhenOrderMissing() {
+        UUID customerId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service().payDepositFromWallet(customerId, orderId))
+                .isInstanceOfSatisfying(ResponseStatusException.class, ex ->
+                        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND));
+        verify(walletRepository, never()).findByCustomerIdForUpdate(any());
+    }
+
+    @Test
+    void payDepositFromWalletThrowsConflictWhenOrderNotPayable() {
+        UUID customerId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = order(orderId, customerId, "1000000");
+        order.setStatus("CONFIRMED");
+
+        when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> service().payDepositFromWallet(customerId, orderId))
+                .isInstanceOfSatisfying(ResponseStatusException.class, ex ->
+                        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.CONFLICT));
+        verify(walletRepository, never()).findByCustomerIdForUpdate(any());
+    }
+
+    @Test
+    void payDepositFromWalletThrowsConflictWhenWalletMissing() {
+        UUID customerId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = order(orderId, customerId, "1000000");
+
+        when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
+        when(walletRepository.findByCustomerIdForUpdate(customerId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service().payDepositFromWallet(customerId, orderId))
+                .isInstanceOfSatisfying(ResponseStatusException.class, ex ->
+                        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.CONFLICT));
+        verify(transactionRepository, never()).save(any());
+    }
+
+    @Test
+    void payFinalFromWalletThrowsConflictWhenNotAwaitingFinalPayment() {
+        UUID customerId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = order(orderId, customerId, "1000000"); // status mac dinh PENDING_PAYMENT
+
+        when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> service().payFinalFromWallet(customerId, orderId))
+                .isInstanceOfSatisfying(ResponseStatusException.class, ex ->
+                        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.CONFLICT));
+        verify(walletRepository, never()).findByCustomerIdForUpdate(any());
+    }
+
+    @Test
+    void payFinalFromWalletThrowsConflictWhenAlreadyPaid() {
+        UUID customerId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = ServiceOrder.builder()
+                .id(orderId)
+                .customerId(customerId)
+                .orderCode("MH202607090003")
+                .status("AWAITING_FINAL_PAYMENT")
+                .totalQuote(new BigDecimal("1000000"))
+                .commissionRateSnapshot(new BigDecimal("0.3000"))
+                .finalPaidAt(java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC))
+                .build();
+
+        when(orderRepository.findByIdForUpdate(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> service().payFinalFromWallet(customerId, orderId))
+                .isInstanceOfSatisfying(ResponseStatusException.class, ex ->
+                        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.CONFLICT));
+        verify(walletRepository, never()).findByCustomerIdForUpdate(any());
+    }
+
+    @Test
     void rejectsWhenOrderBelongsToAnotherCustomer() {
         UUID customerId = UUID.randomUUID();
         UUID otherCustomer = UUID.randomUUID();

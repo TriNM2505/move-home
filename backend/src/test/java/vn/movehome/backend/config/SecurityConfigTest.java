@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,9 +19,14 @@ import vn.movehome.backend.security.JwtAuthenticationFilter;
 import vn.movehome.backend.security.JwtTokenProvider;
 
 import java.util.Map;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,11 +43,24 @@ class SecurityConfigTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private UserDetailsService userDetailsService;
+
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
 
     @MockitoBean
     private UserRepository userRepository;
+
+    @Test
+    void userDetailsServiceThrowsWhenEmailNotFound() {
+        String email = "khong-ton-tai@movehome.vn";
+        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userDetailsService.loadUserByUsername(email))
+                .isInstanceOf(UsernameNotFoundException.class)
+                .hasMessage("Nguoi dung khong tim thay voi email: " + email);
+    }
 
     @Test
     void activeDriverCanAccessDriverOrders() throws Exception {
@@ -105,6 +125,62 @@ class SecurityConfigTest {
                 .andExpect(jsonPath("$.error_code").value("FORBIDDEN"));
     }
 
+    @Test
+    void unauthenticatedRequestToProtectedRouteReturns401WithJsonEntryPointBody() throws Exception {
+        mockMvc.perform(get("/api/customer/test"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error_code").value("AUTHENTICATION_REQUIRED"))
+                .andExpect(jsonPath("$.message").value("Vui lòng đăng nhập để tiếp tục."))
+                .andExpect(jsonPath("$.details").isEmpty());
+    }
+
+    @Test
+    void publicAuthAndVnpayAndWsRoutesArePermittedWithoutAuthentication() throws Exception {
+        mockMvc.perform(get("/api/public/info")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/auth/info")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/vnpay/info")).andExpect(status().isOk());
+        mockMvc.perform(get("/ws/info")).andExpect(status().isOk());
+    }
+
+    @Test
+    void optionsPreflightRequestIsPermittedWithoutAuthenticationOnAnyRoute() throws Exception {
+        mockMvc.perform(options("/api/customer/test"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void managerRoleCanAccessGenericManagerRouteAndGetAuditLogs() throws Exception {
+        mockMvc.perform(get("/api/manager/settings")
+                        .with(user(verifiedUser(UserRole.MANAGER, UserStatus.ACTIVE))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/admin/audit-logs")
+                        .with(user(verifiedUser(UserRole.MANAGER, UserStatus.ACTIVE))))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void customerRoleCannotAccessAuditLogs() throws Exception {
+        mockMvc.perform(get("/api/admin/audit-logs")
+                        .with(user(verifiedUser(UserRole.CUSTOMER, UserStatus.ACTIVE))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error_code").value("FORBIDDEN"));
+    }
+
+    @Test
+    void anyAuthenticatedRoleCanAccessNotificationsAndChatButAnonymousCannot() throws Exception {
+        mockMvc.perform(get("/api/notifications/list")
+                        .with(user(verifiedUser(UserRole.CUSTOMER, UserStatus.ACTIVE))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/chat/list")
+                        .with(user(verifiedUser(UserRole.DRIVER, UserStatus.ACTIVE))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/notifications/list"))
+                .andExpect(status().isUnauthorized());
+    }
+
     private User verifiedUser(UserRole role, UserStatus status) {
         return User.builder()
                 .email(role.name().toLowerCase() + "@movehome.vn")
@@ -164,6 +240,46 @@ class SecurityConfigTest {
 
         @GetMapping("/api/manager/drivers/pending-approval")
         public Map<String, String> managerDrivers() {
+            return Map.of("status", "ok");
+        }
+
+        @GetMapping("/api/manager/settings")
+        public Map<String, String> managerSettings() {
+            return Map.of("status", "ok");
+        }
+
+        @GetMapping("/api/admin/audit-logs")
+        public Map<String, String> auditLogs() {
+            return Map.of("status", "ok");
+        }
+
+        @GetMapping("/api/public/info")
+        public Map<String, String> publicInfo() {
+            return Map.of("status", "ok");
+        }
+
+        @GetMapping("/api/auth/info")
+        public Map<String, String> authInfo() {
+            return Map.of("status", "ok");
+        }
+
+        @GetMapping("/api/vnpay/info")
+        public Map<String, String> vnpayInfo() {
+            return Map.of("status", "ok");
+        }
+
+        @GetMapping("/ws/info")
+        public Map<String, String> wsInfo() {
+            return Map.of("status", "ok");
+        }
+
+        @GetMapping("/api/notifications/list")
+        public Map<String, String> notificationsList() {
+            return Map.of("status", "ok");
+        }
+
+        @GetMapping("/api/chat/list")
+        public Map<String, String> chatList() {
             return Map.of("status", "ok");
         }
     }

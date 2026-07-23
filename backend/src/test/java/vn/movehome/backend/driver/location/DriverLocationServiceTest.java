@@ -179,6 +179,182 @@ class DriverLocationServiceTest {
         verify(driverLocationRepository, never()).findById(driverId);
     }
 
+    @Test
+    void getOrderLocationThrowsWhenOrderNotFound() {
+        UUID customerId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+
+        when(orderRepository.findByIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.getOrderLocation(customerId, orderId))
+                .isInstanceOfSatisfying(ResponseStatusException.class, exception -> {
+                    assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(exception.getReason()).startsWith("ORDER_NOT_FOUND|");
+                });
+    }
+
+    @Test
+    void getOrderLocationThrowsWhenOrderStatusNotTrackable() {
+        UUID customerId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = ServiceOrder.builder()
+                .id(orderId)
+                .customerId(customerId)
+                .driverId(UUID.randomUUID())
+                .status("PENDING_PAYMENT")
+                .build();
+
+        when(orderRepository.findByIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> service.getOrderLocation(customerId, orderId))
+                .isInstanceOfSatisfying(ResponseStatusException.class, exception -> {
+                    assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    assertThat(exception.getReason()).startsWith("INVALID_STATUS_TRANSITION|");
+                });
+    }
+
+    @Test
+    void getOrderLocationThrowsWhenDriverNotYetAssigned() {
+        UUID customerId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = ServiceOrder.builder()
+                .id(orderId)
+                .customerId(customerId)
+                .driverId(null)
+                .status("CONFIRMED")
+                .build();
+
+        when(orderRepository.findByIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> service.getOrderLocation(customerId, orderId))
+                .isInstanceOfSatisfying(ResponseStatusException.class, exception -> {
+                    assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(exception.getReason()).startsWith("DRIVER_LOCATION_NOT_FOUND|");
+                });
+        verify(driverLocationRepository, never()).findById(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void getOrderLocationThrowsWhenDriverHasNoLocationRecordYet() {
+        UUID customerId = UUID.randomUUID();
+        UUID driverId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = ServiceOrder.builder()
+                .id(orderId)
+                .customerId(customerId)
+                .driverId(driverId)
+                .status("IN_PROGRESS")
+                .build();
+
+        when(orderRepository.findByIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(order));
+        when(driverLocationRepository.findById(driverId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.getOrderLocation(customerId, orderId))
+                .isInstanceOfSatisfying(ResponseStatusException.class, exception -> {
+                    assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(exception.getReason()).startsWith("DRIVER_LOCATION_NOT_FOUND|");
+                });
+    }
+
+    @Test
+    void getOrderLocationThrowsWhenDriverLocationBelongsToAnotherOrder() {
+        UUID customerId = UUID.randomUUID();
+        UUID driverId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        ServiceOrder order = ServiceOrder.builder()
+                .id(orderId)
+                .customerId(customerId)
+                .driverId(driverId)
+                .status("IN_PROGRESS")
+                .build();
+        DriverLocation location = DriverLocation.builder()
+                .driverId(driverId)
+                .currentOrderId(UUID.randomUUID())
+                .lat(new BigDecimal("21.0285110"))
+                .lng(new BigDecimal("105.8048170"))
+                .recordedAt(Instant.now())
+                .build();
+
+        when(orderRepository.findByIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(order));
+        when(driverLocationRepository.findById(driverId)).thenReturn(Optional.of(location));
+
+        assertThatThrownBy(() -> service.getOrderLocation(customerId, orderId))
+                .isInstanceOfSatisfying(ResponseStatusException.class, exception -> {
+                    assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(exception.getReason()).startsWith("DRIVER_LOCATION_NOT_FOUND|");
+                });
+    }
+
+    @Test
+    void getOrderLocationThrowsAndLogsDebugWhenDriverLocationBelongsToAnotherOrder() {
+        // Bat DEBUG de phu nhanh log.debug(...) trong nhanh khong tim thay vi tri hop le (dong 86-91).
+        ch.qos.logback.classic.Logger logger =
+                (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(DriverLocationService.class);
+        ch.qos.logback.classic.Level original = logger.getLevel();
+        logger.setLevel(ch.qos.logback.classic.Level.DEBUG);
+        try {
+            UUID customerId = UUID.randomUUID();
+            UUID driverId = UUID.randomUUID();
+            UUID orderId = UUID.randomUUID();
+            ServiceOrder order = ServiceOrder.builder()
+                    .id(orderId)
+                    .customerId(customerId)
+                    .driverId(driverId)
+                    .status("IN_PROGRESS")
+                    .build();
+            DriverLocation location = DriverLocation.builder()
+                    .driverId(driverId)
+                    .currentOrderId(UUID.randomUUID())
+                    .lat(new BigDecimal("21.0285110"))
+                    .lng(new BigDecimal("105.8048170"))
+                    .recordedAt(Instant.now())
+                    .build();
+
+            when(orderRepository.findByIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(order));
+            when(driverLocationRepository.findById(driverId)).thenReturn(Optional.of(location));
+
+            assertThatThrownBy(() -> service.getOrderLocation(customerId, orderId))
+                    .isInstanceOfSatisfying(ResponseStatusException.class, exception -> {
+                        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                        assertThat(exception.getReason()).startsWith("DRIVER_LOCATION_NOT_FOUND|");
+                    });
+        } finally {
+            logger.setLevel(original);
+        }
+    }
+
+    @Test
+    void getOrderLocationMarksStaleWhenRecordedAtOlderThanThreshold() {
+        UUID customerId = UUID.randomUUID();
+        UUID driverId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        Instant recordedAt = Instant.now().minusSeconds(45);
+        ServiceOrder order = ServiceOrder.builder()
+                .id(orderId)
+                .customerId(customerId)
+                .driverId(driverId)
+                .status("ACCEPTED")
+                .build();
+        DriverLocation location = DriverLocation.builder()
+                .driverId(driverId)
+                .currentOrderId(orderId)
+                .lat(new BigDecimal("21.0285110"))
+                .lng(new BigDecimal("105.8048170"))
+                .heading(null)
+                .speedKmh(null)
+                .recordedAt(recordedAt)
+                .build();
+
+        when(orderRepository.findByIdAndDeletedAtIsNull(orderId)).thenReturn(Optional.of(order));
+        when(driverLocationRepository.findById(driverId)).thenReturn(Optional.of(location));
+
+        DriverLocationResponse response = service.getOrderLocation(customerId, orderId);
+
+        assertThat(response.stale()).isTrue();
+        assertThat(response.heading()).isNull();
+        assertThat(response.speedKmh()).isNull();
+    }
+
     private UpdateDriverLocationRequest request() {
         return new UpdateDriverLocationRequest(
                 new BigDecimal("21.0285110"),

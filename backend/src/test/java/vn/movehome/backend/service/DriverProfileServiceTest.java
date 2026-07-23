@@ -222,9 +222,14 @@ class DriverProfileServiceTest {
         DriverProfile profile = buildCompleteProfile(driverId);
         Optional<DriverProfile> profileOpt = Optional.of(profile);
         List<DriverDocument> documents = List.of(
-                buildDocument("DRIVING_LICENSE"),
-                buildDocument("VEHICLE_REGISTRATION"),
-                buildDocument("VEHICLE_PHOTO"));
+                buildDocument("DRIVING_LICENSE_FRONT"),
+                buildDocument("DRIVING_LICENSE_BACK"),
+                buildDocument("VEHICLE_REGISTRATION_FRONT"),
+                buildDocument("VEHICLE_REGISTRATION_BACK"),
+                buildDocument("VEHICLE_PHOTO_FRONT"),
+                buildDocument("VEHICLE_PHOTO_REAR"),
+                buildDocument("VEHICLE_PHOTO_SIDE"),
+                buildDocument("FACE_PHOTO"));
 
         User driver = User.builder().id(driverId).status(UserStatus.PENDING_DOCUMENTS).build();
         when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
@@ -271,6 +276,299 @@ class DriverProfileServiceTest {
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("ONBOARDING_DOCUMENTS_INCOMPLETE");
         verify(driverProfileRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void returnsApprovedStatusWhenProfileApproved() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        profile.setApprovedAt(OffsetDateTime.now(ZoneOffset.UTC));
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+
+        DriverProfileResponse response = driverProfileService.getProfile(driverId);
+
+        assertThat(response.onboardingStatus()).isEqualTo("DA_DUYET");
+    }
+
+    @Test
+    void rejectsInvalidLicenseClass() {
+        UUID driverId = UUID.randomUUID();
+        Optional<DriverProfile> profileOpt = Optional.of(buildEmptyProfile(driverId));
+        UpdateDriverProfileRequest request = buildValidRequest();
+        request.setLicenseClass("A1");
+
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
+
+        assertThatThrownBy(() -> driverProfileService.updateProfile(driverId, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("VALIDATION_ERROR")
+                .hasMessageContaining("Hạng giấy phép lái xe chỉ chấp nhận B1, B2, C hoặc D.");
+        verify(driverProfileRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void rejectsInvalidVehiclePlate() {
+        UUID driverId = UUID.randomUUID();
+        Optional<DriverProfile> profileOpt = Optional.of(buildEmptyProfile(driverId));
+        UpdateDriverProfileRequest request = buildValidRequest();
+        request.setVehiclePlate("KHONG-HOP-LE");
+
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
+
+        assertThatThrownBy(() -> driverProfileService.updateProfile(driverId, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("VALIDATION_ERROR")
+                .hasMessageContaining("Biển số xe không hợp lệ. Ví dụ hợp lệ: 30E-56789.");
+        verify(driverProfileRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void rejectsInvalidVehicleType() {
+        UUID driverId = UUID.randomUUID();
+        Optional<DriverProfile> profileOpt = Optional.of(buildEmptyProfile(driverId));
+        UpdateDriverProfileRequest request = buildValidRequest();
+        request.setVehicleType("MOTORBIKE");
+
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
+
+        assertThatThrownBy(() -> driverProfileService.updateProfile(driverId, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("VALIDATION_ERROR")
+                .hasMessageContaining("Loại xe chỉ chấp nhận TRUCK_500KG, TRUCK_1T hoặc TRUCK_15T.");
+        verify(driverProfileRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void rejectsNullVehicleCapacityKg() {
+        UUID driverId = UUID.randomUUID();
+        Optional<DriverProfile> profileOpt = Optional.of(buildEmptyProfile(driverId));
+        UpdateDriverProfileRequest request = buildValidRequest();
+        request.setVehicleCapacityKg(null);
+
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
+
+        assertThatThrownBy(() -> driverProfileService.updateProfile(driverId, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("VALIDATION_ERROR")
+                .hasMessageContaining("Tải trọng xe phải lớn hơn 0 kg.");
+        verify(driverProfileRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void rejectsNegativeVehicleCapacityKg() {
+        UUID driverId = UUID.randomUUID();
+        Optional<DriverProfile> profileOpt = Optional.of(buildEmptyProfile(driverId));
+        UpdateDriverProfileRequest request = buildValidRequest();
+        request.setVehicleCapacityKg(0);
+
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
+
+        assertThatThrownBy(() -> driverProfileService.updateProfile(driverId, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("VALIDATION_ERROR")
+                .hasMessageContaining("Tải trọng xe phải lớn hơn 0 kg.");
+        verify(driverProfileRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void mapsDataIntegrityViolationToLicenseNumberConflict() {
+        UUID driverId = UUID.randomUUID();
+        Optional<DriverProfile> profileOpt = Optional.of(buildEmptyProfile(driverId));
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
+        when(driverProfileRepository.existsByVehiclePlateAndUserIdNot(VEHICLE_PLATE, driverId)).thenReturn(false);
+        when(driverProfileRepository.saveAndFlush(any()))
+                .thenThrow(new DataIntegrityViolationException("duplicate key value violates constraint license_number_key"));
+
+        assertThatThrownBy(() -> driverProfileService.updateProfile(driverId, buildValidRequest()))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("LICENSE_NUMBER_ALREADY_USED");
+    }
+
+    @Test
+    void mapsDataIntegrityViolationToVehiclePlateConflictViaColumnNameOnly() {
+        UUID driverId = UUID.randomUUID();
+        Optional<DriverProfile> profileOpt = Optional.of(buildEmptyProfile(driverId));
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
+        when(driverProfileRepository.existsByVehiclePlateAndUserIdNot(VEHICLE_PLATE, driverId)).thenReturn(false);
+        when(driverProfileRepository.saveAndFlush(any()))
+                .thenThrow(new DataIntegrityViolationException("duplicate key value violates unique constraint vehicle_plate_key"));
+
+        assertThatThrownBy(() -> driverProfileService.updateProfile(driverId, buildValidRequest()))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("LICENSE_PLATE_ALREADY_USED");
+    }
+
+    @Test
+    void rethrowsDataIntegrityViolationWhenConstraintUnrecognized() {
+        UUID driverId = UUID.randomUUID();
+        Optional<DriverProfile> profileOpt = Optional.of(buildEmptyProfile(driverId));
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
+        when(driverProfileRepository.existsByVehiclePlateAndUserIdNot(VEHICLE_PLATE, driverId)).thenReturn(false);
+        DataIntegrityViolationException original = new DataIntegrityViolationException("constraint khong xac dinh");
+        when(driverProfileRepository.saveAndFlush(any())).thenThrow(original);
+
+        assertThatThrownBy(() -> driverProfileService.updateProfile(driverId, buildValidRequest()))
+                .isSameAs(original);
+    }
+
+    @Test
+    void rejectsSubmitWhenAlreadyApproved() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        profile.setApprovedAt(OffsetDateTime.now(ZoneOffset.UTC));
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+
+        assertThatThrownBy(() -> driverProfileService.submitProfile(driverId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_ONBOARDING_STEP")
+                .hasMessageContaining("đã được duyệt, không thể nộp lại");
+        verify(driverDocumentRepository, never()).findByDriverIdOrderByUploadedAtDesc(any());
+        verify(driverProfileRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void rejectsSubmitWhenAlreadySubmitted() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        profile.setOnboardingCompletedAt(OffsetDateTime.now(ZoneOffset.UTC));
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+
+        assertThatThrownBy(() -> driverProfileService.submitProfile(driverId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_ONBOARDING_STEP")
+                .hasMessageContaining("đã được nộp và đang chờ duyệt");
+        verify(driverDocumentRepository, never()).findByDriverIdOrderByUploadedAtDesc(any());
+        verify(driverProfileRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void submitProfileThrowsWhenDriverUserMissing() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        List<DriverDocument> documents = allRequiredDocuments();
+
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+        when(driverDocumentRepository.findByDriverIdOrderByUploadedAtDesc(driverId)).thenReturn(documents);
+        when(userRepository.findById(driverId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> driverProfileService.submitProfile(driverId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("NOT_FOUND")
+                .hasMessageContaining("Tai khoan tai xe khong ton tai");
+        verify(driverProfileRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void submitProfileKeepsStatusWhenNotPendingDocuments() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        List<DriverDocument> documents = allRequiredDocuments();
+        User driver = User.builder().id(driverId).status(UserStatus.PENDING_DEPOSIT).build();
+
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+        when(driverDocumentRepository.findByDriverIdOrderByUploadedAtDesc(driverId)).thenReturn(documents);
+        when(userRepository.findById(driverId)).thenReturn(Optional.of(driver));
+        when(driverProfileRepository.saveAndFlush(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        driverProfileService.submitProfile(driverId);
+
+        assertThat(driver.getStatus()).isEqualTo(UserStatus.PENDING_DEPOSIT);
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void submitProfileMapsOptimisticLockConflict() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        List<DriverDocument> documents = allRequiredDocuments();
+        User driver = User.builder().id(driverId).status(UserStatus.PENDING_DOCUMENTS).build();
+
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+        when(driverDocumentRepository.findByDriverIdOrderByUploadedAtDesc(driverId)).thenReturn(documents);
+        when(userRepository.findById(driverId)).thenReturn(Optional.of(driver));
+        when(driverProfileRepository.saveAndFlush(any()))
+                .thenThrow(new OptimisticLockingFailureException("conflict"));
+
+        assertThatThrownBy(() -> driverProfileService.submitProfile(driverId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_ONBOARDING_STEP");
+    }
+
+    @Test
+    void rejectsSubmitWhenLicenseClassMissing() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        profile.setLicenseClass(null);
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+
+        assertThatThrownBy(() -> driverProfileService.submitProfile(driverId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("VALIDATION_ERROR")
+                .hasMessageContaining("licenseClass");
+    }
+
+    @Test
+    void rejectsSubmitWhenLicenseExpiryDateMissing() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        profile.setLicenseExpiryDate(null);
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+
+        assertThatThrownBy(() -> driverProfileService.submitProfile(driverId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("VALIDATION_ERROR")
+                .hasMessageContaining("licenseExpiryDate");
+    }
+
+    @Test
+    void rejectsSubmitWhenVehiclePlateMissing() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        profile.setVehiclePlate(null);
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+
+        assertThatThrownBy(() -> driverProfileService.submitProfile(driverId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("VALIDATION_ERROR")
+                .hasMessageContaining("vehiclePlate");
+    }
+
+    @Test
+    void rejectsSubmitWhenVehicleTypeMissing() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        profile.setVehicleType(null);
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+
+        assertThatThrownBy(() -> driverProfileService.submitProfile(driverId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("VALIDATION_ERROR")
+                .hasMessageContaining("vehicleType");
+    }
+
+    @Test
+    void rejectsSubmitWhenVehicleCapacityMissing() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildCompleteProfile(driverId);
+        profile.setVehicleCapacityKg(null);
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+
+        assertThatThrownBy(() -> driverProfileService.submitProfile(driverId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("VALIDATION_ERROR")
+                .hasMessageContaining("vehicleCapacityKg");
+    }
+
+    private List<DriverDocument> allRequiredDocuments() {
+        return List.of(
+                buildDocument("DRIVING_LICENSE_FRONT"),
+                buildDocument("DRIVING_LICENSE_BACK"),
+                buildDocument("VEHICLE_REGISTRATION_FRONT"),
+                buildDocument("VEHICLE_REGISTRATION_BACK"),
+                buildDocument("VEHICLE_PHOTO_FRONT"),
+                buildDocument("VEHICLE_PHOTO_REAR"),
+                buildDocument("VEHICLE_PHOTO_SIDE"),
+                buildDocument("FACE_PHOTO"));
     }
 
     private DriverProfile buildEmptyProfile(UUID userId) {

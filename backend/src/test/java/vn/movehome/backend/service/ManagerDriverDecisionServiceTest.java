@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -81,7 +82,7 @@ class ManagerDriverDecisionServiceTest {
 
         when(userRepository.findByIdForUpdate(driverId)).thenReturn(driverOpt);
         when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
-        when(driverDocumentRepository.countByDriverId(driverId)).thenReturn(6L);
+        when(driverDocumentRepository.countByDriverId(driverId)).thenReturn(8L);
         stubObjectMapper();
 
         ApproveDriverResponse response = decisionService.approve(driverId, buildApproveRequest(), actor);
@@ -95,6 +96,31 @@ class ManagerDriverDecisionServiceTest {
     }
 
     @Test
+    void approveFallsBackToToStringWhenAuditDetailSerializationFails() throws Exception {
+        UUID driverId = UUID.randomUUID();
+        User actor = buildActor();
+        User driver = buildPendingDriver(driverId);
+        DriverProfile profile = buildValidProfile(driverId);
+
+        when(userRepository.findByIdForUpdate(driverId)).thenReturn(Optional.of(driver));
+        when(driverProfileRepository.findByUserId(driverId)).thenReturn(Optional.of(profile));
+        when(driverDocumentRepository.countByDriverId(driverId)).thenReturn(8L);
+        when(objectMapper.writeValueAsString(any()))
+                .thenThrow(new JsonProcessingException("boom") { });
+
+        ApproveDriverResponse response = decisionService.approve(driverId, buildApproveRequest(), actor);
+
+        assertThat(response.driverId()).isEqualTo(driverId);
+        verify(auditService, times(1)).log(
+                eq(actor.getId()),
+                eq(actor.getEmail()),
+                eq("DRIVER_APPROVED"),
+                eq("USER"),
+                any(),
+                any());
+    }
+
+    @Test
     void approveSavesBothUserAndProfile() {
         UUID driverId = UUID.randomUUID();
         User actor = buildActor();
@@ -105,7 +131,7 @@ class ManagerDriverDecisionServiceTest {
 
         when(userRepository.findByIdForUpdate(driverId)).thenReturn(driverOpt);
         when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
-        when(driverDocumentRepository.countByDriverId(driverId)).thenReturn(6L);
+        when(driverDocumentRepository.countByDriverId(driverId)).thenReturn(8L);
         stubObjectMapper();
 
         decisionService.approve(driverId, buildApproveRequest(), actor);
@@ -125,7 +151,7 @@ class ManagerDriverDecisionServiceTest {
 
         when(userRepository.findByIdForUpdate(driverId)).thenReturn(driverOpt);
         when(driverProfileRepository.findByUserId(driverId)).thenReturn(profileOpt);
-        when(driverDocumentRepository.countByDriverId(driverId)).thenReturn(6L);
+        when(driverDocumentRepository.countByDriverId(driverId)).thenReturn(8L);
         stubObjectMapper();
 
         decisionService.approve(driverId, buildApproveRequest(), actor);
@@ -163,6 +189,27 @@ class ManagerDriverDecisionServiceTest {
         UUID driverId = UUID.randomUUID();
         Optional<User> driverOpt = Optional.of(buildDriverWithRole(driverId, UserRole.CUSTOMER));
         when(userRepository.findByIdForUpdate(driverId)).thenReturn(driverOpt);
+
+        assertThatThrownBy(() -> decisionService.approve(driverId, buildApproveRequest(), buildActor()))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("DRIVER_NOT_FOUND");
+        verify(driverProfileRepository, never()).findByUserId(any());
+    }
+
+    @Test
+    void rejectsApproveWhenDriverSoftDeleted() {
+        UUID driverId = UUID.randomUUID();
+        User deletedDriver = User.builder()
+                .id(driverId)
+                .email(DRIVER_EMAIL)
+                .fullName(DRIVER_FULL_NAME)
+                .phone(DRIVER_PHONE)
+                .passwordHash("hash")
+                .role(UserRole.DRIVER)
+                .status(UserStatus.PENDING_APPROVAL)
+                .deletedAt(java.time.Instant.now())
+                .build();
+        when(userRepository.findByIdForUpdate(driverId)).thenReturn(Optional.of(deletedDriver));
 
         assertThatThrownBy(() -> decisionService.approve(driverId, buildApproveRequest(), buildActor()))
                 .isInstanceOf(ResponseStatusException.class)
@@ -240,7 +287,7 @@ class ManagerDriverDecisionServiceTest {
         assertThatThrownBy(() -> decisionService.approve(driverId, buildApproveRequest(), buildActor()))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("DRIVER_NOT_APPROVABLE")
-                .hasMessageContaining("chưa đủ tài liệu (5/6)");
+                .hasMessageContaining("chưa đủ tài liệu (5/8)");
         verify(userRepository, never()).save(any());
     }
 
@@ -326,6 +373,93 @@ class ManagerDriverDecisionServiceTest {
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("DRIVER_ALREADY_DECIDED");
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void rejectsRejectWhenDriverNotFound() {
+        UUID driverId = UUID.randomUUID();
+        when(userRepository.findByIdForUpdate(driverId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> decisionService.reject(
+                driverId,
+                buildRejectRequest(VALID_REJECTION_REASON),
+                buildActor()))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("DRIVER_NOT_FOUND");
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void rejectsRejectWhenRequestIsNull() {
+        assertThatThrownBy(() -> decisionService.reject(UUID.randomUUID(), null, buildActor()))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_REJECTION_REASON");
+        verify(userRepository, never()).findByIdForUpdate(any());
+    }
+
+    @Test
+    void rejectsRejectWhenReasonIsNull() {
+        RejectDriverRequest request = new RejectDriverRequest(null, "note");
+
+        assertThatThrownBy(() -> decisionService.reject(UUID.randomUUID(), request, buildActor()))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_REJECTION_REASON");
+        verify(userRepository, never()).findByIdForUpdate(any());
+    }
+
+    @Test
+    void rejectSwallowsNotificationServiceExceptionAndSkipsEmail() {
+        UUID driverId = UUID.randomUUID();
+        User driver = buildPendingDriver(driverId);
+        when(userRepository.findByIdForUpdate(driverId)).thenReturn(Optional.of(driver));
+        stubObjectMapper();
+        when(notificationService.create(any(), any(), any(), any())).thenThrow(new RuntimeException("db down"));
+
+        RejectDriverResponse response = decisionService.reject(
+                driverId, buildRejectRequest(VALID_REJECTION_REASON), buildActor());
+
+        assertThat(response.status()).isEqualTo(UserStatus.REJECTED.name());
+        verify(emailService, never()).send(any(), any(), any());
+    }
+
+    @Test
+    void rejectSkipsEmailWhenDriverEmailIsBlank() {
+        UUID driverId = UUID.randomUUID();
+        User driver = buildDriverWithEmail(driverId, "   ");
+        when(userRepository.findByIdForUpdate(driverId)).thenReturn(Optional.of(driver));
+        stubObjectMapper();
+
+        decisionService.reject(driverId, buildRejectRequest(VALID_REJECTION_REASON), buildActor());
+
+        verify(notificationService, times(1)).create(any(), any(), any(), any());
+        verify(emailService, never()).send(any(), any(), any());
+    }
+
+    @Test
+    void rejectSwallowsEmailServiceException() {
+        UUID driverId = UUID.randomUUID();
+        User driver = buildPendingDriver(driverId);
+        when(userRepository.findByIdForUpdate(driverId)).thenReturn(Optional.of(driver));
+        stubObjectMapper();
+        doThrow(new RuntimeException("smtp down")).when(emailService).send(any(), any(), any());
+
+        RejectDriverResponse response = decisionService.reject(
+                driverId, buildRejectRequest(VALID_REJECTION_REASON), buildActor());
+
+        assertThat(response.status()).isEqualTo(UserStatus.REJECTED.name());
+    }
+
+    private User buildDriverWithEmail(UUID id, String email) {
+        return User.builder()
+                .id(id)
+                .email(email)
+                .fullName(DRIVER_FULL_NAME)
+                .phone(DRIVER_PHONE)
+                .passwordHash("hash")
+                .role(UserRole.DRIVER)
+                .status(UserStatus.PENDING_APPROVAL)
+                .deletedAt(null)
+                .build();
     }
 
     private User buildPendingDriver(UUID id) {
