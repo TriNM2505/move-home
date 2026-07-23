@@ -209,7 +209,10 @@ public class DriverEarningService {
                 transaction.getId(),
                 money(transaction.getAmount()),
                 transaction.getRelatedOrderId(),
-                orderCodes.get(transaction.getRelatedOrderId()),
+                // Tra ve null neu giao dich khong gan order (vd nop bo sung) — tranh get(null) tren Map.of() gay NPE
+                transaction.getRelatedOrderId() == null
+                        ? null
+                        : orderCodes.get(transaction.getRelatedOrderId()),
                 transaction.getDescription(),
                 toOffsetDateTime(transaction.getCreatedAt())
         ));

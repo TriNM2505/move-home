@@ -54,6 +54,18 @@ class OrderNotificationListenerTest {
         }
 
         @Test
+        void skipsNotificationWhenCustomerIdIsNullOnConfirmedStatus() {
+                OrderStatusChangedEvent event = buildEvent("CONFIRMED", null, UUID.randomUUID(),
+                                UUID.randomUUID(), "ORD-NULL-CUSTOMER");
+
+                listener.onOrderStatusChanged(event);
+
+                verify(notificationService, never()).create(any(), any(), any(), any());
+                verify(emailService, never()).send(any(), any(), any());
+                verify(userRepository, never()).findById(any());
+        }
+
+        @Test
         void notifiesCustomerWithEmailWhenStatusAccepted() {
                 UUID customerId = UUID.randomUUID();
                 String email = "customer@example.com";
@@ -116,7 +128,7 @@ class OrderNotificationListenerTest {
         @Test
         void ignoresUnknownStatus() {
                 OrderStatusChangedEvent event = buildEvent(
-                                "CONFIRMED",
+                                "PENDING",
                                 UUID.randomUUID(),
                                 UUID.randomUUID(),
                                 UUID.randomUUID(),
@@ -273,6 +285,109 @@ class OrderNotificationListenerTest {
                                 any(),
                                 any());
                 verify(emailService, times(1)).send(eq(email), any(), any());
+        }
+
+        @Test
+        void notifiesCustomerWithoutEmailWhenStatusConfirmed() {
+                UUID customerId = UUID.randomUUID();
+                String orderCode = "ORD-013";
+                OrderStatusChangedEvent event = buildEvent("CONFIRMED", customerId, null, UUID.randomUUID(), orderCode);
+                ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+
+                listener.onOrderStatusChanged(event);
+
+                verify(notificationService, times(1)).create(
+                                eq(customerId),
+                                eq(NotificationType.ORDER_CONFIRMED),
+                                any(),
+                                messageCaptor.capture());
+                verify(emailService, never()).send(any(), any(), any());
+                verify(userRepository, never()).findById(any());
+                assertThat(messageCaptor.getValue()).contains(orderCode);
+        }
+
+        @Test
+        void notifiesCustomerWithoutEmailWhenStatusAssigned() {
+                UUID customerId = UUID.randomUUID();
+                String orderCode = "ORD-014";
+                OrderStatusChangedEvent event = buildEvent("ASSIGNED", customerId, UUID.randomUUID(), UUID.randomUUID(),
+                                orderCode);
+                ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+
+                listener.onOrderStatusChanged(event);
+
+                verify(notificationService, times(1)).create(
+                                eq(customerId),
+                                eq(NotificationType.ORDER_ASSIGNED),
+                                any(),
+                                messageCaptor.capture());
+                verify(emailService, never()).send(any(), any(), any());
+                verify(userRepository, never()).findById(any());
+                assertThat(messageCaptor.getValue()).contains(orderCode);
+        }
+
+        @Test
+        void disputedStatusNotifiesBothCustomerAndDriverWithoutEmail() {
+                UUID customerId = UUID.randomUUID();
+                UUID driverId = UUID.randomUUID();
+                OrderStatusChangedEvent event = buildEvent("DISPUTED", customerId, driverId, UUID.randomUUID(), "ORD-015");
+
+                listener.onOrderStatusChanged(event);
+
+                verify(notificationService, times(1)).create(
+                                eq(customerId),
+                                eq(NotificationType.ORDER_IN_DISPUTE),
+                                any(),
+                                any());
+                verify(notificationService, times(1)).create(
+                                eq(driverId),
+                                eq(NotificationType.ORDER_IN_DISPUTE),
+                                any(),
+                                any());
+                verify(emailService, never()).send(any(), any(), any());
+                verify(userRepository, never()).findById(any());
+        }
+
+        @Test
+        void inDisputeAliasStatusNotifiesBothCustomerAndDriver() {
+                UUID customerId = UUID.randomUUID();
+                UUID driverId = UUID.randomUUID();
+                OrderStatusChangedEvent event = buildEvent("IN_DISPUTE", customerId, driverId, UUID.randomUUID(),
+                                "ORD-016");
+
+                listener.onOrderStatusChanged(event);
+
+                verify(notificationService, times(2)).create(any(), eq(NotificationType.ORDER_IN_DISPUTE), any(), any());
+        }
+
+        @Test
+        void disputedStatusWithMissingDriverNotifiesOnlyCustomer() {
+                UUID customerId = UUID.randomUUID();
+                OrderStatusChangedEvent event = buildEvent("DISPUTED", customerId, null, UUID.randomUUID(), "ORD-017");
+
+                listener.onOrderStatusChanged(event);
+
+                verify(notificationService, times(1)).create(
+                                eq(customerId),
+                                eq(NotificationType.ORDER_IN_DISPUTE),
+                                any(),
+                                any());
+                verify(notificationService, times(1)).create(any(), eq(NotificationType.ORDER_IN_DISPUTE), any(), any());
+        }
+
+        @Test
+        void disputedStatusWithMissingCustomerNotifiesOnlyDriver() {
+                UUID driverId = UUID.randomUUID();
+                OrderStatusChangedEvent event = buildEvent("DISPUTED", null, driverId, UUID.randomUUID(), "ORD-018");
+
+                listener.onOrderStatusChanged(event);
+
+                verify(notificationService, times(1)).create(
+                                eq(driverId),
+                                eq(NotificationType.ORDER_IN_DISPUTE),
+                                any(),
+                                any());
+                verify(notificationService, times(1)).create(any(), eq(NotificationType.ORDER_IN_DISPUTE), any(), any());
         }
 
         private OrderStatusChangedEvent buildEvent(

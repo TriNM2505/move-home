@@ -125,6 +125,17 @@ class ManagerDriverQueryServiceTest {
     }
 
     @Test
+    void clampsSizeBelowOneToDefaultOfTen() {
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        when(driverProfileRepository.findPendingApproval(any(Pageable.class))).thenReturn(Page.empty());
+
+        queryService.findPendingApproval(0, 0);
+
+        verify(driverProfileRepository, times(1)).findPendingApproval(pageableCaptor.capture());
+        assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(10);
+    }
+
+    @Test
     void returnsPagedRejectedDrivers() {
         UUID driverId = UUID.randomUUID();
         DriverProfile profile = buildProfile(driverId);
@@ -272,6 +283,45 @@ class ManagerDriverQueryServiceTest {
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("DRIVER_NOT_FOUND");
         verify(driverDocumentRepository, never()).findByDriverIdOrderByUploadedAtDesc(any());
+    }
+
+    @Test
+    void returnsRejectedItemWithNullUpdatedAtWhenUserUpdatedAtIsNull() {
+        UUID driverId = UUID.randomUUID();
+        DriverProfile profile = buildProfile(driverId);
+        User user = buildDriver(driverId);
+        user.setUpdatedAt(null);
+        Page<DriverProfile> profiles = new PageImpl<>(List.of(profile));
+
+        when(driverProfileRepository.findRejected(any(Pageable.class))).thenReturn(profiles);
+        when(userRepository.findById(driverId)).thenReturn(Optional.of(user));
+
+        Page<RejectedDriverItem> page = queryService.findRejected(0, 10);
+
+        assertThat(page.getContent().get(0).updatedAt()).isNull();
+    }
+
+    @Test
+    void returnsDocumentsListUsingSignedUrlWhenPublicIdPresent() {
+        UUID driverId = UUID.randomUUID();
+        Optional<User> userOpt = Optional.of(buildDriver(driverId));
+        DriverDocument doc = DriverDocument.builder()
+                .id(UUID.randomUUID())
+                .docType("FACE_PHOTO")
+                .publicId("movehome/drivers/face")
+                .url("https://cdn/face.jpg")
+                .uploadedAt(OffsetDateTime.now(ZoneOffset.UTC))
+                .build();
+
+        when(userRepository.findById(driverId)).thenReturn(userOpt);
+        when(driverDocumentRepository.findByDriverIdOrderByUploadedAtDesc(driverId)).thenReturn(List.of(doc));
+        when(driverDocumentService.signUrl("movehome/drivers/face")).thenReturn("https://signed-url");
+
+        List<DriverDocumentItem> result = queryService.getDocuments(driverId);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).url()).isEqualTo("https://signed-url");
+        verify(driverDocumentService).signUrl("movehome/drivers/face");
     }
 
     private User buildDriver(UUID id) {

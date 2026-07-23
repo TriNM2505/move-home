@@ -75,6 +75,44 @@ class AuditLogQueryServiceTest {
     }
 
     @Test
+    void specificationAppliesAllFourFiltersWhenInvoked() {
+        Instant from = Instant.parse("2026-06-01T00:00:00Z");
+        Instant to = Instant.parse("2026-06-30T23:59:59Z");
+        PageRequest pageable = PageRequest.of(0, 20);
+        when(auditLogRepository.findAll(any(Specification.class), eq(pageable)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        service.findAuditLogs(" ORDER_UPDATED ", " SERVICE_ORDER ", from, to, pageable);
+
+        ArgumentCaptor<Specification<AuditLog>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        verify(auditLogRepository).findAll(specCaptor.capture(), eq(pageable));
+
+        @SuppressWarnings("unchecked")
+        jakarta.persistence.criteria.Root<AuditLog> root = org.mockito.Mockito.mock(jakarta.persistence.criteria.Root.class);
+        jakarta.persistence.criteria.CriteriaQuery<?> query = org.mockito.Mockito.mock(jakarta.persistence.criteria.CriteriaQuery.class);
+        jakarta.persistence.criteria.CriteriaBuilder cb = org.mockito.Mockito.mock(jakarta.persistence.criteria.CriteriaBuilder.class);
+        jakarta.persistence.criteria.Path<Instant> path = org.mockito.Mockito.mock(jakarta.persistence.criteria.Path.class);
+        jakarta.persistence.criteria.Predicate predicate = org.mockito.Mockito.mock(jakarta.persistence.criteria.Predicate.class);
+
+        org.mockito.Mockito.doReturn(path).when(root).get(org.mockito.ArgumentMatchers.anyString());
+        when(cb.conjunction()).thenReturn(predicate);
+        when(cb.equal(any(), any(Object.class))).thenReturn(predicate);
+        when(cb.greaterThanOrEqualTo(org.mockito.ArgumentMatchers.<jakarta.persistence.criteria.Expression<Instant>>any(), org.mockito.ArgumentMatchers.eq(from)))
+                .thenReturn(predicate);
+        when(cb.lessThanOrEqualTo(org.mockito.ArgumentMatchers.<jakarta.persistence.criteria.Expression<Instant>>any(), org.mockito.ArgumentMatchers.eq(to)))
+                .thenReturn(predicate);
+        when(cb.and(any(), any())).thenReturn(predicate);
+
+        jakarta.persistence.criteria.Predicate result = specCaptor.getValue().toPredicate(root, query, cb);
+
+        assertThat(result).isNotNull();
+        verify(cb).equal(path, "ORDER_UPDATED");
+        verify(cb).equal(path, "SERVICE_ORDER");
+        verify(cb).greaterThanOrEqualTo(path, from);
+        verify(cb).lessThanOrEqualTo(path, to);
+    }
+
+    @Test
     void findAuditLogsRejectsInvertedTimeRange() {
         assertThatThrownBy(() -> service.findAuditLogs(
                 null,
@@ -84,6 +122,21 @@ class AuditLogQueryServiceTest {
                 PageRequest.of(0, 20)))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("INVALID_TIME_RANGE");
+    }
+
+    @Test
+    void findAuditLogsSkipsAllOptionalFiltersWhenBlankOrNull() {
+        PageRequest pageable = PageRequest.of(0, 20);
+        when(auditLogRepository.findAll(any(Specification.class), eq(pageable)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        // action null, entityType blank, from/to null -> tat ca 4 nhanh "if" deu la false.
+        Page<AuditLogResponse> result = service.findAuditLogs(null, "  ", null, null, pageable);
+
+        assertThat(result.getContent()).isEmpty();
+        ArgumentCaptor<Specification<AuditLog>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        verify(auditLogRepository).findAll(specCaptor.capture(), eq(pageable));
+        assertThat(specCaptor.getValue()).isNotNull();
     }
 
     @Test

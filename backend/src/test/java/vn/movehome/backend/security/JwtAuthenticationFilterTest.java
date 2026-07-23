@@ -108,6 +108,40 @@ class JwtAuthenticationFilterTest {
         verify(filterChain).doFilter(request, response);
     }
 
+    @Test
+    void skipsSettingSecurityContextWhenAuthenticationAlreadyPresent() throws Exception {
+        UUID userId = UUID.randomUUID();
+        when(jwtTokenProvider.validateAccessToken("valid-token")).thenReturn(Optional.of(userId));
+
+        org.springframework.security.core.Authentication existingAuth =
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        "existing-principal", null);
+        SecurityContextHolder.getContext().setAuthentication(existingAuth);
+
+        MockHttpServletRequest request = bearerRequest("/api/customer/profile");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        new JwtAuthenticationFilter(jwtTokenProvider, userRepository)
+                .doFilter(request, response, filterChain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(existingAuth);
+        verify(userRepository, org.mockito.Mockito.never()).findById(userId);
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void skipsAuthenticationWhenAuthorizationHeaderIsNotBearer() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/customer/profile");
+        request.addHeader("Authorization", "Basic abc");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        new JwtAuthenticationFilter(jwtTokenProvider, userRepository)
+                .doFilter(request, response, filterChain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        verify(filterChain).doFilter(request, response);
+    }
+
     private MockHttpServletRequest bearerRequest(String uri) {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization", "Bearer valid-token");

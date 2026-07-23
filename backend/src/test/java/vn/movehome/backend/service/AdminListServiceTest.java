@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -212,5 +213,207 @@ class AdminListServiceTest {
         assertThat(customerPageable.getValue().getPageNumber()).isEqualTo(1);
         assertThat(customerPageable.getValue().getPageSize()).isEqualTo(50);
         assertThat(customerPageable.getValue().getSort().toString()).contains("cw.totalSpent: DESC");
+    }
+
+    @Test
+    void listOrdersRejectsSearchTermExceedingMaxLength() {
+        String tooLong = "a".repeat(101);
+
+        assertThatThrownBy(() -> service.listOrders("ALL", tooLong, null, null, 0, 10, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_SEARCH_TERM");
+    }
+
+    @Test
+    void listOrdersRejectsUnparseableDateStrings() {
+        assertThatThrownBy(() -> service.listOrders("ALL", null, "not-a-date", null, 0, 10, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_DATE_RANGE");
+    }
+
+    @Test
+    void listOrdersAcceptsOneSidedDateRangeAndDefaultSortWhenSortIsNull() {
+        when(orderRepository.findAdminOrderList(any(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.listOrders("ALL", null, "2026-06-01", null, 0, 10, null);
+
+        ArgumentCaptor<OffsetDateTime> fromCaptor = ArgumentCaptor.forClass(OffsetDateTime.class);
+        ArgumentCaptor<OffsetDateTime> toCaptor = ArgumentCaptor.forClass(OffsetDateTime.class);
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(orderRepository).findAdminOrderList(
+                eq(null), eq(null), fromCaptor.capture(), toCaptor.capture(), pageableCaptor.capture());
+
+        assertThat(fromCaptor.getValue()).isEqualTo(OffsetDateTime.of(2026, 5, 31, 17, 0, 0, 0, ZoneOffset.UTC));
+        assertThat(toCaptor.getValue()).isNull();
+        assertThat(pageableCaptor.getValue().getSort().toString()).contains("so.createdAt: DESC");
+    }
+
+    @Test
+    void listOrdersDefaultsToDescendingDirectionWhenSortHasNoExplicitDirection() {
+        when(orderRepository.findAdminOrderList(any(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.listOrders("ALL", null, null, null, 0, 10, "total_quote");
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(orderRepository).findAdminOrderList(any(), any(), any(), any(), pageableCaptor.capture());
+        assertThat(pageableCaptor.getValue().getSort().toString()).contains("so.totalQuote: DESC");
+    }
+
+    @Test
+    void listDriversRejectsInvalidPaginationAndStatusFilter() {
+        assertThatThrownBy(() -> service.listDrivers("ALL", null, -1, 10, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_PAGINATION");
+        assertThatThrownBy(() -> service.listDrivers("UNKNOWN", null, 0, 10, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_STATUS_FILTER");
+    }
+
+    @Test
+    void listCustomersRejectsInvalidPaginationAndStatusFilter() {
+        assertThatThrownBy(() -> service.listCustomers("ALL", null, 0, 15, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_PAGINATION");
+        assertThatThrownBy(() -> service.listCustomers("UNKNOWN", null, 0, 10, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_STATUS_FILTER");
+    }
+
+    @Test
+    void listWithdrawalsRejectsInvalidPaginationStatusSortAndDateRange() {
+        assertThatThrownBy(() -> service.listWithdrawals("ALL", null, null, null, -1, 10, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_PAGINATION");
+        assertThatThrownBy(() -> service.listWithdrawals("UNKNOWN", null, null, null, 0, 10, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_STATUS_FILTER");
+        assertThatThrownBy(() -> service.listWithdrawals("ALL", null, null, null, 0, 10, "amount,sideways"))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_SORT");
+        assertThatThrownBy(() -> service.listWithdrawals("ALL", null, "2026-06-05", "2026-06-01", 0, 10, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_DATE_RANGE");
+    }
+
+    @Test
+    void listWithdrawalsDefaultsSortToRequestedAtWhenSortIsBlank() {
+        when(withdrawalRequestRepository.findAdminWithdrawalList(any(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.listWithdrawals("ALL", null, null, null, 0, 10, "  ");
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(withdrawalRequestRepository).findAdminWithdrawalList(any(), any(), any(), any(), pageableCaptor.capture());
+        assertThat(pageableCaptor.getValue().getSort().toString()).contains("wr.requestedAt: DESC");
+    }
+
+    @Test
+    void listWithdrawalsHandlesNullAndShortBankFieldsWithoutMasking() {
+        WithdrawalListItemRaw rawWithNulls = new WithdrawalListItemRaw(
+                UUID.randomUUID(), UUID.randomUUID(), "Driver Null Bank",
+                new BigDecimal("500000"), "VCB", null, "PENDING",
+                OffsetDateTime.now(), null, null, null);
+        WithdrawalListItemRaw rawWithShortValues = new WithdrawalListItemRaw(
+                UUID.randomUUID(), UUID.randomUUID(), "Driver Short Bank",
+                new BigDecimal("700000"), "TCB", "1234", "PROCESSED",
+                OffsetDateTime.now(), OffsetDateTime.now(), "Admin", "9999");
+        when(withdrawalRequestRepository.findAdminWithdrawalList(any(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(rawWithNulls, rawWithShortValues)));
+
+        Page<WithdrawalListItem> result = service.listWithdrawals(
+                "ALL", null, null, null, 0, 10, null);
+
+        assertThat(result.getContent().get(0).bankAccountMasked()).isNull();
+        assertThat(result.getContent().get(0).bankTxnRefMasked()).isNull();
+        assertThat(result.getContent().get(1).bankAccountMasked()).isEqualTo("****");
+        assertThat(result.getContent().get(1).bankTxnRefMasked()).isEqualTo("****");
+    }
+
+    @Test
+    void listOrdersTreatsBlankSearchTermAsNoFilter() {
+        when(orderRepository.findAdminOrderList(any(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.listOrders("ALL", "   ", null, null, 0, 10, null);
+
+        verify(orderRepository).findAdminOrderList(eq(null), eq(null), any(), any(), any(Pageable.class));
+    }
+
+    @Test
+    void listOrdersAcceptsDateToOnlyRange() {
+        when(orderRepository.findAdminOrderList(any(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.listOrders("ALL", null, null, "2026-06-05", 0, 10, null);
+
+        ArgumentCaptor<OffsetDateTime> fromCaptor = ArgumentCaptor.forClass(OffsetDateTime.class);
+        ArgumentCaptor<OffsetDateTime> toCaptor = ArgumentCaptor.forClass(OffsetDateTime.class);
+        verify(orderRepository).findAdminOrderList(
+                eq(null), eq(null), fromCaptor.capture(), toCaptor.capture(), any(Pageable.class));
+        assertThat(fromCaptor.getValue()).isNull();
+        assertThat(toCaptor.getValue()).isEqualTo(OffsetDateTime.of(2026, 6, 5, 17, 0, 0, 0, ZoneOffset.UTC));
+    }
+
+    @Test
+    void listOrdersRejectsDateRangeExceedingMaxSpanDays() {
+        assertThatThrownBy(() -> service.listOrders(
+                "ALL", null, "2025-01-01", "2026-06-01", 0, 10, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_DATE_RANGE");
+    }
+
+    @Test
+    void listOrdersRejectsSortKeyNotInAllowlist() {
+        assertThatThrownBy(() -> service.listOrders(
+                "ALL", null, null, null, 0, 10, "unknown_field,asc"))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("INVALID_SORT");
+    }
+
+    @Test
+    void listOrdersTreatsNullStatusAsAllOrders() {
+        when(orderRepository.findAdminOrderList(any(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.listOrders(null, null, null, null, 0, 10, null);
+
+        verify(orderRepository).findAdminOrderList(eq(null), any(), any(), any(), any(Pageable.class));
+    }
+
+    @Test
+    void listDriversTreatsNullOrAllStatusAsNoFilter() {
+        when(userRepository.findAdminDriverList(any(), any(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.listDrivers(null, null, 0, 10, null);
+        service.listDrivers("ALL", null, 0, 10, null);
+
+        verify(userRepository, times(2))
+                .findAdminDriverList(eq(null), any(), any(Pageable.class));
+    }
+
+    @Test
+    void listCustomersTreatsNullOrAllStatusAsNoFilter() {
+        when(userRepository.findAdminCustomerList(any(), any(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.listCustomers(null, null, 0, 10, null);
+        service.listCustomers("ALL", null, 0, 10, null);
+
+        verify(userRepository, times(2))
+                .findAdminCustomerList(eq(null), any(), any(Pageable.class));
+    }
+
+    @Test
+    void listWithdrawalsTreatsNullStatusAsNoFilter() {
+        when(withdrawalRequestRepository.findAdminWithdrawalList(any(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        service.listWithdrawals(null, null, null, null, 0, 10, null);
+
+        verify(withdrawalRequestRepository)
+                .findAdminWithdrawalList(eq(null), any(), any(), any(), any(Pageable.class));
     }
 }

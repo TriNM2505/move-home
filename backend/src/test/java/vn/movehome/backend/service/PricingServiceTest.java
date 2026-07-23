@@ -103,6 +103,42 @@ class PricingServiceTest {
     }
 
     @Test
+    void appliesFixedAlleySurchargeWhenOnlyDropoffHasAlley() {
+        // Nhanh rieng cho dropoffHasAlley=true khi pickupHasAlley=false (khong bi short-circuit boi pickup)
+        PricingBreakdown result = calculate(
+                "TRUCK_500KG",
+                "10",
+                localTime(14, 0),
+                false,
+                true,
+                1,
+                false,
+                1,
+                false,
+                0);
+
+        assertMoney(result.alleySurcharge(), "200000");
+    }
+
+    @Test
+    void appliesPeakSurchargeDuringEveningWindow() {
+        // Nhanh rieng cho khung gio cao diem chieu 17h-19h (CLAUDE.md peak-hour 17-19h Asia/Ho_Chi_Minh)
+        PricingBreakdown result = calculate(
+                "TRUCK_500KG",
+                "10",
+                localTime(18, 0),
+                false,
+                false,
+                1,
+                false,
+                1,
+                false,
+                0);
+
+        assertMoney(result.peakSurcharge(), "45000");
+    }
+
+    @Test
     void sumsMultipleSurchargesIntoTotalQuote() {
         PricingBreakdown result = calculate(
                 "TRUCK_500KG",
