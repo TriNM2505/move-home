@@ -1,0 +1,71 @@
+name: Constitution Check
+
+# Kiem tra CO HOC cac Hard Rule (Layer 1) tren PR vao main.
+# CHI check duoc thu grep-able; rule ngu nghia (HMAC, RBAC...) → PR template checklist.
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  hard-rules:
+    name: Hard Rules (hard-fail — chan PR)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 'HR-01 — .env khong duoc commit'
+        run: |
+          if git ls-files | grep -E '(^|/)\.env$'; then
+            echo "::error::HR-01: file .env bi commit vao git."
+            exit 1
+          fi
+          echo "OK: khong co .env trong git."
+
+      - name: 'HR-01 — khong hardcode secret trong source'
+        run: |
+          if grep -rInE '(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{16,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)' \
+             backend/src/main frontend 2>/dev/null; then
+            echo "::error::HR-01: co pattern secret hardcode trong source."
+            exit 1
+          fi
+          echo "OK: khong thay secret hardcode."
+
+      - name: 'AC-12 — main properties khong dung ddl-auto=update/create'
+        run: |
+          if grep -rInE 'ddl-auto[[:space:]]*=[[:space:]]*(update|create|create-drop)' \
+             backend/src/main/resources/ 2>/dev/null; then
+            echo "::error::AC-12: ddl-auto phai la 'validate' o moi truong shared."
+            exit 1
+          fi
+          echo "OK: ddl-auto hop le."
+
+      - name: 'global.md §4 — khong dung banned package trong pom.xml'
+        run: |
+          if grep -inE '(mybatis|org\.jooq|log4j-core|com\.auth0.*java-jwt)' backend/pom.xml 2>/dev/null; then
+            echo "::error::Banned package trong pom.xml (xem constraints/global.md §4)."
+            exit 1
+          fi
+          echo "OK: khong co banned package."
+
+  soft-checks:
+    name: Soft checks (warn — khong chan PR)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 'WARN AC-08 — field double/float (kiem tra khong phai truong tien)'
+        run: |
+          if grep -rInE 'private[[:space:]]+(double|float)[[:space:]]+' backend/src/main/java 2>/dev/null; then
+            echo "::warning::Co field double/float — dam bao KHONG phai truong tien (AC-08 yeu cau BigDecimal)."
+          else
+            echo "OK: khong thay double/float field."
+          fi
+
+      - name: 'WARN — role Porter da bo trong v2.0'
+        run: |
+          if grep -rInE '\bPorter\b' backend/src/main/java frontend 2>/dev/null; then
+            echo "::warning::Co tham chieu 'Porter' — da bo trong v2.0 (chi 4 role)."
+          else
+            echo "OK: khong thay Porter."
+          fi
