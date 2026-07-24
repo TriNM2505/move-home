@@ -1,0 +1,40 @@
+name: Consistency Gate
+
+# Chong Spec-Code drift (§7.3). Warn-only — khong chan PR (kiem tra co hoc han che).
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  spec-consistency:
+    name: Spec structure & EARS (warn)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 'Moi specs/NNN-* phai co spec.md'
+        run: |
+          miss=0
+          for d in specs/[0-9]*/ ; do
+            [ -d "$d" ] || continue
+            if [ ! -f "${d}spec.md" ]; then
+              echo "::warning::Thieu spec.md trong ${d}"
+              miss=1
+            fi
+          done
+          [ "$miss" -eq 0 ] && echo "OK: moi spec folder co spec.md." || true
+
+      - name: 'Bao ty le EARS (WHERE / FR) cho tung spec — info'
+        run: |
+          echo "Nguyen tac (constitution): WHERE/FR >= 30%."
+          for f in specs/[0-9]*/spec.md ; do
+            [ -f "$f" ] || continue
+            fr=$(grep -cE '\*\*FR-' "$f" 2>/dev/null || echo 0)
+            wh=$(grep -cE 'WHERE' "$f" 2>/dev/null || echo 0)
+            echo " - $f : FR=$fr, WHERE=$wh"
+          done
+
+      - name: 'Out-of-scope guard — nhac kiem tra thu cong'
+        run: |
+          echo "::notice::Nho kiem tra code KHONG implement gi trong muc 'Out of Scope' cua spec (§7.3)."
