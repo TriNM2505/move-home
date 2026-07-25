@@ -3,7 +3,7 @@
 // AC-03: access token het han (401) → tu dong goi /api/auth/refresh (rotation) va retry 1 lan;
 // refresh that bai → xoa phien + dua ve trang dang nhap.
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = '';
 
 const TOKEN_KEY   = 'accessToken';
 const REFRESH_KEY = 'refreshToken';
