@@ -1,0 +1,7 @@
+scratch/
+antigravity-rules/
+DESIGN.md
+.git
+.idea
+Dockerfile
+.dockerignore

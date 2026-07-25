@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: move-home-backend
+    expose:
+      - "8080"   # only reachable inside the docker network, not from the host
+    env_file:
+      - ./backend/.env   # local only — see note below for production
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: move-home-frontend
+    ports:
+      - "8080:80"   # single public entry point — nginx proxies /api and /ws to backend
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+# NOTE (local dev only):
+# This compose file loads backend/.env directly for convenience.
+# Never build .env into a Docker image and never use this file as-is in
+# production — on AWS, inject the same variables as container environment
+# variables / secrets (see deployment notes).
